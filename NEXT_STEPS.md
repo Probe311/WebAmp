@@ -17,8 +17,6 @@
 
 ## 🔗 Étape 1 : Connecter à GitHub
 
-Voir `GITHUB_SETUP.md` pour les instructions détaillées.
-
 **Résumé rapide :**
 1. Créer le repository sur GitHub (nom : `WebAmp`)
 2. Connecter le remote :
@@ -30,7 +28,7 @@ Voir `GITHUB_SETUP.md` pour les instructions détaillées.
 
 ## ☁️ Étape 2 : Déployer sur Vercel
 
-Voir `QUICK_START_VERCEL.md` pour les instructions détaillées.
+Voir `docs/VERCEL_SETUP.md` pour les instructions détaillées.
 
 **Résumé rapide :**
 1. Aller sur [vercel.com](https://vercel.com)
@@ -59,8 +57,7 @@ git push -u origin main
 
 ## 📚 Documentation
 
-- **GitHub Setup** : `GITHUB_SETUP.md`
-- **Vercel Setup** : `QUICK_START_VERCEL.md`
+- **Vercel Setup** : `docs/VERCEL_SETUP.md`
 - **Documentation complète** : `docs/README.md`
 - **Déploiement** : `docs/DEPLOYMENT.md`
 
