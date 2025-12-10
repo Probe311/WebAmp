@@ -10,8 +10,11 @@ native/.vs/
 *.obj
 *.o
 
+# Node modules (tous les dossiers)
+node_modules/
+**/node_modules/
+
 # Frontend
-frontend/node_modules/
 frontend/dist/
 frontend/.vite/
 frontend/.next/
