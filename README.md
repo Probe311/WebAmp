@@ -4,6 +4,17 @@ Application de simulation d'amplificateur guitare/basse avec interface web moder
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/Probe311/WebAmp)
 
+## 🏷️ Technologies
+
+![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?logo=typescript&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-5.0-646CFF?logo=vite&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.0-38B2AC?logo=tailwind-css&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E?logo=supabase&logoColor=white)
+![Vercel](https://img.shields.io/badge/Vercel-Deployed-000000?logo=vercel&logoColor=white)
+![C++](https://img.shields.io/badge/C++-17-00599C?logo=c%2B%2B&logoColor=white)
+![WebSocket](https://img.shields.io/badge/WebSocket-Real--time-010101?logo=socket.io&logoColor=white)
+
 ## ✨ Fonctionnalités
 
 - 🎛️ **100+ pédales d'effets** : Distortion, overdrive, fuzz, chorus, delay, reverb, EQ, etc.

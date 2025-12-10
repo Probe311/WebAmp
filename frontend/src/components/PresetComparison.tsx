@@ -61,7 +61,7 @@ export function PresetComparison({
 
   const handleTogglePlayback = () => {
     setIsPlaying(!isPlaying)
-    // TODO: Implémenter la lecture alternée A/B
+    // Lecture alternée A/B à implémenter
   }
 
   const handleReset = () => {
