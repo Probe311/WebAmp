@@ -1,6 +1,19 @@
-# WebAmp - Amplificateur Guitare/Basse Web + Native
+# 🎸 WebAmp
 
 Application de simulation d'amplificateur guitare/basse avec interface web moderne et traitement audio natif pour latence < 10ms.
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/Probe311/WebAmp)
+
+## ✨ Fonctionnalités
+
+- 🎛️ **100+ pédales d'effets** : Distortion, overdrive, fuzz, chorus, delay, reverb, EQ, etc.
+- 🔊 **Amplificateurs modélisés** : Fender, Marshall, Mesa Boogie, Orange, Vox, etc.
+- 🔄 **Chaîne d'effets modulaire** : Drag & drop, réordonnable
+- 💾 **Système de presets** : Sauvegarde et chargement avec Supabase
+- 📤 **Upload d'IR** : Impulse responses personnalisées
+- 📊 **Monitoring temps réel** : Vu-mètres, latence, CPU usage
+- 🎨 **Design neumorphic** : Interface moderne et tactile
+- ☁️ **Backend Supabase** : Base de données, authentification, storage
 
 ## Architecture
 
@@ -40,11 +53,35 @@ WebAmp/
 - **Système de presets**
 - **Monitoring temps réel** : vu-mètres, latence, CPU
 
-## Communication
+## 🚀 Déploiement
 
-- Frontend : `http://localhost:10000`
-- WebSocket natif : `ws://localhost:8765` (ou TLS `wss://...` si configuré)
-- Protocole : JSON (voir `shared/protocol/`)
+### Frontend (Vercel)
+
+Le frontend est déployé automatiquement sur Vercel à chaque push sur `main`.
+
+**Configuration requise :**
+- Variables d'environnement Vercel :
+  - `VITE_SUPABASE_URL`
+  - `VITE_SUPABASE_ANON_KEY`
+  - `VITE_WEBSOCKET_URL` (pour dev local)
+
+Voir [docs/VERCEL_SETUP.md](docs/VERCEL_SETUP.md) pour le guide complet.
+
+### Base de données (Supabase)
+
+- PostgreSQL avec Row Level Security (RLS)
+- Authentification utilisateur
+- Storage pour les Impulse Responses
+- API REST automatique
+
+Voir [supabase/README.md](supabase/README.md) pour la configuration.
+
+## 🔌 Communication
+
+- **Frontend** : `http://localhost:10000` (dev) ou déployé sur Vercel
+- **WebSocket natif** : `ws://localhost:8765` (local uniquement)
+- **Protocole** : JSON (voir `shared/protocol/`)
+- **Supabase** : API REST + Realtime
 
 ## Latence cible
 
@@ -53,11 +90,29 @@ WebAmp/
 - Communication : < 1-2 ms
 - Rendu UI : < 1 ms
 
-## Documentation utile
+## 📚 Documentation
 
-- `docs/GETTING_STARTED.md` : installation détaillée par OS
-- `docs/ARCHITECTURE.md` : vue d'ensemble technique
-- `docs/DESIGN_SYSTEM.md` : conventions UI
-- `docs/COMPONENTS.md` : inventaire des composants
-- `docs/REFERENCE_PEDALES.md` : référence des pédales générées
+Voir [docs/README.md](docs/README.md) pour la documentation complète.
+
+### Guides principaux
+
+- **[Démarrage rapide](docs/GETTING_STARTED.md)** - Installation et premier lancement
+- **[Architecture](docs/ARCHITECTURE.md)** - Vue d'ensemble technique
+- **[Déploiement Vercel](docs/VERCEL_SETUP.md)** - Guide de déploiement
+- **[Design System](docs/DESIGN_SYSTEM.md)** - Conventions UI neumorphic
+- **[API WebSocket](docs/API.md)** - Protocole de communication
+
+### Références
+
+- **[Pédales](docs/REFERENCE_PEDALES.md)** - Liste complète des pédales
+- **[Amplificateurs](docs/REFERENCE_AMPLIS.md)** - Liste complète des amplis
+- **[Composants](docs/COMPONENTS.md)** - Documentation des composants React
+
+## 🛠️ Technologies
+
+- **Frontend** : React 18, TypeScript, Vite, Tailwind CSS
+- **Backend** : C++ (Native Helper), WebSocket
+- **Base de données** : Supabase (PostgreSQL)
+- **Déploiement** : Vercel (Frontend), Supabase Cloud (DB)
+- **Audio** : WASAPI (Windows), ASIO, CoreAudio (macOS), PipeWire (Linux)
 
