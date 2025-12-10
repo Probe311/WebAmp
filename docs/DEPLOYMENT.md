@@ -1,0 +1,325 @@
+# Guide de Déploiement - WebAmp
+
+## Architecture de l'application
+
+WebAmp est composé de :
+- **Frontend React/Vite** : Application web statique
+- **Native Helper (C++)** : Traitement audio local (WebSocket sur port 8765)
+- **Supabase** : Base de données, authentification, storage (IR)
+
+> ⚠️ **Important** : Le Native Helper doit tourner **localement** sur la machine de l'utilisateur pour accéder aux drivers audio (WASAPI/ASIO/CoreAudio). Il ne peut pas être hébergé sur un serveur distant.
+
+## Options d'hébergement recommandées
+
+### 🥇 Option 1 : Vercel (Recommandé pour le frontend)
+
+**Avantages :**
+- ✅ Gratuit pour les projets personnels
+- ✅ Déploiement automatique depuis Git
+- ✅ CDN global (performance optimale)
+- ✅ SSL automatique
+- ✅ Intégration native avec Supabase
+- ✅ Support des variables d'environnement
+- ✅ Preview deployments pour chaque PR
+- ✅ Excellent pour React/Vite
+
+**Limitations :**
+- ❌ Pas de support WebSocket (mais le Native Helper tourne en local)
+- ❌ Limite de 100 GB de bande passante/mois (gratuit)
+
+**Configuration :**
+```bash
+# Installation
+npm i -g vercel
+
+# Déploiement
+cd frontend
+vercel
+
+# Variables d'environnement (via dashboard Vercel)
+VITE_SUPABASE_URL=https://xxx.supabase.co
+VITE_SUPABASE_ANON_KEY=xxx
+VITE_WEBSOCKET_URL=ws://localhost:8765  # Local uniquement
+```
+
+**Prix :** Gratuit (Hobby) → $20/mois (Pro) pour plus de bande passante
+
+---
+
+### 🥈 Option 2 : Netlify
+
+**Avantages :**
+- ✅ Gratuit pour les projets personnels
+- ✅ Déploiement automatique depuis Git
+- ✅ CDN global
+- ✅ SSL automatique
+- ✅ Formulaires et fonctions serverless
+- ✅ Bon support React/Vite
+
+**Limitations :**
+- ❌ Pas de support WebSocket (mais le Native Helper tourne en local)
+- ❌ 100 GB de bande passante/mois (gratuit)
+
+**Configuration :**
+```bash
+# Installation
+npm i -g netlify-cli
+
+# Déploiement
+cd frontend
+netlify deploy --prod
+
+# Variables d'environnement (via dashboard Netlify)
+```
+
+**Prix :** Gratuit (Starter) → $19/mois (Pro)
+
+---
+
+### 🥉 Option 3 : Cloudflare Pages
+
+**Avantages :**
+- ✅ Gratuit illimité (bande passante)
+- ✅ CDN global ultra-rapide
+- ✅ SSL automatique
+- ✅ Déploiement automatique
+- ✅ Workers pour fonctions serverless (si besoin)
+
+**Limitations :**
+- ❌ Pas de support WebSocket (mais le Native Helper tourne en local)
+- ❌ Interface moins intuitive que Vercel/Netlify
+
+**Configuration :**
+```bash
+# Via dashboard Cloudflare Pages
+# Connecter le repo Git
+# Build command: npm run build
+# Build output: dist
+```
+
+**Prix :** Gratuit (illimité)
+
+---
+
+### 🏆 Option 4 : Railway (Si besoin d'un backend)
+
+**Avantages :**
+- ✅ Support WebSocket natif
+- ✅ Déploiement automatique
+- ✅ Support Docker
+- ✅ Base de données intégrée (PostgreSQL)
+- ✅ Variables d'environnement
+- ✅ Excellent pour full-stack
+
+**Cas d'usage :**
+- Si vous voulez un backend Node.js pour gérer les presets
+- Si vous voulez un serveur WebSocket centralisé (non recommandé pour l'audio temps réel)
+
+**Limitations :**
+- ❌ Payant ($5/mois minimum)
+- ❌ Latence réseau pour l'audio (non recommandé)
+
+**Prix :** $5/mois (Starter) → $20/mois (Pro)
+
+---
+
+### 🚀 Option 5 : Fly.io (Pour WebSocket si nécessaire)
+
+**Avantages :**
+- ✅ Support WebSocket natif
+- ✅ Déploiement global (edge computing)
+- ✅ Support Docker
+- ✅ Latence optimisée
+
+**Cas d'usage :**
+- Si vous voulez un serveur WebSocket centralisé (non recommandé pour l'audio temps réel)
+
+**Limitations :**
+- ❌ Configuration plus complexe
+- ❌ Latence réseau pour l'audio (non recommandé)
+
+**Prix :** Gratuit (3 VMs) → Payant selon usage
+
+---
+
+### 💼 Option 6 : O2switch (Hébergement mutualisé)
+
+**Avantages :**
+- ✅ Déjà utilisé pour votre crawler
+- ✅ Support PHP/Node.js
+- ✅ Base de données MySQL/PostgreSQL
+- ✅ Contrôle total
+
+**Limitations :**
+- ❌ Pas de CDN intégré
+- ❌ Configuration manuelle
+- ❌ Pas de déploiement automatique Git
+- ❌ Support WebSocket limité
+
+**Prix :** ~5-10€/mois
+
+---
+
+## Recommandation finale
+
+### Pour WebAmp : **Vercel** 🥇
+
+**Pourquoi :**
+1. **Gratuit** pour commencer
+2. **Performance optimale** (CDN global)
+3. **Intégration Supabase** native
+4. **Déploiement automatique** depuis Git
+5. **Le Native Helper tourne en local** (pas besoin de WebSocket distant)
+
+### Architecture recommandée
+
+```
+┌─────────────────────────────────────┐
+│         Vercel (Frontend)           │
+│    https://webamp.vercel.app        │
+│    - React/Vite build               │
+│    - CDN global                     │
+│    - SSL automatique                │
+└──────────────┬──────────────────────┘
+               │
+               │ HTTPS
+               │
+┌──────────────▼──────────────────────┐
+│         Supabase Cloud               │
+│    - PostgreSQL Database             │
+│    - Authentication                  │
+│    - Storage (IR files)              │
+│    - Row Level Security              │
+└──────────────────────────────────────┘
+               │
+               │ WebSocket (local)
+               │
+┌──────────────▼──────────────────────┐
+│    Native Helper (Local)             │
+│    - C++ Audio Engine               │
+│    - WASAPI/ASIO/CoreAudio          │
+│    - Port 8765 (localhost)          │
+└──────────────────────────────────────┘
+```
+
+## Guide de déploiement Vercel
+
+### 1. Préparation
+
+```bash
+cd frontend
+
+# Créer un fichier vercel.json (optionnel)
+cat > vercel.json << EOF
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
+  "framework": "vite"
+}
+EOF
+```
+
+### 2. Variables d'environnement
+
+Dans le dashboard Vercel :
+- `VITE_SUPABASE_URL` : URL de votre projet Supabase
+- `VITE_SUPABASE_ANON_KEY` : Clé anonyme Supabase
+- `VITE_WEBSOCKET_URL` : `ws://localhost:8765` (pour le dev local)
+
+### 3. Déploiement
+
+```bash
+# Installation
+npm i -g vercel
+
+# Connexion
+vercel login
+
+# Déploiement
+cd frontend
+vercel
+
+# Déploiement en production
+vercel --prod
+```
+
+### 4. Configuration du domaine (optionnel)
+
+Dans Vercel Dashboard :
+- Settings → Domains
+- Ajouter votre domaine personnalisé
+- Configurer les DNS
+
+## Alternative : Netlify
+
+Si vous préférez Netlify :
+
+```bash
+# Installation
+npm i -g netlify-cli
+
+# Connexion
+netlify login
+
+# Déploiement
+cd frontend
+netlify init
+netlify deploy --prod
+```
+
+## Distribution du Native Helper
+
+Le Native Helper doit être distribué séparément :
+
+### Option A : GitHub Releases
+- Compiler pour Windows/macOS/Linux
+- Créer des releases GitHub avec les binaires
+- Les utilisateurs téléchargent et installent localement
+
+### Option B : Installateur
+- Créer des installateurs (NSIS pour Windows, DMG pour macOS)
+- Distribuer via votre site web
+
+### Option C : Auto-update
+- Implémenter un système de mise à jour automatique
+- Vérifier les nouvelles versions au démarrage
+
+## Checklist de déploiement
+
+- [ ] Frontend déployé sur Vercel/Netlify
+- [ ] Variables d'environnement configurées
+- [ ] Supabase configuré (RLS, storage buckets)
+- [ ] Domaine personnalisé configuré (optionnel)
+- [ ] Native Helper compilé pour toutes les plateformes
+- [ ] Documentation utilisateur pour installer le Native Helper
+- [ ] Tests de déploiement effectués
+- [ ] Monitoring configuré (Sentry, LogRocket, etc.)
+
+## Monitoring et Analytics
+
+### Recommandations :
+- **Vercel Analytics** : Intégré, gratuit
+- **Sentry** : Gestion des erreurs
+- **Supabase Dashboard** : Monitoring de la base de données
+- **Google Analytics** : Analytics utilisateur (optionnel)
+
+## Coûts estimés
+
+### Démarrage (Gratuit)
+- Vercel : Gratuit
+- Supabase : Gratuit (500 MB DB, 1 GB storage)
+- **Total : 0€/mois**
+
+### Croissance (Payant)
+- Vercel Pro : $20/mois
+- Supabase Pro : $25/mois
+- **Total : ~45€/mois**
+
+## Support
+
+- [Documentation Vercel](https://vercel.com/docs)
+- [Documentation Supabase](https://supabase.com/docs)
+- [Documentation Netlify](https://docs.netlify.com)
+
