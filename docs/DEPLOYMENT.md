@@ -227,7 +227,7 @@ EOF
 Dans le dashboard Vercel :
 - `VITE_SUPABASE_URL` : URL de votre projet Supabase
 - `VITE_SUPABASE_ANON_KEY` : Clé anonyme Supabase
-- `VITE_WEBSOCKET_URL` : `ws://localhost:8765` (pour le dev local)
+- `VITE_WEBSOCKET_URL=ws://localhost:8765` : ⚠️ **Reste en localhost** car le Native Helper tourne sur la machine locale de l'utilisateur (architecture hybride : frontend cloud + audio local)
 
 ### 3. Déploiement
 
