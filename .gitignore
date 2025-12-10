@@ -1,4 +1,4 @@
-# Build
+# Build outputs
 native/build/
 native/.vs/
 *.exe
@@ -17,10 +17,12 @@ frontend/.vite/
 frontend/.next/
 frontend/.env.local
 frontend/.env*.local
+frontend/.vercel/
 
-# Node modules (racine)
-node_modules/
-*.log
+# Supabase
+supabase/.env
+supabase/.env.local
+supabase/.temp/
 
 # IDE
 .vscode/
@@ -28,14 +30,36 @@ node_modules/
 *.swp
 *.swo
 *~
+*.sublime-project
+*.sublime-workspace
 
 # OS
 .DS_Store
 Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
 # Audio files (temporaires)
 *.wav
 *.flac
 *.mp3
 *.ir
+
+# Test coverage
+coverage/
+*.lcov
+.nyc_output/
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+.temp/
 

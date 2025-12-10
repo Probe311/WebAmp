@@ -13,6 +13,8 @@ Bienvenue dans la documentation complète de WebAmp, une application de simulati
 - **[Composants](COMPONENTS.md)** - Documentation des composants React
 - **[API WebSocket](API.md)** - Protocole de communication front/back
 - **[Build & Déploiement](BUILD.md)** - Instructions de build détaillées
+- **[Déploiement Vercel](VERCEL_SETUP.md)** - Guide de déploiement sur Vercel
+- **[Déploiement général](DEPLOYMENT.md)** - Options d'hébergement
 
 ### 📖 Référence
 - **[Pédales](REFERENCE_PEDALES.md)** - Liste complète des pédales disponibles
@@ -22,8 +24,10 @@ Bienvenue dans la documentation complète de WebAmp, une application de simulati
 - **[Audit Global](AUDIT_GLOBAL.md)** - Audit complet de l'application
 - **[Audit Tailwind](AUDIT_TAILWIND.md)** - État de la migration Tailwind CSS
 
-### 🗺️ Roadmap
+### 🗺️ Roadmap & Qualité
 - **[Roadmap](ROADMAP.md)** - Prochaines étapes et fonctionnalités prévues
+- **[Audit Global](AUDIT_GLOBAL.md)** - Audit complet de l'application
+- **[Audit Tailwind](AUDIT_TAILWIND.md)** - État de la migration Tailwind CSS
 
 ---
 
@@ -40,10 +44,13 @@ WebAmp est une application hybride composée de :
 - ✅ **Chaîne d'effets modulaire** : Drag & drop, réordonnable
 - ✅ **100+ pédales d'effets** : Distortion, overdrive, fuzz, chorus, delay, reverb, EQ, etc.
 - ✅ **Amplificateurs modélisés** : Fender, Marshall, Mesa Boogie, Orange, Vox, etc.
-- ✅ **IR Loader** : Chargement d'impulse responses personnalisées
-- ✅ **Système de presets** : Sauvegarde et chargement de configurations
+- ✅ **IR Loader** : Chargement d'impulse responses personnalisées (Supabase Storage)
+- ✅ **Système de presets** : Sauvegarde et chargement avec Supabase
+- ✅ **Authentification** : Connexion/inscription avec Supabase Auth
+- ✅ **Partage de presets** : Presets publics/privés avec favoris
 - ✅ **Monitoring temps réel** : Vu-mètres, latence, CPU usage
 - ✅ **Design neumorphic** : Interface moderne et tactile
+- ✅ **Déploiement Vercel** : Frontend déployé automatiquement
 
 ---
 
