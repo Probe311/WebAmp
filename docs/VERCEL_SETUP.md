@@ -79,6 +79,12 @@ VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFz
 VITE_WEBSOCKET_URL=ws://localhost:8765
 ```
 
+> ⚠️ **Important** : `VITE_WEBSOCKET_URL=ws://localhost:8765` est **correct** car :
+> - Le frontend est servi depuis Vercel (accessible via le domaine Vercel)
+> - Mais le **Native Helper** tourne sur la machine locale de l'utilisateur
+> - Le navigateur de l'utilisateur se connecte donc à `ws://localhost:8765` sur **sa machine locale**, pas sur le serveur Vercel
+> - C'est une **architecture hybride** : frontend cloud (Vercel) + backend local (Native Helper pour l'audio)
+
 ### 3.2 Environnements
 
 Pour chaque variable, sélectionner les environnements :
