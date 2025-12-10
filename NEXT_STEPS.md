@@ -38,9 +38,9 @@ Voir `QUICK_START_VERCEL.md` pour les instructions détaillées.
 3. Import project → Sélectionner `Probe311/WebAmp`
 4. **Root Directory** : `frontend`
 5. Ajouter les variables d'environnement :
-   - `VITE_SUPABASE_URL`
-   - `VITE_SUPABASE_ANON_KEY`
-   - `VITE_WEBSOCKET_URL=ws://localhost:8765`
+   - `VITE_SUPABASE_URL=https://obsatctfkwanwxextiyz.supabase.co`
+   - `VITE_SUPABASE_ANON_KEY=REDACTED_SUPABASE_JWT_FRAGMENT...`
+   - `VITE_WEBSOCKET_URL=ws://localhost:8765` ⚠️ **Important** : Le WebSocket reste en localhost car le Native Helper tourne sur la machine de l'utilisateur, pas sur Vercel
 6. Deploy
 
 ## 🎯 Commandes finales
