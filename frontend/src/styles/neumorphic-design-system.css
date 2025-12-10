@@ -1,0 +1,98 @@
+/**
+ * Design System Neumorphic - Variables CSS
+ * 
+ * Ce fichier contient les variables CSS pour le design system neumorphic
+ * utilisé dans WebAmp. Ces variables peuvent être utilisées dans les composants
+ * pour assurer la cohérence visuelle.
+ */
+
+:root {
+  /* Couleurs de base */
+  --neumorphic-bg-primary: #ffffff;
+  --neumorphic-bg-alternative: #f5f5f5;
+  --neumorphic-bg-track: #EBECF0;
+  
+  /* Couleurs de texte */
+  --neumorphic-text-primary: rgba(0, 0, 0, 0.85);
+  --neumorphic-text-secondary: rgba(0, 0, 0, 0.7);
+  --neumorphic-text-attenuated: rgba(0, 0, 0, 0.5);
+  
+  /* Ombres claires (haut/gauche) */
+  --neumorphic-shadow-light: rgba(255, 255, 255, 0.9);
+  --neumorphic-shadow-light-strong: rgba(255, 255, 255, 1);
+  
+  /* Ombres sombres (bas/droite) */
+  --neumorphic-shadow-dark: rgba(0, 0, 0, 0.1);
+  --neumorphic-shadow-dark-strong: rgba(0, 0, 0, 0.2);
+  
+  /* Distances d'ombres */
+  --neumorphic-shadow-distance-small: 4px;
+  --neumorphic-shadow-distance-medium: 8px;
+  --neumorphic-shadow-distance-large: 12px;
+  
+  /* Bordures arrondies */
+  --neumorphic-radius-small: 8px;
+  --neumorphic-radius-medium: 12px;
+  --neumorphic-radius-large: 16px;
+  --neumorphic-radius-round: 50%;
+  
+  /* Transitions */
+  --neumorphic-transition-fast: 0.1s ease;
+  --neumorphic-transition-normal: 0.2s ease;
+  --neumorphic-transition-slow: 0.3s ease;
+}
+
+/* Dark mode */
+.dark {
+  --neumorphic-bg-primary: #1f2937;
+  --neumorphic-bg-alternative: #374151;
+  --neumorphic-bg-track: #4b5563;
+  
+  --neumorphic-text-primary: rgba(255, 255, 255, 0.85);
+  --neumorphic-text-secondary: rgba(255, 255, 255, 0.7);
+  --neumorphic-text-attenuated: rgba(255, 255, 255, 0.5);
+  
+  --neumorphic-shadow-light: rgba(60, 60, 60, 0.5);
+  --neumorphic-shadow-light-strong: rgba(70, 70, 70, 0.6);
+  
+  --neumorphic-shadow-dark: rgba(0, 0, 0, 0.5);
+  --neumorphic-shadow-dark-strong: rgba(0, 0, 0, 0.6);
+}
+
+/* Classes utilitaires */
+.neumorphic-panel {
+  background: var(--neumorphic-bg-primary);
+  border-radius: var(--neumorphic-radius-large);
+  box-shadow: 
+    var(--neumorphic-shadow-distance-medium) var(--neumorphic-shadow-distance-medium) calc(var(--neumorphic-shadow-distance-medium) * 2) var(--neumorphic-shadow-dark),
+    calc(-1 * var(--neumorphic-shadow-distance-medium)) calc(-1 * var(--neumorphic-shadow-distance-medium)) calc(var(--neumorphic-shadow-distance-medium) * 2) var(--neumorphic-shadow-light),
+    inset 0 0 0 1px var(--neumorphic-shadow-light-strong);
+}
+
+.neumorphic-inset {
+  background: var(--neumorphic-bg-primary);
+  box-shadow: 
+    inset var(--neumorphic-shadow-distance-small) var(--neumorphic-shadow-distance-small) calc(var(--neumorphic-shadow-distance-small) * 2) var(--neumorphic-shadow-dark),
+    inset calc(-1 * var(--neumorphic-shadow-distance-small)) calc(-1 * var(--neumorphic-shadow-distance-small)) calc(var(--neumorphic-shadow-distance-small) * 2) var(--neumorphic-shadow-light);
+}
+
+.neumorphic-button {
+  background: var(--neumorphic-bg-primary);
+  box-shadow: 
+    var(--neumorphic-shadow-distance-small) var(--neumorphic-shadow-distance-small) calc(var(--neumorphic-shadow-distance-small) * 2) var(--neumorphic-shadow-dark),
+    calc(-1 * var(--neumorphic-shadow-distance-small)) calc(-1 * var(--neumorphic-shadow-distance-small)) calc(var(--neumorphic-shadow-distance-small) * 2) var(--neumorphic-shadow-light);
+  transition: box-shadow var(--neumorphic-transition-normal);
+}
+
+.neumorphic-button:hover {
+  box-shadow: 
+    calc(var(--neumorphic-shadow-distance-small) * 1.5) calc(var(--neumorphic-shadow-distance-small) * 1.5) calc(var(--neumorphic-shadow-distance-small) * 3) var(--neumorphic-shadow-dark),
+    calc(-1 * var(--neumorphic-shadow-distance-small) * 1.5) calc(-1 * var(--neumorphic-shadow-distance-small) * 1.5) calc(var(--neumorphic-shadow-distance-small) * 3) var(--neumorphic-shadow-light-strong);
+}
+
+.neumorphic-button:active {
+  box-shadow: 
+    inset var(--neumorphic-shadow-distance-small) var(--neumorphic-shadow-distance-small) calc(var(--neumorphic-shadow-distance-small) * 2) var(--neumorphic-shadow-dark),
+    inset calc(-1 * var(--neumorphic-shadow-distance-small)) calc(-1 * var(--neumorphic-shadow-distance-small)) calc(var(--neumorphic-shadow-distance-small) * 2) var(--neumorphic-shadow-light);
+}
+
