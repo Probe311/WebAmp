@@ -1,0 +1,19 @@
+# <type>: <subject>
+#
+# <body>
+#
+# <footer>
+
+# Types:
+# feat:     Nouvelle fonctionnalité
+# fix:      Correction de bug
+# docs:     Documentation
+# style:    Formatage, point-virgules manquants, etc.
+# refactor: Refactorisation du code
+# test:     Ajout/modification de tests
+# chore:    Maintenance, dépendances, etc.
+
+# Subject: 50 caractères max, impératif, pas de point final
+# Body:    Expliquer le "quoi" et "pourquoi", pas le "comment"
+# Footer:  Références aux issues (Closes #123)
+
