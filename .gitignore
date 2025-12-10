@@ -17,6 +17,9 @@ frontend/.vite/
 frontend/.next/
 frontend/.env.local
 frontend/.env*.local
+
+# Node modules (racine)
+node_modules/
 *.log
 
 # IDE
