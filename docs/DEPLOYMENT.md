@@ -175,32 +175,33 @@ netlify deploy --prod
 
 ```
 ┌─────────────────────────────────────┐
-│         Vercel (Frontend)           │
+│    Utilisateur (Navigateur)         │
 │    https://webamp.vercel.app        │
-│    - React/Vite build               │
-│    - CDN global                     │
-│    - SSL automatique                │
-└──────────────┬──────────────────────┘
-               │
-               │ HTTPS
-               │
-┌──────────────▼──────────────────────┐
-│         Supabase Cloud               │
-│    - PostgreSQL Database             │
-│    - Authentication                  │
-│    - Storage (IR files)              │
-│    - Row Level Security              │
-└──────────────────────────────────────┘
-               │
-               │ WebSocket (local)
-               │
-┌──────────────▼──────────────────────┐
-│    Native Helper (Local)             │
+└───────────┬──────────────────────────┘
+            │
+            ├─────────────────┐
+            │                 │
+            ▼                 ▼
+┌───────────────────┐  ┌──────────────────┐
+│  Vercel (Frontend) │  │  Supabase Cloud  │
+│  - React/Vite      │  │  - PostgreSQL    │
+│  - CDN global      │  │  - Auth          │
+│  - SSL auto        │  │  - Storage (IR)  │
+└───────────────────┘  └──────────────────┘
+            │
+            │ WebSocket (localhost)
+            │ (depuis le navigateur)
+            ▼
+┌─────────────────────────────────────┐
+│    Native Helper (Local Machine)     │
 │    - C++ Audio Engine               │
 │    - WASAPI/ASIO/CoreAudio          │
 │    - Port 8765 (localhost)          │
+│    ⚠️ Tourne sur la machine locale   │
 └──────────────────────────────────────┘
 ```
+
+> **Note importante** : Le frontend est déployé sur Vercel, mais se connecte au WebSocket local (`ws://localhost:8765`) car le Native Helper doit tourner sur la machine de l'utilisateur pour accéder aux drivers audio locaux (WASAPI/ASIO/CoreAudio). C'est une architecture hybride : cloud (frontend) + local (audio).
 
 ## Guide de déploiement Vercel
 
