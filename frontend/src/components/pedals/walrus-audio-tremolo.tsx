@@ -1,101 +1,174 @@
-
+import { useMemo } from 'react'
+import { Waves, Square, Shuffle } from 'lucide-react'
 import { pedalLibrary } from '../../data/pedals'
-import { Pedal } from '../Pedal'
-import { Potentiometer } from '../Potentiometer'
+import { PedalFrame } from './PedalFrame'
 import { Slider } from '../Slider'
 import { SwitchSelector } from '../SwitchSelector'
-
-export interface PedalComponentProps {
-  values?: Record<string, number>
-  onChange?: (param: string, value: number) => void
-  bypassed?: boolean
-}
+import type { PedalComponentProps } from './types'
 
 const pedalId = 'walrus-audio-tremolo'
+const ACCENT_COLOR = '#FC9336'
 
-const buildControls = (
-  params: Record<string, any>,
-  values: Record<string, number>,
-  onChange?: (param: string, value: number) => void,
-  accentColor?: string
-) => {
-  return Object.entries(params).map(([name, def]) => {
-    const controlType = (def as any).controlType || 'knob'
-    const value = values[name] ?? (def as any).default ?? 0
+/**
+ * Composant complet de la pédale Walrus Audio Tremolo
+ * Layout spécial : 3 sliders horizontaux + switch-selector en bas
+ */
+export function WalrusAudioTremoloPedal({ 
+  values = {}, 
+  onChange, 
+  bypassed = false,
+  onBypassToggle,
+  bottomActions
+}: PedalComponentProps) {
+  const model = useMemo(() => pedalLibrary.find((p) => p.id === pedalId), [])
+  
+  if (!model) return null
 
-    if (controlType === 'slider') {
-      const orientation = (def as any).orientation || 'vertical'
-      return (
+  const rate = values.rate ?? model.parameters.rate.default
+  const depth = values.depth ?? model.parameters.depth.default
+  const volume = values.volume ?? model.parameters.volume.default
+  const wave = values.wave ?? model.parameters.wave.default
+
+  const controls = useMemo(() => (
+    <div className="flex flex-col gap-4 w-full">
+      {/* Rate Slider */}
+      <div className="w-full">
         <Slider
-          key={name}
-          label={(def as any).label}
-          value={value}
-          min={(def as any).min}
-          max={(def as any).max}
-          orientation={orientation}
-          onChange={(v) => onChange?.(name, v)}
-          color={accentColor || (def as any).color}
+          label="RATE"
+          value={rate}
+          min={model.parameters.rate.min}
+          max={model.parameters.rate.max}
+          orientation="horizontal"
+          onChange={(v) => onChange?.('rate', v)}
+          color={ACCENT_COLOR}
         />
-      )
-    }
+      </div>
 
-    if (controlType === 'switch-selector' && (def as any).labels) {
-      return (
+      {/* Depth Slider */}
+      <div className="w-full">
+        <Slider
+          label="DEPTH"
+          value={depth}
+          min={model.parameters.depth.min}
+          max={model.parameters.depth.max}
+          orientation="horizontal"
+          onChange={(v) => onChange?.('depth', v)}
+          color={ACCENT_COLOR}
+        />
+      </div>
+
+      {/* Volume Slider */}
+      <div className="w-full">
+        <Slider
+          label="VOL"
+          value={volume}
+          min={model.parameters.volume.min}
+          max={model.parameters.volume.max}
+          orientation="horizontal"
+          onChange={(v) => onChange?.('volume', v)}
+          color={ACCENT_COLOR}
+        />
+      </div>
+
+      {/* Waveform Switch Selector */}
+      <div className="w-full mt-2">
         <SwitchSelector
-          key={name}
-          value={value}
-          min={(def as any).min}
-          max={(def as any).max}
-          labels={(def as any).labels}
-          icons={(def as any).icons}
-          color={accentColor || (def as any).color}
-          onChange={(v) => onChange?.(name, v)}
+          value={wave}
+          min={model.parameters.wave.min}
+          max={model.parameters.wave.max}
+          labels={['SINE', 'SQUARE', 'RANDOM']}
+          icons={[Waves, Square, Shuffle]}
+          color={ACCENT_COLOR}
+          onChange={(v) => onChange?.('wave', v)}
+          className="switch-selector-full-width"
         />
-      )
-    }
+      </div>
+    </div>
+  ), [rate, depth, volume, wave, model, onChange])
 
-    return (
-      <Potentiometer
-        key={name}
-        label={(def as any).label}
-        value={value}
-        min={(def as any).min}
-        max={(def as any).max}
-        color={accentColor || (def as any).color}
-        onChange={(v) => onChange?.(name, v)}
-      />
-    )
-  })
+  // Créer un modèle modifié avec la couleur d'accent correcte
+  const modelWithAccent = useMemo(() => ({
+    ...model,
+    accentColor: ACCENT_COLOR
+  }), [model])
+
+  return (
+    <PedalFrame
+      model={modelWithAccent}
+      layout="flex"
+      bypassed={bypassed}
+      onBypassToggle={onBypassToggle}
+      showFootswitch={false}
+      bottomActions={bottomActions}
+      className="has-horizontal-sliders"
+    >
+      {controls}
+    </PedalFrame>
+  )
 }
 
+// Export pour compatibilité avec l'ancien système
 export const WalrusAudioTremoloControls = ({
   values = {},
   onChange,
 }: PedalComponentProps) => {
   const model = pedalLibrary.find((p) => p.id === pedalId)
   if (!model) return null
-  const params = model.parameters
-  return <>{buildControls(params, values, onChange, model.accentColor)}</>
-}
 
-export const WalrusAudioTremoloPedal = ({ values = {}, onChange, bypassed = false }: PedalComponentProps) => {
-  const model = pedalLibrary.find((p) => p.id === pedalId)
-  if (!model) return null
-  const params = model.parameters
+  const rate = values.rate ?? model.parameters.rate.default
+  const depth = values.depth ?? model.parameters.depth.default
+  const volume = values.volume ?? model.parameters.volume.default
+  const wave = values.wave ?? model.parameters.wave.default
 
   return (
-    <Pedal
-      brand={model.brand}
-      model={model.model}
-      color={model.color}
-      accentColor={model.accentColor}
-      bypassed={bypassed}
-      showFootswitch={false}
-    >
-      {buildControls(params, values, onChange, model.accentColor)}
-    </Pedal>
+    <div className="flex flex-col gap-4 w-full">
+      <div className="w-full">
+        <Slider
+          label="RATE"
+          value={rate}
+          min={model.parameters.rate.min}
+          max={model.parameters.rate.max}
+          orientation="horizontal"
+          onChange={(v) => onChange?.('rate', v)}
+          color={ACCENT_COLOR}
+        />
+      </div>
+      <div className="w-full">
+        <Slider
+          label="DEPTH"
+          value={depth}
+          min={model.parameters.depth.min}
+          max={model.parameters.depth.max}
+          orientation="horizontal"
+          onChange={(v) => onChange?.('depth', v)}
+          color={ACCENT_COLOR}
+        />
+      </div>
+      <div className="w-full">
+        <Slider
+          label="VOL"
+          value={volume}
+          min={model.parameters.volume.min}
+          max={model.parameters.volume.max}
+          orientation="horizontal"
+          onChange={(v) => onChange?.('volume', v)}
+          color={ACCENT_COLOR}
+        />
+      </div>
+      <div className="w-full mt-2">
+        <SwitchSelector
+          value={wave}
+          min={model.parameters.wave.min}
+          max={model.parameters.wave.max}
+          labels={['SINE', 'SQUARE', 'RANDOM']}
+          icons={[Waves, Square, Shuffle]}
+          color={ACCENT_COLOR}
+          onChange={(v) => onChange?.('wave', v)}
+          className="switch-selector-full-width"
+        />
+      </div>
+    </div>
   )
 }
 
 export default WalrusAudioTremoloPedal
-

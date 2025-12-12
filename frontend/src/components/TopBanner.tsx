@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Activity, Settings, Users, Drum, Sliders, Play, Pause, Square, Home, Repeat, Music, Timer, Save, User, LogOut } from 'lucide-react'
+import { Activity, Settings, Users, Drum, Sliders, Play, Pause, Square, Home, Repeat, Music, Timer, User, LogOut } from 'lucide-react'
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts'
 import { ShortcutAction } from '../types/keyboardShortcuts'
 import { RockStarProfilesModal } from './RockStarProfilesModal'
@@ -16,8 +16,8 @@ import { Looper } from './Looper'
 import { TunerComponent } from './Tuner'
 import { Metronome } from './Metronome'
 import { AuthModal } from './AuthModal'
-import { useAuth } from '../beta/auth/AuthProvider'
-import { AccountPanel } from '../beta/auth/components/AccountPanel'
+import { useAuth } from '../auth/AuthProvider'
+import { AccountPanel } from '../auth/components/AccountPanel'
 
 interface TopBannerProps {
   searchQuery: string
@@ -29,15 +29,13 @@ interface TopBannerProps {
     peakOutput: number
   }
   onProfileSelect?: (profileName: string) => void
-  onShowPresets?: () => void
 }
 
 export function TopBanner({
   searchQuery,
   onSearchChange,
   stats,
-  onProfileSelect,
-  onShowPresets
+  onProfileSelect
 }: TopBannerProps) {
   const [showMonitoring, setShowMonitoring] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
@@ -49,7 +47,6 @@ export function TopBanner({
   const [showTuner, setShowTuner] = useState(false)
   const [showMetronome, setShowMetronome] = useState(false)
   const [showAuth, setShowAuth] = useState(false)
-  const [showPresets, setShowPresets] = useState(false)
   const [showAccount, setShowAccount] = useState(false)
   const [equalizerMode, setEqualizerMode] = useState<'simple' | 'advanced'>('simple')
   const { user, logout } = useAuth()
@@ -211,21 +208,6 @@ export function TopBanner({
             title="Metronome"
             active={showMetronome}
           />
-          {isAuthenticated && (
-            <CTA
-              variant="icon-only"
-              icon={<Save size={20} />}
-              onClick={() => {
-                if (onShowPresets) {
-                  onShowPresets()
-                } else {
-                  setShowPresets(true)
-                }
-              }}
-              title="Gérer les presets"
-              active={showPresets}
-            />
-          )}
           <CTA
             variant="icon-only"
             icon={<Settings size={20} />}

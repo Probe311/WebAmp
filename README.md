@@ -20,11 +20,13 @@ Application de simulation d'amplificateur guitare/basse avec interface web moder
 - 🎛️ **100+ pédales d'effets** : Distortion, overdrive, fuzz, chorus, delay, reverb, EQ, etc.
 - 🔊 **Amplificateurs modélisés** : Fender, Marshall, Mesa Boogie, Orange, Vox, etc.
 - 🔄 **Chaîne d'effets modulaire** : Drag & drop, réordonnable
+- 🥁 **Machine à rythmes intégrée** : Boîte à rythmes complète avec interface compacte
 - 💾 **Système de presets** : Sauvegarde et chargement avec Supabase
 - 📤 **Upload d'IR** : Impulse responses personnalisées
 - 📊 **Monitoring temps réel** : Vu-mètres, latence, CPU usage
-- 🎨 **Design neumorphic** : Interface moderne et tactile
+- 🎨 **Design neumorphic** : Interface moderne et tactile avec layout Bento Grid
 - ☁️ **Backend Supabase** : Base de données, authentification, storage
+- ⚡ **Code optimisé** : Architecture modulaire avec fonctions utilitaires réutilisables
 
 ## Architecture
 

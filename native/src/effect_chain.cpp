@@ -165,42 +165,6 @@ void EffectChain::process(float* input, float* output, uint32_t frameCount) {
     std::copy(currentInput, currentInput + frameCount * 2, output);
 }
 
-EffectChain::Preset EffectChain::savePreset(const std::string& name) const {
-    std::lock_guard<std::mutex> lock(mutex_);
-    
-    Preset preset;
-    preset.name = name;
-    
-    for (const auto& effect : effects_) {
-        preset.effectTypes.push_back(effect->getType());
-        
-        std::vector<std::pair<std::string, float>> params;
-        auto parameters = effect->getParameters();
-        for (const auto& param : parameters) {
-            params.push_back({param.name, param.currentValue});
-        }
-        preset.parameters.push_back(params);
-    }
-    
-    return preset;
-}
-
-void EffectChain::loadPreset(const Preset& preset) {
-    std::lock_guard<std::mutex> lock(mutex_);
-    
-    clear();
-    
-    for (size_t i = 0; i < preset.effectTypes.size(); ++i) {
-        auto effect = createEffect(preset.effectTypes[i]);
-        if (effect && i < preset.parameters.size()) {
-            for (const auto& param : preset.parameters[i]) {
-                effect->setParameter(param.first, param.second);
-            }
-            effects_.push_back(effect);
-        }
-    }
-}
-
 std::shared_ptr<EffectBase> EffectChain::createEffect(const std::string& type) const {
     if (type == "distortion") {
         return std::make_shared<DistortionEffect>();

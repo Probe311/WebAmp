@@ -6,7 +6,7 @@ import { LogIn, UserPlus } from 'lucide-react'
 import { Modal } from './Modal'
 import { CTA } from './CTA'
 import { useToast } from './notifications/ToastProvider'
-import { useAuth } from '../beta/auth/AuthProvider'
+import { useAuth } from '../auth/AuthProvider'
 
 interface AuthModalProps {
   isOpen: boolean

@@ -1,70 +1,82 @@
-
+import { useMemo } from 'react'
 import { pedalLibrary } from '../../data/pedals'
-import { Pedal } from '../Pedal'
+import { PedalFrame } from './PedalFrame'
 import { Potentiometer } from '../Potentiometer'
-
-export interface PedalComponentProps {
-  values?: Record<string, number>
-  onChange?: (param: string, value: number) => void
-  bypassed?: boolean
-}
+import type { PedalComponentProps } from './types'
 
 const pedalId = 'moog-mf-ring'
 
-const buildControls = (
-  params: Record<string, any>,
-  values: Record<string, number>,
-  onChange?: (param: string, value: number) => void,
-  accentColor?: string
-) => {
-  return Object.entries(params).map(([name, def]) => {
-    const value = values[name] ?? (def as any).default ?? 0
-    return (
-      <Potentiometer
-        key={name}
-        label={(def as any).label}
-        value={value}
-        min={(def as any).min}
-        max={(def as any).max}
-        color={accentColor || (def as any).color}
-        onChange={(v) => onChange?.(name, v)}
-      />
-    )
-  })
+/**
+ * Composant complet de la pédale Moog MF Ring
+ * Layout : 3 knobs (ligne 1: 2 knobs, ligne 2: 1 knob centré)
+ */
+export function MoogMfRingPedal({ 
+  values = {}, 
+  onChange, 
+  bypassed = false,
+  onBypassToggle,
+  bottomActions
+}: PedalComponentProps) {
+  const model = useMemo(() => pedalLibrary.find((p) => p.id === pedalId), [])
+  
+  if (!model) return null
+
+  const controls = useMemo(() => {
+    return Object.entries(model.parameters).map(([name, def]) => {
+      const value = values[name] ?? def.default ?? 0
+      return (
+        <Potentiometer
+          key={name}
+          label={def.label}
+          value={value}
+          min={def.min}
+          max={def.max}
+          color={model.accentColor}
+          onChange={(v) => onChange?.(name, v)}
+        />
+      )
+    })
+  }, [model, values, onChange])
+
+  return (
+    <PedalFrame
+      model={model}
+      layout="three-knobs"
+      bypassed={bypassed}
+      onBypassToggle={onBypassToggle}
+      showFootswitch={false}
+      bottomActions={bottomActions}
+    >
+      {controls}
+    </PedalFrame>
+  )
 }
 
+// Export pour compatibilité avec l'ancien système
 export const MoogMfRingControls = ({
   values = {},
   onChange,
 }: PedalComponentProps) => {
   const model = pedalLibrary.find((p) => p.id === pedalId)
   if (!model) return null
-  const params = model.parameters
+  
   return (
-    <div className="flex flex-row justify-center items-center gap-2 w-full" style={{ marginTop: '-0.5rem', marginBottom: '-0.5rem' }}>
-      {buildControls(params, values, onChange, model.accentColor)}
-    </div>
-  )
-}
-
-export const MoogMfRingPedal = ({ values = {}, onChange, bypassed = false }: PedalComponentProps) => {
-  const model = pedalLibrary.find((p) => p.id === pedalId)
-  if (!model) return null
-  const params = model.parameters
-
-  return (
-    <Pedal
-      brand={model.brand}
-      model={model.model}
-      color={model.color}
-      accentColor={model.accentColor}
-      bypassed={bypassed}
-      showFootswitch={false}
-    >
-      <div className="flex flex-row justify-center items-center gap-2 w-full" style={{ marginTop: '-0.5rem', marginBottom: '-0.5rem' }}>
-        {buildControls(params, values, onChange, model.accentColor)}
-      </div>
-    </Pedal>
+    <>
+      {Object.entries(model.parameters).map(([name, def]) => {
+        const value = values[name] ?? def.default ?? 0
+        return (
+          <Potentiometer
+            key={name}
+            label={def.label}
+            value={value}
+            min={def.min}
+            max={def.max}
+            color={model.accentColor}
+            onChange={(v) => onChange?.(name, v)}
+          />
+        )
+      })}
+    </>
   )
 }
 

@@ -12,6 +12,8 @@ Bienvenue dans la documentation complète de WebAmp, une application de simulati
 ### 🛠️ Développement
 - **[Composants](COMPONENTS.md)** - Documentation des composants React
 - **[API WebSocket](API.md)** - Protocole de communication front/back
+- **[Optimisations](OPTIMIZATION.md)** - Guide des optimisations du code
+- **[Évolution du Moteur Sonore](EVOLUTION_MOTEUR_SONORE.md)** - Documentation historique (mode MIDI supprimé)
 - **[Build & Déploiement](BUILD.md)** - Instructions de build détaillées
 - **[Déploiement Vercel](VERCEL_SETUP.md)** - Guide de déploiement sur Vercel
 - **[Déploiement général](DEPLOYMENT.md)** - Options d'hébergement

@@ -18,9 +18,9 @@ export function ForgotPasswordForm({ onBackToLogin }: Props) {
     setError(null)
     try {
       await resetPassword(email.trim())
-      setMessage('Un e-mail de réinitialisation vient de t’être envoyé.')
+      setMessage('Un e-mail de réinitialisation vient de t\'être envoyé.')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Impossible d’envoyer l’e-mail.')
+      setError(err instanceof Error ? err.message : 'Impossible d\'envoyer l\'e-mail.')
     }
   }
 

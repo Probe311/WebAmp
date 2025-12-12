@@ -114,10 +114,10 @@ Composant pédale réutilisable avec couleur variable et tailles configurables.
 
 Les tailles suivent un système de grille basé sur des unités de 200px :
 
-- **S**: 0.5 × 2 = 100px × 440px
-- **M**: 1 × 2 = 200px × 440px (taille actuelle)
-- **L**: 2 × 2 = 440px × 440px
-- **XL**: 3 × 2 = 600px × 440px
+- **S**: 0.5 × 2 = 100px × 420px
+- **M**: 1 × 2 = 200px × 420px (taille actuelle)
+- **L**: 2 × 2 = 420px × 420px
+- **XL**: 3 × 2 = 600px × 420px
 
 ### Exemple
 

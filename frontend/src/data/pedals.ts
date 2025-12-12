@@ -1,11 +1,9 @@
 // Bibliothèque de pédales d'effets inspirée des grands fabricants
 import { 
   LucideIcon, 
-  Moon, 
   Radio, 
   Lightbulb,
   Waves,
-  Zap,
   Sun,
   Gauge,
   RadioReceiver,
@@ -13,7 +11,17 @@ import {
   Music,
   CircleDot,
   Square,
-  Triangle
+  Triangle,
+  Circle,
+  Moon,
+  Zap,
+  Shield,
+  Plus,
+  Building2,
+  Layers,
+  Flower2,
+  Cloud,
+  Shuffle
 } from 'lucide-react'
 
 export type ControlType = 'knob' | 'switch-vertical' | 'switch-horizontal' | 'slider' | 'switch-selector'
@@ -106,15 +114,15 @@ export const pedalLibrary: PedalModel[] = [
     brand: 'Walrus Audio',
     model: 'Fundamental Distortion',
     type: 'distortion',
-    description: 'Distortion moderne avec modes',
+    description: 'Distortion à trois modes couvrant une large plage de sons, du dark et doom jusqu\'aux leads tranchants et percutants.',
     parameters: {
       gain: { min: 0, max: 100, default: 50, label: 'Gain', controlType: 'slider', orientation: 'horizontal' },
       tone: { min: 0, max: 100, default: 50, label: 'Tone', controlType: 'slider', orientation: 'horizontal' },
       volume: { min: 0, max: 100, default: 50, label: 'Vol', controlType: 'slider', orientation: 'horizontal' },
-      mode: { min: 0, max: 2, default: 1, label: 'Mode', controlType: 'switch-selector', labels: ['DARK', 'SI', 'LED'], icons: [Moon, Radio, Lightbulb] }
+      mode: { min: 0, max: 2, default: 1, label: 'Mode', controlType: 'switch-selector', labels: ['DARK', 'SI', 'LED'], icons: [Moon, Zap, Sun] }
     },
     color: '#1a1a1a',
-    accentColor: '#9acd32',
+    accentColor: '#D2BA21',
     style: 'modern'
   },
   // OVERDRIVE (4+ pédales)
@@ -184,15 +192,15 @@ export const pedalLibrary: PedalModel[] = [
     brand: 'Walrus Audio',
     model: 'Fundamental Drive',
     type: 'overdrive',
-    description: 'Drive moderne avec modes',
+    description: 'Overdrive polyvalent permettant une large plage de tons grâce à son switch à trois modes. L\'outil parfait en début de chaîne pour définir le ton de tout votre rig.',
     parameters: {
       gain: { min: 0, max: 100, default: 50, label: 'Gain', controlType: 'slider', orientation: 'horizontal' },
       tone: { min: 0, max: 100, default: 50, label: 'Tone', controlType: 'slider', orientation: 'horizontal' },
       volume: { min: 0, max: 100, default: 50, label: 'Vol', controlType: 'slider', orientation: 'horizontal' },
-      mode: { min: 0, max: 2, default: 0, label: 'Mode', controlType: 'switch-selector', labels: ['SMOOTH', 'CRUNCH', 'BRIGHT'], icons: [Waves, Zap, Sun] }
+      mode: { min: 0, max: 2, default: 1, label: 'Mode', controlType: 'switch-selector', labels: ['SMOOTH', 'CRUNCH', 'BRIGHT'], icons: [CircleDot, Square, Sun] }
     },
     color: '#1a1a1a',
-    accentColor: '#ff0000',
+    accentColor: '#E55045',
     style: 'modern'
   },
   // FUZZ (4+ pédales)
@@ -247,15 +255,15 @@ export const pedalLibrary: PedalModel[] = [
     brand: 'Walrus Audio',
     model: 'Fundamental Fuzz',
     type: 'fuzz',
-    description: 'Fuzz moderne avec modes',
+    description: 'Fuzz agressif à trois modes avec une large plage tonale. Peut être placé n\'importe où dans votre chaîne : alimentez-le avec votre overdrive préféré ou poussez-le dans une autre distorsion folle.',
     parameters: {
       gain: { min: 0, max: 100, default: 50, label: 'Gain', controlType: 'slider', orientation: 'horizontal' },
       tone: { min: 0, max: 100, default: 50, label: 'Tone', controlType: 'slider', orientation: 'horizontal' },
       volume: { min: 0, max: 100, default: 50, label: 'Vol', controlType: 'slider', orientation: 'horizontal' },
-      mode: { min: 0, max: 2, default: 1, label: 'Mode', controlType: 'switch-selector', labels: ['GATE', 'CLASSIC', 'MID+'], icons: [Radio, RadioReceiver, Radio] }
+      mode: { min: 0, max: 2, default: 1, label: 'Mode', controlType: 'switch-selector', labels: ['GATE', 'CLASSIC', 'MID+'], icons: [Shield, CircleDot, Plus] }
     },
     color: '#1a1a1a',
-    accentColor: '#ffa500',
+    accentColor: '#FFC05F',
     style: 'modern'
   },
   // CHORUS (4+ pédales)
@@ -295,15 +303,15 @@ export const pedalLibrary: PedalModel[] = [
     brand: 'Walrus Audio',
     model: 'Fundamental Chorus',
     type: 'chorus',
-    description: 'Chorus moderne avec modes',
+    description: 'Émulation digitale d\'un chorus analogique classique, recréant la modulation bucket brigade. Trois algorithmes de chorus pour des sons allant de la modulation douce jusqu\'au tri-chorus des années 80.',
     parameters: {
       rate: { min: 0, max: 100, default: 50, label: 'Rate', controlType: 'slider', orientation: 'horizontal' },
       depth: { min: 0, max: 100, default: 50, label: 'Depth', controlType: 'slider', orientation: 'horizontal' },
       mix: { min: 0, max: 100, default: 50, label: 'Mix', controlType: 'slider', orientation: 'horizontal' },
-      mode: { min: 0, max: 2, default: 1, label: 'Mode', controlType: 'switch-selector', labels: ['LIGHT', 'MEDIUM', 'HEAVY'], icons: [Gauge, Gauge, Gauge] }
+      mode: { min: 0, max: 2, default: 1, label: 'Mode', controlType: 'switch-selector', labels: ['LIGHT', 'MEDIUM', 'HEAVY'], icons: [CircleDot, Square, Circle] }
     },
     color: '#1a1a1a',
-    accentColor: '#9370db',
+    accentColor: '#9A81BB',
     style: 'modern'
   },
   {
@@ -359,15 +367,15 @@ export const pedalLibrary: PedalModel[] = [
     brand: 'Walrus Audio',
     model: 'Fundamental Delay',
     type: 'delay',
-    description: 'Delay avec modes analog/digital/reverse',
+    description: 'Delay offrant les sons fondamentaux des effets de répétition. Avec trois algorithmes de delay, vous pouvez passer d\'un feedback digital propre à une émulation de delay analogique, ainsi qu\'à des trails inversés.',
     parameters: {
       time: { min: 0, max: 100, default: 50, label: 'Time', controlType: 'slider', orientation: 'horizontal' },
       feedback: { min: 0, max: 100, default: 50, label: 'Feedback', controlType: 'slider', orientation: 'horizontal' },
       mix: { min: 0, max: 100, default: 50, label: 'Mix', controlType: 'slider', orientation: 'horizontal' },
-      mode: { min: 0, max: 2, default: 0, label: 'Mode', controlType: 'switch-selector', labels: ['DIGITAL', 'ANALOG', 'REVERSE'], icons: [Radio, RadioReceiver, RotateCcw] }
+      mode: { min: 0, max: 2, default: 1, label: 'Mode', controlType: 'switch-selector', labels: ['DIGITAL', 'ANALOG', 'REVERSE'], icons: [Radio, RadioReceiver, RotateCcw] }
     },
     color: '#1a1a1a',
-    accentColor: '#00ff00',
+    accentColor: '#00C467',
     style: 'modern'
   },
   {
@@ -420,15 +428,31 @@ export const pedalLibrary: PedalModel[] = [
     brand: 'Walrus Audio',
     model: 'Fundamental Reverb',
     type: 'reverb',
-    description: 'Reverb avec modes hall/spring/plate',
+    description: 'Reverb offrant les sons fondamentaux des effets ambiants. Avec trois algorithmes de reverb, vous pouvez passer d\'un hall ambiant à une émulation spring analogique, ainsi qu\'à une émulation plate brillante.',
     parameters: {
       decay: { min: 0, max: 100, default: 50, label: 'Decay', controlType: 'slider', orientation: 'horizontal' },
       tone: { min: 0, max: 100, default: 50, label: 'Tone', controlType: 'slider', orientation: 'horizontal' },
       mix: { min: 0, max: 100, default: 50, label: 'Mix', controlType: 'slider', orientation: 'horizontal' },
-      mode: { min: 0, max: 2, default: 0, label: 'Mode', controlType: 'switch-selector', labels: ['HALL', 'SPRING', 'PLATE'], icons: [Music, Waves, Waves] }
+      mode: { min: 0, max: 2, default: 1, label: 'Mode', controlType: 'switch-selector', labels: ['HALL', 'SPRING', 'PLATE'], icons: [Building2, Waves, Layers] }
     },
     color: '#1a1a1a',
-    accentColor: '#00ced1',
+    accentColor: '#98DBCC',
+    style: 'modern'
+  },
+  {
+    id: 'walrus-audio-ambient',
+    brand: 'Walrus Audio',
+    model: 'Fundamental Ambient',
+    type: 'reverb',
+    description: 'Trois algorithmes de reverb atmosphériques pour explorer de vastes paysages sonores avec un temps de decay généreux pour des décroissances douces et pad-like.',
+    parameters: {
+      decay: { min: 0, max: 100, default: 50, label: 'Decay', controlType: 'slider', orientation: 'horizontal' },
+      tone: { min: 0, max: 100, default: 50, label: 'Tone', controlType: 'slider', orientation: 'horizontal' },
+      mix: { min: 0, max: 100, default: 50, label: 'Mix', controlType: 'slider', orientation: 'horizontal' },
+      mode: { min: 0, max: 2, default: 1, label: 'Mode', controlType: 'switch-selector', labels: ['DEEP', 'LUSH', 'HAZE'], icons: [Layers, Flower2, Cloud] }
+    },
+    color: '#1a1a1a',
+    accentColor: '#39C9FD',
     style: 'modern'
   },
   {
@@ -487,7 +511,8 @@ export const pedalLibrary: PedalModel[] = [
     parameters: {
       rate: { min: 0, max: 100, default: 50, label: 'Rate', controlType: 'slider', orientation: 'horizontal' },
       depth: { min: 0, max: 100, default: 50, label: 'Depth', controlType: 'slider', orientation: 'horizontal' },
-      feedback: { min: 0, max: 100, default: 50, label: 'Feedback', controlType: 'slider', orientation: 'horizontal' }
+      feedback: { min: 0, max: 100, default: 50, label: 'Feedback', controlType: 'slider', orientation: 'horizontal' },
+      mode: { min: 0, max: 2, default: 1, label: 'Mode', controlType: 'switch-selector', labels: ['LIGHT', 'MEDIUM', 'HEAVY'], icons: [CircleDot, Square, Triangle] }
     },
     color: '#1a1a1a',
     accentColor: '#ff1493',
@@ -529,15 +554,15 @@ export const pedalLibrary: PedalModel[] = [
     brand: 'Walrus Audio',
     model: 'Fundamental Tremolo',
     type: 'tremolo',
-    description: 'Tremolo avec formes d\'onde',
+    description: 'Tremolo optique classique avec mouvement iconique. Trois formes d\'onde : smooth et apaisant, ou glitchy, wild et crazy.',
     parameters: {
       rate: { min: 0, max: 100, default: 50, label: 'Rate', controlType: 'slider', orientation: 'horizontal' },
       depth: { min: 0, max: 100, default: 50, label: 'Depth', controlType: 'slider', orientation: 'horizontal' },
       volume: { min: 0, max: 100, default: 50, label: 'Vol', controlType: 'slider', orientation: 'horizontal' },
-      wave: { min: 0, max: 2, default: 0, label: 'Wave', controlType: 'switch-selector', labels: ['SINE', 'SQUARE', 'RANDOM'], icons: [CircleDot, Square, Triangle] }
+      wave: { min: 0, max: 2, default: 0, label: 'Wave', controlType: 'switch-selector', labels: ['SINE', 'SQUARE', 'RANDOM'], icons: [Waves, Square, Shuffle] }
     },
     color: '#1a1a1a',
-    accentColor: '#ff8c00',
+    accentColor: '#FC9336',
     style: 'modern'
   },
   {
@@ -622,15 +647,15 @@ export const pedalLibrary: PedalModel[] = [
     brand: 'Walrus Audio',
     model: 'Fundamental Phaser',
     type: 'phaser',
-    description: 'Phaser moderne',
+    description: 'Phaser polyvalent, émulation digitale d\'un phaser classique. Avec trois types d\'algorithmes de phaser, vous pouvez obtenir des sons allant de la modulation tonale légère à un phaser hautement modulé et résonant.',
     parameters: {
       rate: { min: 0, max: 100, default: 50, label: 'Rate', controlType: 'slider', orientation: 'horizontal' },
-      depth: { min: 0, max: 100, default: 50, label: 'Depth', controlType: 'slider', orientation: 'horizontal' },
       feedback: { min: 0, max: 100, default: 50, label: 'Feedback', controlType: 'slider', orientation: 'horizontal' },
-      mode: { min: 0, max: 2, default: 1, label: 'Mode', controlType: 'switch-selector', labels: ['LIGHT', 'MEDIUM', 'HEAVY'], icons: [Gauge, Gauge, Gauge] }
+      depth: { min: 0, max: 100, default: 50, label: 'Depth', controlType: 'slider', orientation: 'horizontal' },
+      mode: { min: 0, max: 2, default: 1, label: 'Mode', controlType: 'switch-selector', labels: ['LIGHT', 'MEDIUM', 'HEAVY'], icons: [CircleDot, Square, Circle] }
     },
     color: '#1a1a1a',
-    accentColor: '#ff1493',
+    accentColor: '#D5868B',
     style: 'modern'
   },
   // EQ (4+ pédales)

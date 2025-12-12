@@ -1,14 +1,8 @@
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react'
 import { pedalLibrary } from '../../data/pedals'
-import { Pedal } from '../Pedal'
+import { PedalFrame } from './PedalFrame'
 import { SwitchSelector } from '../SwitchSelector'
-// Music non utilisé, import supprimé
-
-export interface PedalComponentProps {
-  values?: Record<string, number>
-  onChange?: (param: string, value: number) => void
-  bypassed?: boolean
-}
+import type { PedalComponentProps } from './types'
 
 const pedalId = 'boss-tu3'
 
@@ -472,6 +466,38 @@ export const BossTu3Controls = ({
   )
 }
 
+/**
+ * Composant complet de la pédale Boss TU-3
+ * Layout flex : tuner avec détection audio complexe
+ * Taille L requise pour afficher tous les éléments du tuner
+ */
+export function BossTu3Pedal({
+  values = {},
+  onChange,
+  bypassed = false,
+  onBypassToggle,
+  bottomActions
+}: PedalComponentProps) {
+  const model = useMemo(() => pedalLibrary.find((p) => p.id === pedalId), [])
+  
+  if (!model) return null
+
+  return (
+    <PedalFrame
+      model={model}
+      size="L"
+      layout="flex"
+      bypassed={bypassed}
+      onBypassToggle={onBypassToggle}
+      showFootswitch={false}
+      bottomActions={bottomActions}
+    >
+      <BossTu3Controls values={values} onChange={onChange} bypassed={bypassed} />
+    </PedalFrame>
+  )
+}
+
+// Export pour compatibilité avec l'ancien système
 export const BossTu3 = ({
   values = {},
   onChange,
@@ -481,17 +507,16 @@ export const BossTu3 = ({
   if (!model) return null
 
   return (
-    <Pedal
-      brand={model.brand}
-      model={model.model}
-      color={model.color}
-      accentColor={model.accentColor}
-      size="L"
-      bypassed={bypassed}
-      className="use-flex-layout"
-    >
-      <BossTu3Controls values={values} onChange={onChange} bypassed={bypassed} />
-    </Pedal>
+    <div className="relative select-none">
+      {/* Utiliser PedalFrame pour la nouvelle architecture */}
+      <BossTu3Pedal 
+        values={values} 
+        onChange={onChange} 
+        bypassed={bypassed}
+      />
+    </div>
   )
 }
+
+export default BossTu3Pedal
 

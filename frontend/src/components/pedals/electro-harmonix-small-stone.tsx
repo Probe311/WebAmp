@@ -1,99 +1,132 @@
-
+import { useMemo } from 'react'
 import { pedalLibrary } from '../../data/pedals'
-import { Pedal } from '../Pedal'
+import { PedalFrame } from './PedalFrame'
 import { Potentiometer } from '../Potentiometer'
 import { Slider } from '../Slider'
 import { SwitchSelector } from '../SwitchSelector'
-
-export interface PedalComponentProps {
-  values?: Record<string, number>
-  onChange?: (param: string, value: number) => void
-  bypassed?: boolean
-}
+import type { PedalComponentProps } from './types'
 
 const pedalId = 'electro-harmonix-small-stone'
 
-const buildControls = (
-  params: Record<string, any>,
-  values: Record<string, number>,
-  onChange?: (param: string, value: number) => void,
-  accentColor?: string
-) => {
-  return Object.entries(params).map(([name, def]) => {
-    const controlType = (def as any).controlType || 'knob'
-    const value = values[name] ?? (def as any).default ?? 0
+/**
+ * Composant complet de la pédale Electro-Harmonix Small Stone
+ * Layout : ligne 1 switch-selector, ligne 2 knob
+ */
+export function ElectroHarmonixSmallStonePedal({ 
+  values = {}, 
+  onChange, 
+  bypassed = false,
+  onBypassToggle,
+  bottomActions
+}: PedalComponentProps) {
+  const model = useMemo(() => pedalLibrary.find((p) => p.id === pedalId), [])
+  
+  if (!model) return null
 
-    if (controlType === 'slider') {
-      const orientation = (def as any).orientation || 'vertical'
-      return (
-        <Slider
-          key={name}
-          label={(def as any).label}
-          value={value}
-          min={(def as any).min}
-          max={(def as any).max}
-          orientation={orientation}
-          onChange={(v) => onChange?.(name, v)}
-          color={accentColor || (def as any).color}
-        />
-      )
-    }
+  const rate = values.rate ?? model.parameters.rate.default
+  const color = values.color ?? model.parameters.color.default
 
-    if (controlType === 'switch-selector' && (def as any).labels) {
-      return (
+  const controls = useMemo(() => (
+    <div className="flex flex-col gap-3 w-full">
+      {/* Ligne 1 : Switch-selector */}
+      <div className="w-full">
         <SwitchSelector
-          key={name}
-          value={value}
-          min={(def as any).min}
-          max={(def as any).max}
-          labels={(def as any).labels}
-          icons={(def as any).icons}
-          color={accentColor || (def as any).color}
-          onChange={(v) => onChange?.(name, v)}
+          value={color}
+          min={model.parameters.color.min}
+          max={model.parameters.color.max}
+          labels={model.parameters.color.labels || []}
+          icons={model.parameters.color.icons}
+          color={model.accentColor}
+          onChange={(v) => onChange?.('color', v)}
+          className="switch-selector-full-width"
         />
-      )
-    }
+      </div>
+      
+      {/* Ligne 2 : Knob */}
+      <div className="w-full flex justify-center">
+        <Potentiometer
+          label={model.parameters.rate.label}
+          value={rate}
+          min={model.parameters.rate.min}
+          max={model.parameters.rate.max}
+          color={model.accentColor}
+          onChange={(v) => onChange?.('rate', v)}
+        />
+      </div>
+    </div>
+  ), [rate, color, model, onChange])
 
-    return (
-      <Potentiometer
-        key={name}
-        label={(def as any).label}
-        value={value}
-        min={(def as any).min}
-        max={(def as any).max}
-        color={accentColor || (def as any).color}
-        onChange={(v) => onChange?.(name, v)}
-      />
-    )
-  })
+  return (
+    <PedalFrame
+      model={model}
+      layout="flex"
+      bypassed={bypassed}
+      onBypassToggle={onBypassToggle}
+      showFootswitch={false}
+      bottomActions={bottomActions}
+    >
+      {controls}
+    </PedalFrame>
+  )
 }
 
+// Export pour compatibilité avec l'ancien système
 export const ElectroHarmonixSmallStoneControls = ({
   values = {},
   onChange,
 }: PedalComponentProps) => {
   const model = pedalLibrary.find((p) => p.id === pedalId)
   if (!model) return null
-  const params = model.parameters
-  return <>{buildControls(params, values, onChange, model.accentColor)}</>
-}
-
-export const ElectroHarmonixSmallStonePedal = ({ values = {}, onChange, bypassed = false }: PedalComponentProps) => {
-  const model = pedalLibrary.find((p) => p.id === pedalId)
-  if (!model) return null
-  const params = model.parameters
-
+  
   return (
-    <Pedal
-      brand={model.brand}
-      model={model.model}
-      color={model.color}
-      accentColor={model.accentColor}
-      bypassed={bypassed}
-      showFootswitch={false}
-    >
-      {buildControls(params, values, onChange, model.accentColor)}
-    </Pedal>
+    <>
+      {Object.entries(model.parameters).map(([name, def]) => {
+        const controlType = def.controlType || 'knob'
+        const value = values[name] ?? def.default ?? 0
+
+        if (controlType === 'slider') {
+          return (
+            <Slider
+              key={name}
+              label={def.label}
+              value={value}
+              min={def.min}
+              max={def.max}
+              orientation={def.orientation || 'vertical'}
+              onChange={(v) => onChange?.(name, v)}
+              color={model.accentColor}
+            />
+          )
+        }
+
+        if (controlType === 'switch-selector' && def.labels) {
+          return (
+            <SwitchSelector
+              key={name}
+              value={value}
+              min={def.min}
+              max={def.max}
+              labels={def.labels}
+              icons={def.icons}
+              color={model.accentColor}
+              onChange={(v) => onChange?.(name, v)}
+            />
+          )
+        }
+
+        return (
+          <Potentiometer
+            key={name}
+            label={def.label}
+            value={value}
+            min={def.min}
+            max={def.max}
+            color={model.accentColor}
+            onChange={(v) => onChange?.(name, v)}
+          />
+        )
+      })}
+    </>
   )
 }
 

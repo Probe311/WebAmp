@@ -6,7 +6,7 @@ import { Upload, FileAudio } from 'lucide-react'
 import { Modal } from './Modal'
 import { CTA } from './CTA'
 import { useToast } from './notifications/ToastProvider'
-import { useAuth } from '../beta/auth/AuthProvider'
+import { useAuth } from '../auth/AuthProvider'
 import { uploadIR, loadUserIRs, ImpulseResponse } from '../services/supabase/impulseResponses'
 
 interface IRUploadModalProps {
