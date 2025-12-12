@@ -559,7 +559,7 @@ export function PedalLibraryModal({ isOpen, onClose, onSelectPedal, searchQuery 
     }
 
     return effect
-  }, [])
+  }, [loadTone])
 
   // Fonction de prévisualisation audio
   const handlePreview = useCallback(async (e: React.MouseEvent, pedalId: string) => {
