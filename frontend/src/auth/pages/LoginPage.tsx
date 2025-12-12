@@ -10,7 +10,7 @@ export function LoginPage({ onSwitchView }: Props) {
   return (
     <AuthCard
       title="Connexion"
-      subtitle="Accède à ton pedalboard et à tes presets."
+      subtitle="Accède à ton pedalboard."
       footer="Protège ton compte avec un mot de passe robuste pour éviter les mauvaises surprises."
     >
       <LoginForm

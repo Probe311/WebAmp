@@ -7,7 +7,7 @@ import { ThemeProvider } from './contexts/ThemeContext'
 import { DrumMachineProvider } from './contexts/DrumMachineContext'
 import { ToastProvider } from './components/notifications/ToastProvider'
 import { KeyboardShortcutsProvider } from './contexts/KeyboardShortcutsContext'
-import { AppWithAuth } from './beta/auth/AppWithAuth'
+import { AppWithAuth } from './auth/AppWithAuth'
 
 // Lazy loading pour temps de chargement < 1s
 const App = lazy(() => import('./App.tsx'))

@@ -3,7 +3,7 @@ import * as Tone from 'tone'
 import { DEFAULT_PATTERNS } from './patterns'
 
 // Types d'instruments de batterie
-export type DrumInstrument = 'kick' | 'snare' | 'hihat' | 'openhat' | 'crash' | 'ride' | 'tom1' | 'tom2'
+export type DrumInstrument = 'kick' | 'snare' | 'hihat' | 'openhat' | 'crash' | 'ride' | 'tom1' | 'tom2' | 'tom3'
 
 export interface DrumStep {
   [key: string]: boolean // instrument -> activé ou non
@@ -77,7 +77,8 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
     crash: DEFAULT_PATTERNS[0].volumes?.crash ?? 100,
     ride: DEFAULT_PATTERNS[0].volumes?.ride ?? 100,
     tom1: DEFAULT_PATTERNS[0].volumes?.tom1 ?? 100,
-    tom2: DEFAULT_PATTERNS[0].volumes?.tom2 ?? 100
+    tom2: DEFAULT_PATTERNS[0].volumes?.tom2 ?? 100,
+    tom3: DEFAULT_PATTERNS[0].volumes?.tom3 ?? 100
   })
   const [masterVolume, setMasterVolume] = useState(80)
 
@@ -113,7 +114,7 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
 
       // Créer les nœuds de volume pour chaque instrument
       const volumeNodes: Record<DrumInstrument, Tone.Volume> = {} as Record<DrumInstrument, Tone.Volume>
-      const instruments: DrumInstrument[] = ['kick', 'snare', 'hihat', 'openhat', 'crash', 'ride', 'tom1', 'tom2']
+      const instruments: DrumInstrument[] = ['kick', 'snare', 'hihat', 'openhat', 'crash', 'ride', 'tom1', 'tom2', 'tom3']
       
       instruments.forEach(instrument => {
         const volumeNode = new Tone.Volume(0)
@@ -224,6 +225,16 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
         }).connect(volumeNode)
         ;(synth as Tone.MembraneSynth).triggerAttackRelease('B2', '8n')
         break
+      case 'tom3':
+        // Tom 3 : MembraneSynth (encore plus grave)
+        synth = new Tone.MembraneSynth({
+          pitchDecay: 0.05,
+          octaves: 2,
+          oscillator: { type: 'sine' },
+          envelope: { attack: 0.001, decay: 0.25, sustain: 0, release: 0.25 }
+        }).connect(volumeNode)
+        ;(synth as Tone.MembraneSynth).triggerAttackRelease('A2', '8n')
+        break
       default:
         return
     }
@@ -247,7 +258,7 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
           // Jouer les sons pour ce step
           const currentStepData = pattern[prev]
           if (currentStepData) {
-            const instruments: DrumInstrument[] = ['kick', 'snare', 'hihat', 'openhat', 'crash', 'ride', 'tom1', 'tom2']
+            const instruments: DrumInstrument[] = ['kick', 'snare', 'hihat', 'openhat', 'crash', 'ride', 'tom1', 'tom2', 'tom3']
             instruments.forEach(instrument => {
               if (currentStepData[instrument]) {
                 playSound(instrument)

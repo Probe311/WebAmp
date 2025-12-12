@@ -1,11 +1,119 @@
 import { useState, useMemo, useRef, useCallback, useEffect } from 'react'
-import { Search, Tag, Building2, Volume1, Volume2 } from 'lucide-react'
+import { Search, Tag, Building2, Volume1, Volume2, BadgeCheck } from 'lucide-react'
 import { Modal } from './Modal'
 import { Dropdown, DropdownOption } from './Dropdown'
 import { CTA } from './CTA'
-import * as Tone from 'tone'
+// Tone.js sera importé dynamiquement pour éviter la création automatique du contexte
+type ToneType = typeof import('tone')
+let ToneModule: ToneType | null = null
 import { getPedalPreviewConfig } from '../audio/pedalPreviewConfig'
 import { useCatalog } from '../hooks/useCatalog'
+import { getBrandLogo } from '../utils/brandLogos'
+import walrusLogo from '../assets/logos/walrus_small.svg'
+
+// Standard Tuning Frequencies (Hz)
+// 0: Low E (E2), 1: A (A2), 2: D (D3), 3: G (G3), 4: B (B3), 5: High e (E4)
+const STRING_FREQUENCIES = [82.41, 110.00, 146.83, 196.00, 246.94, 329.63]
+
+const DEFAULT_TEMPO = 160 // BPM
+const MAX_LOOPS = 4
+
+// Types pour la tablature
+interface TabNote {
+  stringIdx: number
+  fret: number | 'x'
+}
+
+interface TabColumn {
+  id: string
+  duration: number // En unités de 16ème de note
+  notes: TabNote[]
+}
+
+// Helper pour créer une colonne de tablature
+const createTabColumn = (notes: number[][], duration: number = 1): TabColumn => ({
+  id: Math.random().toString(36).substr(2, 9),
+  duration,
+  notes: notes.map(([s, f]) => ({ stringIdx: s, fret: f === -1 ? 'x' : f } as TabNote)),
+})
+
+// --- DÉFINITIONS D'ACCORDS ---
+// A Power Chord: E:5, A:7, D:7, G:6
+const chordA = [[0, 5], [1, 7], [2, 7], [3, 6]]
+
+// B Power Chord (Passing): E:7, A:9, D:9, G:8
+const chordB = [[0, 7], [1, 9], [2, 9], [3, 8]]
+
+// C Power Chord: E:8, A:10, D:10, G:9
+const chordC = [[0, 8], [1, 10], [2, 10], [3, 9]]
+
+// G Power Chord: E:3, A:5, D:5, G:4
+const chordG = [[0, 3], [1, 5], [2, 5], [3, 4]]
+
+// D Power Chord: A:5, D:7, G:7, B:7
+const chordD = [[1, 5], [2, 7], [3, 7], [4, 7]]
+
+// D Power Chord Variant (last hit): A:5, D:7, G:7, B:8
+const chordD_var = [[1, 5], [2, 7], [3, 7], [4, 8]]
+
+// Mutes (Dead notes on middle strings)
+const mutes = [[1, -1], [2, -1], [3, -1], [4, -1]]
+
+// --- SÉQUENCE DE TABLATURE ---
+// Basée sur une grille de 16èmes de note
+// Duration 2 = 8ème de note (note longue)
+// Duration 1 = 16ème de note (staccato/chug)
+// Total par mesure = 16 unités
+
+const FLY_AWAY_TAB: TabColumn[] = [
+  // === MESURE 1 (A -> B -> C) ===
+  // A Chord Group
+  createTabColumn(chordA, 2), // 6--- (8ème de note)
+  createTabColumn(chordA, 1), // 6
+  createTabColumn(chordA, 1), // 6
+  createTabColumn(chordA, 1), // 6
+  createTabColumn(chordA, 1), // 6
+  
+  // B Passing
+  createTabColumn(chordB, 1), // 8
+  
+  // Mute Transition
+  createTabColumn(mutes, 1),  // x
+  
+  // C Chord Group
+  createTabColumn(chordC, 2), // 9---- (8ème de note)
+  createTabColumn(chordC, 1), // 9
+  createTabColumn(chordC, 1), // 9
+  createTabColumn(chordC, 1), // 9
+  createTabColumn(chordC, 1), // 9
+  
+  // End of Bar 1 Mutes
+  createTabColumn(mutes, 1), // x
+  createTabColumn(mutes, 1), // x
+  
+  // === MESURE 2 (G -> D) ===
+  // G Chord Group
+  createTabColumn(chordG, 2), // 4--- (8ème de note)
+  createTabColumn(chordG, 1), // 4
+  createTabColumn(chordG, 1), // 4
+  createTabColumn(chordG, 1), // 4
+  createTabColumn(chordG, 1), // 4
+  
+  // Mute Transition
+  createTabColumn(mutes, 1), // x
+  createTabColumn(mutes, 1), // x
+  
+  // D Chord Group
+  createTabColumn(chordD, 2), // 7--- (8ème de note)
+  createTabColumn(chordD, 1), // 7
+  createTabColumn(chordD, 1), // 7
+  createTabColumn(chordD, 1), // 7
+  createTabColumn(chordD_var, 1), // 8 (La variante spéciale)
+  
+  // End of Bar 2 Mutes
+  createTabColumn(mutes, 1), // x
+  createTabColumn(mutes, 1), // x
+]
 
 interface PedalLibraryModalProps {
   isOpen: boolean
@@ -21,9 +129,10 @@ export function PedalLibraryModal({ isOpen, onClose, onSelectPedal, searchQuery 
   const [internalSearchQuery, setInternalSearchQuery] = useState('')
   const [previewingPedalId, setPreviewingPedalId] = useState<string | null>(null)
   const previewTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const previewSynthRef = useRef<Tone.PolySynth | null>(null)
-  const previewEffectRef = useRef<Tone.ToneAudioNode | null>(null)
-  const previewNodesRef = useRef<Tone.ToneAudioNode[]>([])
+  const previewSynthRef = useRef<any | null>(null)
+  const previewEffectRef = useRef<any | null>(null)
+  const previewNodesRef = useRef<any[]>([])
+  const audioNodesRef = useRef<AudioNode[]>([])
   
   const activeSearchQuery = searchQuery || internalSearchQuery
 
@@ -87,11 +196,145 @@ export function PedalLibraryModal({ isOpen, onClose, onSelectPedal, searchQuery 
     ]
   }, [])
 
+  // Charger Tone.js dynamiquement pour éviter la création automatique du contexte
+  const loadTone = useCallback(async () => {
+    if (!ToneModule) {
+      ToneModule = await import('tone')
+    }
+    return ToneModule
+  }, [])
+
+  // Service audio amélioré pour la prévisualisation
+  // Utiliser le contexte Tone.js au lieu de créer un nouveau contexte
+  const getAudioContext = useCallback(async () => {
+    const Tone = await loadTone()
+    // S'assurer que Tone.js est démarré (nécessite une interaction utilisateur)
+    if (Tone.context.state === 'suspended') {
+      await Tone.start()
+    }
+    return Tone.getContext().rawContext as AudioContext
+  }, [loadTone])
+
+  const createGuitarAudioChain = useCallback((ctx: AudioContext) => {
+    // Master Volume seulement - pas d'effets, ils seront appliqués par la pédale
+    const masterGain = ctx.createGain()
+    masterGain.gain.value = 0.5 // Volume de base pour la prévisualisation
+
+    // Créer un nœud de destination intermédiaire pour connecter aux effets Tone.js
+    const outputNode = ctx.createGain()
+    outputNode.connect(masterGain)
+    // Ne pas connecter masterGain à destination ici - sera connecté via Tone.js après interaction utilisateur
+
+    return { outputNode, masterGain }
+  }, [])
+
+  const getFrequency = useCallback((stringIdx: number, fret: number) => {
+    const rootFreq = STRING_FREQUENCIES[stringIdx]
+    // fn = f0 * (a)^n où a est 2^(1/12)
+    return rootFreq * Math.pow(2, fret / 12)
+  }, [])
+
+  const scheduleTabColumn = useCallback((
+    column: TabColumn,
+    startTime: number,
+    destinationNode: AudioNode,
+    ctx: AudioContext,
+    tempo: number = DEFAULT_TEMPO
+  ) => {
+    // Durée réelle en secondes basée sur le tempo
+    // À 160 BPM, une noire = 60/160 = 0.375s
+    // Une 16ème de note = 0.375/4 = 0.09375s
+    const sixteenthNoteDuration = (60 / tempo) / 4
+    const noteDuration = column.duration * sixteenthNoteDuration
+
+    // Parcourir les notes de la colonne
+    column.notes.forEach((note, index) => {
+      // Effet de strumming: légèrement retarder les cordes graves vs aiguës
+      // Pour un downstroke, les cordes graves se déclenchent en premier
+      const strumDelay = index * 0.005 // Délai de 5ms entre chaque corde
+      const noteTime = startTime + strumDelay
+
+      // Créer Oscillator
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+      
+      // Filtre (Tone Knob) - Important pour la simulation de guitare
+      const filter = ctx.createBiquadFilter()
+      filter.type = 'lowpass'
+      filter.frequency.value = 2200 // Couper les hautes fréquences
+      filter.Q.value = 0.6
+
+      // Connecter: Osc -> Gain -> Filter -> Destination (qui passera par l'effet de pédale)
+      osc.connect(gain)
+      gain.connect(filter)
+      filter.connect(destinationNode)
+
+      audioNodesRef.current.push(osc, gain, filter)
+
+      if (note.fret === 'x') {
+        // NOTE MORTE PERCUSSIVE
+        // Utiliser du bruit ou une fréquence aléatoire désaccordée pour un "thud"
+        osc.type = 'sawtooth'
+        // Choisir une fréquence aléatoire autour de la note ouverte de la corde pour la texture
+        osc.frequency.value = STRING_FREQUENCIES[note.stringIdx] * 0.8
+        
+        // Enveloppe: Très courte, pas de sustain
+        gain.gain.setValueAtTime(0, noteTime)
+        gain.gain.linearRampToValueAtTime(0.5, noteTime + 0.01)
+        gain.gain.exponentialRampToValueAtTime(0.01, noteTime + 0.05)
+        
+        osc.start(noteTime)
+        osc.stop(noteTime + 0.1)
+
+      } else {
+        // NOTE TONALE
+        const freq = getFrequency(note.stringIdx, note.fret as number)
+        
+        osc.type = 'sawtooth' // Sawtooth est meilleur pour la guitare distordue
+        osc.frequency.value = freq
+
+        // Enveloppe (ADSR)
+        // Si la durée est > 1, c'est une note longue, laisser un peu plus de sustain
+        const sustainLevel = column.duration > 1 ? 0.4 : 0.2
+        
+        gain.gain.setValueAtTime(0, noteTime)
+        // Attack (Pincement)
+        gain.gain.linearRampToValueAtTime(0.7, noteTime + 0.02)
+        // Decay vers Sustain
+        gain.gain.exponentialRampToValueAtTime(sustainLevel, noteTime + 0.1)
+        // Release
+        gain.gain.exponentialRampToValueAtTime(0.001, noteTime + noteDuration)
+
+        osc.start(noteTime)
+        osc.stop(noteTime + noteDuration + 0.1)
+      }
+    })
+  }, [getFrequency])
+
   const stopPreview = useCallback(() => {
     if (previewTimeoutRef.current) {
       clearTimeout(previewTimeoutRef.current)
       previewTimeoutRef.current = null
     }
+
+    // Arrêter tous les nœuds audio
+    audioNodesRef.current.forEach(node => {
+      try {
+        if (node instanceof OscillatorNode) {
+          node.stop()
+        }
+        if (node instanceof GainNode) {
+          node.gain.cancelScheduledValues(0)
+          node.gain.setValueAtTime(0, 0)
+        }
+        node.disconnect()
+      } catch (err) {
+        // Ignorer les erreurs de nettoyage
+      }
+    })
+    audioNodesRef.current = []
+
+    // Ne pas fermer le contexte Tone.js car il est partagé
 
     if (previewSynthRef.current) {
       try {
@@ -103,7 +346,7 @@ export function PedalLibraryModal({ isOpen, onClose, onSelectPedal, searchQuery 
       previewSynthRef.current = null
     }
 
-    // Nettoyer tous les effets
+    // Nettoyer tous les effets Tone.js
     previewNodesRef.current.forEach(node => {
       try {
         node.dispose()
@@ -126,9 +369,10 @@ export function PedalLibraryModal({ isOpen, onClose, onSelectPedal, searchQuery 
   }, [])
 
   // Fonction pour créer l'effet selon le type de pédale avec configuration spécifique
-  const createPedalEffect = useCallback((pedalModel: any, parameters: Record<string, number>, audioConfig: any): Tone.ToneAudioNode | null => {
+  const createPedalEffect = useCallback(async (pedalModel: any, parameters: Record<string, number>, audioConfig: any): Promise<any> => {
+    const Tone = await loadTone()
     const type = pedalModel.type
-    let effect: Tone.ToneAudioNode | null = null
+    let effect: any | null = null
     const effectConfig = audioConfig.effectConfig || {}
 
     switch (type) {
@@ -337,10 +581,23 @@ export function PedalLibraryModal({ isOpen, onClose, onSelectPedal, searchQuery 
     stopPreview()
 
     try {
-      // Initialiser Tone.js si nécessaire
+      // Charger Tone.js dynamiquement (seulement après interaction utilisateur)
+      const Tone = await loadTone()
+
+      // S'assurer que Tone.js est démarré (nécessite une interaction utilisateur)
+      // Cela doit être fait AVANT toute création d'effet ou d'audio
       if (Tone.context.state === 'suspended') {
-        await Tone.start()
+        try {
+          await Tone.start()
+        } catch (error) {
+          console.warn('Impossible de démarrer Tone.js, interaction utilisateur requise:', error)
+          return
+        }
       }
+
+      // Utiliser le contexte Tone.js au lieu de créer un nouveau contexte
+      // Cela doit être fait AVANT la création des effets pour s'assurer que le contexte est prêt
+      const ctx = await getAudioContext()
 
       // Obtenir la configuration audio spécifique de la pédale
       const audioConfig = getPedalPreviewConfig(pedalModel)
@@ -351,65 +608,101 @@ export function PedalLibraryModal({ isOpen, onClose, onSelectPedal, searchQuery 
         defaults[name] = def.default
       })
 
-      // Créer un synth polyphonique avec la configuration spécifique
-      const synth = new Tone.PolySynth(Tone.Synth, {
-        oscillator: { type: audioConfig.synthType },
-        envelope: audioConfig.synthEnvelope
-      })
-
-      // Créer un filtre avec la configuration spécifique
-      const filter = new Tone.Filter({
-        type: audioConfig.filterType,
-        frequency: audioConfig.filterFreq,
-        Q: audioConfig.filterQ
-      })
-
       // Créer l'effet de la pédale avec la configuration spécifique
-      const effect = createPedalEffect(pedalModel, defaults, audioConfig)
-
-      // Construire la chaîne audio
-      synth.connect(filter)
-      
-      if (effect) {
-        filter.connect(effect)
-        effect.toDestination()
-      } else {
-        filter.toDestination()
-      }
+      // Fait APRÈS que le contexte soit prêt
+      const effect = await createPedalEffect(pedalModel, defaults, audioConfig)
 
       // Stocker les références
-      previewSynthRef.current = synth
       previewEffectRef.current = effect
 
       // Mettre à jour l'état
       setPreviewingPedalId(pedalId)
 
-      // Utiliser les accords spécifiques de la config ou les accords par défaut
-      const chords = audioConfig.chords || [
-        ['C3', 'E3', 'G3'], // Do majeur
-        ['G2', 'B2', 'D3'], // Sol majeur
-        ['A2', 'C3', 'E3']  // La mineur
-      ]
+      // Créer la chaîne audio de base (sans effets - ils seront appliqués par la pédale)
+      const { outputNode, masterGain } = createGuitarAudioChain(ctx)
 
-      // Jouer les accords avec un timing de 5 secondes
-      const chordDuration = 1.4 // ~1.4 secondes par accord pour 5 secondes total
-      const startTime = Tone.now()
+      // Créer un nœud d'entrée pour les effets Tone.js
+      const pedalInput = ctx.createGain()
+      outputNode.connect(pedalInput)
+      
+      // Si un effet Tone.js existe, l'intégrer dans la chaîne
+      let finalDestination: AudioNode = pedalInput
+      
+      if (effect) {
+        // Connecter pedalInput directement à l'input de l'effet Tone.js
+        try {
+          const effectInput = (effect as any).input
+          if (effectInput && effectInput instanceof AudioNode) {
+            // Connecter directement pedalInput à l'input de l'effet
+            pedalInput.connect(effectInput)
+            // Connecter l'effet à la destination Tone.js (sera fait par toDestination())
+            effect.toDestination()
+            // Les oscillateurs se connectent à pedalInput qui passe par l'effet Tone.js
+            finalDestination = pedalInput
+          } else {
+            // Si pas d'input accessible, connecter directement au master gain
+            console.warn('Pas d\'input accessible sur l\'effet Tone.js')
+            pedalInput.connect(masterGain)
+            // Connecter masterGain à la destination Tone.js
+            const toneDestination = Tone.getDestination()
+            if (toneDestination && (toneDestination as any).input) {
+              masterGain.connect((toneDestination as any).input)
+            }
+            finalDestination = pedalInput
+          }
+        } catch (err) {
+          console.error('Erreur connexion effet Tone.js:', err)
+          // En cas d'erreur, connecter directement au master gain
+          pedalInput.connect(masterGain)
+          const toneDestination = Tone.getDestination()
+          if (toneDestination && (toneDestination as any).input) {
+            masterGain.connect((toneDestination as any).input)
+          }
+          finalDestination = pedalInput
+        }
+      } else {
+        // Pas d'effet, connecter directement au master gain puis à la destination Tone.js
+        pedalInput.connect(masterGain)
+        // Connecter masterGain à la destination Tone.js (sera fait après interaction utilisateur)
+        const toneDestination = Tone.getDestination()
+        if (toneDestination && (toneDestination as any).input) {
+          masterGain.connect((toneDestination as any).input)
+        }
+        finalDestination = pedalInput
+      }
 
-      chords.forEach((chord, index) => {
-        const time = startTime + index * chordDuration
-        synth.triggerAttack(chord, time)
-        synth.triggerRelease(chord, time + chordDuration - 0.1)
+      // Calculer la durée d'une 16ème de note au tempo donné
+      const sixteenthNoteDuration = (60 / DEFAULT_TEMPO) / 4
+
+      // Répéter la tablature 4 fois
+      const fullTab: TabColumn[] = []
+      for (let i = 0; i < MAX_LOOPS; i++) {
+        fullTab.push(...FLY_AWAY_TAB)
+      }
+
+      // Programmer chaque colonne de la tablature
+      // Le signal passera par l'effet de pédale si présent
+      const startTime = ctx.currentTime + 0.1 // Petit délai pour éviter les problèmes de timing
+      let currentTime = startTime
+
+      fullTab.forEach((column) => {
+        scheduleTabColumn(column, currentTime, finalDestination, ctx, DEFAULT_TEMPO)
+        // Avancer le temps selon la durée de la colonne
+        currentTime += column.duration * sixteenthNoteDuration
       })
 
-      // Arrêter après 5 secondes
+      // Calculer la durée totale
+      const totalDuration = fullTab.reduce((sum, col) => sum + col.duration, 0) * sixteenthNoteDuration
+
+      // Arrêter après la fin de la mélodie
       previewTimeoutRef.current = setTimeout(() => {
         stopPreview()
-      }, 5000)
+      }, totalDuration * 1000 + 500)
     } catch (error) {
       console.error('[PedalLibraryModal] Erreur lors de la prévisualisation:', error)
       setPreviewingPedalId(null)
     }
-  }, [stopPreview, previewingPedalId, createPedalEffect])
+    }, [stopPreview, previewingPedalId, createPedalEffect, getAudioContext, createGuitarAudioChain, scheduleTabColumn, loadTone, getFrequency, pedalLibrary])
 
   // Nettoyer les prévisualisations à la fermeture du modal
   const handleClose = () => {
@@ -554,9 +847,29 @@ export function PedalLibraryModal({ isOpen, onClose, onSelectPedal, searchQuery 
                         const ctaBg = isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.15)'
                         const ctaHover = isLight ? 'rgba(0,0,0,0.12)' : 'rgba(255,255,255,0.25)'
 
+                        const isWalrusAudio = pedal.brand === 'Walrus Audio'
+                        const brandLogo = isWalrusAudio ? walrusLogo : getBrandLogo(pedal.brand)
+
                         return (
                           <div className="p-4 border-b border-black/10 dark:border-white/10 relative" style={{ backgroundColor: pedal.color, color: textColor }}>
-                            <div className="text-xs uppercase tracking-[1px] mb-1 font-medium" style={{ color: subTextColor }}>{pedal.brand}</div>
+                            <div className="flex items-center gap-2 mb-1">
+                              {isWalrusAudio && brandLogo ? (
+                                <div className="flex items-center gap-2">
+                                  <img
+                                    src={brandLogo}
+                                    alt={pedal.brand}
+                                    className="h-4 object-contain"
+                                    style={{ filter: isLight ? 'none' : 'brightness(0) invert(1)' }}
+                                  />
+                                  <BadgeCheck 
+                                    className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 flex-shrink-0"
+                                  />
+                                  <span className="sr-only">Matériel certifié</span>
+                                </div>
+                              ) : (
+                                <div className="text-xs uppercase tracking-[1px] font-medium" style={{ color: subTextColor }}>{pedal.brand}</div>
+                              )}
+                            </div>
                             <div className="text-base font-bold" style={{ color: textColor }}>{pedal.model}</div>
                             <div className="absolute top-2 right-2 z-10">
                               <CTA

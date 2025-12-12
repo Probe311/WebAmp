@@ -1,41 +1,48 @@
-
+import { useMemo } from 'react'
 import { pedalLibrary } from '../../data/pedals'
-import { Pedal } from '../Pedal'
+import { PedalFrame } from './PedalFrame'
 import { Potentiometer } from '../Potentiometer'
 import { SwitchSelector } from '../SwitchSelector'
-
-export interface PedalComponentProps {
-  values?: Record<string, number>
-  onChange?: (param: string, value: number) => void
-  bypassed?: boolean
-}
+import type { PedalComponentProps } from './types'
 
 const pedalId = 'electro-harmonix-oceans-11'
 
-const renderControls = (
-  params: Record<string, any>,
-  values: Record<string, number>,
-  onChange?: (param: string, value: number) => void,
-  accentColor?: string
-) => {
-  const entries = Object.entries(params)
-  const switchSelectors = entries.filter(([, def]) => (def as any).controlType === 'switch-selector')
-  const knobs = entries.filter(([, def]) => (def as any).controlType !== 'switch-selector')
+/**
+ * Composant complet de la pédale Electro-Harmonix Oceans 11
+ * Layout spécial : switch-selector en haut (pleine largeur), 3 knobs en ligne horizontale en dessous
+ */
+export function ElectroHarmonixOceans11Pedal({ 
+  values = {}, 
+  onChange, 
+  bypassed = false,
+  onBypassToggle,
+  bottomActions
+}: PedalComponentProps) {
+  const model = useMemo(() => pedalLibrary.find((p) => p.id === pedalId), [])
+  
+  if (!model) return null
 
-  return (
+  const { switchSelectors, knobs } = useMemo(() => {
+    const entries = Object.entries(model.parameters)
+    const switchSelectors = entries.filter(([, def]) => def.controlType === 'switch-selector')
+    const knobs = entries.filter(([, def]) => def.controlType !== 'switch-selector')
+    return { switchSelectors, knobs }
+  }, [model])
+
+  const controls = useMemo(() => (
     <div className="flex flex-col gap-3 w-full">
       {/* Switch-selector en haut, pleine largeur */}
       {switchSelectors.map(([name, def]) => {
-        const value = values[name] ?? (def as any).default ?? 0
+        const value = values[name] ?? def.default ?? 0
         return (
           <div key={name} className="w-full">
             <SwitchSelector
               value={value}
-              min={(def as any).min}
-              max={(def as any).max}
-              labels={(def as any).labels}
-              icons={(def as any).icons}
-              color={accentColor || (def as any).color}
+              min={def.min}
+              max={def.max}
+              labels={def.labels || []}
+              icons={def.icons}
+              color={model.accentColor}
               onChange={(v) => onChange?.(name, v)}
               className="switch-selector-full-width"
             />
@@ -46,50 +53,85 @@ const renderControls = (
       {/* 3 knobs en ligne horizontale */}
       <div className="flex flex-row justify-center items-center gap-3 w-full">
         {knobs.map(([name, def]) => {
-          const value = values[name] ?? (def as any).default ?? 0
+          const value = values[name] ?? def.default ?? 0
           return (
             <Potentiometer
               key={name}
-              label={(def as any).label}
+              label={def.label}
               value={value}
-              min={(def as any).min}
-              max={(def as any).max}
-              color={accentColor || (def as any).color}
+              min={def.min}
+              max={def.max}
+              color={model.accentColor}
               onChange={(v) => onChange?.(name, v)}
             />
           )
         })}
       </div>
     </div>
+  ), [switchSelectors, knobs, values, onChange, model])
+
+  return (
+    <PedalFrame
+      model={model}
+      layout="flex"
+      bypassed={bypassed}
+      onBypassToggle={onBypassToggle}
+      showFootswitch={false}
+      bottomActions={bottomActions}
+    >
+      {controls}
+    </PedalFrame>
   )
 }
 
+// Export pour compatibilité avec l'ancien système
 export const ElectroHarmonixOceans11Controls = ({
   values = {},
   onChange,
 }: PedalComponentProps) => {
   const model = pedalLibrary.find((p) => p.id === pedalId)
   if (!model) return null
-  const params = model.parameters
-  return renderControls(params, values, onChange, model.accentColor)
-}
-
-export const ElectroHarmonixOceans11Pedal = ({ values = {}, onChange, bypassed = false }: PedalComponentProps) => {
-  const model = pedalLibrary.find((p) => p.id === pedalId)
-  if (!model) return null
-  const params = model.parameters
+  
+  const entries = Object.entries(model.parameters)
+  const switchSelectors = entries.filter(([, def]) => def.controlType === 'switch-selector')
+  const knobs = entries.filter(([, def]) => def.controlType !== 'switch-selector')
 
   return (
-    <Pedal
-      brand={model.brand}
-      model={model.model}
-      color={model.color}
-      accentColor={model.accentColor}
-      bypassed={bypassed}
-      showFootswitch={false}
-    >
-      {renderControls(params, values, onChange, model.accentColor)}
-    </Pedal>
+    <div className="flex flex-col gap-3 w-full">
+      {switchSelectors.map(([name, def]) => {
+        const value = values[name] ?? def.default ?? 0
+        return (
+          <div key={name} className="w-full">
+            <SwitchSelector
+              value={value}
+              min={def.min}
+              max={def.max}
+              labels={def.labels || []}
+              icons={def.icons}
+              color={model.accentColor}
+              onChange={(v) => onChange?.(name, v)}
+              className="switch-selector-full-width"
+            />
+          </div>
+        )
+      })}
+      <div className="flex flex-row justify-center items-center gap-3 w-full">
+        {knobs.map(([name, def]) => {
+          const value = values[name] ?? def.default ?? 0
+          return (
+            <Potentiometer
+              key={name}
+              label={def.label}
+              value={value}
+              min={def.min}
+              max={def.max}
+              color={model.accentColor}
+              onChange={(v) => onChange?.(name, v)}
+            />
+          )
+        })}
+      </div>
+    </div>
   )
 }
 

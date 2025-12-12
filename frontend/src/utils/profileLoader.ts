@@ -7,6 +7,53 @@ export interface ProfileLoadResult {
   pedalIds: string[]
 }
 
+export interface LoadableProfile {
+  amplifierId?: string | null
+  amplifierParameters?: Record<string, number>
+  pedalIds: string[]
+  name?: string
+}
+
+const STATE_UPDATE_DELAY = 300 // ms
+const PEDAL_ADD_DELAY = 150 // ms
+
+/**
+ * Charge un profil de manière séquentielle
+ */
+export async function loadProfileSequentially(
+  profile: LoadableProfile,
+  clearEffects: () => void,
+  setAmplifier: (id: string | null) => void,
+  setAmplifierParameters: (params: Record<string, number>) => void,
+  addEffect: (pedalId: string) => void
+): Promise<void> {
+  // Vider le pedalboard
+  clearEffects()
+
+  // Sélectionner l'ampli
+  if (profile.amplifierId) {
+    setAmplifier(profile.amplifierId)
+    if (profile.amplifierParameters) {
+      setAmplifierParameters(profile.amplifierParameters)
+    }
+  }
+
+  // Attendre que le state soit mis à jour
+  await new Promise(resolve => setTimeout(resolve, STATE_UPDATE_DELAY))
+
+  // Ajouter les effets séquentiellement
+  if (profile.pedalIds && profile.pedalIds.length > 0) {
+    for (let i = 0; i < profile.pedalIds.length; i++) {
+      const pedalId = profile.pedalIds[i]
+      addEffect(pedalId)
+      // Attendre entre chaque pédale pour laisser le state se mettre à jour
+      if (i < profile.pedalIds.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, PEDAL_ADD_DELAY))
+      }
+    }
+  }
+}
+
 export function loadProfile(profileName: string): ProfileLoadResult | null {
   const profile = rockStarProfiles.find(p => p.name === profileName)
   if (!profile) {

@@ -117,7 +117,7 @@ export const Slider: React.FC<SliderProps> = ({
 
   return (
     <div
-      className={`flex ${isVertical ? 'flex-col items-center gap-2 h-48 slider-vertical' : 'flex-col gap-2 w-full slider-horizontal'} px-2 py-2 ${className}`.trim()}
+      className={`flex ${isVertical ? 'flex-col items-center gap-2 h-48 slider-vertical' : 'flex-col gap-2 w-full slider-horizontal'} px-1 py-1 ${className}`.trim()}
     >
       {label && (
         <span className="text-[10px] uppercase tracking-widest font-bold text-gray-500 dark:text-gray-400 select-none text-center">

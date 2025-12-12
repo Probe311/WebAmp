@@ -8,7 +8,7 @@
 
 namespace webamp {
 
-// Chaîne d'effets : ordre modifiable, gestion des presets
+// Chaîne d'effets : ordre modifiable
 class EffectChain {
 public:
     EffectChain();
@@ -33,16 +33,6 @@ public:
     
     // Limite maximale d'effets pour performance
     static constexpr size_t MAX_EFFECTS = 20;
-    
-    // Presets
-    struct Preset {
-        std::string name;
-        std::vector<std::string> effectTypes;  // Types d'effets dans l'ordre
-        std::vector<std::vector<std::pair<std::string, float>>> parameters;  // Paramètres par effet
-    };
-    
-    Preset savePreset(const std::string& name) const;
-    void loadPreset(const Preset& preset);
     
     // Thread-safety
     void lock() const { mutex_.lock(); }

@@ -165,18 +165,6 @@ void handleWebSocketMessage(const std::string& message, AudioEngine& engine, Web
         // TODO: Implémenter la gestion des paramètres d'amplificateur
         server.sendMessage("{\"type\":\"ack\"}");
     }
-    else if (type == "savePreset") {
-        // TODO: Implémenter la sauvegarde de preset
-        server.sendMessage("{\"type\":\"ack\"}");
-    }
-    else if (type == "loadPreset") {
-        // TODO: Implémenter le chargement de preset
-        server.sendMessage("{\"type\":\"ack\"}");
-    }
-    else if (type == "deletePreset") {
-        // TODO: Implémenter la suppression de preset
-        server.sendMessage("{\"type\":\"ack\"}");
-    }
     else if (type == "setEqualizerParameter") {
         std::string parameter = JsonParser::getString(data, "parameter");
         // L'égaliseur est géré côté frontend avec Web Audio API

@@ -88,6 +88,9 @@ Ce document répertorie toutes les pédales disponibles dans WebAmp avec leurs d
   - `Tone` : Knob (filtre tonal aigus/graves)
   - `Level` : Knob (volume de sortie)
 - **Fonctions** : Commutateur au pied active l'effet, LED "Check" s'allume en mode effet
+- **Réglages recommandés** :
+  - ⚒️ **Rock classique / hard rock** : Gain 12–14h, Tone 11–12h, Level 12h → Grain serré, attaque précise
+  - 🕳️ **Grunge / alternative** : Gain 14–15h, Tone 10–11h (un peu plus sombre), Level ajuster → Texture sale et épaisse, esprit Rat/DS-1
 - **Checklist** : ✅ Fichier | 🎶 Audio | 🎛️ UI
 
 ### Pro Co RAT
@@ -99,6 +102,9 @@ Ce document répertorie toutes les pédales disponibles dans WebAmp avec leurs d
   - `Filter` : Knob (filtre passe-bas, tournez horaire pour atténuer les aigus)
   - `Volume` : Knob (volume de sortie)
 - **Fonctions** : Commutateur au pied enclenche/désenclenche, LED incorporée indique l'effet actif
+- **Réglages recommandés** :
+  - ⚒️ **Rock classique / hard rock** : Distortion 12–14h, Filter 11–12h, Volume 12h → Grain serré, attaque précise
+  - 🕳️ **Grunge / alternative** : Distortion 14–15h, Filter 10–11h (un peu plus sombre), Volume ajuster → Texture sale et épaisse, esprit Rat/DS-1
 - **Checklist** : ✅ Fichier | 🎶 Audio | 🎛️ UI
 
 ### Ibanez Tube Screamer TS-9
@@ -110,6 +116,10 @@ Ce document répertorie toutes les pédales disponibles dans WebAmp avec leurs d
   - `Tone` : Knob (coupe/boost des haut-médiums/aigus)
   - `Level` : Knob (volume de sortie)
 - **Fonctions** : Commutateur électronique (FET) au pied active l'effet, LED allumée indique l'effet enclenché
+- **Réglages recommandés** :
+  - 🎯 **Son clair légèrement crunchy** : Drive 9h, Tone 12h, Level ajuster à l'unité → Parfait blues / pop / funky rock, style Tube Screamer classique
+  - 🔥 **Booster un ampli ou une disto** : Drive 8–9h (quasi minimal), Tone 13h (plus d'aigus pour percer), Level 15–16h (boost de volume) → Pour solos ou riffs avec plus de présence, style SRV
+  - 🧱 **Overdrive principal rock** : Drive 12–13h, Tone 12–14h, Level 12h → Son saturé rock classique
 - **Checklist** : ✅ Fichier | 🎶 Audio | 🎛️ UI
 
 ### Electro-Harmonix Big Muff Pi
@@ -122,6 +132,8 @@ Ce document répertorie toutes les pédales disponibles dans WebAmp avec leurs d
   - `Volume` : Knob (niveau de sortie)
 - **Fonctions** : Commutateur au pied true bypass, LED s'allume quand l'effet est actif
 - **Variantes** : US, Ram's Head, Triangle, Pi, etc.
+- **Réglages recommandés** :
+  - 🧨 **Big Muff – gros mur de son** : Sustain 13–15h, Tone 12h, Volume 12–14h → Stoner / doom / shoegaze, son massif avec scoop médiums, style Smashing Pumpkins / QOTSA
 - **Checklist** : ✅ Fichier | 🎶 Audio | 🎛️ UI
 
 ### Walrus Audio Fundamental Distortion
@@ -136,6 +148,10 @@ Ce document répertorie toutes les pédales disponibles dans WebAmp avec leurs d
     - **DARK** : Clipping silicium asymétrique + coupe-bas
     - **SI** : Clipping silicium classique
     - **LED** : Clipping via diodes LED, son plus dynamique
+- **Réglages recommandés** :
+  - ⚒️ **Rock classique / hard rock** : Gain 12–14h, Tone 11–12h, Vol 12h, Mode SI → Grain serré, attaque précise
+  - 🕳️ **Grunge / alternative** : Gain 14–15h, Tone 10–11h (un peu plus sombre), Vol ajuster, Mode DARK → Texture sale et épaisse
+  - ⚔️ **Metal** : Gain 13–15h, Tone ajuster (Basses 13h, Médiums 11h léger creux, Aigus 13h), Vol ajuster, Mode LED → Son dynamique et percutant
 - **Checklist** : ✅ Fichier | 🎶 Audio | 🎛️ UI
 
 ### Ibanez Jemini Distortion
@@ -147,6 +163,9 @@ Ce document répertorie toutes les pédales disponibles dans WebAmp avec leurs d
   - `Gain B` : Knob (saturation canal B)
   - `Tone` : Knob (équilibre tonal)
   - `Level` : Knob (volume de sortie)
+- **Réglages recommandés** :
+  - ⚒️ **Rock classique / hard rock** : Gain A/B 12–14h, Tone 11–12h, Level 12h → Grain serré, attaque précise
+  - 🕳️ **Grunge / alternative** : Gain A/B 14–15h, Tone 10–11h (un peu plus sombre), Level ajuster → Texture sale et épaisse
 - **Checklist** : ✅ Fichier | 🎶 Audio | 🎛️ UI
 
 ### Vox Satchurator
@@ -157,6 +176,9 @@ Ce document répertorie toutes les pédales disponibles dans WebAmp avec leurs d
   - `Gain` : Knob (niveau de distorsion)
   - `Tone` : Knob (EQ haute fréquence)
   - `Volume` : Knob (niveau de sortie)
+- **Réglages recommandés** :
+  - ⚒️ **Rock classique / hard rock** : Gain 12–14h, Tone 11–12h, Volume 12h → Grain serré, attaque précise
+  - 🕳️ **Grunge / alternative** : Gain 14–15h, Tone 10–11h (un peu plus sombre), Volume ajuster → Texture sale et épaisse
 - **Checklist** : ✅ Fichier | 🎶 Audio | 🎛️ UI
 
 ---
@@ -172,6 +194,10 @@ Ce document répertorie toutes les pédales disponibles dans WebAmp avec leurs d
   - `Tone` : Knob (contrôle des aigus/mi-médiums, tournez horaire pour un son plus brillant)
   - `Level` : Knob (volume de sortie)
 - **Fonctions** : Commutateur pied enclenche l'effet, LED "Check" indique ON
+- **Réglages recommandés** :
+  - 🎯 **Son clair légèrement crunchy** : Drive 9h, Tone 12h, Level ajuster à l'unité → Parfait blues / pop / funky rock
+  - 🔥 **Booster un ampli ou une disto** : Drive 8–9h (quasi minimal), Tone 13h (plus d'aigus pour percer), Level 15–16h (boost de volume) → Pour solos ou riffs avec plus de présence
+  - 🧱 **Overdrive principal rock** : Drive 12–13h, Tone 12–14h, Level 12h → Son saturé rock classique
 - **Checklist** : ✅ Fichier | 🎶 Audio | 🎛️ UI
 
 ### Fulltone OCD
@@ -185,7 +211,10 @@ Ce document répertorie toutes les pédales disponibles dans WebAmp avec leurs d
 - **Fonctions** : Commutateur 2 positions HP/LP (High Peak/Low Peak)
   - **HP** : Plus de bas-médiums et volume, type Marshall/Vox
   - **LP** : Médiums neutres type tweed Fender
-- **Checklist** : ✅ Fichier | 🎶 Audio | 🎛️ UI
+- **Réglages recommandés** :
+  - 🎯 **Son clair légèrement crunchy** : Drive 9h, Tone 12h, Volume ajuster à l'unité, Mode HP → Parfait blues / pop / funky rock
+  - 🔥 **Booster un ampli ou une disto** : Drive 8–9h (quasi minimal), Tone 13h (plus d'aigus pour percer), Volume 15–16h (boost de volume), Mode HP → Pour solos ou riffs avec plus de présence
+  - 🧱 **Overdrive principal rock** : Drive 12–13h, Tone 12–14h, Volume 12h, Mode HP → Son saturé rock classique
 - **Checklist** : ✅ Fichier | 🎶 Audio | 🎛️ UI
 
 ### Klon Centaur
@@ -197,6 +226,10 @@ Ce document répertorie toutes les pédales disponibles dans WebAmp avec leurs d
   - `Treble` : Knob (contrôle des aigus)
   - `Output` : Knob (niveau de sortie)
 - **Fonctions** : Pas de LED (le contournement n'altère pas le son propre)
+- **Réglages recommandés** :
+  - 🎯 **Son clair légèrement crunchy** : Gain 9h, Treble 12h, Output ajuster à l'unité → Parfait blues / pop / funky rock, overdrive transparent
+  - 🔥 **Booster un ampli ou une disto** : Gain 8–9h (quasi minimal), Treble 13h (plus d'aigus pour percer), Output 15–16h (boost de volume) → Pour solos ou riffs avec plus de présence
+  - 🧱 **Overdrive principal rock** : Gain 12–13h, Treble 12–14h, Output 12h → Son saturé rock classique avec transparence
 - **Checklist** : ✅ Fichier | 🎶 Audio | 🎛️ UI
 
 ### Ibanez TS Mini
@@ -208,6 +241,10 @@ Ce document répertorie toutes les pédales disponibles dans WebAmp avec leurs d
   - `Tone` : Knob (aigus)
   - `Level` : Knob (volume)
 - **Fonctions** : Identique à TS9 en version mini, LED ON
+- **Réglages recommandés** :
+  - 🎯 **Son clair légèrement crunchy** : Drive 9h, Tone 12h, Level ajuster à l'unité → Parfait blues / pop / funky rock
+  - 🔥 **Booster un ampli ou une disto** : Drive 8–9h (quasi minimal), Tone 13h (plus d'aigus pour percer), Level 15–16h (boost de volume) → Pour solos ou riffs avec plus de présence
+  - 🧱 **Overdrive principal rock** : Drive 12–13h, Tone 12–14h, Level 12h → Son saturé rock classique
 - **Checklist** : ✅ Fichier | 🎶 Audio | 🎛️ UI
 
 ### Walrus Audio Fundamental Drive
@@ -222,6 +259,10 @@ Ce document répertorie toutes les pédales disponibles dans WebAmp avec leurs d
     - **SMOOTH** : Overdrive doux au silicium
     - **CRUNCH** : Clipping silicium plus dur pour du grain
     - **BRIGHT** : Combine Crunch avec coupure des basses pour plus de brillance
+- **Réglages recommandés** :
+  - 🎯 **Son clair légèrement crunchy** : Gain 9h, Tone 12h, Vol ajuster à l'unité, Mode SMOOTH → Parfait blues / pop / funky rock
+  - 🔥 **Booster un ampli ou une disto** : Gain 8–9h (quasi minimal), Tone 13h (plus d'aigus pour percer), Vol 15–16h (boost de volume), Mode BRIGHT → Pour solos ou riffs avec plus de présence
+  - 🧱 **Overdrive principal rock** : Gain 12–13h, Tone 12–14h, Vol 12h, Mode CRUNCH → Son saturé rock classique avec grain
 - **Checklist** : ✅ Fichier | 🎶 Audio | 🎛️ UI
 
 ### BOSS OD-1
@@ -231,6 +272,10 @@ Ce document répertorie toutes les pédales disponibles dans WebAmp avec leurs d
 - **Réglages** :
   - `Overdrive` : Knob (niveau de drive)
   - `Level` : Knob (volume de sortie)
+- **Réglages recommandés** :
+  - 🎯 **Son clair légèrement crunchy** : Overdrive 9h, Level ajuster à l'unité → Parfait blues / pop / funky rock
+  - 🔥 **Booster un ampli ou une disto** : Overdrive 8–9h (quasi minimal), Level 15–16h (boost de volume) → Pour solos ou riffs avec plus de présence
+  - 🧱 **Overdrive principal rock** : Overdrive 12–13h, Level 12h → Son saturé rock classique
 - **Checklist** : ✅ Fichier | 🎶 Audio | 🎛️ UI
 
 ### Mesa Boogie Grid Slammer
@@ -241,6 +286,10 @@ Ce document répertorie toutes les pédales disponibles dans WebAmp avec leurs d
   - `Gain` : Knob (drive)
   - `Tone` : Knob (EQ)
   - `Level` : Knob (volume)
+- **Réglages recommandés** :
+  - 🎯 **Son clair légèrement crunchy** : Gain 9h, Tone 12h, Level ajuster à l'unité → Parfait blues / pop / funky rock
+  - 🔥 **Booster un ampli ou une disto** : Gain 8–9h (quasi minimal), Tone 13h (plus d'aigus pour percer), Level 15–16h (boost de volume) → Pour solos ou riffs avec plus de présence
+  - 🧱 **Overdrive principal rock** : Gain 12–13h, Tone 12–14h, Level 12h → Son saturé rock classique, serré et précis
 - **Checklist** : ✅ Fichier | 🎶 Audio | 🎛️ UI
 
 ### JHS AT Drive
@@ -251,6 +300,10 @@ Ce document répertorie toutes les pédales disponibles dans WebAmp avec leurs d
   - `Drive` : Knob (gain)
   - `Tone` : Knob (équilibre tonal)
   - `Level` : Knob (volume)
+- **Réglages recommandés** :
+  - 🎯 **Son clair légèrement crunchy** : Drive 9h, Tone 12h, Level ajuster à l'unité → Parfait blues / pop / funky rock
+  - 🔥 **Booster un ampli ou une disto** : Drive 8–9h (quasi minimal), Tone 13h (plus d'aigus pour percer), Level 15–16h (boost de volume) → Pour solos ou riffs avec plus de présence, style Andy Timmons
+  - 🧱 **Overdrive principal rock** : Drive 12–13h, Tone 12–14h, Level 12h → Son saturé rock classique, expressif
 - **Checklist** : ✅ Fichier | 🎶 Audio | 🎛️ UI
 
 ---
@@ -265,6 +318,8 @@ Ce document répertorie toutes les pédales disponibles dans WebAmp avec leurs d
   - `Fuzz` : Knob (intensité du fuzz, CW plus saturé)
   - `Volume` : Knob (son de sortie)
 - **Fonctions** : Versions géminium ou silicium (notamment Jimi Hendrix Model)
+- **Réglages recommandés** :
+  - 🌫️ **Fuzz Face vintage (germanium) – chaud et réactif** : Fuzz max (17h–max), Volume 12h, Volume guitare à 7–8 → Son clair-crunch magique, idéal pour lead psyché / blues rock 70s, style Hendrix
 - **Checklist** : ✅ Fichier | 🎶 Audio | 🎛️ UI
 
 ### ZVEX Fuzz Factory
@@ -278,6 +333,8 @@ Ce document répertorie toutes les pédales disponibles dans WebAmp avec leurs d
   - `Stab` : Knob (stabilité/feedback, bas cause oscillations)
   - `Volume` : Knob (niveau de sortie)
 - **Fonctions** : Commutateur externe pour fonctions EXP ou Sub-octave sur version Vextronix
+- **Réglages recommandés** :
+  - 🦾 **Fuzz moderne type "velcro"** : Gate 14–16h, Drive 12–14h, Comp 13–15h, Stab ajuster selon stabilité souhaitée, Volume ajuster → Texture glitch, inspirée de la Fuzz Factory, son instable et oscillant
 - **Checklist** : ✅ Fichier | 🎶 Audio | 🎛️ UI
 
 ### Electro-Harmonix Big Muff
@@ -288,6 +345,8 @@ Ce document répertorie toutes les pédales disponibles dans WebAmp avec leurs d
   - `Sustain` : Knob (gain/fuzz)
   - `Tone` : Knob (balance graves/aigus)
   - `Volume` : Knob (niveau de sortie)
+- **Réglages recommandés** :
+  - 🧨 **Big Muff – gros mur de son** : Sustain 13–15h, Tone 12h, Volume 12–14h → Stoner / doom / shoegaze, son massif avec scoop médiums, style Smashing Pumpkins / QOTSA
 - **Checklist** : ✅ Fichier | 🎶 Audio | 🎛️ UI
 
 ### Walrus Audio Fundamental Fuzz
@@ -302,6 +361,10 @@ Ce document répertorie toutes les pédales disponibles dans WebAmp avec leurs d
     - **GATE** : Polarisation basse, son "haché/gate"
     - **CLASSIC** : Fuzz classique avec scoop médiums
     - **MID+** : Boost médiums
+- **Réglages recommandés** :
+  - 🌫️ **Fuzz Face vintage** : Gain max (17h–max), Tone 12h, Vol 12h, Mode CLASSIC, Volume guitare à 7–8 → Son clair-crunch magique, idéal pour lead psyché / blues rock 70s
+  - 🧨 **Big Muff – gros mur de son** : Gain 13–15h, Tone 12h, Vol 12–14h, Mode CLASSIC → Stoner / doom / shoegaze, son massif avec scoop médiums
+  - 🦾 **Fuzz moderne type "velcro"** : Gain 12–14h, Tone ajuster, Vol ajuster, Mode GATE → Texture glitch, son haché et instable
 - **Checklist** : ✅ Fichier | 🎶 Audio | 🎛️ UI
 
 ---

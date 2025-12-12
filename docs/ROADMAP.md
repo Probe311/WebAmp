@@ -277,11 +277,11 @@ Plan de développement et fonctionnalités prévues pour WebAmp.
   - [ ] Mode paysage/portrait
 
 ### 4. Hardware
-- [ ] Support MIDI
-  - [ ] Contrôle MIDI des paramètres
-  - [ ] Apprentissage MIDI
-  - [ ] Presets MIDI
-- [ ] Support pédales MIDI
+- [x] ~~Support MIDI~~ (Supprimé - voir ANALYSE_UTILITE_MIDI.md)
+  - ~~Contrôle MIDI des paramètres~~
+  - ~~Apprentissage MIDI~~
+  - ~~Presets MIDI~~
+- [ ] Support pédales MIDI (pour contrôle externe uniquement)
   - [ ] Pédales de contrôle
   - [ ] Expression pedals
   - [ ] Footswitches

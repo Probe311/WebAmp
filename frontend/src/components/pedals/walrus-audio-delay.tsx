@@ -1,101 +1,174 @@
-
+import { useMemo } from 'react'
+import { Radio, RadioReceiver, RotateCcw } from 'lucide-react'
 import { pedalLibrary } from '../../data/pedals'
-import { Pedal } from '../Pedal'
-import { Potentiometer } from '../Potentiometer'
+import { PedalFrame } from './PedalFrame'
 import { Slider } from '../Slider'
 import { SwitchSelector } from '../SwitchSelector'
-
-export interface PedalComponentProps {
-  values?: Record<string, number>
-  onChange?: (param: string, value: number) => void
-  bypassed?: boolean
-}
+import type { PedalComponentProps } from './types'
 
 const pedalId = 'walrus-audio-delay'
+const ACCENT_COLOR = '#00C467'
 
-const buildControls = (
-  params: Record<string, any>,
-  values: Record<string, number>,
-  onChange?: (param: string, value: number) => void,
-  accentColor?: string
-) => {
-  return Object.entries(params).map(([name, def]) => {
-    const controlType = (def as any).controlType || 'knob'
-    const value = values[name] ?? (def as any).default ?? 0
+/**
+ * Composant complet de la pédale Walrus Audio Delay
+ * Layout spécial : 3 sliders horizontaux + switch-selector en bas
+ */
+export function WalrusAudioDelayPedal({ 
+  values = {}, 
+  onChange, 
+  bypassed = false,
+  onBypassToggle,
+  bottomActions
+}: PedalComponentProps) {
+  const model = useMemo(() => pedalLibrary.find((p) => p.id === pedalId), [])
+  
+  if (!model) return null
 
-    if (controlType === 'slider') {
-      const orientation = (def as any).orientation || 'vertical'
-      return (
+  const time = values.time ?? model.parameters.time.default
+  const feedback = values.feedback ?? model.parameters.feedback.default
+  const mix = values.mix ?? model.parameters.mix.default
+  const mode = values.mode ?? model.parameters.mode.default
+
+  const controls = useMemo(() => (
+    <div className="flex flex-col gap-4 w-full">
+      {/* Time Slider */}
+      <div className="w-full">
         <Slider
-          key={name}
-          label={(def as any).label}
-          value={value}
-          min={(def as any).min}
-          max={(def as any).max}
-          orientation={orientation}
-          onChange={(v) => onChange?.(name, v)}
-          color={accentColor || (def as any).color}
+          label="TIME"
+          value={time}
+          min={model.parameters.time.min}
+          max={model.parameters.time.max}
+          orientation="horizontal"
+          onChange={(v) => onChange?.('time', v)}
+          color={ACCENT_COLOR}
         />
-      )
-    }
+      </div>
 
-    if (controlType === 'switch-selector' && (def as any).labels) {
-      return (
+      {/* Feedback Slider */}
+      <div className="w-full">
+        <Slider
+          label="FEEDBACK"
+          value={feedback}
+          min={model.parameters.feedback.min}
+          max={model.parameters.feedback.max}
+          orientation="horizontal"
+          onChange={(v) => onChange?.('feedback', v)}
+          color={ACCENT_COLOR}
+        />
+      </div>
+
+      {/* Mix Slider */}
+      <div className="w-full">
+        <Slider
+          label="MIX"
+          value={mix}
+          min={model.parameters.mix.min}
+          max={model.parameters.mix.max}
+          orientation="horizontal"
+          onChange={(v) => onChange?.('mix', v)}
+          color={ACCENT_COLOR}
+        />
+      </div>
+
+      {/* Mode Switch Selector */}
+      <div className="w-full mt-2">
         <SwitchSelector
-          key={name}
-          value={value}
-          min={(def as any).min}
-          max={(def as any).max}
-          labels={(def as any).labels}
-          icons={(def as any).icons}
-          color={accentColor || (def as any).color}
-          onChange={(v) => onChange?.(name, v)}
+          value={mode}
+          min={model.parameters.mode.min}
+          max={model.parameters.mode.max}
+          labels={['DIGITAL', 'ANALOG', 'REVERSE']}
+          icons={[Radio, RadioReceiver, RotateCcw]}
+          color={ACCENT_COLOR}
+          onChange={(v) => onChange?.('mode', v)}
+          className="switch-selector-full-width"
         />
-      )
-    }
+      </div>
+    </div>
+  ), [time, feedback, mix, mode, model, onChange])
 
-    return (
-      <Potentiometer
-        key={name}
-        label={(def as any).label}
-        value={value}
-        min={(def as any).min}
-        max={(def as any).max}
-        color={accentColor || (def as any).color}
-        onChange={(v) => onChange?.(name, v)}
-      />
-    )
-  })
+  // Créer un modèle modifié avec la couleur d'accent correcte
+  const modelWithAccent = useMemo(() => ({
+    ...model,
+    accentColor: ACCENT_COLOR
+  }), [model])
+
+  return (
+    <PedalFrame
+      model={modelWithAccent}
+      layout="flex"
+      bypassed={bypassed}
+      onBypassToggle={onBypassToggle}
+      showFootswitch={false}
+      bottomActions={bottomActions}
+      className="has-horizontal-sliders"
+    >
+      {controls}
+    </PedalFrame>
+  )
 }
 
+// Export pour compatibilité avec l'ancien système
 export const WalrusAudioDelayControls = ({
   values = {},
   onChange,
 }: PedalComponentProps) => {
   const model = pedalLibrary.find((p) => p.id === pedalId)
   if (!model) return null
-  const params = model.parameters
-  return <>{buildControls(params, values, onChange, model.accentColor)}</>
-}
 
-export const WalrusAudioDelayPedal = ({ values = {}, onChange, bypassed = false }: PedalComponentProps) => {
-  const model = pedalLibrary.find((p) => p.id === pedalId)
-  if (!model) return null
-  const params = model.parameters
+  const time = values.time ?? model.parameters.time.default
+  const feedback = values.feedback ?? model.parameters.feedback.default
+  const mix = values.mix ?? model.parameters.mix.default
+  const mode = values.mode ?? model.parameters.mode.default
 
   return (
-    <Pedal
-      brand={model.brand}
-      model={model.model}
-      color={model.color}
-      accentColor={model.accentColor}
-      bypassed={bypassed}
-      showFootswitch={false}
-    >
-      {buildControls(params, values, onChange, model.accentColor)}
-    </Pedal>
+    <div className="flex flex-col gap-4 w-full">
+      <div className="w-full">
+        <Slider
+          label="TIME"
+          value={time}
+          min={model.parameters.time.min}
+          max={model.parameters.time.max}
+          orientation="horizontal"
+          onChange={(v) => onChange?.('time', v)}
+          color={ACCENT_COLOR}
+        />
+      </div>
+      <div className="w-full">
+        <Slider
+          label="FEEDBACK"
+          value={feedback}
+          min={model.parameters.feedback.min}
+          max={model.parameters.feedback.max}
+          orientation="horizontal"
+          onChange={(v) => onChange?.('feedback', v)}
+          color={ACCENT_COLOR}
+        />
+      </div>
+      <div className="w-full">
+        <Slider
+          label="MIX"
+          value={mix}
+          min={model.parameters.mix.min}
+          max={model.parameters.mix.max}
+          orientation="horizontal"
+          onChange={(v) => onChange?.('mix', v)}
+          color={ACCENT_COLOR}
+        />
+      </div>
+      <div className="w-full mt-2">
+        <SwitchSelector
+          value={mode}
+          min={model.parameters.mode.min}
+          max={model.parameters.mode.max}
+          labels={['DIGITAL', 'ANALOG', 'REVERSE']}
+          icons={[Radio, RadioReceiver, RotateCcw]}
+          color={ACCENT_COLOR}
+          onChange={(v) => onChange?.('mode', v)}
+          className="switch-selector-full-width"
+        />
+      </div>
+    </div>
   )
 }
 
 export default WalrusAudioDelayPedal
-

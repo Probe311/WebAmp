@@ -8,7 +8,7 @@ import { CTA } from './CTA'
 import { useCatalog } from '../hooks/useCatalog'
 
 interface AmplifierSelectorProps {
-  selectedAmplifier?: string
+  selectedAmplifier?: string | null
   onAmplifierChange?: (amplifierId: string) => void
   onParametersChange?: (parameters: Record<string, number>) => void
   hasPedals?: boolean

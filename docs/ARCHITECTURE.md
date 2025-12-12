@@ -95,11 +95,18 @@ native/
 frontend/
 ├── src/
 │   ├── components/
-│   │   ├── Pedalboard.tsx    # Chaîne d'effets
-│   │   ├── Console.tsx       # Console (ampli, cab, micro)
-│   │   └── StatsPanel.tsx    # Monitoring
+│   │   ├── Pedalboard.tsx         # Chaîne d'effets
+│   │   ├── AmplifierSelector.tsx  # Sélecteur d'ampli
+│   │   ├── drummachine/           # Machine à rythmes
+│   │   │   ├── DrumMachinePanel.tsx
+│   │   │   └── DrumMachineCompact.tsx
+│   │   └── monitoring/            # Panneaux de monitoring
+│   ├── utils/
+│   │   ├── pedalControlHelpers.ts # Analyse des contrôles de pédales
+│   │   ├── pedalboardSync.ts     # Synchronisation WebSocket/Audio
+│   │   └── profileLoader.ts      # Chargement de profils
 │   ├── services/
-│   │   └── websocket.ts      # Client WebSocket
+│   │   └── websocket.ts          # Client WebSocket
 │   ├── App.tsx
 │   └── main.tsx
 └── package.json
@@ -110,15 +117,40 @@ frontend/
 #### Pedalboard
 - Affichage de la chaîne d'effets
 - Ajout/suppression d'effets
-- Réordonnancement (drag-drop à venir)
+- Réordonnancement par drag & drop
 - Contrôle des paramètres
+- Synchronisation avec moteur audio et WebSocket
 
-#### Console
+#### AmplifierSelector
+- Sélection d'amplificateur
 - Contrôles ampli (gain, volume, tone)
 - Sélection de cabinet (IR)
 - Position du micro
 
-#### StatsPanel
+#### DrumMachine
+- Machine à rythmes complète
+- Interface compacte intégrée au layout
+- Modal plein écran pour édition avancée
+- Synchronisation avec le contexte global
+
+#### Utilitaires
+- `pedalControlHelpers.ts` : Analyse des types de contrôles (sliders, knobs, switch-selectors)
+  - `analyzeControlTypes()` : Analyse les paramètres d'une pédale
+  - `analyzeControlTypesFromModel()` : Analyse depuis le modèle de pédale
+  - `determineKnobSize()` : Détermine la taille optimale des knobs
+- `pedalboardSync.ts` : Synchronisation unifiée entre moteur audio et WebSocket
+  - `syncEffectToAudio()` : Synchronise avec le moteur audio
+  - `syncEffectToWebSocket()` : Synchronise avec WebSocket
+  - `removeEffectFromAudio()` : Supprime un effet
+  - `updateEffectParametersInAudio()` : Met à jour les paramètres
+  - `setEffectEnabledInAudio()` : Active/désactive un effet
+- `profileLoader.ts` : Chargement séquentiel de profils/presets avec gestion d'état
+  - `loadProfile()` : Charge un profil depuis les données
+  - `loadProfileSequentially()` : Charge un profil de manière séquentielle avec délais configurables
+
+Voir [OPTIMIZATION.md](OPTIMIZATION.md) pour plus de détails sur les optimisations.
+
+#### Monitoring
 - CPU usage
 - Latence
 - Vu-mètres (input/output)

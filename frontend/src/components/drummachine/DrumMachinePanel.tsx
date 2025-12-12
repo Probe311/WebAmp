@@ -3,29 +3,9 @@ import { CTA } from '../CTA'
 import { Slider } from '../Slider'
 import { useDrumMachine, DrumInstrument } from '../../contexts/DrumMachineContext'
 import { DEFAULT_PATTERNS } from '../../contexts/patterns'
+import { DrumPad, INSTRUMENT_LABELS, INSTRUMENT_COLORS } from './DrumPad'
 
-const INSTRUMENTS: DrumInstrument[] = ['kick', 'snare', 'hihat', 'openhat', 'crash', 'ride', 'tom1', 'tom2']
-const INSTRUMENT_LABELS: Record<DrumInstrument, string> = {
-  kick: 'Kick',
-  snare: 'Snare',
-  hihat: 'Hi-Hat',
-  openhat: 'Open Hat',
-  crash: 'Crash',
-  ride: 'Ride',
-  tom1: 'Tom 1',
-  tom2: 'Tom 2'
-}
-
-const INSTRUMENT_COLORS: Record<DrumInstrument, string> = {
-  kick: '#ef4444',
-  snare: '#3b82f6',
-  hihat: '#10b981',
-  openhat: '#06b6d4',
-  crash: '#f59e0b',
-  ride: '#8b5cf6',
-  tom1: '#ec4899',
-  tom2: '#f97316'
-}
+const INSTRUMENTS: DrumInstrument[] = ['kick', 'snare', 'hihat', 'openhat', 'crash', 'ride', 'tom1', 'tom2', 'tom3']
 
 const NUM_STEPS = 16
 
@@ -180,56 +160,49 @@ export function DrumMachinePanel() {
             </div>
 
             {/* Lignes d'instruments */}
-            {INSTRUMENTS.map((instrument) => (
-              <div key={instrument} className="grid grid-cols-[96px_repeat(16,40px)_160px] gap-1 mb-1 items-center">
-                <div className="flex items-center gap-2">
-                  <div
-                    className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: INSTRUMENT_COLORS[instrument] }}
-                  />
-                  <span className="text-sm font-medium">{INSTRUMENT_LABELS[instrument]}</span>
+            {INSTRUMENTS.map((instrument) => {
+              return (
+                <div key={instrument} className="grid grid-cols-[96px_repeat(16,40px)_160px] gap-1.5 mb-1.5 items-center">
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="w-3 h-3 rounded-full"
+                      style={{ backgroundColor: INSTRUMENT_COLORS[instrument] }}
+                    />
+                    <span className="text-sm font-medium">{INSTRUMENT_LABELS[instrument]}</span>
+                  </div>
+                  {Array.from({ length: NUM_STEPS }).map((_, stepIndex) => {
+                    const isStepActive = pattern[stepIndex]?.[instrument] || false
+                    const isCurrentStepActive = stepIndex === currentStep && isPlaying && isStepActive
+                    
+                    return (
+                      <DrumPad
+                        key={stepIndex}
+                        instrument={instrument}
+                        isActive={isCurrentStepActive}
+                        isStepActive={isStepActive}
+                        onClick={() => toggleStep(stepIndex, instrument)}
+                        size="medium"
+                        showLabel={false}
+                        className="w-full min-w-[40px]"
+                      />
+                    )
+                  })}
+                  <div className="flex items-center gap-3 pl-2">
+                    <Volume2 size={14} className="text-black/50 dark:text-white/50" />
+                    <Slider
+                      value={volumes[instrument]}
+                      min={0}
+                      max={100}
+                      onChange={(value) => handleVolumeChange(instrument, value)}
+                      label=""
+                      orientation="horizontal"
+                      className="w-28"
+                    />
+                    <span className="text-xs w-12 text-right">{volumes[instrument]}%</span>
+                  </div>
                 </div>
-                {Array.from({ length: NUM_STEPS }).map((_, stepIndex) => (
-                  <button
-                    key={stepIndex}
-                    onClick={() => toggleStep(stepIndex, instrument)}
-                    onTouchStart={(e) => {
-                      e.preventDefault()
-                      toggleStep(stepIndex, instrument)
-                    }}
-                    className={`h-10 rounded transition-all duration-150 touch-manipulation ${
-                      pattern[stepIndex]?.[instrument]
-                        ? 'bg-opacity-100 shadow-md'
-                        : 'bg-gray-200 dark:bg-gray-600 bg-opacity-30'
-                    } ${
-                      stepIndex === currentStep && isPlaying
-                        ? 'ring-2 ring-black dark:ring-white ring-offset-1'
-                        : ''
-                    }`}
-                    style={{
-                      backgroundColor: pattern[stepIndex]?.[instrument]
-                        ? INSTRUMENT_COLORS[instrument]
-                        : undefined,
-                      minWidth: '40px',
-                      minHeight: '40px'
-                    }}
-                  />
-                ))}
-                <div className="flex items-center gap-3 pl-2">
-                  <Volume2 size={14} className="text-black/50 dark:text-white/50" />
-                  <Slider
-                    value={volumes[instrument]}
-                    min={0}
-                    max={100}
-                    onChange={(value) => handleVolumeChange(instrument, value)}
-                    label=""
-                    orientation="horizontal"
-                    className="w-28"
-                  />
-                  <span className="text-xs w-12 text-right">{volumes[instrument]}%</span>
-                </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       </div>

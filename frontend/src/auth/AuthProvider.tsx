@@ -1,6 +1,6 @@
 import { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { Session, User } from '@supabase/supabase-js'
-import { useToast } from '../../components/notifications/ToastProvider'
+import { useToast } from '../components/notifications/ToastProvider'
 import { supabase, isSupabaseEnabled, requireSupabase } from './supabaseClient'
 import { AuthContextValue } from './types'
 
@@ -168,8 +168,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.error('[Auth] Erreur de demande de reset password', error)
       showToast({
         variant: 'error',
-        title: 'Impossible d’envoyer l’e-mail',
-        message: error instanceof Error ? error.message : 'Vérifie l’adresse saisie.'
+        title: 'Impossible d\'envoyer l\'e-mail',
+        message: error instanceof Error ? error.message : 'Vérifie l\'adresse saisie.'
       })
       throw error
     } finally {
@@ -235,7 +235,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext)
   if (!context) {
-    throw new Error('useAuth doit être utilisé à l’intérieur de AuthProvider')
+    throw new Error('useAuth doit être utilisé à l\'intérieur de AuthProvider')
   }
   return context
 }

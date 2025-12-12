@@ -231,11 +231,12 @@ function getPedalSpecificAudioConfig(
   }
 
   // Walrus Audio Distortion : Distortion moderne avec modes, mode-dependent
+  // Distortion doit être plus agressive que l'overdrive (hard clipping vs soft clipping)
   if (pedalId === 'walrus-audio-distortion') {
     switch (paramName) {
       case 'gain':
-        // Source: min: 0.2, max: 1.0, default: 0.7
-        return 0.2 + normalized * 0.8
+        // Source: min: 0.5, max: 2.5, default: 1.5 (gain plus élevé que overdrive pour hard clipping)
+        return 0.5 + normalized * 2.0
       case 'tone':
         // Source: min: 0.2, max: 0.8, default: 0.5
         const toneNormalized = 0.2 + normalized * 0.6
@@ -317,11 +318,12 @@ function getPedalSpecificAudioConfig(
   }
 
   // Walrus Audio Drive : Drive moderne avec modes (SMOOTH, CRUNCH, BRIGHT)
+  // Overdrive = soft clipping (moins agressif que distortion)
   if (pedalId === 'walrus-audio-drive') {
     switch (paramName) {
       case 'gain':
-        // Source: min: 0.2, max: 0.9, default: 0.5
-        return 0.2 + normalized * 0.7
+        // Source: min: 0.1, max: 0.7, default: 0.4 (gain plus doux que distortion pour soft clipping)
+        return 0.1 + normalized * 0.6
       case 'tone':
         // Source: min: 0.25, max: 0.85, default: 0.6
         const toneNormalized = 0.25 + normalized * 0.6

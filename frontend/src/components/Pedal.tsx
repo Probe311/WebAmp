@@ -1,4 +1,7 @@
 import { ReactNode, useMemo } from 'react'
+import { BadgeCheck } from 'lucide-react'
+import { getBrandLogo } from '../utils/brandLogos'
+import walrusLogo from '../assets/logos/walrus_small.svg'
 
 export type PedalSize = 'S' | 'M' | 'L' | 'XL' | 'XXL'
 
@@ -18,7 +21,7 @@ export interface PedalProps {
 }
 
 // Système de grille : largeur × hauteur (en unités de base de 200px)
-const BASE_UNIT = 220
+const BASE_UNIT = 210
 const HEIGHT_MULTIPLIER = 2
 const SIZE_CONFIG: Record<PedalSize, { width: string; height: string; padding: string; fontSize: { brand: string; model: string } }> = {
   S: { 
@@ -80,7 +83,7 @@ export function Pedal({
   const hasBottomActions = !!bottomActions
   const shouldShowBottomBar = showFootswitch || hasBottomActions
   
-  // Détecter si la pédale a 3 knobs uniquement
+  // Détecter si la pédale a 3 ou 4 knobs uniquement
   const hasThreeKnobs = useMemo(() => {
     // Priorité à la classe passée depuis Pedalboard
     if (className.includes('has-three-knobs')) return true
@@ -91,6 +94,18 @@ export function Pedal({
       child?.type?.displayName === 'Potentiometer' || 
       child?.props?.className?.includes('potentiometer-container')
     ).length === 3
+  }, [children, className])
+
+  const hasFourKnobs = useMemo(() => {
+    // Priorité à la classe passée depuis Pedalboard
+    if (className.includes('has-four-knobs')) return true
+    // Sinon, vérifier les enfants rendus
+    if (!children) return false
+    const childArray = Array.isArray(children) ? children : [children]
+    return childArray.filter((child: any) => 
+      child?.type?.displayName === 'Potentiometer' || 
+      child?.props?.className?.includes('potentiometer-container')
+    ).length === 4
   }, [children, className])
 
   return (
@@ -109,14 +124,32 @@ export function Pedal({
       {(brand || model) && (
         <div className="flex flex-row justify-between pb-1.5 border-b border-black/10 dark:border-white/10 shrink-0 relative">
           <div className="flex-1 flex flex-col items-center select-none">
-            {brand && (
-              <div 
-                className="text-black/75 dark:text-white/75 uppercase tracking-[0.5px] mb-0.5 font-bold"
-                style={{ fontSize: config.fontSize.brand }}
-              >
-                {brand}
-              </div>
-            )}
+            {brand && (() => {
+              const isWalrusAudio = brand === 'Walrus Audio'
+              const brandLogo = isWalrusAudio ? walrusLogo : getBrandLogo(brand)
+              
+              return isWalrusAudio && brandLogo ? (
+                <div className="flex items-center justify-center gap-1 mb-0.5">
+                  <img
+                    src={brandLogo}
+                    alt={brand}
+                    className="h-3 object-contain dark:brightness-0 dark:invert"
+                    style={{ maxWidth: '60px' }}
+                  />
+                  <BadgeCheck 
+                    className="w-2.5 h-2.5 text-emerald-600 dark:text-emerald-400 flex-shrink-0"
+                  />
+                  <span className="sr-only">Matériel certifié</span>
+                </div>
+              ) : (
+                <div 
+                  className="text-black/75 dark:text-white/75 uppercase tracking-[0.5px] mb-0.5 font-bold"
+                  style={{ fontSize: config.fontSize.brand }}
+                >
+                  {brand}
+                </div>
+              )
+            })()}
             {model && (
               <div 
                 className="font-extrabold text-black/95 dark:text-white/95 text-center leading-tight"
@@ -142,7 +175,9 @@ export function Pedal({
             : className.includes('has-switch-selector-with-knobs')
             ? 'grid-cols-1 gap-2'
             : hasThreeKnobs 
-            ? 'grid-cols-2 justify-items-center auto-rows-auto' 
+            ? 'grid-cols-2 justify-items-center auto-rows-auto gap-3' 
+            : hasFourKnobs
+            ? 'grid-cols-2 justify-items-center auto-rows-auto gap-3'
             : '[&:has(.progress-bar-horizontal)]:grid-cols-1 [&:has(.progress-bar-horizontal)]:gap-2 [&:has(.progress-bar-horizontal)]:py-0.5 [&:has(.progress-bar-container.progress-bar-vertical:not(.progress-bar-horizontal))]:grid-cols-3 [&:has(.progress-bar-container.progress-bar-vertical:not(.progress-bar-horizontal))]:gap-3 [&:has(.slider-horizontal)]:grid-cols-1 [&:has(.slider-horizontal)]:gap-2 [&:has(.slider-horizontal)]:py-0.5 [&:has(.slider-vertical:not(.slider-horizontal))]:grid-cols-3 [&:has(.slider-vertical:not(.slider-horizontal))]:gap-3 grid-cols-[repeat(auto-fit,minmax(60px,1fr))]'
         }`}>
           {className.includes('is-gmajor2') ? (
@@ -225,14 +260,53 @@ export function Pedal({
             ) : <div className="max-w-full overflow-hidden">{children}</div>
           ) : hasThreeKnobs ? (
             <>
-              {Array.isArray(children) ? children.map((child: any, index: number) => (
-                <div
-                  key={index}
-                  className={`max-w-full overflow-hidden ${index === 2 ? 'col-span-2 justify-self-center' : ''}`}
-                >
-                  {child}
-                </div>
-              )) : children}
+              {Array.isArray(children) ? (
+                <>
+                  {/* Ligne 1 : 2 premiers knobs */}
+                  {children.slice(0, 2).map((child: any, index: number) => (
+                    <div
+                      key={index}
+                      className="max-w-full overflow-hidden flex justify-center items-center"
+                    >
+                      {child}
+                    </div>
+                  ))}
+                  {/* Ligne 2 : 3ème knob centré */}
+                  {children.slice(2, 3).map((child: any, index: number) => (
+                    <div
+                      key={index + 2}
+                      className="col-span-2 max-w-full overflow-hidden flex justify-center items-center"
+                    >
+                      {child}
+                    </div>
+                  ))}
+                </>
+              ) : children}
+            </>
+          ) : hasFourKnobs ? (
+            <>
+              {Array.isArray(children) ? (
+                <>
+                  {/* Ligne 1 : 2 premiers knobs */}
+                  {children.slice(0, 2).map((child: any, index: number) => (
+                    <div
+                      key={index}
+                      className="max-w-full overflow-hidden flex justify-center items-center"
+                    >
+                      {child}
+                    </div>
+                  ))}
+                  {/* Ligne 2 : 2 derniers knobs */}
+                  {children.slice(2, 4).map((child: any, index: number) => (
+                    <div
+                      key={index + 2}
+                      className="max-w-full overflow-hidden flex justify-center items-center"
+                    >
+                      {child}
+                    </div>
+                  ))}
+                </>
+              ) : children}
             </>
           ) : (
             Array.isArray(children) ? (

@@ -31,7 +31,7 @@ export function makeOverdriveWithMode(
   const toneValue = mapParameterToAudioValue('overdrive', 'tone', tone, pedalId)
   const volumeValue = mapParameterToAudioValue('overdrive', 'volume', volume, pedalId)
 
-  // Courbes selon le mode
+  // Courbes selon le mode - Overdrive = soft clipping (moins agressif)
   function makeOverdriveCurve(drive: number, mode: number): Float32Array {
     const samples = 44100
     const curve = new Float32Array(samples)
@@ -40,17 +40,17 @@ export function makeOverdriveWithMode(
       const x = (i * 2 / samples) - 1
       
       switch (mode) {
-        case 0: // SMOOTH - doux au silicium
-          curve[i] = ((1 + drive * 0.7) * x) / (1 + drive * 0.7 * Math.abs(x))
+        case 0: // SMOOTH - doux au silicium (soft clipping)
+          curve[i] = ((1 + drive * 0.5) * x) / (1 + drive * 0.5 * Math.abs(x))
           break
-        case 1: // CRUNCH - clipping silicium plus dur
-          curve[i] = ((1 + drive * 1.2) * x) / (1 + drive * 1.2 * Math.abs(x))
+        case 1: // CRUNCH - clipping silicium modéré (soft clipping)
+          curve[i] = ((1 + drive * 0.8) * x) / (1 + drive * 0.8 * Math.abs(x))
           break
-        case 2: // BRIGHT - Crunch + coupe-bas
-          curve[i] = ((1 + drive * 1.2) * x) / (1 + drive * 1.2 * Math.abs(x))
+        case 2: // BRIGHT - Crunch + coupe-bas (soft clipping)
+          curve[i] = ((1 + drive * 0.8) * x) / (1 + drive * 0.8 * Math.abs(x))
           break
         default:
-          curve[i] = ((1 + drive) * x) / (1 + drive * Math.abs(x))
+          curve[i] = ((1 + drive * 0.6) * x) / (1 + drive * 0.6 * Math.abs(x))
       }
     }
     return curve
@@ -113,7 +113,7 @@ export function makeDistortionWithMode(
   const toneValue = mapParameterToAudioValue('distortion', 'tone', tone, pedalId)
   const volumeValue = mapParameterToAudioValue('distortion', 'volume', volume, pedalId)
 
-  // Courbes selon le mode
+  // Courbes selon le mode - Distortion = hard clipping (plus agressif que overdrive)
   function makeDistortionCurve(amount: number, mode: number): Float32Array {
     const samples = 44100
     const curve = new Float32Array(samples)
@@ -123,17 +123,20 @@ export function makeDistortionWithMode(
       const x = (i / samples) * 2 - 1
       
       switch (mode) {
-        case 0: // DARK - clipping silicium asymétrique + coupe-bas
-          curve[i] = (1 + k * 0.8) * x / (1 + k * 0.8 * Math.abs(x))
+        case 0: // DARK - clipping silicium asymétrique + coupe-bas (hard clipping)
+          // Hard clipping asymétrique plus agressif
+          curve[i] = Math.tanh(x * k * 2.0) * 0.8
           break
-        case 1: // SI - clipping silicium classique
-          curve[i] = (1 + k) * x / (1 + k * Math.abs(x))
+        case 1: // SI - clipping silicium classique (hard clipping)
+          // Hard clipping symétrique agressif
+          curve[i] = Math.tanh(x * k * 2.5)
           break
-        case 2: // LED - clipping via diodes LED, son plus dynamique
-          curve[i] = Math.tanh(x * k * 1.5)
+        case 2: // LED - clipping via diodes LED, son plus dynamique (hard clipping)
+          // Hard clipping LED très agressif
+          curve[i] = Math.tanh(x * k * 3.0)
           break
         default:
-          curve[i] = (1 + k) * x / (1 + k * Math.abs(x))
+          curve[i] = Math.tanh(x * k * 2.5)
       }
     }
     return curve

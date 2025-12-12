@@ -142,5 +142,4 @@ Tous les effets ont des tests unitaires vérifiant :
 - [ ] Support des modes pour les pédales multi-modes (Walrus Audio, etc.)
 - [ ] IR loader pour charger des fichiers IR personnalisés
 - [ ] Routing parallèle (en plus du routing série)
-- [ ] Presets et sauvegarde de configurations
 

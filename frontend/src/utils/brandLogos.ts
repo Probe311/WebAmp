@@ -5,6 +5,7 @@ import orangeLogo from '../assets/logos/orange.svg'
 import mesaBoogieLogo from '../assets/logos/mesa-boogie.svg'
 import voxLogo from '../assets/logos/vox.svg'
 import peaveyLogo from '../assets/logos/peavey.svg'
+import walrusLogo from '../assets/logos/walrus.svg'
 
 // Mapping des logos de marques
 export const brandLogos: Record<string, string> = {
@@ -13,7 +14,9 @@ export const brandLogos: Record<string, string> = {
   'Orange': orangeLogo,
   'Mesa Boogie': mesaBoogieLogo,
   'Vox': voxLogo,
-  'Peavey': peaveyLogo
+  'Peavey': peaveyLogo,
+  'Walrus': walrusLogo,
+  'Walrus Audio': walrusLogo
 }
 
 // Fonction pour obtenir le chemin du logo

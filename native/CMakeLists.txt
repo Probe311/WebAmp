@@ -94,7 +94,6 @@ set(NATIVE_SOURCES
     src/effects/reverb.cpp
     src/ir_loader.cpp
     src/ir_convolution.cpp
-    src/preset_manager.cpp
     src/fft_helper.cpp
     src/buffer_pool.cpp
     src/simd_helper.cpp
@@ -124,7 +123,6 @@ set(NATIVE_HEADERS
     include/ring_buffer.h
     include/ir_loader.h
     include/ir_convolution.h
-    include/preset_manager.h
     include/fft_helper.h
     include/buffer_pool.h
     include/simd_helper.h
