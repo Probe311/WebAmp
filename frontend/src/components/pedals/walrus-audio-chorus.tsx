@@ -7,7 +7,6 @@ import { SwitchSelector } from '../SwitchSelector'
 import type { PedalComponentProps } from './types'
 
 const pedalId = 'walrus-audio-chorus'
-const ACCENT_COLOR = '#9A81BB'
 
 /**
  * Composant complet de la pédale Walrus Audio Chorus
@@ -40,7 +39,7 @@ export function WalrusAudioChorusPedal({
           max={model.parameters.rate.max}
           orientation="horizontal"
           onChange={(v) => onChange?.('rate', v)}
-          color={ACCENT_COLOR}
+          color={model.accentColor}
         />
       </div>
 
@@ -53,7 +52,7 @@ export function WalrusAudioChorusPedal({
           max={model.parameters.depth.max}
           orientation="horizontal"
           onChange={(v) => onChange?.('depth', v)}
-          color={ACCENT_COLOR}
+          color={model.accentColor}
         />
       </div>
 
@@ -66,7 +65,7 @@ export function WalrusAudioChorusPedal({
           max={model.parameters.mix.max}
           orientation="horizontal"
           onChange={(v) => onChange?.('mix', v)}
-          color={ACCENT_COLOR}
+          color={model.accentColor}
         />
       </div>
 
@@ -78,7 +77,7 @@ export function WalrusAudioChorusPedal({
           max={model.parameters.mode.max}
           labels={['LIGHT', 'MEDIUM', 'HEAVY']}
           icons={[CircleDot, Square, Circle]}
-          color={ACCENT_COLOR}
+          color={model.accentColor}
           onChange={(v) => onChange?.('mode', v)}
           className="switch-selector-full-width"
         />
@@ -86,15 +85,9 @@ export function WalrusAudioChorusPedal({
     </div>
   ), [rate, depth, mix, mode, model, onChange])
 
-  // Créer un modèle modifié avec la couleur d'accent correcte
-  const modelWithAccent = useMemo(() => ({
-    ...model,
-    accentColor: ACCENT_COLOR
-  }), [model])
-
   return (
     <PedalFrame
-      model={modelWithAccent}
+      model={model}
       layout="flex"
       bypassed={bypassed}
       onBypassToggle={onBypassToggle}
@@ -130,7 +123,7 @@ export const WalrusAudioChorusControls = ({
           max={model.parameters.rate.max}
           orientation="horizontal"
           onChange={(v) => onChange?.('rate', v)}
-          color={ACCENT_COLOR}
+          color={model.accentColor}
         />
       </div>
       <div className="w-full">
@@ -141,7 +134,7 @@ export const WalrusAudioChorusControls = ({
           max={model.parameters.depth.max}
           orientation="horizontal"
           onChange={(v) => onChange?.('depth', v)}
-          color={ACCENT_COLOR}
+          color={model.accentColor}
         />
       </div>
       <div className="w-full">
@@ -152,7 +145,7 @@ export const WalrusAudioChorusControls = ({
           max={model.parameters.mix.max}
           orientation="horizontal"
           onChange={(v) => onChange?.('mix', v)}
-          color={ACCENT_COLOR}
+          color={model.accentColor}
         />
       </div>
       <div className="w-full mt-2">
@@ -162,7 +155,7 @@ export const WalrusAudioChorusControls = ({
           max={model.parameters.mode.max}
           labels={['LIGHT', 'MEDIUM', 'HEAVY']}
           icons={[CircleDot, Square, Circle]}
-          color={ACCENT_COLOR}
+          color={model.accentColor}
           onChange={(v) => onChange?.('mode', v)}
           className="switch-selector-full-width"
         />

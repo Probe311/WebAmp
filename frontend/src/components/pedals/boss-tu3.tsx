@@ -3,6 +3,7 @@ import { pedalLibrary } from '../../data/pedals'
 import { PedalFrame } from './PedalFrame'
 import { SwitchSelector } from '../SwitchSelector'
 import type { PedalComponentProps } from './types'
+import { PEDAL_BUTTON_COLORS } from '../../utils/pedalColors'
 
 const pedalId = 'boss-tu3'
 
@@ -317,7 +318,7 @@ export const BossTu3Controls = ({
         <div
           className="w-full rounded-md px-2 py-2"
           style={{
-            background: '#f8f8f8',
+            background: PEDAL_BUTTON_COLORS.bypassed.backgroundColor,
             boxShadow: 'inset 1px 1px 2px rgba(0,0,0,0.05), inset -1px -1px 2px rgba(255,255,255,0.8)'
           }}
         >
@@ -373,7 +374,7 @@ export const BossTu3Controls = ({
       <div
         className="w-full px-1.5 py-1.5 rounded-lg"
         style={{
-          background: '#f5f5f5',
+          background: PEDAL_BUTTON_COLORS.bypassed.backgroundColor,
           boxShadow: 'inset 2px 2px 4px rgba(0, 0, 0, 0.05), inset -2px -2px 4px rgba(255, 255, 255, 0.8)'
         }}
       >
@@ -405,7 +406,7 @@ export const BossTu3Controls = ({
           onClick={handleSoundA}
           className="flex-1 py-1.5 px-2.5 rounded-lg text-sm font-semibold text-black/70 transition-all"
           style={{
-            background: '#ffffff',
+            background: PEDAL_BUTTON_COLORS.active.backgroundColor,
             boxShadow: '2px 2px 4px rgba(0, 0, 0, 0.08), -2px -2px 4px rgba(255, 255, 255, 0.9)'
           }}
           onMouseDown={(e) => {

@@ -23,6 +23,7 @@ import {
   Cloud,
   Shuffle
 } from 'lucide-react'
+import { PEDAL_ACCENT_COLORS } from './pedalAccentColors'
 
 export type ControlType = 'knob' | 'switch-vertical' | 'switch-horizontal' | 'slider' | 'switch-selector'
 
@@ -61,7 +62,7 @@ export const pedalLibrary: PedalModel[] = [
       level: { min: 0, max: 100, default: 50, label: 'Level' }
     },
     color: '#ff9500',
-    accentColor: '#ff6b00',
+    accentColor: PEDAL_ACCENT_COLORS.ORANGE_DARK,
     style: 'vintage'
   },
   {
@@ -76,7 +77,7 @@ export const pedalLibrary: PedalModel[] = [
       volume: { min: 0, max: 100, default: 50, label: 'Volume' }
     },
     color: '#1a1a1a',
-    accentColor: '#ff0000',
+    accentColor: PEDAL_ACCENT_COLORS.RED,
     style: 'vintage'
   },
   {
@@ -91,7 +92,7 @@ export const pedalLibrary: PedalModel[] = [
       level: { min: 0, max: 100, default: 50, label: 'Level' }
     },
     color: '#00ff00',
-    accentColor: '#00cc00',
+    accentColor: PEDAL_ACCENT_COLORS.GREEN_DARK,
     style: 'vintage'
   },
   {
@@ -106,7 +107,7 @@ export const pedalLibrary: PedalModel[] = [
       volume: { min: 0, max: 100, default: 50, label: 'Volume' }
     },
     color: '#ff6b35',
-    accentColor: '#ff4500',
+    accentColor: PEDAL_ACCENT_COLORS.ORANGE,
     style: 'vintage'
   },
   {
@@ -122,7 +123,7 @@ export const pedalLibrary: PedalModel[] = [
       mode: { min: 0, max: 2, default: 1, label: 'Mode', controlType: 'switch-selector', labels: ['DARK', 'SI', 'LED'], icons: [Moon, Zap, Sun] }
     },
     color: '#1a1a1a',
-    accentColor: '#D2BA21',
+    accentColor: PEDAL_ACCENT_COLORS.YELLOW_WALRUS,
     style: 'modern'
   },
   // OVERDRIVE (4+ pédales)
@@ -138,7 +139,7 @@ export const pedalLibrary: PedalModel[] = [
       level: { min: 0, max: 100, default: 50, label: 'Level' }
     },
     color: '#ffd700',
-    accentColor: '#ffaa00',
+    accentColor: PEDAL_ACCENT_COLORS.YELLOW,
     style: 'vintage'
   },
   {
@@ -154,7 +155,7 @@ export const pedalLibrary: PedalModel[] = [
       mode: { min: 0, max: 1, default: 0, label: 'Mode', controlType: 'switch-selector', labels: ['HP', 'LP'], icons: [Radio, Radio] }
     },
     color: '#8b4513',
-    accentColor: '#654321',
+    accentColor: PEDAL_ACCENT_COLORS.BROWN,
     style: 'boutique'
   },
   {
@@ -169,7 +170,7 @@ export const pedalLibrary: PedalModel[] = [
       output: { min: 0, max: 100, default: 50, label: 'Output' }
     },
     color: '#daa520',
-    accentColor: '#b8860b',
+    accentColor: PEDAL_ACCENT_COLORS.YELLOW_DARK,
     style: 'boutique'
   },
   {
@@ -184,7 +185,7 @@ export const pedalLibrary: PedalModel[] = [
       level: { min: 0, max: 100, default: 50, label: 'Level' }
     },
     color: '#00ff00',
-    accentColor: '#00cc00',
+    accentColor: PEDAL_ACCENT_COLORS.GREEN_DARK,
     style: 'modern'
   },
   {
@@ -200,7 +201,7 @@ export const pedalLibrary: PedalModel[] = [
       mode: { min: 0, max: 2, default: 1, label: 'Mode', controlType: 'switch-selector', labels: ['SMOOTH', 'CRUNCH', 'BRIGHT'], icons: [CircleDot, Square, Sun] }
     },
     color: '#1a1a1a',
-    accentColor: '#E55045',
+    accentColor: PEDAL_ACCENT_COLORS.PINK_WALRUS,
     style: 'modern'
   },
   // FUZZ (4+ pédales)
@@ -215,7 +216,7 @@ export const pedalLibrary: PedalModel[] = [
       volume: { min: 0, max: 100, default: 50, label: 'Volume' }
     },
     color: '#ff0000',
-    accentColor: '#cc0000',
+    accentColor: PEDAL_ACCENT_COLORS.RED_DARK,
     style: 'vintage'
   },
   {
@@ -232,7 +233,7 @@ export const pedalLibrary: PedalModel[] = [
       volume: { min: 0, max: 100, default: 50, label: 'Volume' }
     },
     color: '#ffff00',
-    accentColor: '#ffaa00',
+    accentColor: PEDAL_ACCENT_COLORS.YELLOW,
     style: 'boutique'
   },
   {
@@ -247,7 +248,7 @@ export const pedalLibrary: PedalModel[] = [
       volume: { min: 0, max: 100, default: 50, label: 'Volume' }
     },
     color: '#ff6b35',
-    accentColor: '#ff4500',
+    accentColor: PEDAL_ACCENT_COLORS.ORANGE,
     style: 'vintage'
   },
   {
@@ -263,7 +264,7 @@ export const pedalLibrary: PedalModel[] = [
       mode: { min: 0, max: 2, default: 1, label: 'Mode', controlType: 'switch-selector', labels: ['GATE', 'CLASSIC', 'MID+'], icons: [Shield, CircleDot, Plus] }
     },
     color: '#1a1a1a',
-    accentColor: '#FFC05F',
+    accentColor: PEDAL_ACCENT_COLORS.YELLOW_FUZZ,
     style: 'modern'
   },
   // CHORUS (4+ pédales)
@@ -280,7 +281,7 @@ export const pedalLibrary: PedalModel[] = [
       level: { min: 0, max: 100, default: 50, label: 'Level' }
     },
     color: '#00bfff',
-    accentColor: '#0080ff',
+    accentColor: PEDAL_ACCENT_COLORS.BLUE,
     style: 'vintage'
   },
   {
@@ -295,7 +296,7 @@ export const pedalLibrary: PedalModel[] = [
       mode: { min: 0, max: 1, default: 0, label: 'Mode', controlType: 'switch-selector', labels: ['CHORUS', 'VIBRATO'], icons: [Waves, Radio] }
     },
     color: '#00ff00',
-    accentColor: '#00cc00',
+    accentColor: PEDAL_ACCENT_COLORS.GREEN_DARK,
     style: 'vintage'
   },
   {
@@ -311,7 +312,7 @@ export const pedalLibrary: PedalModel[] = [
       mode: { min: 0, max: 2, default: 1, label: 'Mode', controlType: 'switch-selector', labels: ['LIGHT', 'MEDIUM', 'HEAVY'], icons: [CircleDot, Square, Circle] }
     },
     color: '#1a1a1a',
-    accentColor: '#9A81BB',
+    accentColor: PEDAL_ACCENT_COLORS.PURPLE_CHORUS,
     style: 'modern'
   },
   {
@@ -327,7 +328,7 @@ export const pedalLibrary: PedalModel[] = [
       mode: { min: 0, max: 10, default: 0, label: 'Mode', controlType: 'switch-selector', labels: ['SPRING', 'HALL', 'PLATE', 'MOD', 'REVERSE', 'ECHO', 'SHIMMER', 'DYNA', 'POLY', 'AUTO', 'MANUAL'], icons: [Waves, Music, Waves, Radio, RotateCcw, Waves, Sun, Gauge, RadioReceiver, CircleDot, Square] }
     },
     color: '#00ff00',
-    accentColor: '#00cc00',
+    accentColor: PEDAL_ACCENT_COLORS.GREEN_DARK,
     style: 'boutique'
   },
   // DELAY (4+ pédales)
@@ -344,7 +345,7 @@ export const pedalLibrary: PedalModel[] = [
       memory: { min: 0, max: 2, default: 1, label: 'Memory', controlType: 'switch-selector', labels: ['S', 'M', 'L'], icons: [CircleDot, CircleDot, CircleDot] }
     },
     color: '#00bfff',
-    accentColor: '#0080ff',
+    accentColor: PEDAL_ACCENT_COLORS.BLUE,
     style: 'vintage'
   },
   {
@@ -359,7 +360,7 @@ export const pedalLibrary: PedalModel[] = [
       mix: { min: 0, max: 100, default: 50, label: 'Mix' }
     },
     color: '#1a1a1a',
-    accentColor: '#00ff00',
+    accentColor: PEDAL_ACCENT_COLORS.GREEN,
     style: 'modern'
   },
   {
@@ -374,8 +375,8 @@ export const pedalLibrary: PedalModel[] = [
       mix: { min: 0, max: 100, default: 50, label: 'Mix', controlType: 'slider', orientation: 'horizontal' },
       mode: { min: 0, max: 2, default: 1, label: 'Mode', controlType: 'switch-selector', labels: ['DIGITAL', 'ANALOG', 'REVERSE'], icons: [Radio, RadioReceiver, RotateCcw] }
     },
-    color: '#1a1a1a',
-    accentColor: '#00C467',
+    color: '#00ff00',
+    accentColor: PEDAL_ACCENT_COLORS.GREEN,
     style: 'modern'
   },
   {
@@ -390,7 +391,7 @@ export const pedalLibrary: PedalModel[] = [
       mix: { min: 0, max: 100, default: 50, label: 'Mix' }
     },
     color: '#2d2d2d',
-    accentColor: '#00ff00',
+    accentColor: PEDAL_ACCENT_COLORS.GREEN,
     style: 'boutique'
   },
   // REVERB (4+ pédales)
@@ -407,7 +408,7 @@ export const pedalLibrary: PedalModel[] = [
       mode: { min: 0, max: 7, default: 0, label: 'Mode', controlType: 'switch-selector', labels: ['HALL', 'ROOM', 'PLATE', 'MODULATE', 'SHIMMER', 'DYNAMIC', '+DELAY', 'SPRING'], icons: [Music, Music, Waves, Radio, Sun, Gauge, Waves, Waves] }
     },
     color: '#00bfff',
-    accentColor: '#0080ff',
+    accentColor: PEDAL_ACCENT_COLORS.BLUE,
     style: 'modern'
   },
   {
@@ -420,7 +421,7 @@ export const pedalLibrary: PedalModel[] = [
       reverb: { min: 0, max: 100, default: 50, label: 'Reverb' }
     },
     color: '#00ff00',
-    accentColor: '#00cc00',
+    accentColor: PEDAL_ACCENT_COLORS.GREEN_DARK,
     style: 'vintage'
   },
   {
@@ -436,7 +437,7 @@ export const pedalLibrary: PedalModel[] = [
       mode: { min: 0, max: 2, default: 1, label: 'Mode', controlType: 'switch-selector', labels: ['HALL', 'SPRING', 'PLATE'], icons: [Building2, Waves, Layers] }
     },
     color: '#1a1a1a',
-    accentColor: '#98DBCC',
+    accentColor: PEDAL_ACCENT_COLORS.CYAN_WALRUS_REVERB,
     style: 'modern'
   },
   {
@@ -452,7 +453,7 @@ export const pedalLibrary: PedalModel[] = [
       mode: { min: 0, max: 2, default: 1, label: 'Mode', controlType: 'switch-selector', labels: ['DEEP', 'LUSH', 'HAZE'], icons: [Layers, Flower2, Cloud] }
     },
     color: '#1a1a1a',
-    accentColor: '#39C9FD',
+    accentColor: PEDAL_ACCENT_COLORS.CYAN_WALRUS_AMBIENT,
     style: 'modern'
   },
   {
@@ -467,7 +468,7 @@ export const pedalLibrary: PedalModel[] = [
       mix: { min: 0, max: 100, default: 50, label: 'Mix' }
     },
     color: '#2d2d2d',
-    accentColor: '#00ff00',
+    accentColor: PEDAL_ACCENT_COLORS.GREEN,
     style: 'boutique'
   },
   // FLANGER (4+ pédales)
@@ -484,7 +485,7 @@ export const pedalLibrary: PedalModel[] = [
       resonance: { min: 0, max: 100, default: 50, label: 'Resonance' }
     },
     color: '#9370db',
-    accentColor: '#7b68ee',
+    accentColor: PEDAL_ACCENT_COLORS.PURPLE_SLATE,
     style: 'modern'
   },
   {
@@ -499,7 +500,7 @@ export const pedalLibrary: PedalModel[] = [
       color: { min: 0, max: 100, default: 50, label: 'Color' }
     },
     color: '#00ff00',
-    accentColor: '#00cc00',
+    accentColor: PEDAL_ACCENT_COLORS.GREEN_DARK,
     style: 'vintage'
   },
   {
@@ -515,7 +516,7 @@ export const pedalLibrary: PedalModel[] = [
       mode: { min: 0, max: 2, default: 1, label: 'Mode', controlType: 'switch-selector', labels: ['LIGHT', 'MEDIUM', 'HEAVY'], icons: [CircleDot, Square, Triangle] }
     },
     color: '#1a1a1a',
-    accentColor: '#ff1493',
+    accentColor: PEDAL_ACCENT_COLORS.RED_PINK,
     style: 'modern'
   },
   {
@@ -530,7 +531,7 @@ export const pedalLibrary: PedalModel[] = [
       color: { min: 0, max: 100, default: 50, label: 'Color' }
     },
     color: '#1a1a1a',
-    accentColor: '#ff0000',
+    accentColor: PEDAL_ACCENT_COLORS.RED,
     style: 'modern'
   },
   // TREMOLO (4+ pédales)
@@ -546,7 +547,7 @@ export const pedalLibrary: PedalModel[] = [
       wave: { min: 0, max: 1, default: 0, label: 'Wave', controlType: 'switch-selector', labels: ['SINE', 'SQUARE'], icons: [CircleDot, Square] }
     },
     color: '#ff6b35',
-    accentColor: '#ff4500',
+    accentColor: PEDAL_ACCENT_COLORS.ORANGE,
     style: 'vintage'
   },
   {
@@ -562,7 +563,7 @@ export const pedalLibrary: PedalModel[] = [
       wave: { min: 0, max: 2, default: 0, label: 'Wave', controlType: 'switch-selector', labels: ['SINE', 'SQUARE', 'RANDOM'], icons: [Waves, Square, Shuffle] }
     },
     color: '#1a1a1a',
-    accentColor: '#FC9336',
+    accentColor: PEDAL_ACCENT_COLORS.ORANGE_WALRUS,
     style: 'modern'
   },
   {
@@ -577,7 +578,7 @@ export const pedalLibrary: PedalModel[] = [
       volume: { min: 0, max: 100, default: 50, label: 'Volume' }
     },
     color: '#8b4513',
-    accentColor: '#654321',
+    accentColor: PEDAL_ACCENT_COLORS.BROWN,
     style: 'boutique'
   },
   {
@@ -594,7 +595,7 @@ export const pedalLibrary: PedalModel[] = [
       reverbType: { min: 0, max: 2, default: 0, label: 'Reverb Type', controlType: 'switch-selector', labels: ['61', '65', '80'], icons: [Music, Music, Music] }
     },
     color: '#2d2d2d',
-    accentColor: '#00ff00',
+    accentColor: PEDAL_ACCENT_COLORS.GREEN,
     style: 'boutique'
   },
   // PHASER (4+ pédales)
@@ -611,7 +612,7 @@ export const pedalLibrary: PedalModel[] = [
       mode: { min: 0, max: 7, default: 0, label: 'Mode', controlType: 'switch-selector', labels: ['4-STAGE', '8-STAGE', '10-STAGE', '12-STAGE', 'UNI-V', 'STEP', 'RISE', 'FALL'], icons: [CircleDot, CircleDot, CircleDot, CircleDot, Radio, Square, Triangle, RotateCcw] }
     },
     color: '#00ff00',
-    accentColor: '#00cc00',
+    accentColor: PEDAL_ACCENT_COLORS.GREEN_DARK,
     style: 'modern'
   },
   {
@@ -625,7 +626,7 @@ export const pedalLibrary: PedalModel[] = [
       color: { min: 0, max: 1, default: 0, label: 'Color', controlType: 'switch-selector', labels: ['OFF', 'ON'], icons: [CircleDot, CircleDot] }
     },
     color: '#00ff00',
-    accentColor: '#00cc00',
+    accentColor: PEDAL_ACCENT_COLORS.GREEN_DARK,
     style: 'vintage'
   },
   {
@@ -639,7 +640,7 @@ export const pedalLibrary: PedalModel[] = [
       depth: { min: 0, max: 100, default: 50, label: 'Depth' }
     },
     color: '#1a1a1a',
-    accentColor: '#ff0000',
+    accentColor: PEDAL_ACCENT_COLORS.RED,
     style: 'modern'
   },
   {
@@ -655,7 +656,7 @@ export const pedalLibrary: PedalModel[] = [
       mode: { min: 0, max: 2, default: 1, label: 'Mode', controlType: 'switch-selector', labels: ['LIGHT', 'MEDIUM', 'HEAVY'], icons: [CircleDot, Square, Circle] }
     },
     color: '#1a1a1a',
-    accentColor: '#D5868B',
+    accentColor: PEDAL_ACCENT_COLORS.PINK_PHASER,
     style: 'modern'
   },
   // EQ (4+ pédales)
@@ -676,7 +677,7 @@ export const pedalLibrary: PedalModel[] = [
       level: { min: 0, max: 100, default: 50, label: 'Level', controlType: 'slider', orientation: 'vertical' }
     },
     color: '#1a1a1a',
-    accentColor: '#4169e1',
+    accentColor: PEDAL_ACCENT_COLORS.BLUE_ROYAL,
     style: 'vintage'
   },
   {
@@ -699,7 +700,7 @@ export const pedalLibrary: PedalModel[] = [
       level: { min: 0, max: 100, default: 50, label: 'Level', controlType: 'slider', orientation: 'vertical' }
     },
     color: '#1a1a1a',
-    accentColor: '#ff0000',
+    accentColor: PEDAL_ACCENT_COLORS.RED,
     style: 'modern'
   },
   {
@@ -717,7 +718,7 @@ export const pedalLibrary: PedalModel[] = [
       level: { min: 0, max: 100, default: 50, label: 'Level', controlType: 'slider', orientation: 'vertical' }
     },
     color: '#2d2d2d',
-    accentColor: '#00ff00',
+    accentColor: PEDAL_ACCENT_COLORS.GREEN,
     style: 'boutique'
   },
   {
@@ -733,7 +734,7 @@ export const pedalLibrary: PedalModel[] = [
       level: { min: 0, max: 100, default: 50, label: 'Level', controlType: 'slider', orientation: 'vertical' }
     },
     color: '#1a1a1a',
-    accentColor: '#ff6b35',
+    accentColor: PEDAL_ACCENT_COLORS.ORANGE_CORAL,
     style: 'boutique'
   },
   // WAH
@@ -749,7 +750,7 @@ export const pedalLibrary: PedalModel[] = [
       level: { min: 0, max: 100, default: 50, label: 'Level' }
     },
     color: '#1f2937',
-    accentColor: '#10b981',
+    accentColor: PEDAL_ACCENT_COLORS.GREEN_EMERALD,
     style: 'vintage'
   },
   {
@@ -764,7 +765,7 @@ export const pedalLibrary: PedalModel[] = [
       volume: { min: 0, max: 100, default: 50, label: 'Volume' }
     },
     color: '#0f172a',
-    accentColor: '#fbbf24',
+    accentColor: PEDAL_ACCENT_COLORS.YELLOW_BRIGHT,
     style: 'modern'
   },
   {
@@ -779,7 +780,7 @@ export const pedalLibrary: PedalModel[] = [
       boost: { min: 0, max: 15, default: 6, label: 'Boost' }
     },
     color: '#7f1d1d',
-    accentColor: '#f87171',
+    accentColor: PEDAL_ACCENT_COLORS.RED_LIGHT,
     style: 'boutique'
   },
   {
@@ -794,7 +795,7 @@ export const pedalLibrary: PedalModel[] = [
       volume: { min: 0, max: 100, default: 55, label: 'Volume' }
     },
     color: '#111827',
-    accentColor: '#ef4444',
+    accentColor: PEDAL_ACCENT_COLORS.RED_BRIGHT,
     style: 'modern'
   },
   {
@@ -809,7 +810,7 @@ export const pedalLibrary: PedalModel[] = [
       gain: { min: 0, max: 100, default: 50, label: 'Gain' }
     },
     color: '#0b132b',
-    accentColor: '#7c3aed',
+    accentColor: PEDAL_ACCENT_COLORS.PURPLE,
     style: 'modern'
   },
   {
@@ -824,7 +825,7 @@ export const pedalLibrary: PedalModel[] = [
       bass: { min: 0, max: 100, default: 50, label: 'Bass' }
     },
     color: '#1f2937',
-    accentColor: '#d946ef',
+    accentColor: PEDAL_ACCENT_COLORS.PURPLE_MAGENTA,
     style: 'boutique'
   },
   // BOOST
@@ -840,7 +841,7 @@ export const pedalLibrary: PedalModel[] = [
       bass: { min: -20, max: 20, default: 0, label: 'Bass' }
     },
     color: '#f59e0b',
-    accentColor: '#b45309',
+    accentColor: PEDAL_ACCENT_COLORS.ORANGE_BROWN,
     style: 'vintage'
   },
   {
@@ -854,7 +855,7 @@ export const pedalLibrary: PedalModel[] = [
       tone: { min: 0, max: 100, default: 50, label: 'Tone' }
     },
     color: '#f3f4f6',
-    accentColor: '#10b981',
+    accentColor: PEDAL_ACCENT_COLORS.GREEN_EMERALD,
     style: 'modern'
   },
   {
@@ -869,7 +870,7 @@ export const pedalLibrary: PedalModel[] = [
       tone: { min: 0, max: 100, default: 50, label: 'Tone' }
     },
     color: '#111827',
-    accentColor: '#fbbf24',
+    accentColor: PEDAL_ACCENT_COLORS.YELLOW_BRIGHT,
     style: 'modern'
   },
   // COMPRESSOR
@@ -884,7 +885,7 @@ export const pedalLibrary: PedalModel[] = [
       sensitivity: { min: 0, max: 100, default: 50, label: 'Sensitivity' }
     },
     color: '#dc2626',
-    accentColor: '#f97316',
+    accentColor: PEDAL_ACCENT_COLORS.ORANGE_BRIGHT,
     style: 'vintage'
   },
   // OCTAVER / VIBE / PITCH / ROTARY / UTILITAIRES
@@ -900,7 +901,7 @@ export const pedalLibrary: PedalModel[] = [
       level: { min: 0, max: 100, default: 50, label: 'Level' }
     },
     color: '#4b5563',
-    accentColor: '#a855f7',
+    accentColor: PEDAL_ACCENT_COLORS.PURPLE_BRIGHT,
     style: 'vintage'
   },
   {
@@ -915,7 +916,7 @@ export const pedalLibrary: PedalModel[] = [
       mix: { min: 0, max: 100, default: 50, label: 'Mix' }
     },
     color: '#0f172a',
-    accentColor: '#60a5fa',
+    accentColor: PEDAL_ACCENT_COLORS.BLUE_LIGHT,
     style: 'vintage'
   },
   {
@@ -930,7 +931,7 @@ export const pedalLibrary: PedalModel[] = [
       tracking: { min: 0, max: 100, default: 70, label: 'Tracking' }
     },
     color: '#991b1b',
-    accentColor: '#f97316',
+    accentColor: PEDAL_ACCENT_COLORS.ORANGE_BRIGHT,
     style: 'modern'
   },
   {
@@ -945,7 +946,7 @@ export const pedalLibrary: PedalModel[] = [
       mix: { min: 0, max: 100, default: 50, label: 'Mix' }
     },
     color: '#1f2937',
-    accentColor: '#8b5cf6',
+    accentColor: PEDAL_ACCENT_COLORS.PURPLE_DARK,
     style: 'boutique'
   },
   {
@@ -959,7 +960,7 @@ export const pedalLibrary: PedalModel[] = [
       taper: { min: 0, max: 100, default: 50, label: 'Taper' }
     },
     color: '#e5e7eb',
-    accentColor: '#6b7280',
+    accentColor: PEDAL_ACCENT_COLORS.GRAY,
     style: 'modern'
   },
   {
@@ -973,7 +974,7 @@ export const pedalLibrary: PedalModel[] = [
       release: { min: 0, max: 100, default: 50, label: 'Release' }
     },
     color: '#111827',
-    accentColor: '#9ca3af',
+    accentColor: PEDAL_ACCENT_COLORS.GRAY_LIGHT,
     style: 'modern'
   },
   {
@@ -988,7 +989,7 @@ export const pedalLibrary: PedalModel[] = [
       level: { min: 0, max: 100, default: 50, label: 'Level' }
     },
     color: '#0f172a',
-    accentColor: '#22d3ee',
+    accentColor: PEDAL_ACCENT_COLORS.BLUE_CYAN,
     style: 'modern'
   },
   // CHORUS additions
@@ -1005,7 +1006,7 @@ export const pedalLibrary: PedalModel[] = [
       mode: { min: 0, max: 1, default: 0, label: 'Mode', controlType: 'switch-selector', labels: ['CHORUS', 'VIBRATO'], icons: [Waves, Radio] }
     },
     color: '#2563eb',
-    accentColor: '#1d4ed8',
+    accentColor: PEDAL_ACCENT_COLORS.BLUE_DARK,
     style: 'vintage'
   },
   {
@@ -1020,7 +1021,7 @@ export const pedalLibrary: PedalModel[] = [
       level: { min: 0, max: 100, default: 50, label: 'Level' }
     },
     color: '#38bdf8',
-    accentColor: '#0ea5e9',
+    accentColor: PEDAL_ACCENT_COLORS.BLUE_SKY,
     style: 'modern'
   },
   // PHASER addition
@@ -1035,7 +1036,7 @@ export const pedalLibrary: PedalModel[] = [
       mix: { min: 0, max: 100, default: 50, label: 'Mix' }
     },
     color: '#f97316',
-    accentColor: '#ea580c',
+    accentColor: PEDAL_ACCENT_COLORS.ORANGE_DARK_AMBER,
     style: 'vintage'
   },
   // FLANGER addition
@@ -1052,7 +1053,7 @@ export const pedalLibrary: PedalModel[] = [
       manual: { min: 0, max: 100, default: 50, label: 'Manual' }
     },
     color: '#0f172a',
-    accentColor: '#f97316',
+    accentColor: PEDAL_ACCENT_COLORS.ORANGE_BRIGHT,
     style: 'vintage'
   },
   // DELAY additions
@@ -1068,7 +1069,7 @@ export const pedalLibrary: PedalModel[] = [
       mix: { min: 0, max: 100, default: 50, label: 'Mix' }
     },
     color: '#4338ca',
-    accentColor: '#c084fc',
+    accentColor: PEDAL_ACCENT_COLORS.PURPLE_LIGHT,
     style: 'vintage'
   },
   // RING MODULATOR
@@ -1084,7 +1085,7 @@ export const pedalLibrary: PedalModel[] = [
       level: { min: 0, max: 100, default: 50, label: 'Level' }
     },
     color: '#1a1a1a',
-    accentColor: '#fbbf24',
+    accentColor: PEDAL_ACCENT_COLORS.YELLOW_BRIGHT,
     style: 'vintage'
   },
   // BIT CRUSHER
@@ -1100,7 +1101,7 @@ export const pedalLibrary: PedalModel[] = [
       mix: { min: 0, max: 100, default: 50, label: 'Mix' }
     },
     color: '#dc2626',
-    accentColor: '#fca5a5',
+    accentColor: PEDAL_ACCENT_COLORS.RED_PALE,
     style: 'modern'
   },
   // LO-FI
@@ -1117,7 +1118,7 @@ export const pedalLibrary: PedalModel[] = [
       tone: { min: 0, max: 100, default: 50, label: 'Tone' }
     },
     color: '#7c3aed',
-    accentColor: '#c4b5fd',
+    accentColor: PEDAL_ACCENT_COLORS.PURPLE_PALE,
     style: 'boutique'
   },
   // TAPE DELAY
@@ -1135,7 +1136,7 @@ export const pedalLibrary: PedalModel[] = [
       mix: { min: 0, max: 100, default: 50, label: 'Mix' }
     },
     color: '#1e293b',
-    accentColor: '#60a5fa',
+    accentColor: PEDAL_ACCENT_COLORS.BLUE_LIGHT,
     style: 'modern'
   },
   // SPRING REVERB
@@ -1151,7 +1152,7 @@ export const pedalLibrary: PedalModel[] = [
       mix: { min: 0, max: 100, default: 50, label: 'Mix' }
     },
     color: '#92400e',
-    accentColor: '#fbbf24',
+    accentColor: PEDAL_ACCENT_COLORS.YELLOW_BRIGHT,
     style: 'vintage'
   },
   // SHIMMER REVERB
@@ -1167,7 +1168,7 @@ export const pedalLibrary: PedalModel[] = [
       mix: { min: 0, max: 100, default: 50, label: 'Mix' }
     },
     color: '#0f172a',
-    accentColor: '#818cf8',
+    accentColor: PEDAL_ACCENT_COLORS.BLUE_PURPLE,
     style: 'modern'
   },
   {
@@ -1182,7 +1183,7 @@ export const pedalLibrary: PedalModel[] = [
       heads: { min: 0, max: 2, default: 1, label: 'Heads', controlType: 'switch-selector', labels: ['4', '6', '8'], icons: [CircleDot, CircleDot, CircleDot] }
     },
     color: '#0f172a',
-    accentColor: '#22c55e',
+    accentColor: PEDAL_ACCENT_COLORS.GREEN_TEAL,
     style: 'vintage'
   },
   {
@@ -1197,7 +1198,7 @@ export const pedalLibrary: PedalModel[] = [
       blend: { min: 0, max: 100, default: 50, label: 'Blend' }
     },
     color: '#991b1b',
-    accentColor: '#f87171',
+    accentColor: PEDAL_ACCENT_COLORS.RED_LIGHT,
     style: 'vintage'
   },
   {
@@ -1213,7 +1214,7 @@ export const pedalLibrary: PedalModel[] = [
       heads: { min: 0, max: 2, default: 1, label: 'Heads', controlType: 'switch-selector', labels: ['3', '5', '8'], icons: [CircleDot, CircleDot, CircleDot] }
     },
     color: '#064e3b',
-    accentColor: '#22c55e',
+    accentColor: PEDAL_ACCENT_COLORS.GREEN_TEAL,
     style: 'vintage'
   },
   {
@@ -1228,7 +1229,7 @@ export const pedalLibrary: PedalModel[] = [
       mix: { min: 0, max: 100, default: 45, label: 'Mix' }
     },
     color: '#0ea5e9',
-    accentColor: '#0284c7',
+    accentColor: PEDAL_ACCENT_COLORS.BLUE_SKY,
     style: 'modern'
   },
   // Ajouts profils rock stars
@@ -1245,7 +1246,7 @@ export const pedalLibrary: PedalModel[] = [
       level: { min: 0, max: 100, default: 50, label: 'Level' }
     },
     color: '#7c3aed',
-    accentColor: '#c084fc',
+    accentColor: PEDAL_ACCENT_COLORS.PURPLE_LIGHT,
     style: 'modern'
   },
   {
@@ -1260,7 +1261,7 @@ export const pedalLibrary: PedalModel[] = [
       feedback: { min: 0, max: 100, default: 30, label: 'Feedback' }
     },
     color: '#0f172a',
-    accentColor: '#22c55e',
+    accentColor: PEDAL_ACCENT_COLORS.GREEN_TEAL,
     style: 'modern'
   },
   {
@@ -1274,7 +1275,7 @@ export const pedalLibrary: PedalModel[] = [
       level: { min: 0, max: 100, default: 50, label: 'Level' }
     },
     color: '#111827',
-    accentColor: '#22c55e',
+    accentColor: PEDAL_ACCENT_COLORS.GREEN_TEAL,
     style: 'modern'
   },
   {
@@ -1289,7 +1290,7 @@ export const pedalLibrary: PedalModel[] = [
       volume: { min: 0, max: 100, default: 55, label: 'Volume' }
     },
     color: '#b91c1c',
-    accentColor: '#f87171',
+    accentColor: PEDAL_ACCENT_COLORS.RED_LIGHT,
     style: 'modern'
   },
   {
@@ -1304,7 +1305,7 @@ export const pedalLibrary: PedalModel[] = [
       mix: { min: 0, max: 100, default: 50, label: 'Mix' }
     },
     color: '#0f766e',
-    accentColor: '#14b8a6',
+    accentColor: PEDAL_ACCENT_COLORS.GREEN_CYAN,
     style: 'modern'
   },
   {
@@ -1318,7 +1319,7 @@ export const pedalLibrary: PedalModel[] = [
       q: { min: 0, max: 100, default: 50, label: 'Q' }
     },
     color: '#1f2937',
-    accentColor: '#22d3ee',
+    accentColor: PEDAL_ACCENT_COLORS.BLUE_CYAN,
     style: 'vintage'
   },
   {
@@ -1332,7 +1333,7 @@ export const pedalLibrary: PedalModel[] = [
       depth: { min: 0, max: 100, default: 100, label: 'Depth' }
     },
     color: '#0f172a',
-    accentColor: '#ef4444',
+    accentColor: PEDAL_ACCENT_COLORS.RED_BRIGHT,
     style: 'modern'
   },
   {
@@ -1346,7 +1347,7 @@ export const pedalLibrary: PedalModel[] = [
       level: { min: 0, max: 100, default: 50, label: 'Level' }
     },
     color: '#f59e0b',
-    accentColor: '#d97706',
+    accentColor: PEDAL_ACCENT_COLORS.ORANGE_RUST,
     style: 'vintage'
   },
   {
@@ -1361,7 +1362,7 @@ export const pedalLibrary: PedalModel[] = [
       level: { min: 0, max: 100, default: 55, label: 'Level' }
     },
     color: '#0ea5e9',
-    accentColor: '#38bdf8',
+    accentColor: PEDAL_ACCENT_COLORS.BLUE_LIGHT,
     style: 'modern'
   },
   {
@@ -1375,7 +1376,7 @@ export const pedalLibrary: PedalModel[] = [
       depth: { min: 0, max: 100, default: 50, label: 'Depth' }
     },
     color: '#3b82f6',
-    accentColor: '#2563eb',
+    accentColor: PEDAL_ACCENT_COLORS.BLUE_DARK,
     style: 'vintage'
   },
   {
@@ -1389,7 +1390,7 @@ export const pedalLibrary: PedalModel[] = [
       overdrive: { min: 0, max: 100, default: 50, label: 'Overdrive' }
     },
     color: '#fbbf24',
-    accentColor: '#f59e0b',
+    accentColor: PEDAL_ACCENT_COLORS.YELLOW_AMBER,
     style: 'vintage'
   },
   {
@@ -1404,7 +1405,7 @@ export const pedalLibrary: PedalModel[] = [
       level: { min: 0, max: 100, default: 55, label: 'Level' }
     },
     color: '#b91c1c',
-    accentColor: '#f87171',
+    accentColor: PEDAL_ACCENT_COLORS.RED_LIGHT,
     style: 'modern'
   },
   {
@@ -1419,7 +1420,7 @@ export const pedalLibrary: PedalModel[] = [
       tone: { min: 0, max: 100, default: 50, label: 'Tone' }
     },
     color: '#0ea5e9',
-    accentColor: '#6366f1',
+    accentColor: PEDAL_ACCENT_COLORS.BLUE_INDIGO,
     style: 'modern'
   },
   {
@@ -1432,7 +1433,7 @@ export const pedalLibrary: PedalModel[] = [
       mode: { min: 0, max: 1, default: 0, label: 'Mode', controlType: 'switch-selector', labels: ['CHROMATIC', 'GUITAR'], icons: [Music, Music] }
     },
     color: '#ffffff',
-    accentColor: '#ef4444',
+    accentColor: PEDAL_ACCENT_COLORS.RED_BRIGHT,
     style: 'modern'
   },
 ]

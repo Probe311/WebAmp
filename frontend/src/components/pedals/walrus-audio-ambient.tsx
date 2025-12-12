@@ -8,7 +8,6 @@ import { Slider } from '../Slider'
 import type { PedalComponentProps } from './types'
 
 const pedalId = 'walrus-audio-ambient'
-const ACCENT_COLOR = '#39C9FD'
 
 /**
  * Composant complet de la pédale Walrus Audio Ambient
@@ -39,7 +38,7 @@ export function WalrusAudioAmbientPedal({
           value={decay}
           min={model.parameters.decay.min}
           max={model.parameters.decay.max}
-          color={ACCENT_COLOR}
+          color={model.accentColor}
           onChange={(v: number) => onChange?.('decay', v)}
         />
         <Potentiometer
@@ -47,7 +46,7 @@ export function WalrusAudioAmbientPedal({
           value={tone}
           min={model.parameters.tone.min}
           max={model.parameters.tone.max}
-          color={ACCENT_COLOR}
+          color={model.accentColor}
           onChange={(v) => onChange?.('tone', v)}
         />
       </div>
@@ -59,7 +58,7 @@ export function WalrusAudioAmbientPedal({
           value={mix}
           min={model.parameters.mix.min}
           max={model.parameters.mix.max}
-          color={ACCENT_COLOR}
+          color={model.accentColor}
           onChange={(v) => onChange?.('mix', v)}
         />
       </div>
@@ -72,7 +71,7 @@ export function WalrusAudioAmbientPedal({
           max={model.parameters.mode.max}
           labels={['DEEP', 'LUSH', 'HAZE']}
           icons={[Layers, Flower2, Cloud]}
-          color={ACCENT_COLOR}
+          color={model.accentColor}
           onChange={(v) => onChange?.('mode', v)}
           className="switch-selector-full-width"
         />
@@ -80,15 +79,9 @@ export function WalrusAudioAmbientPedal({
     </div>
   ), [decay, tone, mix, mode, model, onChange])
 
-  // Créer un modèle modifié avec la couleur d'accent correcte
-  const modelWithAccent = useMemo(() => ({
-    ...model,
-    accentColor: ACCENT_COLOR
-  }), [model])
-
   return (
     <PedalFrame
-      model={modelWithAccent}
+      model={model}
       layout="flex"
       bypassed={bypassed}
       onBypassToggle={onBypassToggle}
@@ -123,7 +116,7 @@ export const WalrusAudioAmbientControls = ({
           max={model.parameters.decay.max}
           orientation="horizontal"
           onChange={(v: number) => onChange?.('decay', v)}
-          color={ACCENT_COLOR}
+          color={model.accentColor}
         />
       </div>
       <div className="w-full">
@@ -134,7 +127,7 @@ export const WalrusAudioAmbientControls = ({
           max={model.parameters.tone.max}
           orientation="horizontal"
           onChange={(v) => onChange?.('tone', v)}
-          color={ACCENT_COLOR}
+          color={model.accentColor}
         />
       </div>
       <div className="w-full">
@@ -145,7 +138,7 @@ export const WalrusAudioAmbientControls = ({
           max={model.parameters.mix.max}
           orientation="horizontal"
           onChange={(v) => onChange?.('mix', v)}
-          color={ACCENT_COLOR}
+          color={model.accentColor}
         />
       </div>
       <div className="w-full mt-2">
@@ -155,7 +148,7 @@ export const WalrusAudioAmbientControls = ({
           max={model.parameters.mode.max}
           labels={['DEEP', 'LUSH', 'HAZE']}
           icons={[Layers, Flower2, Cloud]}
-          color={ACCENT_COLOR}
+          color={model.accentColor}
           onChange={(v) => onChange?.('mode', v)}
           className="switch-selector-full-width"
         />
