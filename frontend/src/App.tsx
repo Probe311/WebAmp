@@ -78,7 +78,7 @@ function App() {
         message: 'Impossible de charger le profil'
       })
     }
-  }, [showToast])
+  }, [showToast, setSelectedAmplifier, setAmplifierParameters])
 
   // Résumer l'AudioContext lors de la première interaction utilisateur
   useEffect(() => {
