@@ -7,7 +7,6 @@ import { SwitchSelector } from '../SwitchSelector'
 import type { PedalComponentProps } from './types'
 
 const pedalId = 'walrus-audio-distortion'
-const ACCENT_COLOR = '#D2BA21'
 
 /**
  * Composant complet de la pédale Walrus Audio Distortion
@@ -40,7 +39,7 @@ export function WalrusAudioDistortionPedal({
           max={model.parameters.gain.max}
           orientation="horizontal"
           onChange={(v) => onChange?.('gain', v)}
-          color={ACCENT_COLOR}
+          color={model.accentColor}
         />
       </div>
 
@@ -53,7 +52,7 @@ export function WalrusAudioDistortionPedal({
           max={model.parameters.tone.max}
           orientation="horizontal"
           onChange={(v) => onChange?.('tone', v)}
-          color={ACCENT_COLOR}
+          color={model.accentColor}
         />
       </div>
 
@@ -66,7 +65,7 @@ export function WalrusAudioDistortionPedal({
           max={model.parameters.volume.max}
           orientation="horizontal"
           onChange={(v) => onChange?.('volume', v)}
-          color={ACCENT_COLOR}
+          color={model.accentColor}
         />
       </div>
 
@@ -78,7 +77,7 @@ export function WalrusAudioDistortionPedal({
           max={model.parameters.mode.max}
           labels={['DARK', 'SI', 'LED']}
           icons={[Moon, Zap, Sun]}
-          color={ACCENT_COLOR}
+          color={model.accentColor}
           onChange={(v) => onChange?.('mode', v)}
           className="switch-selector-full-width"
         />
@@ -86,15 +85,9 @@ export function WalrusAudioDistortionPedal({
     </div>
   ), [gain, tone, volume, mode, model, onChange])
 
-  // Créer un modèle modifié avec la couleur d'accent correcte
-  const modelWithAccent = useMemo(() => ({
-    ...model,
-    accentColor: ACCENT_COLOR
-  }), [model])
-
   return (
     <PedalFrame
-      model={modelWithAccent}
+      model={model}
       layout="flex"
       bypassed={bypassed}
       onBypassToggle={onBypassToggle}
@@ -130,7 +123,7 @@ export const WalrusAudioDistortionControls = ({
           max={model.parameters.gain.max}
           orientation="horizontal"
           onChange={(v) => onChange?.('gain', v)}
-          color={ACCENT_COLOR}
+          color={model.accentColor}
         />
       </div>
       <div className="w-full">
@@ -141,7 +134,7 @@ export const WalrusAudioDistortionControls = ({
           max={model.parameters.tone.max}
           orientation="horizontal"
           onChange={(v) => onChange?.('tone', v)}
-          color={ACCENT_COLOR}
+          color={model.accentColor}
         />
       </div>
       <div className="w-full">
@@ -152,7 +145,7 @@ export const WalrusAudioDistortionControls = ({
           max={model.parameters.volume.max}
           orientation="horizontal"
           onChange={(v) => onChange?.('volume', v)}
-          color={ACCENT_COLOR}
+          color={model.accentColor}
         />
       </div>
       <div className="w-full mt-2">
@@ -162,7 +155,7 @@ export const WalrusAudioDistortionControls = ({
           max={model.parameters.mode.max}
           labels={['DARK', 'SI', 'LED']}
           icons={[Moon, Zap, Sun]}
-          color={ACCENT_COLOR}
+          color={model.accentColor}
           onChange={(v) => onChange?.('mode', v)}
           className="switch-selector-full-width"
         />

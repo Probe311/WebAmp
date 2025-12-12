@@ -19,6 +19,7 @@ import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts'
 import { ShortcutAction } from '../types/keyboardShortcuts'
 import { analyzeControlTypes, analyzeControlTypesFromModel, determineKnobSize } from '../utils/pedalControlHelpers'
 import { syncEffectToAudio, syncEffectToWebSocket, removeEffectFromAudio, updateEffectParametersInAudio, setEffectEnabledInAudio } from '../utils/pedalboardSync'
+import { PEDAL_BUTTON_COLORS, getContrastTextColor } from '../utils/pedalColors'
 
 export interface Effect {
   id: string
@@ -82,11 +83,11 @@ const SortableEffect = memo(function SortableEffect({ effect, onRemove, onToggle
         variant="icon-only"
         icon={<Power size={pedalSize === 'S' ? 14 : 16} />}
         title={effect.bypassed ? 'Activer la pédale' : 'Bypasser la pédale'}
-        className={`rounded-md text-white flex-[0.5] touch-manipulation ${pedalSize === 'S' ? 'min-w-[44px] min-h-[44px] px-1 py-1' : 'min-w-[44px] min-h-[44px]'}`}
+        className={`rounded-md flex-[0.5] touch-manipulation ${pedalSize === 'S' ? 'min-w-[44px] min-h-[44px] px-1 py-1' : 'min-w-[44px] min-h-[44px]'}`}
         style={{
-          backgroundColor: effect.bypassed ? '#f5f5f5' : pedalModel.accentColor,
-          color: effect.bypassed ? '#444' : '#fff',
-          borderColor: effect.bypassed ? '#e5e5e5' : pedalModel.accentColor
+          backgroundColor: effect.bypassed ? PEDAL_BUTTON_COLORS.bypassed.backgroundColor : pedalModel.accentColor,
+          color: effect.bypassed ? PEDAL_BUTTON_COLORS.bypassed.textColor : getContrastTextColor(pedalModel.accentColor),
+          borderColor: effect.bypassed ? PEDAL_BUTTON_COLORS.bypassed.borderColor : pedalModel.accentColor
         }}
         onClick={(e) => {
           e.preventDefault()
@@ -290,7 +291,6 @@ const SortableEffect = memo(function SortableEffect({ effect, onRemove, onToggle
         <Pedal
           brand={pedalModel.brand}
           model={pedalModel.model}
-          color={pedalModel.color}
           accentColor={pedalModel.accentColor}
           size={pedalSize}
           bypassed={effect.bypassed}

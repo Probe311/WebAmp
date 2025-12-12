@@ -2,13 +2,13 @@ import { ReactNode, useMemo } from 'react'
 import { BadgeCheck } from 'lucide-react'
 import { getBrandLogo } from '../utils/brandLogos'
 import walrusLogo from '../assets/logos/walrus_small.svg'
+import { FOOTSWITCH_COLORS } from '../utils/pedalColors'
 
 export type PedalSize = 'S' | 'M' | 'L' | 'XL' | 'XXL'
 
 export interface PedalProps {
   brand?: string
   model?: string
-  color?: string
   accentColor?: string
   size?: PedalSize
   bypassed?: boolean
@@ -67,7 +67,6 @@ const FOOTSWITCH_SIZE: Record<PedalSize, string> = {
 export function Pedal({
   brand = '',
   model = '',
-  color: _color = '#ffffff',
   accentColor = '#fff',
   size = 'M',
   bypassed = false,
@@ -347,7 +346,7 @@ export function Pedal({
                 height: footswitchSize,
                 minWidth: '44px',
                 minHeight: '44px',
-                backgroundColor: bypassed ? '#333' : '#ffffff',
+                backgroundColor: bypassed ? FOOTSWITCH_COLORS.bypassed.backgroundColor : FOOTSWITCH_COLORS.active.backgroundColor,
                 borderColor: accentColor,
                 borderWidth: '2px',
                 borderStyle: 'solid',
@@ -402,7 +401,7 @@ export function Pedal({
                   size === 'L' || size === 'XL' || size === 'XXL' ? 'w-3.5 h-3.5' : 'w-3 h-3'
                 }`}
                 style={{ 
-                  backgroundColor: bypassed ? '#666' : accentColor
+                  backgroundColor: bypassed ? FOOTSWITCH_COLORS.bypassed.dotColor : accentColor
                 }}
               />
             </button>

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Activity, Settings, Users, Drum, Sliders, Play, Pause, Square, Home, Repeat, Music, Timer, User, LogOut } from 'lucide-react'
+import { Activity, Settings, Users, Drum, Sliders, Play, Pause, Square, Home, Repeat, Music, Timer, User, LogOut, Zap } from 'lucide-react'
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts'
 import { ShortcutAction } from '../types/keyboardShortcuts'
 import { RockStarProfilesModal } from './RockStarProfilesModal'
@@ -99,7 +99,14 @@ export function TopBanner({
     <>
       <header className="flex items-center justify-between px-8 py-4 bg-white dark:bg-gray-800 rounded-b-3xl shadow-[8px_8px_16px_rgba(0,0,0,0.1),-8px_-8px_16px_rgba(255,255,255,0.9),inset_0_0_0_1px_rgba(255,255,255,0.8)] dark:shadow-[8px_8px_16px_rgba(0,0,0,0.5),-8px_-8px_16px_rgba(40,40,40,0.5),inset_0_0_0_1px_rgba(60,60,60,0.8)] z-[100] transition-colors duration-200">
         <div className="flex items-center gap-4">
-          <div className="flex items-center">
+          <div className="flex items-center gap-3">
+            <Zap 
+              size={28} 
+              className="text-black/85 dark:text-white/90"
+              style={{
+                animation: 'logoAnimation 2s ease-in-out infinite'
+              }}
+            />
             <span className="text-2xl font-bold text-black/85 dark:text-white/90 tracking-[2px] uppercase">WebAmp</span>
           </div>
         </div>

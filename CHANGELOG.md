@@ -5,6 +5,15 @@ Tous les changements notables de ce projet seront documentés dans ce fichier.
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/),
 et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 
+## [1.1.1] - 2024-12-19
+
+### 🐛 Corrigé
+- Correction des dépendances manquantes dans les `useCallback` :
+  - `createPedalEffect` dans `PedalLibraryModal.tsx` : ajout de `loadTone` dans les dépendances
+  - `handleProfileSelect` dans `App.tsx` : ajout de `setSelectedAmplifier` et `setAmplifierParameters` dans les dépendances
+- Élimination des stale closures potentielles
+- Conformité aux règles ESLint pour les hooks React
+
 ## [1.1.0] - 2024-12-19
 
 ### 🎉 Ajouté

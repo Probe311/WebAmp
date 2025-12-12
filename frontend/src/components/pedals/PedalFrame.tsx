@@ -2,7 +2,7 @@ import { ReactNode, useMemo } from 'react'
 import { Pedal, PedalSize, PedalProps } from '../Pedal'
 import { PedalModel } from '../../data/pedals'
 
-export interface PedalFrameProps extends Omit<PedalProps, 'brand' | 'model' | 'color' | 'accentColor' | 'size'> {
+export interface PedalFrameProps extends Omit<PedalProps, 'brand' | 'model' | 'accentColor' | 'size'> {
   model: PedalModel
   size?: PedalSize
   layout?: 'default' | 'flex' | 'grid' | 'eq' | 'three-knobs' | 'four-knobs' | 'switch-selector-with-knobs' | 'l-grid-3x2' | 'gmajor2'
@@ -154,7 +154,6 @@ export function PedalFrame({
     <Pedal
       brand={model.brand}
       model={model.model}
-      color={model.color}
       accentColor={model.accentColor}
       size={pedalSize}
       bypassed={bypassed}
