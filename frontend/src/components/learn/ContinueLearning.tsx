@@ -1,0 +1,169 @@
+import { BookOpen, Play } from 'lucide-react'
+import { Block } from '../Block'
+import { useCurrentCourse } from '../../hooks/useLMS'
+import { useAuth } from '../../auth/AuthProvider'
+import { useCourses } from '../../hooks/useLMS'
+
+interface ContinueLearningProps {
+  onNavigateToLearn?: () => void
+}
+
+export function ContinueLearning({ onNavigateToLearn }: ContinueLearningProps) {
+  const { user } = useAuth()
+  const { currentCourse, loading: courseLoading } = useCurrentCourse(user?.id)
+  const { courses, loading: coursesLoading } = useCourses()
+
+  const handleResume = () => {
+    if (onNavigateToLearn) {
+      onNavigateToLearn()
+    }
+  }
+
+  const handleStart = () => {
+    if (onNavigateToLearn) {
+      onNavigateToLearn()
+    }
+  }
+
+  // Si l'utilisateur n'est pas connecté, afficher un message d'invitation
+  if (!user) {
+    return (
+      <Block className="md:col-span-2 lg:col-span-2 min-h-[280px]">
+        <div className="flex items-center gap-2 mb-4">
+          <BookOpen size={18} className="text-orange-500 dark:text-orange-400" />
+          <span className="text-xs font-bold uppercase tracking-wider text-orange-500 dark:text-orange-400">
+            Continue Learning
+          </span>
+        </div>
+        <h2 className="text-2xl font-bold text-black/85 dark:text-white/90 mb-2">
+          Commencez votre apprentissage
+        </h2>
+        <p className="text-sm text-black/70 dark:text-white/70 mb-4">
+          Connectez-vous pour accéder à nos cours et suivre votre progression.
+        </p>
+        <button
+          onClick={handleStart}
+          className="px-4 py-2 bg-orange-500 text-white rounded-xl text-sm font-medium shadow-[2px_2px_4px_rgba(0,0,0,0.2)] hover:shadow-[3px_3px_6px_rgba(0,0,0,0.3)] transition-all duration-200 flex items-center gap-2"
+        >
+          <Play size={16} />
+          Découvrir les cours
+        </button>
+      </Block>
+    )
+  }
+
+  // Si chargement en cours
+  if (courseLoading || coursesLoading) {
+    return (
+      <Block className="md:col-span-2 lg:col-span-2 min-h-[280px]">
+        <div className="flex items-center gap-2 mb-4">
+          <BookOpen size={18} className="text-orange-500 dark:text-orange-400" />
+          <span className="text-xs font-bold uppercase tracking-wider text-orange-500 dark:text-orange-400">
+            Continue Learning
+          </span>
+        </div>
+        <div className="text-center text-black/50 dark:text-white/50 py-8">
+          Chargement...
+        </div>
+      </Block>
+    )
+  }
+
+  // Si l'utilisateur a un cours en cours
+  if (currentCourse) {
+    return (
+      <Block className="md:col-span-2 lg:col-span-2 min-h-[280px]">
+        <div className="flex items-center gap-2 mb-4">
+          <BookOpen size={18} className="text-orange-500 dark:text-orange-400" />
+          <span className="text-xs font-bold uppercase tracking-wider text-orange-500 dark:text-orange-400">
+            Continue Learning
+          </span>
+        </div>
+        <h2 className="text-2xl font-bold text-black/85 dark:text-white/90 mb-2">
+          {currentCourse.title}
+        </h2>
+        <p className="text-sm text-black/70 dark:text-white/70 mb-4">
+          {currentCourse.description || 'Continuez votre apprentissage'}
+        </p>
+        
+        {/* Barre de progression */}
+        <div className="mb-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs text-black/70 dark:text-white/70">Progression</span>
+            <span className="text-xs font-bold text-black/85 dark:text-white/90">
+              {Math.round(currentCourse.progress)}%
+            </span>
+          </div>
+          <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-orange-500 to-orange-600 rounded-full transition-all duration-500"
+              style={{ width: `${Math.min(currentCourse.progress, 100)}%` }}
+            />
+          </div>
+        </div>
+
+        <button
+          onClick={handleResume}
+          className="px-4 py-2 bg-orange-500 text-white rounded-xl text-sm font-medium shadow-[2px_2px_4px_rgba(0,0,0,0.2)] hover:shadow-[3px_3px_6px_rgba(0,0,0,0.3)] transition-all duration-200 flex items-center gap-2"
+        >
+          <Play size={16} />
+          Continuer
+        </button>
+      </Block>
+    )
+  }
+
+  // Si l'utilisateur n'a pas de cours en cours, proposer de commencer un nouveau cours
+  const firstCourse = courses.length > 0 ? courses[0] : null
+
+  if (firstCourse) {
+    return (
+      <Block className="md:col-span-2 lg:col-span-2 min-h-[280px]">
+        <div className="flex items-center gap-2 mb-4">
+          <BookOpen size={18} className="text-orange-500 dark:text-orange-400" />
+          <span className="text-xs font-bold uppercase tracking-wider text-orange-500 dark:text-orange-400">
+            Continue Learning
+          </span>
+        </div>
+        <h2 className="text-2xl font-bold text-black/85 dark:text-white/90 mb-2">
+          {firstCourse.title}
+        </h2>
+        <p className="text-sm text-black/70 dark:text-white/70 mb-4">
+          {firstCourse.description || 'Commencez votre parcours d\'apprentissage'}
+        </p>
+        <button
+          onClick={handleStart}
+          className="px-4 py-2 bg-orange-500 text-white rounded-xl text-sm font-medium shadow-[2px_2px_4px_rgba(0,0,0,0.2)] hover:shadow-[3px_3px_6px_rgba(0,0,0,0.3)] transition-all duration-200 flex items-center gap-2"
+        >
+          <Play size={16} />
+          Commencer
+        </button>
+      </Block>
+    )
+  }
+
+  // Par défaut, afficher un message générique
+  return (
+    <Block className="md:col-span-2 lg:col-span-2 min-h-[280px]">
+      <div className="flex items-center gap-2 mb-4">
+        <BookOpen size={18} className="text-orange-500 dark:text-orange-400" />
+        <span className="text-xs font-bold uppercase tracking-wider text-orange-500 dark:text-orange-400">
+          Continue Learning
+        </span>
+      </div>
+      <h2 className="text-2xl font-bold text-black/85 dark:text-white/90 mb-2">
+        Explorez nos cours
+      </h2>
+      <p className="text-sm text-black/70 dark:text-white/70 mb-4">
+        Découvrez notre catalogue de cours pour améliorer vos compétences musicales.
+      </p>
+      <button
+        onClick={handleStart}
+        className="px-4 py-2 bg-orange-500 text-white rounded-xl text-sm font-medium shadow-[2px_2px_4px_rgba(0,0,0,0.2)] hover:shadow-[3px_3px_6px_rgba(0,0,0,0.3)] transition-all duration-200 flex items-center gap-2"
+      >
+        <Play size={16} />
+        Voir les cours
+      </button>
+    </Block>
+  )
+}

@@ -18,10 +18,14 @@ export function ElectroHarmonixSmallStonePedal({
   bypassed = false,
   onBypassToggle,
   bottomActions
-}: PedalComponentProps) {
+,
+  accentColor}: PedalComponentProps) {
   const model = useMemo(() => pedalLibrary.find((p) => p.id === pedalId), [])
   
   if (!model) return null
+
+  // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
+  const pedalAccentColor = accentColor || model.accentColor
 
   const rate = values.rate ?? model.parameters.rate.default
   const color = values.color ?? model.parameters.color.default
@@ -36,7 +40,7 @@ export function ElectroHarmonixSmallStonePedal({
           max={model.parameters.color.max}
           labels={model.parameters.color.labels || []}
           icons={model.parameters.color.icons}
-          color={model.accentColor}
+          color={pedalAccentColor}
           onChange={(v) => onChange?.('color', v)}
           className="switch-selector-full-width"
         />
@@ -49,7 +53,7 @@ export function ElectroHarmonixSmallStonePedal({
           value={rate}
           min={model.parameters.rate.min}
           max={model.parameters.rate.max}
-          color={model.accentColor}
+          color={pedalAccentColor}
           onChange={(v) => onChange?.('rate', v)}
         />
       </div>
@@ -74,9 +78,13 @@ export function ElectroHarmonixSmallStonePedal({
 export const ElectroHarmonixSmallStoneControls = ({
   values = {},
   onChange,
+  accentColor,
 }: PedalComponentProps) => {
   const model = pedalLibrary.find((p) => p.id === pedalId)
   if (!model) return null
+  
+  // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
+  const pedalAccentColor = accentColor || model.accentColor
   
   return (
     <>
@@ -94,7 +102,7 @@ export const ElectroHarmonixSmallStoneControls = ({
               max={def.max}
               orientation={def.orientation || 'vertical'}
               onChange={(v) => onChange?.(name, v)}
-              color={model.accentColor}
+              color={pedalAccentColor}
             />
           )
         }
@@ -108,7 +116,7 @@ export const ElectroHarmonixSmallStoneControls = ({
               max={def.max}
               labels={def.labels}
               icons={def.icons}
-              color={model.accentColor}
+              color={pedalAccentColor}
               onChange={(v) => onChange?.(name, v)}
             />
           )
@@ -121,7 +129,7 @@ export const ElectroHarmonixSmallStoneControls = ({
             value={value}
             min={def.min}
             max={def.max}
-            color={model.accentColor}
+            color={pedalAccentColor}
             onChange={(v) => onChange?.(name, v)}
           />
         )

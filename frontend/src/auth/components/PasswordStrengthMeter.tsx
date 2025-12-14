@@ -28,8 +28,8 @@ export function PasswordStrengthMeter({ password, className, showRecommendations
     <div className={className}>
       <div className="flex items-center justify-between mb-2">
         <span 
-          className="text-xs font-semibold uppercase tracking-wider"
-          style={{ color: 'rgba(0, 0, 0, 0.7)', letterSpacing: '0.5px' }}
+          className="text-xs font-semibold uppercase tracking-wider text-black/70 dark:text-white/70"
+          style={{ letterSpacing: '0.5px' }}
         >
           Force du mot de passe
         </span>
@@ -41,10 +41,11 @@ export function PasswordStrengthMeter({ password, className, showRecommendations
         </span>
       </div>
       <div 
-        className="h-2 w-full rounded-full overflow-hidden"
+        className="h-2 w-full rounded-full overflow-hidden bg-[#EBECF0] dark:bg-gray-600"
         style={{
-          boxShadow: 'inset 2px 2px 4px rgba(0, 0, 0, 0.05), inset -2px -2px 4px rgba(255, 255, 255, 0.8)',
-          backgroundColor: '#EBECF0'
+          boxShadow: document.documentElement.classList.contains('dark')
+            ? 'inset 2px 2px 4px rgba(0, 0, 0, 0.5), inset -2px -2px 4px rgba(60, 60, 60, 0.5)'
+            : 'inset 2px 2px 4px rgba(0, 0, 0, 0.05), inset -2px -2px 4px rgba(255, 255, 255, 0.8)'
         }}
       >
         <div
@@ -61,10 +62,9 @@ export function PasswordStrengthMeter({ password, className, showRecommendations
           {strength.recommendations.map((tip) => (
             <li key={tip} className="flex items-center gap-2">
               <span 
-                className="inline-block h-1.5 w-1.5 rounded-full flex-shrink-0"
-                style={{ backgroundColor: 'rgba(0, 0, 0, 0.4)' }}
+                className="inline-block h-1.5 w-1.5 rounded-full flex-shrink-0 bg-black/40 dark:bg-white/40"
               />
-              <span style={{ color: 'rgba(0, 0, 0, 0.6)' }}>
+              <span className="text-black/60 dark:text-white/60">
                 {tip}
               </span>
             </li>

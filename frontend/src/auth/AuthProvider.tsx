@@ -201,6 +201,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [ensureClient, showToast])
 
+  const updateUserMetadata = useCallback(async (metadata: Record<string, any>) => {
+    setLoading(true)
+    try {
+      const client = ensureClient()
+      const { error } = await client.auth.updateUser({
+        data: metadata
+      })
+      if (error) throw error
+      
+      // Rafraîchir la session pour obtenir les nouvelles métadonnées
+      const { data: sessionData, error: sessionError } = await client.auth.getSession()
+      if (!sessionError && sessionData.session) {
+        setSession(sessionData.session)
+        setUser(sessionData.session.user)
+      }
+      
+      showToast({
+        variant: 'success',
+        title: 'Profil mis à jour',
+        message: 'Tes informations ont été enregistrées.'
+      })
+    } catch (error) {
+      console.error('[Auth] Erreur lors de la mise à jour des métadonnées', error)
+      showToast({
+        variant: 'error',
+        title: 'Mise à jour impossible',
+        message: error instanceof Error ? error.message : 'Impossible de mettre à jour tes informations.'
+      })
+      throw error
+    } finally {
+      setLoading(false)
+    }
+  }, [ensureClient, showToast])
+
   const refreshSession = useCallback(async () => {
     const client = ensureClient()
     const { data, error } = await client.auth.getSession()
@@ -222,8 +256,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     logout,
     resetPassword,
     updatePassword,
+    updateUserMetadata,
     refreshSession
-  }), [session, user, initializing, loading, login, signUp, logout, resetPassword, updatePassword, refreshSession])
+  }), [session, user, initializing, loading, login, signUp, logout, resetPassword, updatePassword, updateUserMetadata, refreshSession])
 
   return (
     <AuthContext.Provider value={value}>

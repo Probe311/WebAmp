@@ -52,28 +52,38 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     <Modal isOpen={isOpen} onClose={onClose} title={mode === 'login' ? 'Connexion' : 'Inscription'}>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-black/70 dark:text-white/70 mb-2">
+          <label className="block text-xs font-semibold uppercase tracking-wider text-black/70 dark:text-white/70 mb-2" style={{ letterSpacing: '0.5px' }}>
             Email
           </label>
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-3 py-2 bg-white dark:bg-gray-800 rounded-lg border border-black/20 dark:border-white/20"
+            className="w-full px-4 py-3 text-sm bg-white dark:bg-gray-700 text-black/85 dark:text-white/90 rounded-xl focus:outline-none transition-all"
+            style={{
+              boxShadow: document.documentElement.classList.contains('dark')
+                ? 'inset 2px 2px 4px rgba(0, 0, 0, 0.5), inset -2px -2px 4px rgba(60, 60, 60, 0.5)'
+                : 'inset 2px 2px 4px rgba(0, 0, 0, 0.05), inset -2px -2px 4px rgba(255, 255, 255, 0.8)'
+            }}
             placeholder="votre@email.com"
             required
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-black/70 dark:text-white/70 mb-2">
+          <label className="block text-xs font-semibold uppercase tracking-wider text-black/70 dark:text-white/70 mb-2" style={{ letterSpacing: '0.5px' }}>
             Mot de passe
           </label>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-3 py-2 bg-white dark:bg-gray-800 rounded-lg border border-black/20 dark:border-white/20"
+            className="w-full px-4 py-3 text-sm bg-white dark:bg-gray-700 text-black/85 dark:text-white/90 rounded-xl focus:outline-none transition-all"
+            style={{
+              boxShadow: document.documentElement.classList.contains('dark')
+                ? 'inset 2px 2px 4px rgba(0, 0, 0, 0.5), inset -2px -2px 4px rgba(60, 60, 60, 0.5)'
+                : 'inset 2px 2px 4px rgba(0, 0, 0, 0.05), inset -2px -2px 4px rgba(255, 255, 255, 0.8)'
+            }}
             placeholder="••••••••"
             required
             minLength={6}
@@ -96,7 +106,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
           <button
             type="button"
             onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
-            className="text-sm text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white"
+            className="text-sm text-black/60 dark:text-white/60 hover:text-black/80 dark:hover:text-white/80 transition-colors"
           >
             {mode === 'login' ? 'Pas encore de compte ? S\'inscrire' : 'Déjà un compte ? Se connecter'}
           </button>

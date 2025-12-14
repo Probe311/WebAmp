@@ -17,10 +17,14 @@ export function SourceAudioProgrammableEqPedal({
   bypassed = false,
   onBypassToggle,
   bottomActions
-}: PedalComponentProps) {
+,
+  accentColor}: PedalComponentProps) {
   const model = useMemo(() => pedalLibrary.find((p) => p.id === pedalId), [])
   
   if (!model) return null
+
+  // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
+  const pedalAccentColor = accentColor || model.accentColor
 
   // Séparer les bandes EQ du contrôle level
   const { bands, level } = useMemo(() => {
@@ -56,7 +60,7 @@ export function SourceAudioProgrammableEqPedal({
               max={def.max}
               orientation="vertical"
               onChange={(v) => onChange?.(name, v)}
-              color={model.accentColor}
+              color={pedalAccentColor}
             />
           )
         })}
@@ -71,7 +75,7 @@ export function SourceAudioProgrammableEqPedal({
             max={levelDef.max ?? 100}
             orientation="vertical"
             onChange={(v) => onChange?.(levelName, v)}
-            color={model.accentColor}
+            color={pedalAccentColor}
           />
         </div>
       )}
@@ -96,9 +100,13 @@ export function SourceAudioProgrammableEqPedal({
 export const SourceAudioProgrammableEqControls = ({
   values = {},
   onChange,
+  accentColor,
 }: PedalComponentProps) => {
   const model = pedalLibrary.find((p) => p.id === pedalId)
   if (!model) return null
+
+  // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
+  const pedalAccentColor = accentColor || model.accentColor
 
   // Séparer les bandes EQ du contrôle level
   const { bands, level } = useMemo(() => {
@@ -134,7 +142,7 @@ export const SourceAudioProgrammableEqControls = ({
               max={def.max}
               orientation="vertical"
               onChange={(v) => onChange?.(name, v)}
-              color={model.accentColor}
+              color={pedalAccentColor}
             />
           )
         })}
@@ -149,7 +157,7 @@ export const SourceAudioProgrammableEqControls = ({
             max={levelDef.max ?? 100}
             orientation="vertical"
             onChange={(v) => onChange?.(levelName, v)}
-            color={model.accentColor}
+            color={pedalAccentColor}
           />
         </div>
       )}

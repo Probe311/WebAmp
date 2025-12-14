@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
-import { Plus, Settings, Plug } from 'lucide-react'
-import { WebSocketClient } from '../services/websocket'
+import { Plus, Settings, Plug, Brain } from 'lucide-react'
 import { Knob } from './Knob'
 import { AmplifierLibraryModal } from './AmplifierLibraryModal'
 import { getBrandLogo } from '../utils/brandLogos'
 import { CTA } from './CTA'
 import { useCatalog } from '../hooks/useCatalog'
+import { WebSocketClient } from '../services/websocket'
+import { type NAMModel, namLoader } from '../utils/namLoader'
 
 interface AmplifierSelectorProps {
   selectedAmplifier?: string | null
@@ -20,6 +21,7 @@ export function AmplifierSelector({ selectedAmplifier, onAmplifierChange, onPara
   const [showLibrary, setShowLibrary] = useState(false)
   const [parameters, setParameters] = useState<Record<string, number>>({})
   const [isPowered, setIsPowered] = useState(true)
+  const [namModel, setNamModel] = useState<NAMModel | null>(null)
 
   const currentAmp = selected ? amplifierLibrary.find(amp => amp.id === selected) : null
 
@@ -27,17 +29,6 @@ export function AmplifierSelector({ selectedAmplifier, onAmplifierChange, onPara
   useEffect(() => {
     if (selectedAmplifier && selectedAmplifier !== selected) {
       setSelected(selectedAmplifier)
-      if (selectedAmplifier) {
-        const ws = WebSocketClient.getInstance()
-        if (ws.isConnected()) {
-          ws.send({
-            type: 'setAmplifier',
-            amplifierId: selectedAmplifier
-          }).catch((error) => {
-            console.error('Erreur set ampli WebSocket:', error)
-          })
-        }
-      }
     } else if (!selectedAmplifier && selected) {
       setSelected(null)
     }
@@ -72,16 +63,6 @@ export function AmplifierSelector({ selectedAmplifier, onAmplifierChange, onPara
     if (onAmplifierChange) {
       onAmplifierChange(ampId)
     }
-    
-    const ws = WebSocketClient.getInstance()
-    if (ws.isConnected()) {
-      ws.send({
-        type: 'setAmplifier',
-        amplifierId: ampId
-      }).catch((error) => {
-        console.error('Erreur set ampli WebSocket:', error)
-      })
-    }
   }
 
   const handleParameterChange = (paramName: string, value: number) => {
@@ -94,17 +75,14 @@ export function AmplifierSelector({ selectedAmplifier, onAmplifierChange, onPara
     const clampedValue = Math.max(paramDef.min, Math.min(paramDef.max, value))
     
     setParameters(prev => ({ ...prev, [paramName]: clampedValue }))
-    
-    const ws = WebSocketClient.getInstance()
-    if (ws.isConnected()) {
-      ws.send({
-        type: 'setAmplifierParameter',
-        amplifierId: selected,
-        parameter: paramName,
-        value: clampedValue
-      }).catch((error) => {
-        console.error('Erreur envoi paramètre ampli WebSocket:', error)
-      })
+  }
+
+  const handleLoadNAMModel = async (file: File) => {
+    try {
+      const model = await namLoader.loadFromFile(file)
+      setNamModel(model)
+    } catch (error) {
+      console.error('Erreur lors du chargement du modèle NAM:', error)
     }
   }
 
@@ -173,22 +151,20 @@ export function AmplifierSelector({ selectedAmplifier, onAmplifierChange, onPara
 
   // Fonction pour obtenir les classes de layout des knobs - toujours une seule ligne avec max 10
   const getKnobLayoutClasses = () => {
-    return 'flex-[0_0_75%] flex justify-start items-center gap-4 flex-nowrap overflow-x-auto py-2'
+    return 'flex-1 flex justify-start items-center gap-4 flex-nowrap overflow-x-auto py-2 min-w-0 max-w-full'
   }
 
   return (
     <>
       <div className="flex flex-col h-full w-full p-0 bg-transparent overflow-hidden">
         <div 
-          className={`w-full h-full bg-white dark:bg-gray-800 ${getBorderStyle()} rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.15),inset_0_1px_0_rgba(255,255,255,0.9),0_0_0_1px_rgba(0,0,0,0.05)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(40,40,40,0.5),0_0_0_1px_rgba(60,60,60,0.8)] flex flex-col transition-all duration-300 overflow-hidden`}
+          className={`w-full h-full bg-white dark:bg-gray-800 ${getBorderStyle()} rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.15),inset_0_1px_0_rgba(255,255,255,0.9),0_0_0_1px_rgba(0,0,0,0.05)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(60,60,60,0.5),0_0_0_1px_rgba(60,60,60,0.8)] flex flex-col transition-all duration-300 overflow-hidden`}
           style={{ borderColor: currentAmp.color }}
         >
           {/* Ligne 1 : Potentiomètres de réglages (75%) + Master Volume + Interrupteur (25%) */}
           <div 
-            className="flex items-center p-6 border-b-2 border-black/20 dark:border-white/20 gap-4 rounded-t-l overflow-hidden" 
+            className="flex items-center p-6 border-b-2 border-black/20 dark:border-white/20 gap-4 rounded-t-l overflow-hidden min-h-[140px] min-w-0 max-w-full" 
             style={{ 
-              overflow: 'visible', 
-              minHeight: '140px',
               background: currentAmp.brand === 'Marshall' 
                 ? 'linear-gradient(135deg, #d4af37 0%, #b8941f 50%, #9d7a1a 100%)'
                 : 'linear-gradient(to bottom, rgba(255, 255, 255, 0.05), transparent)'
@@ -214,7 +190,7 @@ export function AmplifierSelector({ selectedAmplifier, onAmplifierChange, onPara
             
             <div className={getKnobLayoutClasses()}>
               {regularParams.slice(0, 10).map(([paramName, paramDef]) => (
-                <div key={paramName} className="flex flex-col items-center flex-shrink-0" style={{ minWidth: '80px' }}>
+                <div key={paramName} className="flex flex-col items-center flex-shrink-0" style={{ minWidth: '80px', maxWidth: '100px' }}>
                   <Knob
                     value={parameters[paramName] ?? paramDef.default}
                     min={paramDef.min}
@@ -228,9 +204,9 @@ export function AmplifierSelector({ selectedAmplifier, onAmplifierChange, onPara
               ))}
             </div>
             
-            <div className="flex-[0_0_25%] flex items-center gap-6 justify-center">
+            <div className="flex items-center gap-4 justify-center shrink-0 min-w-0 max-w-full overflow-hidden">
               {currentAmp.parameters.master && (
-                <div className="flex flex-col items-center">
+                <div className="flex flex-col items-center shrink-0">
                   <Knob
                     value={parameters.master ?? masterParam.default}
                     min={masterParam.min}
@@ -243,7 +219,7 @@ export function AmplifierSelector({ selectedAmplifier, onAmplifierChange, onPara
                 </div>
               )}
               
-              <div className="flex justify-center items-center">
+              <div className="flex justify-center items-center shrink-0">
                 <div 
                   className="flex flex-col items-center gap-2 cursor-pointer"
                   onClick={() => {
@@ -279,7 +255,7 @@ export function AmplifierSelector({ selectedAmplifier, onAmplifierChange, onPara
             style={{ backgroundColor: currentAmp.brand === 'Marshall' ? '#161616' : undefined }}
           >
             <div 
-              className="relative flex-1 h-full flex items-center justify-start pl-12 overflow-hidden rounded-2xl"
+              className="relative flex-1 h-full flex items-center justify-start pl-8 pr-8 overflow-hidden rounded-2xl min-w-0"
               style={{
                 background: `linear-gradient(to bottom right, ${currentAmp.uiStyle.grilleGradient[0]}, ${currentAmp.uiStyle.grilleGradient[1]})`
               }}
@@ -316,14 +292,15 @@ export function AmplifierSelector({ selectedAmplifier, onAmplifierChange, onPara
                   />
                 </>
               )}
-              <div className="relative z-[1] flex items-center justify-start h-full">
+              <div className="relative z-[1] flex items-center justify-start h-full min-w-0 max-w-full">
                 {getBrandLogo(currentAmp.brand) ? (
                   <img 
                     src={getBrandLogo(currentAmp.brand)} 
                     alt={currentAmp.brand}
-                    className={`h-[100px] w-auto max-w-[400px] opacity-95 transition-all duration-300 drop-shadow-[0_4px_12px_rgba(0,0,0,0.7),0_0_40px_rgba(255,255,255,0.4),0_2px_4px_rgba(0,0,0,0.5)] hover:drop-shadow-[0_4px_16px_rgba(0,0,0,0.8),0_0_50px_rgba(255,255,255,0.5),0_2px_6px_rgba(0,0,0,0.6)] hover:scale-102 hover:opacity-100 ${
+                    className={`h-[100px] w-auto opacity-95 transition-all duration-300 drop-shadow-[0_4px_12px_rgba(0,0,0,0.7),0_0_40px_rgba(255,255,255,0.4),0_2px_4px_rgba(0,0,0,0.5)] hover:drop-shadow-[0_4px_16px_rgba(0,0,0,0.8),0_0_50px_rgba(255,255,255,0.5),0_2px_6px_rgba(0,0,0,0.6)] hover:scale-102 hover:opacity-100 ${
                       currentAmp.brand === 'Marshall' ? 'brightness-0 invert opacity-90' : ''
                     }`}
+                    style={{ maxWidth: 'min(400px, calc(100% - 120px))' }}
                     onError={(e) => {
                       const target = e.target as HTMLImageElement
                       target.style.display = 'none'
@@ -333,7 +310,7 @@ export function AmplifierSelector({ selectedAmplifier, onAmplifierChange, onPara
                   />
                 ) : null}
                 <div 
-                  className={`text-[4.5rem] font-extrabold tracking-[8px] drop-shadow-[0_4px_12px_rgba(0,0,0,0.7),0_0_40px_rgba(255,255,255,0.4),0_2px_4px_rgba(0,0,0,0.5)] font-['Arial','Helvetica',sans-serif] uppercase transition-all duration-300 ${
+                  className={`text-[4.5rem] font-extrabold tracking-[8px] drop-shadow-[0_4px_12px_rgba(0,0,0,0.7),0_0_40px_rgba(255,255,255,0.4),0_2px_4px_rgba(0,0,0,0.5)] font-['Arial','Helvetica',sans-serif] uppercase transition-all duration-300 truncate max-w-full ${
                     currentAmp.brand === 'Marshall' ? 'text-white/85' : 'text-white/98'
                   }`}
                   style={{ display: getBrandLogo(currentAmp.brand) ? 'none' : 'block' }}
@@ -343,13 +320,51 @@ export function AmplifierSelector({ selectedAmplifier, onAmplifierChange, onPara
               </div>
             </div>
             
+            <div className="absolute bottom-8 right-8 flex gap-2 z-10 shrink-0">
+              {/* Bouton pour charger un modèle NAM */}
+              <input
+                type="file"
+                accept=".nam"
+                onChange={(e) => {
+                  const file = e.target.files?.[0]
+                  if (file) {
+                    handleLoadNAMModel(file)
+                  }
+                }}
+                className="hidden"
+                id="nam-file-input"
+              />
+              <label htmlFor="nam-file-input">
+                <CTA
+                  variant="icon-only"
+                  icon={<Brain size={20} />}
+                  title="Charger un modèle NAM"
+                  className="w-[52px] h-[52px]"
+                />
+              </label>
+            
             <CTA
               variant="icon-only"
               icon={<Settings size={20} />}
               onClick={() => setShowLibrary(true)}
               title="Changer d'ampli"
-              className="absolute bottom-8 right-8 w-[52px] h-[52px] z-10"
-            />
+                className="w-[52px] h-[52px]"
+              />
+            </div>
+
+            {/* Affichage du modèle NAM */}
+            {namModel && (
+              <div className="absolute top-4 right-4 z-10 bg-black/70 dark:bg-gray-900/90 rounded-lg p-2 text-xs text-white/90 max-w-xs">
+                <div className="flex items-center gap-1 mb-1">
+                  <Brain size={12} />
+                  <span className="font-semibold">Modèle NAM</span>
+                </div>
+                <div className="text-white/70">{namModel.metadata.name}</div>
+                {namModel.metadata.author && (
+                  <div className="text-white/50">Par {namModel.metadata.author}</div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>

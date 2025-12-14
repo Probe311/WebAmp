@@ -17,10 +17,14 @@ export function StrymonFlintPedal({
   bypassed = false,
   onBypassToggle,
   bottomActions
-}: PedalComponentProps) {
+,
+  accentColor}: PedalComponentProps) {
   const model = useMemo(() => pedalLibrary.find((p) => p.id === pedalId), [])
   
   if (!model) return null
+
+  // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
+  const pedalAccentColor = accentColor || model.accentColor
 
   const { switchSelectors, knobs } = useMemo(() => {
     const entries = Object.entries(model.parameters)
@@ -42,7 +46,7 @@ export function StrymonFlintPedal({
               max={def.max}
               labels={def.labels || []}
               icons={def.icons}
-              color={model.accentColor}
+              color={pedalAccentColor}
               onChange={(v) => onChange?.(name, v)}
               className="switch-selector-full-width"
             />
@@ -61,7 +65,7 @@ export function StrymonFlintPedal({
               value={value}
               min={def.min}
               max={def.max}
-              color={model.accentColor}
+              color={pedalAccentColor}
               onChange={(v) => onChange?.(name, v)}
             />
           )
@@ -88,9 +92,13 @@ export function StrymonFlintPedal({
 export const StrymonFlintControls = ({
   values = {},
   onChange,
+  accentColor,
 }: PedalComponentProps) => {
   const model = pedalLibrary.find((p) => p.id === pedalId)
   if (!model) return null
+  
+  // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
+  const pedalAccentColor = accentColor || model.accentColor
   
   const entries = Object.entries(model.parameters)
   const switchSelectors = entries.filter(([, def]) => def.controlType === 'switch-selector')
@@ -108,7 +116,7 @@ export const StrymonFlintControls = ({
               max={def.max}
               labels={def.labels || []}
               icons={def.icons}
-              color={model.accentColor}
+              color={pedalAccentColor}
               onChange={(v) => onChange?.(name, v)}
               className="switch-selector-full-width"
             />
@@ -125,7 +133,7 @@ export const StrymonFlintControls = ({
               value={value}
               min={def.min}
               max={def.max}
-              color={model.accentColor}
+              color={pedalAccentColor}
               onChange={(v) => onChange?.(name, v)}
             />
           )

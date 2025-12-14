@@ -882,7 +882,7 @@ export const amplifierLibrary: AmplifierModel[] = [
   },
   // Mesa Boogie
   {
-    id: 'mesa-mark-v',
+    id: 'mesa-mark-v-alt',
     brand: 'Mesa Boogie',
     model: 'Mark V',
     type: 'head',
@@ -908,7 +908,7 @@ export const amplifierLibrary: AmplifierModel[] = [
     }
   },
   {
-    id: 'mesa-dual-rectifier',
+    id: 'mesa-dual-rectifier-alt',
     brand: 'Mesa Boogie',
     model: 'Dual Rectifier',
     type: 'head',
@@ -935,7 +935,7 @@ export const amplifierLibrary: AmplifierModel[] = [
   },
   // Orange
   {
-    id: 'orange-rockerverb',
+    id: 'orange-rockerverb-alt',
     brand: 'Orange',
     model: 'Rockerverb 50',
     type: 'head',
@@ -961,7 +961,7 @@ export const amplifierLibrary: AmplifierModel[] = [
     }
   },
   {
-    id: 'orange-tiny-terror',
+    id: 'orange-tiny-terror-alt',
     brand: 'Orange',
     model: 'Tiny Terror',
     type: 'head',
@@ -984,7 +984,7 @@ export const amplifierLibrary: AmplifierModel[] = [
   },
   // Vox
   {
-    id: 'vox-ac30',
+    id: 'vox-ac30-alt',
     brand: 'Vox',
     model: 'AC30',
     type: 'combo',
@@ -1008,7 +1008,7 @@ export const amplifierLibrary: AmplifierModel[] = [
     }
   },
   {
-    id: 'vox-ac15',
+    id: 'vox-ac15-alt',
     brand: 'Vox',
     model: 'AC15',
     type: 'combo',
@@ -1033,7 +1033,7 @@ export const amplifierLibrary: AmplifierModel[] = [
   },
   // Peavey
   {
-    id: 'peavey-5150',
+    id: 'peavey-5150-alt',
     brand: 'Peavey',
     model: '5150',
     type: 'head',

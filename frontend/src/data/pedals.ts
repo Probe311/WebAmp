@@ -25,6 +25,7 @@ import {
 } from 'lucide-react'
 import { PEDAL_ACCENT_COLORS } from './pedalAccentColors'
 
+
 export type ControlType = 'knob' | 'switch-vertical' | 'switch-horizontal' | 'slider' | 'switch-selector'
 
 export interface PedalModel {
@@ -43,8 +44,8 @@ export interface PedalModel {
     labels?: string[] // Pour switch-selector
     icons?: LucideIcon[] // Pour switch-selector
   }>
-  color: string
-  accentColor: string
+  color: string // Déprécié : utiliser accentColor à la place
+  accentColor: string // Couleur globale de la pédale (OBLIGATOIRE - utiliser PEDAL_ACCENT_COLORS)
   style: 'vintage' | 'modern' | 'boutique'
 }
 
@@ -375,8 +376,8 @@ export const pedalLibrary: PedalModel[] = [
       mix: { min: 0, max: 100, default: 50, label: 'Mix', controlType: 'slider', orientation: 'horizontal' },
       mode: { min: 0, max: 2, default: 1, label: 'Mode', controlType: 'switch-selector', labels: ['DIGITAL', 'ANALOG', 'REVERSE'], icons: [Radio, RadioReceiver, RotateCcw] }
     },
-    color: '#00ff00',
-    accentColor: PEDAL_ACCENT_COLORS.GREEN,
+    color: '#31c57e',
+    accentColor: PEDAL_ACCENT_COLORS.GREEN_WALRUS,
     style: 'modern'
   },
   {

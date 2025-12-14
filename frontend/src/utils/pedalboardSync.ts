@@ -1,10 +1,10 @@
-// Fonctions utilitaires pour synchroniser les effets avec le moteur audio et WebSocket
+// Fonctions utilitaires pour synchroniser les effets avec le moteur audio
 
-import { WebSocketClient } from '../services/websocket'
 import { Effect } from '../components/Pedalboard'
+import { WebSocketClient } from '../services/websocket'
 
 /**
- * Synchronise un effet avec le moteur audio et WebSocket
+ * Synchronise un effet avec le moteur audio
  */
 export async function syncEffectToAudio(
   effect: Effect,

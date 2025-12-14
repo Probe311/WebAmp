@@ -17,11 +17,15 @@ export function WalrusAudioChorusPedal({
   onChange,
   bypassed = false,
   onBypassToggle,
-  bottomActions
+  bottomActions,
+  accentColor
 }: PedalComponentProps) {
   const model = useMemo(() => pedalLibrary.find((p) => p.id === pedalId), [])
   
   if (!model) return null
+
+  // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
+  const pedalAccentColor = accentColor || model.accentColor
 
   const rate = values.rate ?? model.parameters.rate.default
   const depth = values.depth ?? model.parameters.depth.default
@@ -39,7 +43,7 @@ export function WalrusAudioChorusPedal({
           max={model.parameters.rate.max}
           orientation="horizontal"
           onChange={(v) => onChange?.('rate', v)}
-          color={model.accentColor}
+          color={pedalAccentColor}
         />
       </div>
 
@@ -52,7 +56,7 @@ export function WalrusAudioChorusPedal({
           max={model.parameters.depth.max}
           orientation="horizontal"
           onChange={(v) => onChange?.('depth', v)}
-          color={model.accentColor}
+          color={pedalAccentColor}
         />
       </div>
 
@@ -65,7 +69,7 @@ export function WalrusAudioChorusPedal({
           max={model.parameters.mix.max}
           orientation="horizontal"
           onChange={(v) => onChange?.('mix', v)}
-          color={model.accentColor}
+          color={pedalAccentColor}
         />
       </div>
 
@@ -77,13 +81,13 @@ export function WalrusAudioChorusPedal({
           max={model.parameters.mode.max}
           labels={['LIGHT', 'MEDIUM', 'HEAVY']}
           icons={[CircleDot, Square, Circle]}
-          color={model.accentColor}
+          color={pedalAccentColor}
           onChange={(v) => onChange?.('mode', v)}
           className="switch-selector-full-width"
         />
       </div>
     </div>
-  ), [rate, depth, mix, mode, model, onChange])
+  ), [rate, depth, mix, mode, model, onChange, pedalAccentColor])
 
   return (
     <PedalFrame
@@ -103,10 +107,14 @@ export function WalrusAudioChorusPedal({
 // Export pour compatibilité avec l'ancien système
 export const WalrusAudioChorusControls = ({
   values = {}, 
-  onChange, 
+  onChange,
+  accentColor
 }: PedalComponentProps) => {
   const model = pedalLibrary.find((p) => p.id === pedalId)
   if (!model) return null
+
+  // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
+  const pedalAccentColor = accentColor || model.accentColor
 
   const rate = values.rate ?? model.parameters.rate.default
   const depth = values.depth ?? model.parameters.depth.default
@@ -123,7 +131,7 @@ export const WalrusAudioChorusControls = ({
           max={model.parameters.rate.max}
           orientation="horizontal"
           onChange={(v) => onChange?.('rate', v)}
-          color={model.accentColor}
+          color={pedalAccentColor}
         />
       </div>
       <div className="w-full">
@@ -134,7 +142,7 @@ export const WalrusAudioChorusControls = ({
           max={model.parameters.depth.max}
           orientation="horizontal"
           onChange={(v) => onChange?.('depth', v)}
-          color={model.accentColor}
+          color={pedalAccentColor}
         />
       </div>
       <div className="w-full">
@@ -145,7 +153,7 @@ export const WalrusAudioChorusControls = ({
           max={model.parameters.mix.max}
           orientation="horizontal"
           onChange={(v) => onChange?.('mix', v)}
-          color={model.accentColor}
+          color={pedalAccentColor}
         />
       </div>
       <div className="w-full mt-2">
@@ -155,7 +163,7 @@ export const WalrusAudioChorusControls = ({
           max={model.parameters.mode.max}
           labels={['LIGHT', 'MEDIUM', 'HEAVY']}
           icons={[CircleDot, Square, Circle]}
-          color={model.accentColor}
+          color={pedalAccentColor}
           onChange={(v) => onChange?.('mode', v)}
           className="switch-selector-full-width"
         />

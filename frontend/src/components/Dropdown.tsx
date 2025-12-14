@@ -104,7 +104,7 @@ export function Dropdown({
           className="
             absolute z-50 w-full mt-2 bg-white dark:bg-gray-700 rounded-xl
             shadow-[8px_8px_16px_rgba(0,0,0,0.15),-8px_-8px_16px_rgba(255,255,255,0.9),inset_0_0_0_1px_rgba(255,255,255,0.8)]
-            dark:shadow-[8px_8px_16px_rgba(0,0,0,0.5),-8px_-8px_16px_rgba(60,60,60,0.5),inset_0_0_0_1px_rgba(80,80,80,0.8)]
+            dark:shadow-[8px_8px_16px_rgba(0,0,0,0.5),-8px_-8px_16px_rgba(60,60,60,0.5),inset_0_0_0_1px_rgba(60,60,60,0.8)]
             overflow-hidden
             max-h-60 overflow-y-auto
           "

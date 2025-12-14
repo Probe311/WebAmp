@@ -17,11 +17,15 @@ export function WalrusAudioDrivePedal({
   onChange, 
   bypassed = false,
   onBypassToggle,
-  bottomActions
+  bottomActions,
+  accentColor
 }: PedalComponentProps) {
   const model = useMemo(() => pedalLibrary.find((p) => p.id === pedalId), [])
   
   if (!model) return null
+
+  // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
+  const pedalAccentColor = accentColor || model.accentColor
 
   const gain = values.gain ?? model.parameters.gain.default
   const tone = values.tone ?? model.parameters.tone.default
@@ -39,7 +43,7 @@ export function WalrusAudioDrivePedal({
           max={model.parameters.gain.max}
           orientation="horizontal"
           onChange={(v) => onChange?.('gain', v)}
-          color={model.accentColor}
+          color={pedalAccentColor}
         />
       </div>
 
@@ -52,7 +56,7 @@ export function WalrusAudioDrivePedal({
           max={model.parameters.tone.max}
           orientation="horizontal"
           onChange={(v) => onChange?.('tone', v)}
-          color={model.accentColor}
+          color={pedalAccentColor}
         />
       </div>
 
@@ -65,7 +69,7 @@ export function WalrusAudioDrivePedal({
           max={model.parameters.volume.max}
           orientation="horizontal"
           onChange={(v) => onChange?.('volume', v)}
-          color={model.accentColor}
+          color={pedalAccentColor}
         />
       </div>
 
@@ -77,13 +81,13 @@ export function WalrusAudioDrivePedal({
           max={model.parameters.mode.max}
           labels={['SMOOTH', 'CRUNCH', 'BRIGHT']}
           icons={[CircleDot, Square, Sun]}
-          color={model.accentColor}
+          color={pedalAccentColor}
           onChange={(v) => onChange?.('mode', v)}
           className="switch-selector-full-width"
         />
       </div>
     </div>
-  ), [gain, tone, volume, mode, model, onChange])
+  ), [gain, tone, volume, mode, model, onChange, pedalAccentColor])
 
   return (
     <PedalFrame
@@ -104,9 +108,13 @@ export function WalrusAudioDrivePedal({
 export const WalrusAudioDriveControls = ({
   values = {},
   onChange,
+  accentColor
 }: PedalComponentProps) => {
   const model = pedalLibrary.find((p) => p.id === pedalId)
   if (!model) return null
+
+  // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
+  const pedalAccentColor = accentColor || model.accentColor
 
   const gain = values.gain ?? model.parameters.gain.default
   const tone = values.tone ?? model.parameters.tone.default
@@ -123,7 +131,7 @@ export const WalrusAudioDriveControls = ({
           max={model.parameters.gain.max}
           orientation="horizontal"
           onChange={(v) => onChange?.('gain', v)}
-          color={model.accentColor}
+          color={pedalAccentColor}
         />
       </div>
       <div className="w-full">
@@ -134,7 +142,7 @@ export const WalrusAudioDriveControls = ({
           max={model.parameters.tone.max}
           orientation="horizontal"
           onChange={(v) => onChange?.('tone', v)}
-          color={model.accentColor}
+          color={pedalAccentColor}
         />
       </div>
       <div className="w-full">
@@ -145,7 +153,7 @@ export const WalrusAudioDriveControls = ({
           max={model.parameters.volume.max}
           orientation="horizontal"
           onChange={(v) => onChange?.('volume', v)}
-          color={model.accentColor}
+          color={pedalAccentColor}
         />
       </div>
       <div className="w-full mt-2">
@@ -155,7 +163,7 @@ export const WalrusAudioDriveControls = ({
           max={model.parameters.mode.max}
           labels={['SMOOTH', 'CRUNCH', 'BRIGHT']}
           icons={[CircleDot, Square, Sun]}
-          color={model.accentColor}
+          color={pedalAccentColor}
           onChange={(v) => onChange?.('mode', v)}
           className="switch-selector-full-width"
         />

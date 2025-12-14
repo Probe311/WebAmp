@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { DrumInstrument } from '../../contexts/DrumMachineContext'
 
 export const INSTRUMENTS_COMPACT: DrumInstrument[] = ['kick', 'snare', 'hihat', 'openhat', 'crash', 'ride', 'tom1', 'tom2', 'tom3']
@@ -36,7 +37,7 @@ interface DrumPadProps {
   className?: string
 }
 
-export function DrumPad({
+function DrumPadComponent({
   instrument,
   isActive,
   isStepActive,
@@ -129,4 +130,18 @@ export function DrumPad({
     </button>
   )
 }
+
+// Optimisation : mémoriser le composant pour éviter les re-renders inutiles
+export const DrumPad = memo(DrumPadComponent, (prevProps, nextProps) => {
+  // Ne re-rendre que si les props importantes changent
+  return (
+    prevProps.instrument === nextProps.instrument &&
+    prevProps.isActive === nextProps.isActive &&
+    prevProps.isStepActive === nextProps.isStepActive &&
+    prevProps.size === nextProps.size &&
+    prevProps.showLabel === nextProps.showLabel &&
+    prevProps.className === nextProps.className &&
+    prevProps.onClick === nextProps.onClick
+  )
+})
 

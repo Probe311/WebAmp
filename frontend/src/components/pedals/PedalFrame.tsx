@@ -111,6 +111,9 @@ export function PedalFrame({
 }: PedalFrameProps) {
   const pedalSize = useMemo(() => size || determinePedalSize(model), [size, model])
   
+  // Couleur principale de la pédale - utilisée de manière cohérente partout
+  const accentColor = model.accentColor
+  
   // Déterminer les classes CSS selon le layout
   const layoutClasses = useMemo(() => {
     const classes: string[] = []
@@ -154,7 +157,7 @@ export function PedalFrame({
     <Pedal
       brand={model.brand}
       model={model.model}
-      accentColor={model.accentColor}
+      accentColor={accentColor}
       size={pedalSize}
       bypassed={bypassed}
       className={`${layoutClasses} ${className}`.trim()}

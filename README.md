@@ -47,6 +47,13 @@ WebAmp/
 
 ## Démarrage rapide
 
+### Pour les utilisateurs finaux
+
+1. **Utiliser la webapp seule** : Accédez à l'application déployée sur Vercel
+2. **Pour une latence optimale** : Installez le Native Helper depuis les paramètres de l'application
+
+### Pour les développeurs
+
 - Dépendances JS gérées uniquement dans `frontend/` :
   - `cd frontend && npm install`
   - `npm run dev` (Vite écoute sur `http://localhost:10000`)
@@ -55,6 +62,16 @@ WebAmp/
   - `cmake ..` puis `cmake --build . --config Release`
 - WebSocket natif par défaut : `ws://localhost:8765`
 - Scripts Windows pratiques : `scripts/start-all.ps1`, `start-native.ps1`, `start-frontend.ps1`
+
+### Packaging du Native Helper
+
+Pour créer les packages distribuables :
+
+- **Windows** : `.\scripts\package-windows.ps1`
+- **macOS** : `./scripts/package-macos.sh`
+- **Linux** : `./scripts/package-linux.sh`
+
+Voir [native/README_PACKAGING.md](native/README_PACKAGING.md) pour plus de détails.
 
 ## Fonctionnalités
 

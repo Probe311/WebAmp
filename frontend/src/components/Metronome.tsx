@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Metronome as MetronomeEngine, MetronomeConfig, MetronomeState } from '../audio/metronome'
 import { CTA } from './CTA'
 import { Slider } from './Slider'
-import { Play, Pause, Square } from 'lucide-react'
+import { Play, Pause, Square, ChevronDown, ChevronUp } from 'lucide-react'
 import { usePedalboardEngine } from '../hooks/usePedalboardEngine'
 
 export function Metronome() {
@@ -48,13 +48,11 @@ export function Metronome() {
       return
     }
 
-    // Si le métronome est en pause, le reprendre
     if (state.isPlaying && metronomeRef.current) {
       metronomeRef.current.stop()
       return
     }
 
-    // Démarrer le moteur audio si nécessaire
     try {
       await engine.start()
     } catch (error) {
@@ -62,14 +60,12 @@ export function Metronome() {
       return
     }
 
-    // Obtenir l'AudioContext après le démarrage
     const audioCtx = engine.getAudioContext()
     if (!audioCtx) {
       console.warn('AudioContext non disponible après démarrage')
       return
     }
 
-    // S'assurer que l'AudioContext est actif
     if (audioCtx.state === 'suspended') {
       await audioCtx.resume()
     } else if (audioCtx.state === 'closed') {
@@ -77,22 +73,17 @@ export function Metronome() {
       return
     }
 
-    // Recréer le métronome si nécessaire ou si la config a changé
     if (!metronomeRef.current) {
       metronomeRef.current = new MetronomeEngine(audioCtx, config)
     } else {
-      // Mettre à jour la config si elle a changé
       metronomeRef.current.setTempo(config.tempo)
       metronomeRef.current.setTimeSignature(config.timeSignature[0], config.timeSignature[1])
       metronomeRef.current.setSubdivisions(config.subdivisions)
       metronomeRef.current.setAccentFirstBeat(config.accentFirstBeat)
     }
 
-    // Démarrer le métronome
     if (audioCtx.state === 'running') {
-      console.log('Démarrage du métronome...', { tempo: config.tempo, timeSignature: config.timeSignature, subdivisions: config.subdivisions })
       metronomeRef.current.start()
-      console.log('Métronome démarré, état:', metronomeRef.current.getState())
     } else {
       console.warn('AudioContext non actif, impossible de démarrer le métronome. État:', audioCtx.state)
     }
@@ -101,7 +92,6 @@ export function Metronome() {
   const handleStop = () => {
     if (metronomeRef.current) {
       metronomeRef.current.stop()
-      // Réinitialiser l'état
       setState({
         isPlaying: false,
         currentBeat: 0,
@@ -111,121 +101,98 @@ export function Metronome() {
   }
 
   const handleTempoChange = (tempo: number) => {
-    setConfig({ ...config, tempo })
+    const newTempo = Math.max(30, Math.min(300, tempo))
+    setConfig({ ...config, tempo: newTempo })
+    if (metronomeRef.current) {
+      metronomeRef.current.setTempo(newTempo)
+    }
   }
 
-  const handleTimeSignatureChange = (beats: number, noteValue: number) => {
-    setConfig({ ...config, timeSignature: [beats, noteValue] })
-  }
-
-  const handleSubdivisionsChange = (subdivisions: number) => {
-    setConfig({ ...config, subdivisions })
+  const adjustTempo = (delta: number) => {
+    handleTempoChange(config.tempo + delta)
   }
 
   return (
-    <div className="space-y-6 text-black/85 dark:text-white/90">
-      {/* Contrôles principaux */}
-      <div className="flex items-center justify-between gap-4 p-4 bg-white dark:bg-gray-700 rounded-xl border border-black/10 dark:border-white/10">
-        <div className="flex items-center gap-3">
-          <CTA
-            variant="primary"
-            icon={state.isPlaying ? <Pause size={18} /> : <Play size={18} />}
-            onClick={handlePlayPause}
-            active={state.isPlaying}
-          >
-            {state.isPlaying ? 'Pause' : 'Start'}
-          </CTA>
-          <CTA
-            variant="secondary"
-            icon={<Square size={18} />}
-            onClick={handleStop}
-            disabled={!state.isPlaying}
-          >
-            Stop
-          </CTA>
-        </div>
-
-        <div className="flex items-center gap-4">
-          <label className="text-sm font-medium flex items-center gap-2">
-            <span>BPM:</span>
-            <input
-              type="number"
-              min="30"
-              max="300"
-              value={config.tempo}
-              onChange={(e) => handleTempoChange(Math.max(30, Math.min(300, parseInt(e.target.value) || 120)))}
-              className="w-20 px-3 py-1.5 bg-white dark:bg-gray-800 rounded-lg border border-black/20 dark:border-white/20 text-center font-semibold focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20"
-            />
-          </label>
-          <Slider
-            value={config.tempo}
-            min={30}
-            max={300}
-            onChange={handleTempoChange}
-            label=""
-            orientation="horizontal"
-            className="w-32"
-          />
-        </div>
-      </div>
-
-      {/* Affichage du tempo */}
-      <div className="p-4 bg-white dark:bg-gray-700 rounded-xl border border-black/10 dark:border-white/10">
+    <div className="flex flex-col items-center justify-center gap-8 text-black/85 dark:text-white/90">
+      {/* Contrôles BPM */}
+      <div className="flex flex-col items-center gap-6">
+        {/* Affichage BPM principal */}
         <div className="text-center">
-          <div className="text-6xl font-bold text-black dark:text-white mb-2">
-            {config.tempo} BPM
+          <div className="text-8xl font-bold text-black dark:text-white mb-2">
+            {config.tempo}
           </div>
-          <div className="text-sm text-black/70 dark:text-white/70">
-            {config.timeSignature[0]}/{config.timeSignature[1]} - Beat {state.currentBeat + 1}
+          <div className="text-sm font-bold uppercase tracking-wider text-black/70 dark:text-white/70">
+            BPM
           </div>
+        </div>
+
+        {/* Contrôles BPM */}
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => adjustTempo(-1)}
+            className="w-12 h-12 rounded-full bg-white dark:bg-gray-700 flex items-center justify-center shadow-[2px_2px_4px_rgba(0,0,0,0.08),-2px_-2px_4px_rgba(255,255,255,0.9)] dark:shadow-[2px_2px_4px_rgba(0,0,0,0.5),-2px_-2px_4px_rgba(60,60,60,0.5)] hover:shadow-[3px_3px_6px_rgba(0,0,0,0.12),-3px_-3px_6px_rgba(255,255,255,1)] dark:hover:shadow-[3px_3px_6px_rgba(0,0,0,0.6),-3px_-3px_6px_rgba(70,70,70,0.6)] transition-all duration-200 touch-manipulation"
+            aria-label="Diminuer BPM"
+          >
+            <ChevronDown size={20} />
+          </button>
+          
+          <div className="w-64">
+            <Slider
+              value={config.tempo}
+              min={30}
+              max={300}
+              onChange={handleTempoChange}
+              label=""
+              orientation="horizontal"
+            />
+          </div>
+
+          <button
+            onClick={() => adjustTempo(1)}
+            className="w-12 h-12 rounded-full bg-white dark:bg-gray-700 flex items-center justify-center shadow-[2px_2px_4px_rgba(0,0,0,0.08),-2px_-2px_4px_rgba(255,255,255,0.9)] dark:shadow-[2px_2px_4px_rgba(0,0,0,0.5),-2px_-2px_4px_rgba(60,60,60,0.5)] hover:shadow-[3px_3px_6px_rgba(0,0,0,0.12),-3px_-3px_6px_rgba(255,255,255,1)] dark:hover:shadow-[3px_3px_6px_rgba(0,0,0,0.6),-3px_-3px_6px_rgba(70,70,70,0.6)] transition-all duration-200 touch-manipulation"
+            aria-label="Augmenter BPM"
+          >
+            <ChevronUp size={20} />
+          </button>
         </div>
       </div>
 
-      {/* Configuration */}
-      <div className="p-4 bg-white dark:bg-gray-700 rounded-xl border border-black/10 dark:border-white/10 space-y-4">
-        <div className="flex items-center justify-between">
-          <label className="text-sm font-semibold">Signature rythmique:</label>
-          <select
-            value={`${config.timeSignature[0]}/${config.timeSignature[1]}`}
-            onChange={(e) => {
-              const [beats, noteValue] = e.target.value.split('/').map(Number)
-              handleTimeSignatureChange(beats, noteValue)
-            }}
-            className="px-3 py-1.5 rounded-lg bg-white dark:bg-gray-800 border border-black/20 dark:border-white/20 text-sm focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20"
-          >
-            <option value="4/4">4/4</option>
-            <option value="3/4">3/4</option>
-            <option value="2/4">2/4</option>
-            <option value="6/8">6/8</option>
-            <option value="7/8">7/8</option>
-          </select>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <label className="text-sm font-semibold">Subdivisions:</label>
-          <select
-            value={config.subdivisions}
-            onChange={(e) => handleSubdivisionsChange(Number(e.target.value))}
-            className="px-3 py-1.5 rounded-lg bg-white dark:bg-gray-800 border border-black/20 dark:border-white/20 text-sm focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20"
-          >
-            <option value="1">Noires</option>
-            <option value="2">Croches</option>
-            <option value="4">Doubles croches</option>
-            <option value="8">Triples croches</option>
-          </select>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <label className="text-sm font-semibold">Accent sur le premier temps:</label>
-          <input
-            type="checkbox"
-            checked={config.accentFirstBeat}
-            onChange={(e) => {
-              setConfig({ ...config, accentFirstBeat: e.target.checked })
-            }}
-            className="w-5 h-5 rounded border-black/20 dark:border-white/20 focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20"
+      {/* Indicateurs de beat */}
+      <div className="flex items-center gap-2">
+        {Array.from({ length: config.timeSignature[0] }).map((_, i) => (
+          <div
+            key={i}
+            className={`w-3 h-12 rounded-full transition-all duration-100 ${
+              i === state.currentBeat
+                ? 'bg-orange-500 shadow-[0_0_20px_rgba(245,158,11,0.5)]'
+                : 'bg-white dark:bg-gray-700 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.1),inset_-2px_-2px_4px_rgba(255,255,255,0.8)] dark:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.5),inset_-2px_-2px_4px_rgba(60,60,60,0.5)]'
+            }`}
           />
-        </div>
+        ))}
+      </div>
+
+      {/* Contrôles de transport */}
+      <div className="flex items-center gap-4">
+        <CTA
+          variant="important"
+          icon={state.isPlaying ? <Pause size={24} /> : <Play size={24} />}
+          onClick={handlePlayPause}
+          active={state.isPlaying}
+          className="w-20 h-20 rounded-full"
+        />
+        <CTA
+          variant="secondary"
+          icon={<Square size={20} />}
+          onClick={handleStop}
+          disabled={!state.isPlaying}
+        >
+          Stop
+        </CTA>
+      </div>
+
+      {/* Informations */}
+      <div className="text-sm text-black/70 dark:text-white/70 text-center">
+        {config.timeSignature[0]}/{config.timeSignature[1]} - Beat {state.currentBeat + 1}
       </div>
     </div>
   )

@@ -17,11 +17,15 @@ export function WalrusAudioTremoloPedal({
   onChange, 
   bypassed = false,
   onBypassToggle,
-  bottomActions
+  bottomActions,
+  accentColor
 }: PedalComponentProps) {
   const model = useMemo(() => pedalLibrary.find((p) => p.id === pedalId), [])
   
   if (!model) return null
+
+  // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
+  const pedalAccentColor = accentColor || model.accentColor
 
   const rate = values.rate ?? model.parameters.rate.default
   const depth = values.depth ?? model.parameters.depth.default
@@ -39,7 +43,7 @@ export function WalrusAudioTremoloPedal({
           max={model.parameters.rate.max}
           orientation="horizontal"
           onChange={(v) => onChange?.('rate', v)}
-          color={model.accentColor}
+          color={pedalAccentColor}
         />
       </div>
 
@@ -52,7 +56,7 @@ export function WalrusAudioTremoloPedal({
           max={model.parameters.depth.max}
           orientation="horizontal"
           onChange={(v) => onChange?.('depth', v)}
-          color={model.accentColor}
+          color={pedalAccentColor}
         />
       </div>
 
@@ -65,7 +69,7 @@ export function WalrusAudioTremoloPedal({
           max={model.parameters.volume.max}
           orientation="horizontal"
           onChange={(v) => onChange?.('volume', v)}
-          color={model.accentColor}
+          color={pedalAccentColor}
         />
       </div>
 
@@ -77,7 +81,7 @@ export function WalrusAudioTremoloPedal({
           max={model.parameters.wave.max}
           labels={['SINE', 'SQUARE', 'RANDOM']}
           icons={[Waves, Square, Shuffle]}
-          color={model.accentColor}
+          color={pedalAccentColor}
           onChange={(v) => onChange?.('wave', v)}
           className="switch-selector-full-width"
         />
@@ -104,9 +108,13 @@ export function WalrusAudioTremoloPedal({
 export const WalrusAudioTremoloControls = ({
   values = {},
   onChange,
+  accentColor,
 }: PedalComponentProps) => {
   const model = pedalLibrary.find((p) => p.id === pedalId)
   if (!model) return null
+
+  // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
+  const pedalAccentColor = accentColor || model.accentColor
 
   const rate = values.rate ?? model.parameters.rate.default
   const depth = values.depth ?? model.parameters.depth.default
@@ -123,7 +131,7 @@ export const WalrusAudioTremoloControls = ({
           max={model.parameters.rate.max}
           orientation="horizontal"
           onChange={(v) => onChange?.('rate', v)}
-          color={model.accentColor}
+          color={pedalAccentColor}
         />
       </div>
       <div className="w-full">
@@ -134,7 +142,7 @@ export const WalrusAudioTremoloControls = ({
           max={model.parameters.depth.max}
           orientation="horizontal"
           onChange={(v) => onChange?.('depth', v)}
-          color={model.accentColor}
+          color={pedalAccentColor}
         />
       </div>
       <div className="w-full">
@@ -145,7 +153,7 @@ export const WalrusAudioTremoloControls = ({
           max={model.parameters.volume.max}
           orientation="horizontal"
           onChange={(v) => onChange?.('volume', v)}
-          color={model.accentColor}
+          color={pedalAccentColor}
         />
       </div>
       <div className="w-full mt-2">
@@ -155,7 +163,7 @@ export const WalrusAudioTremoloControls = ({
           max={model.parameters.wave.max}
           labels={['SINE', 'SQUARE', 'RANDOM']}
           icons={[Waves, Square, Shuffle]}
-          color={model.accentColor}
+          color={pedalAccentColor}
           onChange={(v) => onChange?.('wave', v)}
           className="switch-selector-full-width"
         />

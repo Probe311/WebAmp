@@ -17,11 +17,15 @@ export function BossDd3Pedal({
   onChange, 
   bypassed = false,
   onBypassToggle,
-  bottomActions
+  bottomActions,
+  accentColor
 }: PedalComponentProps) {
   const model = useMemo(() => pedalLibrary.find((p) => p.id === pedalId), [])
   
   if (!model) return null
+
+  // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
+  const pedalAccentColor = accentColor || model.accentColor
 
   const time = values.time ?? model.parameters.time.default
   const feedback = values.feedback ?? model.parameters.feedback.default
@@ -38,7 +42,7 @@ export function BossDd3Pedal({
           max={model.parameters.memory.max}
           labels={model.parameters.memory.labels || []}
           icons={model.parameters.memory.icons}
-          color={model.accentColor}
+          color={pedalAccentColor}
           onChange={(v) => onChange?.('memory', v)}
           className="switch-selector-full-width"
         />
@@ -51,7 +55,7 @@ export function BossDd3Pedal({
           value={time}
           min={model.parameters.time.min}
           max={model.parameters.time.max}
-          color={model.accentColor}
+          color={pedalAccentColor}
           onChange={(v) => onChange?.('time', v)}
           size="small"
         />
@@ -60,7 +64,7 @@ export function BossDd3Pedal({
           value={feedback}
           min={model.parameters.feedback.min}
           max={model.parameters.feedback.max}
-          color={model.accentColor}
+          color={pedalAccentColor}
           onChange={(v) => onChange?.('feedback', v)}
           size="small"
         />
@@ -73,13 +77,13 @@ export function BossDd3Pedal({
           value={level}
           min={model.parameters.level.min}
           max={model.parameters.level.max}
-          color={model.accentColor}
+          color={pedalAccentColor}
           onChange={(v) => onChange?.('level', v)}
           size="small"
         />
       </div>
     </div>
-  ), [time, feedback, level, memory, model, onChange])
+  ), [time, feedback, level, memory, model, onChange, pedalAccentColor])
 
   return (
     <PedalFrame
@@ -99,9 +103,13 @@ export function BossDd3Pedal({
 export const BossDd3Controls = ({
   values = {},
   onChange,
+  accentColor
 }: PedalComponentProps) => {
   const model = pedalLibrary.find((p) => p.id === pedalId)
   if (!model) return null
+  
+  // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
+  const pedalAccentColor = accentColor || model.accentColor
   
   return (
     <>
@@ -119,7 +127,7 @@ export const BossDd3Controls = ({
               max={def.max}
               orientation={def.orientation || 'vertical'}
               onChange={(v) => onChange?.(name, v)}
-              color={model.accentColor}
+              color={pedalAccentColor}
             />
           )
         }
@@ -133,7 +141,7 @@ export const BossDd3Controls = ({
               max={def.max}
               labels={def.labels}
               icons={def.icons}
-              color={model.accentColor}
+              color={pedalAccentColor}
               onChange={(v) => onChange?.(name, v)}
             />
           )
@@ -146,7 +154,7 @@ export const BossDd3Controls = ({
             value={value}
             min={def.min}
             max={def.max}
-            color={model.accentColor}
+            color={pedalAccentColor}
             onChange={(v) => onChange?.(name, v)}
           />
         )

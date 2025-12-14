@@ -10,6 +10,7 @@ export interface AuthContextValue {
   logout: () => Promise<void>
   resetPassword: (email: string) => Promise<void>
   updatePassword: (newPassword: string) => Promise<void>
+  updateUserMetadata: (metadata: Record<string, any>) => Promise<void>
   refreshSession: () => Promise<void>
 }
 

@@ -17,11 +17,15 @@ export function ElectroHarmonixBigMuffPedal({
   onChange, 
   bypassed = false,
   onBypassToggle,
-  bottomActions
+  bottomActions,
+  accentColor
 }: PedalComponentProps) {
   const model = useMemo(() => pedalLibrary.find((p) => p.id === pedalId), [])
   
   if (!model) return null
+
+  // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
+  const pedalAccentColor = accentColor || model.accentColor
 
   const controls = useMemo(() => {
     return Object.entries(model.parameters).map(([name, def]) => {
@@ -38,7 +42,7 @@ export function ElectroHarmonixBigMuffPedal({
             max={def.max}
             orientation={def.orientation || 'vertical'}
             onChange={(v) => onChange?.(name, v)}
-            color={model.accentColor}
+            color={pedalAccentColor}
           />
         )
       }
@@ -52,7 +56,7 @@ export function ElectroHarmonixBigMuffPedal({
             max={def.max}
             labels={def.labels}
             icons={def.icons}
-            color={model.accentColor}
+            color={pedalAccentColor}
             onChange={(v) => onChange?.(name, v)}
           />
         )
@@ -65,12 +69,12 @@ export function ElectroHarmonixBigMuffPedal({
           value={value}
           min={def.min}
           max={def.max}
-          color={model.accentColor}
+          color={pedalAccentColor}
           onChange={(v) => onChange?.(name, v)}
         />
       )
     })
-  }, [model, values, onChange])
+  }, [model, values, onChange, pedalAccentColor])
 
   return (
     <PedalFrame
@@ -90,9 +94,13 @@ export function ElectroHarmonixBigMuffPedal({
 export const ElectroHarmonixBigMuffControls = ({
   values = {},
   onChange,
+  accentColor
 }: PedalComponentProps) => {
   const model = pedalLibrary.find((p) => p.id === pedalId)
   if (!model) return null
+
+  // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
+  const pedalAccentColor = accentColor || model.accentColor
   
   return (
     <>
@@ -110,7 +118,7 @@ export const ElectroHarmonixBigMuffControls = ({
               max={def.max}
               orientation={def.orientation || 'vertical'}
               onChange={(v) => onChange?.(name, v)}
-              color={model.accentColor}
+              color={pedalAccentColor}
             />
           )
         }
@@ -124,7 +132,7 @@ export const ElectroHarmonixBigMuffControls = ({
               max={def.max}
               labels={def.labels}
               icons={def.icons}
-              color={model.accentColor}
+              color={pedalAccentColor}
               onChange={(v) => onChange?.(name, v)}
             />
           )
@@ -137,7 +145,7 @@ export const ElectroHarmonixBigMuffControls = ({
             value={value}
             min={def.min}
             max={def.max}
-            color={model.accentColor}
+            color={pedalAccentColor}
             onChange={(v) => onChange?.(name, v)}
           />
         )

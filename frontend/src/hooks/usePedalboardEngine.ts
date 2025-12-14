@@ -146,6 +146,21 @@ export function usePedalboardEngine(options: UsePedalboardEngineOptions = {}) {
     }
   }, [])
 
+  // Charger une IR depuis Freesound
+  const loadImpulseResponseFromFreesound = useCallback(async (
+    effectId: string,
+    freesoundSoundId: number
+  ) => {
+    if (!engineRef.current) return
+
+    try {
+      await engineRef.current.loadImpulseResponseFromFreesound(effectId, freesoundSoundId)
+    } catch (error) {
+      console.error(`Erreur chargement IR Freesound pour ${effectId}:`, error)
+      throw error
+    }
+  }, [])
+
   return {
     engine: engineRef.current,
     audioContext: engineRef.current?.getAudioContext() || null,
@@ -158,7 +173,8 @@ export function usePedalboardEngine(options: UsePedalboardEngineOptions = {}) {
     removeEffect,
     updateEffectParameters,
     setEffectEnabled,
-    loadImpulseResponse
+    loadImpulseResponse,
+    loadImpulseResponseFromFreesound
   }
 }
 

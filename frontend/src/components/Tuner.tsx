@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Tuner, TunerState, Tuning } from '../audio/tuner'
 import { usePedalboardEngine } from '../hooks/usePedalboardEngine'
+import { Dropdown, DropdownOption } from './Dropdown'
 
 export function TunerComponent() {
   const { audioContext, audioSource } = usePedalboardEngine()
@@ -13,9 +14,17 @@ export function TunerComponent() {
   })
   const [tuning, setTuning] = useState<Tuning>('standard')
 
+  const tuningOptions: DropdownOption[] = [
+    { value: 'standard', label: 'Standard (EADGBE)' },
+    { value: 'dropD', label: 'Drop D (DADGBE)' },
+    { value: 'dropC', label: 'Drop C (CGCFAD)' },
+    { value: 'openG', label: 'Open G (DGDGBD)' },
+    { value: 'openD', label: 'Open D (DADF#AD)' },
+    { value: 'dadgad', label: 'DADGAD' }
+  ]
+
   useEffect(() => {
     if (audioContext && audioSource) {
-      // Créer un AnalyserNode pour le tuner
       const analyser = audioContext.createAnalyser()
       audioSource.connect(analyser)
       
@@ -53,209 +62,99 @@ export function TunerComponent() {
 
   const getNeedlePosition = (cents: number): number => {
     // -50 à +50 cents -> 0% à 100%
-    return 50 + cents
+    return Math.max(0, Math.min(100, 50 + cents))
   }
 
   return (
-    <div className="space-y-6 text-black/85 dark:text-white/90">
+    <div className="flex flex-col items-center justify-center gap-8 text-black/85 dark:text-white/90">
       {/* Sélection de l'accordage */}
-      <div className="p-4 bg-white dark:bg-gray-700 rounded-xl border border-black/10 dark:border-white/10">
-        <label className="block text-sm font-semibold mb-2">Accordage:</label>
-        <select
+      <div className="w-full max-w-xs">
+        <label className="block text-xs font-bold uppercase tracking-wider text-black/70 dark:text-white/70 mb-2">
+          Accordage
+        </label>
+        <Dropdown
+          options={tuningOptions}
           value={tuning}
-          onChange={(e) => {
-            setTuning(e.target.value as Tuning)
-            tunerRef.current?.setTuning(e.target.value as Tuning)
+          onChange={(value) => {
+            setTuning(value as Tuning)
+            tunerRef.current?.setTuning(value as Tuning)
           }}
-          className="w-full px-3 py-2 rounded-lg bg-white dark:bg-gray-800 border border-black/20 dark:border-white/20 text-sm focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20"
-        >
-          <option value="standard">Standard (EADGBE)</option>
-          <option value="dropD">Drop D (DADGBE)</option>
-          <option value="dropC">Drop C (CGCFAD)</option>
-          <option value="openG">Open G (DGDGBD)</option>
-          <option value="openD">Open D (DADF#AD)</option>
-          <option value="dadgad">DADGAD</option>
-        </select>
+        />
       </div>
 
-      {/* Affichage de la note */}
-      {state.note ? (
-        <div className="p-4 bg-white dark:bg-gray-700 rounded-xl border border-black/10 dark:border-white/10">
-          <div className="text-center mb-4">
-            <div className="text-6xl font-bold text-black dark:text-white mb-2">
-              {state.note}
-            </div>
-            <div className="text-sm text-black/70 dark:text-white/70">
-              {state.frequency.toFixed(1)} Hz
-            </div>
-          </div>
-
-          {/* Aiguille visuelle */}
-          <div className="relative h-32 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden mb-4">
-            <div className="absolute inset-0 flex items-center">
-              {/* Marqueurs */}
-              <div className="absolute left-0 w-full h-1 bg-gray-300 dark:bg-gray-600" />
-              <div className="absolute left-1/2 w-1 h-8 bg-gray-400 dark:bg-gray-500 -translate-x-1/2" />
-              
-              {/* Aiguille */}
-              <div
-                className="absolute top-1/2 left-1/2 w-1 h-16 bg-red-500 origin-top -translate-x-1/2 transition-transform"
-                style={{
-                  transform: `translateX(-50%) rotate(${getNeedlePosition(state.cents) * 3.6 - 90}deg)`
-                }}
-              />
-            </div>
-          </div>
-
-          <div className={`text-center text-xl font-semibold ${getCentsColor(state.cents)} mb-2`}>
-            {state.cents > 0 ? '+' : ''}{state.cents.toFixed(1)} cents
-          </div>
-
-          <div className="text-center">
-            {state.isInTune ? (
-              <span className="text-green-500 font-semibold">✓ Accordé</span>
+      {/* Affichage principal */}
+      <div className="flex flex-col items-center gap-6">
+        {/* Note principale */}
+        <div className="relative">
+          <div className="w-48 h-48 rounded-full border-4 border-black/20 dark:border-white/20 flex items-center justify-center bg-white dark:bg-gray-700 shadow-[8px_8px_16px_rgba(0,0,0,0.1),-8px_-8px_16px_rgba(255,255,255,0.9),inset_0_0_0_1px_rgba(255,255,255,0.8)] dark:shadow-[8px_8px_16px_rgba(0,0,0,0.5),-8px_-8px_16px_rgba(60,60,60,0.5),inset_0_0_0_1px_rgba(60,60,60,0.8)]">
+            {state.note ? (
+              <div className="text-center">
+                <div className="text-7xl font-bold text-black dark:text-white">
+                  {state.note}
+                </div>
+                {state.note.includes('♯') && (
+                  <div className="text-2xl font-bold text-black/50 dark:text-white/50 -mt-2">
+                    {state.note.replace('♯', '')}
+                  </div>
+                )}
+              </div>
             ) : (
-              <span className="text-yellow-500">
-                {state.cents > 0 ? 'Trop haut' : 'Trop bas'}
-              </span>
+              <div className="text-7xl font-bold text-black/30 dark:text-white/30">
+                —
+              </div>
             )}
           </div>
         </div>
-      ) : (
-        <div className="p-4 bg-white dark:bg-gray-700 rounded-xl border border-black/10 dark:border-white/10">
-          <div className="text-center mb-4">
-            <div className="text-6xl font-bold text-black/30 dark:text-white/30 mb-2">
-              —
+
+        {/* Indicateur de cent */}
+        {state.note && (
+          <div className="flex flex-col items-center gap-2 w-full max-w-md">
+            {/* Barre de cent */}
+            <div className="relative w-full h-2 bg-white dark:bg-gray-700 rounded-full shadow-[inset_2px_2px_4px_rgba(0,0,0,0.1),inset_-2px_-2px_4px_rgba(255,255,255,0.8)] dark:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.5),inset_-2px_-2px_4px_rgba(60,60,60,0.5)] overflow-hidden">
+              {/* Zone verte (accordé) */}
+              <div className="absolute left-1/2 -translate-x-1/2 w-[20%] h-full bg-green-500/30" />
+              {/* Indicateur */}
+              <div
+                className={`absolute top-0 h-full w-1 transition-all duration-75 ${
+                  Math.abs(state.cents) < 5 ? 'bg-green-500' :
+                  Math.abs(state.cents) < 20 ? 'bg-yellow-500' :
+                  'bg-red-500'
+                }`}
+                style={{ left: `${getNeedlePosition(state.cents)}%`, transform: 'translateX(-50%)' }}
+              />
             </div>
-            <div className="text-sm text-black/50 dark:text-white/50">
-              Aucun signal
+            
+            {/* Texte de cent */}
+            <div className={`text-xl font-bold ${getCentsColor(state.cents)}`}>
+              {state.cents > 0 ? '+' : ''}{state.cents.toFixed(0)} cents
+            </div>
+            
+            {/* Statut */}
+            <div className="text-sm text-black/70 dark:text-white/70">
+              {state.isInTune ? (
+                <span className="text-green-500 font-semibold">✓ Accordé</span>
+              ) : (
+                <span className={state.cents > 0 ? 'text-yellow-500' : 'text-red-500'}>
+                  {state.cents > 0 ? 'Trop haut' : 'Trop bas'}
+                </span>
+              )}
             </div>
           </div>
+        )}
 
-          {/* Tuner visuel inactif */}
-          <div 
-            className="relative mx-auto mb-4"
-            style={{
-              width: '280px',
-              height: '280px',
-              background: '#ffffff',
-              borderRadius: '50%',
-              boxShadow: `
-                8px 8px 16px rgba(0, 0, 0, 0.1),
-                -8px -8px 16px rgba(255, 255, 255, 0.9),
-                inset 0 0 0 1px rgba(255, 255, 255, 0.8)
-              `
-            }}
-          >
-            {/* Marqueurs du cadran */}
-            <div className="absolute inset-0">
-              {/* Marqueurs principaux (-50, -25, 0, +25, +50 cents) */}
-              {[-50, -25, 0, 25, 50].map((cent, index) => {
-                const angle = (cent * 3.6) - 90 // -50 cents = -180°, 0 = -90°, +50 = 0°
-                const isCenter = cent === 0
-                const radius = 120
-                const x = 140 + Math.cos((angle * Math.PI) / 180) * radius
-                const y = 140 + Math.sin((angle * Math.PI) / 180) * radius
-                
-                return (
-                  <div
-                    key={index}
-                    className={`absolute ${isCenter ? 'w-1 h-12' : 'w-0.5 h-6'} bg-black/20 dark:bg-white/20`}
-                    style={{
-                      left: `${x}px`,
-                      top: `${y}px`,
-                      transform: `translate(-50%, -50%) rotate(${angle + 90}deg)`,
-                      transformOrigin: 'center'
-                    }}
-                  />
-                )
-              })}
-              
-              {/* Marqueurs secondaires (tous les 5 cents) */}
-              {Array.from({ length: 21 }, (_, i) => i - 10).map((cent, index) => {
-                if (cent % 25 === 0) return null // Déjà dessinés
-                const angle = (cent * 3.6) - 90
-                const radius = 120
-                const x = 140 + Math.cos((angle * Math.PI) / 180) * radius
-                const y = 140 + Math.sin((angle * Math.PI) / 180) * radius
-                
-                return (
-                  <div
-                    key={`minor-${index}`}
-                    className="absolute w-0.5 h-3 bg-black/10 dark:bg-white/10"
-                    style={{
-                      left: `${x}px`,
-                      top: `${y}px`,
-                      transform: `translate(-50%, -50%) rotate(${angle + 90}deg)`,
-                      transformOrigin: 'center'
-                    }}
-                  />
-                )
-              })}
-              
-              {/* Labels des marqueurs principaux */}
-              {[-50, -25, 0, 25, 50].map((cent, index) => {
-                const angle = (cent * 3.6) - 90
-                const radius = 100
-                const x = 140 + Math.cos((angle * Math.PI) / 180) * radius
-                const y = 140 + Math.sin((angle * Math.PI) / 180) * radius
-                
-                return (
-                  <div
-                    key={`label-${index}`}
-                    className="absolute text-xs font-semibold text-black/40 dark:text-white/40"
-                    style={{
-                      left: `${x}px`,
-                      top: `${y}px`,
-                      transform: 'translate(-50%, -50%)'
-                    }}
-                  >
-                    {cent > 0 ? '+' : ''}{cent}
-                  </div>
-                )
-              })}
-              
-              {/* Zone centrale (accordé) */}
-              <div
-                className="absolute rounded-full bg-green-500/10 dark:bg-green-400/10"
-                style={{
-                  width: '60px',
-                  height: '60px',
-                  left: '50%',
-                  top: '50%',
-                  transform: 'translate(-50%, -50%)',
-                  border: '2px solid rgba(34, 197, 94, 0.2)'
-                }}
-              />
-              
-              {/* Aiguille inactif (centrée) */}
-              <div
-                className="absolute top-1/2 left-1/2 w-1 h-24 bg-black/30 dark:bg-white/30 origin-top transition-transform"
-                style={{
-                  transform: 'translateX(-50%) rotate(-90deg)',
-                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-                }}
-              />
-              
-              {/* Point central */}
-              <div
-                className="absolute top-1/2 left-1/2 w-3 h-3 rounded-full bg-black/40 dark:bg-white/40"
-                style={{
-                  transform: 'translate(-50%, -50%)',
-                  boxShadow: `
-                    inset 1px 1px 2px rgba(0, 0, 0, 0.2),
-                    -1px -1px 2px rgba(255, 255, 255, 0.8)
-                  `
-                }}
-              />
-            </div>
+        {/* Fréquence */}
+        {state.note && (
+          <div className="text-sm text-black/50 dark:text-white/50 font-mono">
+            {state.frequency.toFixed(1)} Hz
           </div>
+        )}
 
-          <div className="text-center text-sm text-black/50 dark:text-white/50">
+        {!state.note && (
+          <div className="text-sm text-black/50 dark:text-white/50">
             En attente de signal...
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }

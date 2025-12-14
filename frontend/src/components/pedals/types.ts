@@ -8,5 +8,6 @@ export interface PedalComponentProps {
   bypassed?: boolean
   onBypassToggle?: () => void
   bottomActions?: React.ReactNode
+  accentColor?: string // Couleur principale de la pédale - utilisée de manière cohérente partout
 }
 

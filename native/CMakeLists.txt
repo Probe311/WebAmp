@@ -97,6 +97,7 @@ set(NATIVE_SOURCES
     src/fft_helper.cpp
     src/buffer_pool.cpp
     src/simd_helper.cpp
+    src/nam_loader.cpp
 )
 
 # Ajouter les drivers selon la plateforme
@@ -126,6 +127,7 @@ set(NATIVE_HEADERS
     include/fft_helper.h
     include/buffer_pool.h
     include/simd_helper.h
+    include/nam_loader.h
 )
 
 # Ajouter les headers selon la plateforme

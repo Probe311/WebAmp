@@ -35,7 +35,7 @@ export function Modal({
         className={`modal-content bg-white dark:bg-gray-800 rounded-2xl p-0 w-[90%] ${widthClassName} max-h-[85vh] overflow-hidden ${className} transition-colors duration-200`}
         style={{
           boxShadow: document.documentElement.classList.contains('dark')
-            ? '8px 8px 16px rgba(0, 0, 0, 0.5), -8px -8px 16px rgba(40, 40, 40, 0.5), inset 0 0 0 1px rgba(60, 60, 60, 0.8)'
+            ? '8px 8px 16px rgba(0, 0, 0, 0.5), -8px -8px 16px rgba(60, 60, 60, 0.5), inset 0 0 0 1px rgba(60, 60, 60, 0.8)'
             : '8px 8px 16px rgba(0, 0, 0, 0.1), -8px -8px 16px rgba(255, 255, 255, 0.9), inset 0 0 0 1px rgba(255, 255, 255, 0.8)'
         }}
         onClick={(e) => e.stopPropagation()}

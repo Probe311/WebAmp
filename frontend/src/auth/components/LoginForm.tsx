@@ -1,6 +1,7 @@
 import { FormEvent, useState } from 'react'
 import { useAuth } from '../AuthProvider'
 import { AuthField } from './AuthField'
+import { CTA } from '../../components/CTA'
 
 interface Props {
   onForgotPassword?: () => void
@@ -54,53 +55,27 @@ export function LoginForm({ onForgotPassword, onSwitchSignup, onSuccess }: Props
         <button
           type="button"
           onClick={onForgotPassword}
-          className="text-sm font-medium transition-colors hover:opacity-80"
-          style={{ color: 'rgba(0, 0, 0, 0.6)' }}
+          className="text-sm font-medium transition-colors hover:opacity-80 text-black/60 dark:text-white/60"
         >
           Mot de passe oublié ?
         </button>
         <button
           type="button"
           onClick={onSwitchSignup}
-          className="text-sm font-medium transition-colors hover:opacity-80"
-          style={{ color: 'rgba(0, 0, 0, 0.7)' }}
+          className="text-sm font-medium transition-colors hover:opacity-80 text-black/70 dark:text-white/70"
         >
           Créer un compte
         </button>
       </div>
 
-      <button
-        type="submit"
+      <CTA
+        variant="important"
         disabled={loading}
-        className="w-full py-3 rounded-xl font-semibold text-white transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
-        style={{
-          background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.8) 100%)',
-          boxShadow: loading
-            ? 'inset 2px 2px 4px rgba(0, 0, 0, 0.3), inset -2px -2px 4px rgba(255, 255, 255, 0.1)'
-            : '2px 2px 4px rgba(0, 0, 0, 0.2), -2px -2px 4px rgba(255, 255, 255, 0.1)',
-          transform: loading ? 'scale(0.98)' : 'scale(1)'
-        }}
-        onMouseDown={(e) => {
-          if (!loading) {
-            e.currentTarget.style.transform = 'scale(0.98)'
-            e.currentTarget.style.boxShadow = 'inset 2px 2px 4px rgba(0, 0, 0, 0.3), inset -2px -2px 4px rgba(255, 255, 255, 0.1)'
-          }
-        }}
-        onMouseUp={(e) => {
-          if (!loading) {
-            e.currentTarget.style.transform = 'scale(1)'
-            e.currentTarget.style.boxShadow = '2px 2px 4px rgba(0, 0, 0, 0.2), -2px -2px 4px rgba(255, 255, 255, 0.1)'
-          }
-        }}
-        onMouseLeave={(e) => {
-          if (!loading) {
-            e.currentTarget.style.transform = 'scale(1)'
-            e.currentTarget.style.boxShadow = '2px 2px 4px rgba(0, 0, 0, 0.2), -2px -2px 4px rgba(255, 255, 255, 0.1)'
-          }
-        }}
+        className="w-full"
+        type="submit"
       >
         {loading ? 'Connexion...' : 'Se connecter'}
-      </button>
+      </CTA>
     </form>
   )
 }

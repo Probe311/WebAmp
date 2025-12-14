@@ -13,7 +13,6 @@ Bienvenue dans la documentation complète de WebAmp, une application de simulati
 - **[Composants](COMPONENTS.md)** - Documentation des composants React
 - **[API WebSocket](API.md)** - Protocole de communication front/back
 - **[Optimisations](OPTIMIZATION.md)** - Guide des optimisations du code
-- **[Évolution du Moteur Sonore](EVOLUTION_MOTEUR_SONORE.md)** - Documentation historique (mode MIDI supprimé)
 - **[Build & Déploiement](BUILD.md)** - Instructions de build détaillées
 - **[Déploiement Vercel](VERCEL_SETUP.md)** - Guide de déploiement sur Vercel
 - **[Déploiement général](DEPLOYMENT.md)** - Options d'hébergement
@@ -22,14 +21,8 @@ Bienvenue dans la documentation complète de WebAmp, une application de simulati
 - **[Pédales](REFERENCE_PEDALES.md)** - Liste complète des pédales disponibles
 - **[Amplificateurs](REFERENCE_AMPLIS.md)** - Liste complète des amplificateurs disponibles
 
-### 📊 Qualité & Audit
-- **[Audit Global](AUDIT_GLOBAL.md)** - Audit complet de l'application
-- **[Audit Tailwind](AUDIT_TAILWIND.md)** - État de la migration Tailwind CSS
-
-### 🗺️ Roadmap & Qualité
+### 🗺️ Roadmap
 - **[Roadmap](ROADMAP.md)** - Prochaines étapes et fonctionnalités prévues
-- **[Audit Global](AUDIT_GLOBAL.md)** - Audit complet de l'application
-- **[Audit Tailwind](AUDIT_TAILWIND.md)** - État de la migration Tailwind CSS
 
 ---
 

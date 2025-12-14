@@ -18,11 +18,15 @@ export function WalrusAudioAmbientPedal({
   onChange, 
   bypassed = false,
   onBypassToggle,
-  bottomActions
+  bottomActions,
+  accentColor
 }: PedalComponentProps) {
   const model = useMemo(() => pedalLibrary.find((p) => p.id === pedalId), [])
   
   if (!model) return null
+
+  // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
+  const pedalAccentColor = accentColor || model.accentColor
 
   const decay = values.decay ?? model.parameters.decay.default
   const tone = values.tone ?? model.parameters.tone.default
@@ -38,7 +42,7 @@ export function WalrusAudioAmbientPedal({
           value={decay}
           min={model.parameters.decay.min}
           max={model.parameters.decay.max}
-          color={model.accentColor}
+          color={pedalAccentColor}
           onChange={(v: number) => onChange?.('decay', v)}
         />
         <Potentiometer
@@ -46,7 +50,7 @@ export function WalrusAudioAmbientPedal({
           value={tone}
           min={model.parameters.tone.min}
           max={model.parameters.tone.max}
-          color={model.accentColor}
+          color={pedalAccentColor}
           onChange={(v) => onChange?.('tone', v)}
         />
       </div>
@@ -58,7 +62,7 @@ export function WalrusAudioAmbientPedal({
           value={mix}
           min={model.parameters.mix.min}
           max={model.parameters.mix.max}
-          color={model.accentColor}
+          color={pedalAccentColor}
           onChange={(v) => onChange?.('mix', v)}
         />
       </div>
@@ -71,7 +75,7 @@ export function WalrusAudioAmbientPedal({
           max={model.parameters.mode.max}
           labels={['DEEP', 'LUSH', 'HAZE']}
           icons={[Layers, Flower2, Cloud]}
-          color={model.accentColor}
+          color={pedalAccentColor}
           onChange={(v) => onChange?.('mode', v)}
           className="switch-selector-full-width"
         />
@@ -97,9 +101,13 @@ export function WalrusAudioAmbientPedal({
 export const WalrusAudioAmbientControls = ({
   values = {},
   onChange,
+  accentColor,
 }: PedalComponentProps) => {
   const model = pedalLibrary.find((p) => p.id === pedalId)
   if (!model) return null
+
+  // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
+  const pedalAccentColor = accentColor || model.accentColor
 
   const decay = values.decay ?? model.parameters.decay.default
   const tone = values.tone ?? model.parameters.tone.default
@@ -116,7 +124,7 @@ export const WalrusAudioAmbientControls = ({
           max={model.parameters.decay.max}
           orientation="horizontal"
           onChange={(v: number) => onChange?.('decay', v)}
-          color={model.accentColor}
+          color={pedalAccentColor}
         />
       </div>
       <div className="w-full">
@@ -127,7 +135,7 @@ export const WalrusAudioAmbientControls = ({
           max={model.parameters.tone.max}
           orientation="horizontal"
           onChange={(v) => onChange?.('tone', v)}
-          color={model.accentColor}
+          color={pedalAccentColor}
         />
       </div>
       <div className="w-full">
@@ -138,7 +146,7 @@ export const WalrusAudioAmbientControls = ({
           max={model.parameters.mix.max}
           orientation="horizontal"
           onChange={(v) => onChange?.('mix', v)}
-          color={model.accentColor}
+          color={pedalAccentColor}
         />
       </div>
       <div className="w-full mt-2">
@@ -148,7 +156,7 @@ export const WalrusAudioAmbientControls = ({
           max={model.parameters.mode.max}
           labels={['DEEP', 'LUSH', 'HAZE']}
           icons={[Layers, Flower2, Cloud]}
-          color={model.accentColor}
+          color={pedalAccentColor}
           onChange={(v) => onChange?.('mode', v)}
           className="switch-selector-full-width"
         />

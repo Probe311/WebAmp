@@ -18,10 +18,14 @@ export function StrymonBigskyPedal({
   bypassed = false,
   onBypassToggle,
   bottomActions
-}: PedalComponentProps) {
+,
+  accentColor}: PedalComponentProps) {
   const model = useMemo(() => pedalLibrary.find((p) => p.id === pedalId), [])
   
   if (!model) return null
+
+  // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
+  const pedalAccentColor = accentColor || model.accentColor
 
   const controls = useMemo(() => {
     return Object.entries(model.parameters).map(([name, def]) => {
@@ -38,7 +42,7 @@ export function StrymonBigskyPedal({
             max={def.max}
             orientation={def.orientation || 'vertical'}
             onChange={(v) => onChange?.(name, v)}
-            color={model.accentColor}
+            color={pedalAccentColor}
           />
         )
       }
@@ -52,7 +56,7 @@ export function StrymonBigskyPedal({
             max={def.max}
             labels={def.labels}
             icons={def.icons}
-            color={model.accentColor}
+            color={pedalAccentColor}
             onChange={(v) => onChange?.(name, v)}
           />
         )
@@ -65,7 +69,7 @@ export function StrymonBigskyPedal({
           value={value}
           min={def.min}
           max={def.max}
-          color={model.accentColor}
+          color={pedalAccentColor}
           onChange={(v) => onChange?.(name, v)}
         />
       )
@@ -96,9 +100,13 @@ export function StrymonBigskyPedal({
 export const StrymonBigskyControls = ({
   values = {},
   onChange,
+  accentColor,
 }: PedalComponentProps) => {
   const model = pedalLibrary.find((p) => p.id === pedalId)
   if (!model) return null
+  
+  // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
+  const pedalAccentColor = accentColor || model.accentColor
   
   const controls = Object.entries(model.parameters).map(([name, def]) => {
     const controlType = def.controlType || 'knob'
@@ -114,7 +122,7 @@ export const StrymonBigskyControls = ({
           max={def.max}
           orientation={def.orientation || 'vertical'}
           onChange={(v) => onChange?.(name, v)}
-          color={model.accentColor}
+          color={pedalAccentColor}
         />
       )
     }
@@ -128,7 +136,7 @@ export const StrymonBigskyControls = ({
           max={def.max}
           labels={def.labels}
           icons={def.icons}
-          color={model.accentColor}
+          color={pedalAccentColor}
           onChange={(v) => onChange?.(name, v)}
         />
       )
@@ -141,7 +149,7 @@ export const StrymonBigskyControls = ({
         value={value}
         min={def.min}
         max={def.max}
-        color={model.accentColor}
+        color={pedalAccentColor}
         onChange={(v) => onChange?.(name, v)}
       />
     )

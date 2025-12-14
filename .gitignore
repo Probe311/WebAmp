@@ -66,3 +66,8 @@ coverage/
 .cache/
 .temp/
 
+# Build outputs
+dist/
+release/
+release-upload/
+

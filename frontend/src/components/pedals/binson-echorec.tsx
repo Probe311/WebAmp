@@ -17,11 +17,15 @@ export function BinsonEchorecPedal({
   onChange, 
   bypassed = false,
   onBypassToggle,
-  bottomActions
+  bottomActions,
+  accentColor
 }: PedalComponentProps) {
   const model = useMemo(() => pedalLibrary.find((p) => p.id === pedalId), [])
   
   if (!model) return null
+
+  // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
+  const pedalAccentColor = accentColor || model.accentColor
 
   const controls = useMemo(() => {
     const switchSelectors: JSX.Element[] = []
@@ -40,7 +44,7 @@ export function BinsonEchorecPedal({
             max={def.max}
             labels={def.labels}
             icons={def.icons}
-            color={model.accentColor}
+            color={pedalAccentColor}
             onChange={(v) => onChange?.(name, v)}
             className="switch-selector-full-width"
           />
@@ -53,7 +57,7 @@ export function BinsonEchorecPedal({
             value={value}
             min={def.min}
             max={def.max}
-            color={model.accentColor}
+            color={pedalAccentColor}
             onChange={(v) => onChange?.(name, v)}
           />
         )
@@ -61,7 +65,7 @@ export function BinsonEchorecPedal({
     })
     
     return [...switchSelectors, ...knobs]
-  }, [model, values, onChange])
+  }, [model, values, onChange, pedalAccentColor])
 
   return (
     <PedalFrame
@@ -81,9 +85,13 @@ export function BinsonEchorecPedal({
 export const BinsonEchorecControls = ({
   values = {},
   onChange,
+  accentColor
 }: PedalComponentProps) => {
   const model = pedalLibrary.find((p) => p.id === pedalId)
   if (!model) return null
+
+  // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
+  const pedalAccentColor = accentColor || model.accentColor
   
   return (
     <>
@@ -101,7 +109,7 @@ export const BinsonEchorecControls = ({
               max={def.max}
               orientation={def.orientation || 'vertical'}
               onChange={(v) => onChange?.(name, v)}
-              color={model.accentColor}
+              color={pedalAccentColor}
             />
           )
         }
@@ -115,7 +123,7 @@ export const BinsonEchorecControls = ({
               max={def.max}
               labels={def.labels}
               icons={def.icons}
-              color={model.accentColor}
+              color={pedalAccentColor}
               onChange={(v) => onChange?.(name, v)}
             />
           )
@@ -128,7 +136,7 @@ export const BinsonEchorecControls = ({
             value={value}
             min={def.min}
             max={def.max}
-            color={model.accentColor}
+            color={pedalAccentColor}
             onChange={(v) => onChange?.(name, v)}
           />
         )

@@ -16,7 +16,7 @@ export const PEDAL_ACCENT_COLORS = {
   // Vert
   GREEN: '#00ff00',
   GREEN_DARK: '#00cc00',
-  GREEN_WALRUS: '#00C467',
+  GREEN_WALRUS: '#31C57E',
   GREEN_EMERALD: '#10b981',
   GREEN_TEAL: '#22c55e',
   GREEN_CYAN: '#14b8a6',

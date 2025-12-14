@@ -57,7 +57,7 @@ export function DrumMachineCompact({ onExpand }: { onExpand?: () => void }) {
   }
 
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-gray-800 rounded-2xl p-4 border border-black/10 dark:border-white/10 shadow-[8px_8px_16px_rgba(0,0,0,0.1),-8px_-8px_16px_rgba(255,255,255,0.9),inset_0_0_0_1px_rgba(255,255,255,0.8)] dark:shadow-[8px_8px_16px_rgba(0,0,0,0.5),-8px_-8px_16px_rgba(40,40,40,0.5),inset_0_0_0_1px_rgba(60,60,60,0.8)] overflow-hidden">
+    <div className="flex flex-col h-full bg-white dark:bg-gray-800 rounded-2xl p-4 border border-black/10 dark:border-white/10 shadow-[8px_8px_16px_rgba(0,0,0,0.1),-8px_-8px_16px_rgba(255,255,255,0.9),inset_0_0_0_1px_rgba(255,255,255,0.8)] dark:shadow-[8px_8px_16px_rgba(0,0,0,0.5),-8px_-8px_16px_rgba(60,60,60,0.5),inset_0_0_0_1px_rgba(60,60,60,0.8)] overflow-hidden">
       {/* En-tête avec titre et bouton expand */}
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-semibold text-black/90 dark:text-white/90">Boîte à rythmes</h3>
@@ -75,7 +75,7 @@ export function DrumMachineCompact({ onExpand }: { onExpand?: () => void }) {
       {/* Contrôles Play/Pause/Stop */}
       <div className="flex items-center gap-2 mb-3">
         <CTA
-          variant="primary"
+          variant="important"
           icon={isPlaying ? <Pause size={14} /> : <Play size={14} />}
           onClick={handlePlayPause}
           active={isPlaying}
