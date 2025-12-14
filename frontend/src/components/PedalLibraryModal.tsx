@@ -15,7 +15,7 @@ import walrusLogo from '../assets/logos/walrus_small.svg'
 // 0: Low E (E2), 1: A (A2), 2: D (D3), 3: G (G3), 4: B (B3), 5: High e (E4)
 const STRING_FREQUENCIES = [82.41, 110.00, 146.83, 196.00, 246.94, 329.63]
 
-const DEFAULT_TEMPO = 160 // BPM
+const DEFAULT_TEMPO = 80 // BPM
 const MAX_LOOPS = 4
 
 // Types pour la tablature
@@ -208,10 +208,8 @@ export function PedalLibraryModal({ isOpen, onClose, onSelectPedal, searchQuery 
   // Utiliser le contexte Tone.js au lieu de créer un nouveau contexte
   const getAudioContext = useCallback(async () => {
     const Tone = await loadTone()
-    // S'assurer que Tone.js est démarré (nécessite une interaction utilisateur)
-    if (Tone.context.state === 'suspended') {
-      await Tone.start()
-    }
+    // Ne pas démarrer automatiquement - le contexte sera démarré dans App.tsx après interaction
+    // Si le contexte est suspendu, retourner quand même le contexte (sera démarré plus tard)
     return Tone.getContext().rawContext as AudioContext
   }, [loadTone])
 
@@ -239,13 +237,26 @@ export function PedalLibraryModal({ isOpen, onClose, onSelectPedal, searchQuery 
     startTime: number,
     destinationNode: AudioNode,
     ctx: AudioContext,
-    tempo: number = DEFAULT_TEMPO
+    tempo: number = DEFAULT_TEMPO,
+    audioConfig?: ReturnType<typeof getPedalPreviewConfig>
   ) => {
     // Durée réelle en secondes basée sur le tempo
     // À 160 BPM, une noire = 60/160 = 0.375s
     // Une 16ème de note = 0.375/4 = 0.09375s
     const sixteenthNoteDuration = (60 / tempo) / 4
     const noteDuration = column.duration * sixteenthNoteDuration
+
+    // Utiliser la configuration spécifique de la pédale ou des valeurs par défaut
+    const synthType = audioConfig?.synthType || 'sawtooth'
+    const filterFreq = audioConfig?.filterFreq ?? 2200
+    const filterQ = audioConfig?.filterQ ?? 0.6
+    const filterType = audioConfig?.filterType || 'lowpass'
+    const envelope = audioConfig?.synthEnvelope || {
+      attack: 0.01,
+      decay: 0.3,
+      sustain: 0.3,
+      release: 0.4
+    }
 
     // Parcourir les notes de la colonne
     column.notes.forEach((note, index) => {
@@ -258,11 +269,11 @@ export function PedalLibraryModal({ isOpen, onClose, onSelectPedal, searchQuery 
       const osc = ctx.createOscillator()
       const gain = ctx.createGain()
       
-      // Filtre (Tone Knob) - Important pour la simulation de guitare
+      // Filtre avec configuration spécifique de la pédale
       const filter = ctx.createBiquadFilter()
-      filter.type = 'lowpass'
-      filter.frequency.value = 2200 // Couper les hautes fréquences
-      filter.Q.value = 0.6
+      filter.type = filterType
+      filter.frequency.value = filterFreq
+      filter.Q.value = filterQ
 
       // Connecter: Osc -> Gain -> Filter -> Destination (qui passera par l'effet de pédale)
       osc.connect(gain)
@@ -274,13 +285,13 @@ export function PedalLibraryModal({ isOpen, onClose, onSelectPedal, searchQuery 
       if (note.fret === 'x') {
         // NOTE MORTE PERCUSSIVE
         // Utiliser du bruit ou une fréquence aléatoire désaccordée pour un "thud"
-        osc.type = 'sawtooth'
+        osc.type = synthType
         // Choisir une fréquence aléatoire autour de la note ouverte de la corde pour la texture
         osc.frequency.value = STRING_FREQUENCIES[note.stringIdx] * 0.8
         
         // Enveloppe: Très courte, pas de sustain
         gain.gain.setValueAtTime(0, noteTime)
-        gain.gain.linearRampToValueAtTime(0.5, noteTime + 0.01)
+        gain.gain.linearRampToValueAtTime(0.5, noteTime + envelope.attack)
         gain.gain.exponentialRampToValueAtTime(0.01, noteTime + 0.05)
         
         osc.start(noteTime)
@@ -290,20 +301,23 @@ export function PedalLibraryModal({ isOpen, onClose, onSelectPedal, searchQuery 
         // NOTE TONALE
         const freq = getFrequency(note.stringIdx, note.fret as number)
         
-        osc.type = 'sawtooth' // Sawtooth est meilleur pour la guitare distordue
+        osc.type = synthType // Utiliser le type spécifique de la pédale
         osc.frequency.value = freq
 
-        // Enveloppe (ADSR)
-        // Si la durée est > 1, c'est une note longue, laisser un peu plus de sustain
-        const sustainLevel = column.duration > 1 ? 0.4 : 0.2
+        // Enveloppe (ADSR) avec configuration spécifique de la pédale
+        // Si la durée est > 1, c'est une note longue, ajuster le sustain
+        const baseSustain = envelope.sustain
+        const sustainLevel = column.duration > 1 
+          ? Math.min(0.7, baseSustain * 1.3)  // Légèrement plus de sustain pour notes longues, max 0.7
+          : Math.max(0.15, baseSustain * 0.8)  // Moins de sustain pour notes courtes, min 0.15
         
         gain.gain.setValueAtTime(0, noteTime)
         // Attack (Pincement)
-        gain.gain.linearRampToValueAtTime(0.7, noteTime + 0.02)
+        gain.gain.linearRampToValueAtTime(0.7, noteTime + envelope.attack)
         // Decay vers Sustain
-        gain.gain.exponentialRampToValueAtTime(sustainLevel, noteTime + 0.1)
+        gain.gain.exponentialRampToValueAtTime(sustainLevel, noteTime + envelope.attack + envelope.decay)
         // Release
-        gain.gain.exponentialRampToValueAtTime(0.001, noteTime + noteDuration)
+        gain.gain.exponentialRampToValueAtTime(0.001, noteTime + noteDuration + envelope.release)
 
         osc.start(noteTime)
         osc.stop(noteTime + noteDuration + 0.1)
@@ -584,17 +598,8 @@ export function PedalLibraryModal({ isOpen, onClose, onSelectPedal, searchQuery 
       // Charger Tone.js dynamiquement (seulement après interaction utilisateur)
       const Tone = await loadTone()
 
-      // S'assurer que Tone.js est démarré (nécessite une interaction utilisateur)
-      // Cela doit être fait AVANT toute création d'effet ou d'audio
-      if (Tone.context.state === 'suspended') {
-        try {
-          await Tone.start()
-        } catch (error) {
-          console.warn('Impossible de démarrer Tone.js, interaction utilisateur requise:', error)
-          return
-        }
-      }
-
+      // Ne pas démarrer automatiquement - le contexte sera démarré dans App.tsx après interaction
+      // Si le contexte est suspendu, on continue quand même (sera démarré automatiquement)
       // Utiliser le contexte Tone.js au lieu de créer un nouveau contexte
       // Cela doit être fait AVANT la création des effets pour s'assurer que le contexte est prêt
       const ctx = await getAudioContext()
@@ -631,44 +636,52 @@ export function PedalLibraryModal({ isOpen, onClose, onSelectPedal, searchQuery 
       if (effect) {
         // Connecter pedalInput directement à l'input de l'effet Tone.js
         try {
+          // Tous les effets Tone.js devraient avoir une propriété .input
+          // Si ce n'est pas le cas, on essaie d'utiliser Tone.connect directement
           const effectInput = (effect as any).input
           if (effectInput && effectInput instanceof AudioNode) {
             // Connecter directement pedalInput à l'input de l'effet
             pedalInput.connect(effectInput)
-            // Connecter l'effet à la destination Tone.js (sera fait par toDestination())
+            // Connecter l'effet à la destination Tone.js
             effect.toDestination()
             // Les oscillateurs se connectent à pedalInput qui passe par l'effet Tone.js
             finalDestination = pedalInput
           } else {
-            // Si pas d'input accessible, connecter directement au master gain
-            console.warn('Pas d\'input accessible sur l\'effet Tone.js')
+            // Si pas d'input accessible, utiliser Tone.connect pour connecter à la destination
+            // Cela peut arriver avec certains effets Tone.js qui n'exposent pas directement .input
+            console.warn('Pas d\'input accessible sur l\'effet Tone.js, utilisation de Tone.connect')
             pedalInput.connect(masterGain)
-            // Connecter masterGain à la destination Tone.js
-            const toneDestination = Tone.getDestination()
-            if (toneDestination && (toneDestination as any).input) {
-              masterGain.connect((toneDestination as any).input)
-            }
+            // Utiliser Tone.connect pour connecter un AudioNode natif à la destination Tone.js
+            Tone.connect(masterGain, Tone.getDestination())
             finalDestination = pedalInput
           }
         } catch (err) {
           console.error('Erreur connexion effet Tone.js:', err)
-          // En cas d'erreur, connecter directement au master gain
-          pedalInput.connect(masterGain)
-          const toneDestination = Tone.getDestination()
-          if (toneDestination && (toneDestination as any).input) {
-            masterGain.connect((toneDestination as any).input)
+          // En cas d'erreur, utiliser Tone.connect pour connecter à la destination
+          try {
+            pedalInput.connect(masterGain)
+            Tone.connect(masterGain, Tone.getDestination())
+            finalDestination = pedalInput
+          } catch (connectErr) {
+            console.error('[PedalLibraryModal] Erreur lors de la connexion à la destination:', connectErr)
+            // Dernière tentative : connecter directement à destination du contexte audio
+            pedalInput.connect(ctx.destination)
+            finalDestination = pedalInput
           }
-          finalDestination = pedalInput
         }
       } else {
         // Pas d'effet, connecter directement au master gain puis à la destination Tone.js
-        pedalInput.connect(masterGain)
-        // Connecter masterGain à la destination Tone.js (sera fait après interaction utilisateur)
-        const toneDestination = Tone.getDestination()
-        if (toneDestination && (toneDestination as any).input) {
-          masterGain.connect((toneDestination as any).input)
+        try {
+          pedalInput.connect(masterGain)
+          // Utiliser Tone.connect pour connecter un AudioNode natif à la destination Tone.js
+          Tone.connect(masterGain, Tone.getDestination())
+          finalDestination = pedalInput
+        } catch (err) {
+          console.error('[PedalLibraryModal] Erreur connexion sans effet:', err)
+          // Fallback : connecter directement à destination du contexte audio
+          pedalInput.connect(ctx.destination)
+          finalDestination = pedalInput
         }
-        finalDestination = pedalInput
       }
 
       // Calculer la durée d'une 16ème de note au tempo donné
@@ -686,7 +699,7 @@ export function PedalLibraryModal({ isOpen, onClose, onSelectPedal, searchQuery 
       let currentTime = startTime
 
       fullTab.forEach((column) => {
-        scheduleTabColumn(column, currentTime, finalDestination, ctx, DEFAULT_TEMPO)
+        scheduleTabColumn(column, currentTime, finalDestination, ctx, DEFAULT_TEMPO, audioConfig)
         // Avancer le temps selon la durée de la colonne
         currentTime += column.duration * sixteenthNoteDuration
       })
@@ -803,6 +816,7 @@ export function PedalLibraryModal({ isOpen, onClose, onSelectPedal, searchQuery 
                         if ((e.target as HTMLElement).closest('button')) {
                           return
                         }
+                        // Sélectionner la pédale pour l'ajouter au pedalboard
                         onSelectPedal(pedal.id)
                         // Ne pas fermer le modal pour permettre la sélection multiple
                       }}

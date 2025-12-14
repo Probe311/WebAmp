@@ -1,286 +1,217 @@
-import { WEBSOCKET_URL, ACK_TIMEOUT } from '../config'
+// Client WebSocket pour communication avec le Native Helper
 
-export interface WebSocketMessage {
+const DEFAULT_WS_URL = import.meta.env.VITE_WEBSOCKET_URL || 'ws://localhost:8765'
+
+interface WebSocketMessage {
   type: string
-  messageId?: string
   [key: string]: any
 }
 
-export interface PendingMessage {
-  message: WebSocketMessage
+interface PendingAck {
   resolve: (value: any) => void
   reject: (error: Error) => void
-  timeout: ReturnType<typeof setTimeout>
-  retryCount: number
-  timestamp: number
+  timeout: NodeJS.Timeout
 }
 
 export class WebSocketClient {
-  private static instance: WebSocketClient
+  private static instance: WebSocketClient | null = null
   private ws: WebSocket | null = null
-  private messageQueue: WebSocketMessage[] = []
-  private pendingMessages: Map<string, PendingMessage> = new Map()
+  private url: string
+  private reconnectAttempts = 0
+  private maxReconnectAttempts = 5
+  private reconnectDelay = 1000
+  private pendingAcks: Map<string, PendingAck> = new Map()
   private messageIdCounter = 0
-  private maxRetries = 3
-  private retryDelay = 1000 // 1 seconde
-  private connectionStatus: 'connected' | 'connecting' | 'disconnected' = 'disconnected'
-  
-  public onConnect: (() => void) | null = null
-  public onDisconnect: (() => void) | null = null
-  public onMessage: ((data: WebSocketMessage) => void) | null = null
-  public onError: ((error: Error | Event) => void) | null = null
-  public onStateSync: ((state: any) => void) | null = null
+  private isConnecting = false
 
-  private constructor() {}
+  private constructor(url: string = DEFAULT_WS_URL) {
+    this.url = url
+  }
 
-  public static getInstance(): WebSocketClient {
+  public static getInstance(url?: string): WebSocketClient {
     if (!WebSocketClient.instance) {
-      WebSocketClient.instance = new WebSocketClient()
+      WebSocketClient.instance = new WebSocketClient(url)
     }
     return WebSocketClient.instance
   }
 
-  public connect(url?: string): void {
-    const connectUrl = url || WEBSOCKET_URL
-    
-    // Ne pas se connecter si l'URL est vide
-    if (!connectUrl || connectUrl.trim() === '') {
-      // En développement, ne pas logger pour éviter le bruit dans la console
-      // Le WebSocket est optionnel et peut ne pas être disponible
-      return
+  public connect(): Promise<void> {
+    if (this.ws?.readyState === WebSocket.OPEN) {
+      return Promise.resolve()
     }
-    
-    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-      return
-    }
-    
-    this.connectionStatus = 'connecting'
 
-    try {
-      this.ws = new WebSocket(connectUrl)
-      
-      this.ws.onopen = () => {
-        this.connectionStatus = 'connected'
-        this.flushMessageQueue()
-        
-        // Retry automatique des messages échoués
-        this.retryFailedMessages()
-        
-        // Demander la synchronisation de l'état initial
-        this.requestStateSync()
-        
-        if (this.onConnect) {
-          this.onConnect()
-        }
-      }
-      
-      this.ws.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data) as WebSocketMessage
-          
-          // Gérer les acknowledgments
-          if (data.type === 'ack' && data.messageId) {
-            const pending = this.pendingMessages.get(data.messageId)
-            if (pending) {
-              clearTimeout(pending.timeout)
-              this.pendingMessages.delete(data.messageId)
-              pending.resolve(data)
-              return
-            }
-          }
-          
-          // Gérer les erreurs
-          if (data.type === 'error') {
-            const error = new Error(data.message || 'Erreur serveur')
-            if (data.messageId) {
-              const pending = this.pendingMessages.get(data.messageId)
-              if (pending) {
-                clearTimeout(pending.timeout)
-                this.pendingMessages.delete(data.messageId)
-                pending.reject(error)
-                return
-              }
-            }
-            if (this.onError) {
-              this.onError(error)
-            }
-            return
-          }
-          
-          // Gérer la synchronisation d'état
-          if (data.type === 'state') {
-            if (this.onStateSync) {
-              this.onStateSync(data)
-            }
-            return
-          }
-          
-          // Messages normaux
-          if (this.onMessage) {
-            this.onMessage(data)
-          }
-        } catch (error) {
-          console.error('Erreur parsing message WebSocket:', error)
-          if (this.onError) {
-            this.onError(error instanceof Error ? error : new Error('Erreur parsing message'))
+    if (this.isConnecting) {
+      return new Promise((resolve) => {
+        const checkConnection = () => {
+          if (this.ws?.readyState === WebSocket.OPEN) {
+            resolve()
+          } else if (!this.isConnecting) {
+            setTimeout(checkConnection, 100)
           }
         }
-      }
-      
-      this.ws.onclose = () => {
-        this.connectionStatus = 'disconnected'
-        if (this.onDisconnect) {
-          this.onDisconnect()
-        }
-        // Ne pas tenter de reconnexion automatique
-      }
-      
-      this.ws.onerror = () => {
-        // Ne pas logger d'erreur en production - silencieux
-        // En développement, logger uniquement si c'est une vraie erreur (pas juste une connexion refusée)
-        if (import.meta.env.DEV && this.ws?.readyState === WebSocket.CLOSED) {
-          // Connexion refusée est normale si le serveur n'est pas démarré
-          // Ne pas logger pour éviter le bruit dans la console
-        }
-        // Ne pas appeler onError pour éviter les notifications
-      }
-    } catch (error) {
-      // Ne pas logger d'erreur - silencieux
-      // Ne pas tenter de reconnexion automatique
+        checkConnection()
+      })
     }
-  }
-  
-  private requestStateSync(): void {
-    this.send({
-      type: 'getState'
-    }, false) // Pas besoin d'acknowledgment pour getState
-  }
 
-  public disconnect(): void {
-    this.clearPendingMessages()
-    if (this.ws) {
-      this.ws.close()
-      this.ws = null
-    }
-  }
+    this.isConnecting = true
 
-  public send(message: WebSocketMessage, requireAck: boolean = false): Promise<any> {
     return new Promise((resolve, reject) => {
-      // Ajouter un ID de message si acknowledgment requis
-      if (requireAck) {
-        const messageId = `msg-${++this.messageIdCounter}-${Date.now()}`
-        message.messageId = messageId
-        
-        // Créer un timeout pour l'acknowledgment avec retry
-        const timeout = setTimeout(() => {
-          const pending = this.pendingMessages.get(messageId)
-          if (pending) {
-            if (pending.retryCount < this.maxRetries && this.isConnected()) {
-              // Retry le message
-              pending.retryCount++
-              pending.timestamp = Date.now()
-              console.log(`Retry message ${messageId} (tentative ${pending.retryCount}/${this.maxRetries})`)
-              
-              if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-                this.ws.send(JSON.stringify(message))
-                // Réinitialiser le timeout
-                clearTimeout(pending.timeout)
-                pending.timeout = setTimeout(() => {
-                  this.handleMessageTimeout(messageId)
-                }, ACK_TIMEOUT)
-              } else {
-                this.handleMessageTimeout(messageId)
-              }
-            } else {
-              this.handleMessageTimeout(messageId)
-            }
+      try {
+        this.ws = new WebSocket(this.url)
+
+        this.ws.onopen = () => {
+          this.isConnecting = false
+          this.reconnectAttempts = 0
+          console.log('[WebSocket] Connecté au Native Helper')
+          resolve()
+        }
+
+        this.ws.onmessage = (event) => {
+          try {
+            const message = JSON.parse(event.data)
+            this.handleMessage(message)
+          } catch (error) {
+            console.error('[WebSocket] Erreur parsing message:', error)
           }
-        }, ACK_TIMEOUT)
-        
-        // Stocker le message en attente
-        this.pendingMessages.set(messageId, {
-          message,
-          resolve,
-          reject,
-          timeout,
-          retryCount: 0,
-          timestamp: Date.now()
-        })
-      }
-      
-      if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-        this.ws.send(JSON.stringify(message))
-        if (!requireAck) {
-          resolve(undefined)
         }
-      } else {
-        // Mettre en queue si pas connecté
-        this.messageQueue.push(message)
-        if (!requireAck) {
-          resolve(undefined)
-        } else {
-          // Rejeter si pas connecté et acknowledgment requis
-          reject(new Error('WebSocket non connecté'))
+
+        this.ws.onerror = (error) => {
+          this.isConnecting = false
+          console.error('[WebSocket] Erreur:', error)
+          if (this.reconnectAttempts === 0) {
+            reject(new Error('Impossible de se connecter au Native Helper'))
+          }
         }
+
+        this.ws.onclose = () => {
+          this.isConnecting = false
+          console.log('[WebSocket] Connexion fermée')
+          this.attemptReconnect()
+        }
+      } catch (error) {
+        this.isConnecting = false
+        reject(error)
       }
     })
   }
 
-  private flushMessageQueue(): void {
-    while (this.messageQueue.length > 0) {
-      const message = this.messageQueue.shift()
-      if (message && this.ws && this.ws.readyState === WebSocket.OPEN) {
-        this.ws.send(JSON.stringify(message))
+  private attemptReconnect(): void {
+    if (this.reconnectAttempts >= this.maxReconnectAttempts) {
+      console.warn('[WebSocket] Nombre maximum de tentatives de reconnexion atteint')
+      return
+    }
+
+    this.reconnectAttempts++
+    const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1)
+
+    console.log(`[WebSocket] Tentative de reconnexion ${this.reconnectAttempts}/${this.maxReconnectAttempts} dans ${delay}ms`)
+
+    setTimeout(() => {
+      if (this.ws?.readyState !== WebSocket.OPEN) {
+        this.connect().catch(() => {
+          // Erreur déjà gérée dans connect()
+        })
       }
+    }, delay)
+  }
+
+  private handleMessage(message: WebSocketMessage): void {
+    // Gérer les ACK
+    if (message.type === 'ack' && message.messageId) {
+      const pending = this.pendingAcks.get(message.messageId)
+      if (pending) {
+        clearTimeout(pending.timeout)
+        this.pendingAcks.delete(message.messageId)
+        pending.resolve(message)
+      }
+      return
+    }
+
+    // Gérer les erreurs
+    if (message.type === 'error' && message.messageId) {
+      const pending = this.pendingAcks.get(message.messageId)
+      if (pending) {
+        clearTimeout(pending.timeout)
+        this.pendingAcks.delete(message.messageId)
+        pending.reject(new Error(message.message || 'Erreur WebSocket'))
+      }
+      return
+    }
+
+    // Gérer la synchronisation d'état
+    if (message.type === 'stateSync' && this.onStateSync) {
+      this.onStateSync(message)
+      return
     }
   }
 
-  public clearPendingMessages(): void {
-    // Annuler tous les messages en attente
-    for (const [, pending] of this.pendingMessages.entries()) {
-      clearTimeout(pending.timeout)
-      pending.reject(new Error('Connexion fermée'))
+  public send(message: WebSocketMessage, requireAck: boolean = false): Promise<any> {
+    if (!this.isConnected()) {
+      // Tentative de connexion automatique
+      return this.connect().then(() => this.send(message, requireAck))
     }
-    this.pendingMessages.clear()
+
+    if (requireAck) {
+      const messageId = `msg_${this.messageIdCounter++}`
+      message.messageId = messageId
+
+      return new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          this.pendingAcks.delete(messageId)
+          reject(new Error('Timeout WebSocket'))
+        }, 5000)
+
+        this.pendingAcks.set(messageId, {
+          resolve,
+          reject,
+          timeout
+        })
+
+        try {
+          this.ws!.send(JSON.stringify(message))
+        } catch (error) {
+          clearTimeout(timeout)
+          this.pendingAcks.delete(messageId)
+          reject(error)
+        }
+      })
+    } else {
+      try {
+        this.ws!.send(JSON.stringify(message))
+        return Promise.resolve()
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    }
   }
 
   public isConnected(): boolean {
-    return this.ws !== null && this.ws.readyState === WebSocket.OPEN
+    return this.ws?.readyState === WebSocket.OPEN
   }
-  
-  public getConnectionStatus(): 'connected' | 'connecting' | 'disconnected' {
-    return this.connectionStatus
-  }
-  
-  private handleMessageTimeout(messageId: string): void {
-    const pending = this.pendingMessages.get(messageId)
-    if (pending) {
-      this.pendingMessages.delete(messageId)
-      clearTimeout(pending.timeout)
-      pending.reject(new Error(`Timeout: pas de réponse pour le message ${messageId} après ${pending.retryCount + 1} tentatives`))
+
+  public disconnect(): void {
+    if (this.ws) {
+      this.ws.close()
+      this.ws = null
     }
+    this.pendingAcks.clear()
+    this.reconnectAttempts = 0
   }
-  
-  private retryFailedMessages(): void {
-    const now = Date.now()
-    const messagesToRetry: string[] = []
-    
-    for (const [messageId, pending] of this.pendingMessages.entries()) {
-      // Retry les messages qui ont échoué et qui n'ont pas atteint le max de retries
-      if (pending.retryCount < this.maxRetries && (now - pending.timestamp) > this.retryDelay) {
-        messagesToRetry.push(messageId)
-      }
-    }
-    
-    for (const messageId of messagesToRetry) {
-      const pending = this.pendingMessages.get(messageId)
-      if (pending && this.ws && this.ws.readyState === WebSocket.OPEN) {
-        pending.retryCount++
-        pending.timestamp = now
-        console.log(`Retry automatique message ${messageId} (tentative ${pending.retryCount}/${this.maxRetries})`)
-        this.ws.send(JSON.stringify(pending.message))
+
+  public setOnMessage(handler: (message: WebSocketMessage) => void): void {
+    if (this.ws) {
+      this.ws.onmessage = (event) => {
+        try {
+          const message = JSON.parse(event.data)
+          handler(message)
+        } catch (error) {
+          console.error('[WebSocket] Erreur parsing message:', error)
+        }
       }
     }
   }
+
+  // Callback pour la synchronisation d'état
+  public onStateSync: ((message: WebSocketMessage) => void) | null = null
 }
 

@@ -15,11 +15,15 @@ export function ZvexLoFiJunkyPedal({
   onChange, 
   bypassed = false,
   onBypassToggle,
-  bottomActions
+  bottomActions,
+  accentColor
 }: PedalComponentProps) {
   const model = useMemo(() => pedalLibrary.find((p) => p.id === pedalId), [])
   
   if (!model) return null
+
+  // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
+  const pedalAccentColor = accentColor || model.accentColor
 
   const controls = useMemo(() => {
     return (
@@ -33,14 +37,14 @@ export function ZvexLoFiJunkyPedal({
               value={value}
               min={def.min}
               max={def.max}
-              color={model.accentColor}
+              color={pedalAccentColor}
               onChange={(v) => onChange?.(name, v)}
             />
           )
         })}
       </div>
     )
-  }, [model, values, onChange])
+  }, [model, values, onChange, pedalAccentColor])
 
   return (
     <PedalFrame
@@ -60,9 +64,13 @@ export function ZvexLoFiJunkyPedal({
 export const ZvexLoFiJunkyControls = ({
   values = {},
   onChange,
+  accentColor
 }: PedalComponentProps) => {
   const model = pedalLibrary.find((p) => p.id === pedalId)
   if (!model) return null
+
+  // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
+  const pedalAccentColor = accentColor || model.accentColor
   
   return (
     <div className="grid grid-cols-2 gap-x-2 gap-y-1.5 w-full justify-items-center">
@@ -75,7 +83,7 @@ export const ZvexLoFiJunkyControls = ({
             value={value}
             min={def.min}
             max={def.max}
-            color={model.accentColor}
+            color={pedalAccentColor}
             onChange={(v) => onChange?.(name, v)}
           />
         )

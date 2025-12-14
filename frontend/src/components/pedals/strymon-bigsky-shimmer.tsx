@@ -16,10 +16,14 @@ export function StrymonBigskyShimmerPedal({
   bypassed = false,
   onBypassToggle,
   bottomActions
-}: PedalComponentProps) {
+,
+  accentColor}: PedalComponentProps) {
   const model = useMemo(() => pedalLibrary.find((p) => p.id === pedalId), [])
   
   if (!model) return null
+
+  // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
+  const pedalAccentColor = accentColor || model.accentColor
 
   const controls = useMemo(() => {
     return Object.entries(model.parameters).map(([name, def]) => {
@@ -31,7 +35,7 @@ export function StrymonBigskyShimmerPedal({
           value={value}
           min={def.min}
           max={def.max}
-          color={model.accentColor}
+          color={pedalAccentColor}
           onChange={(v) => onChange?.(name, v)}
         />
       )
@@ -56,9 +60,13 @@ export function StrymonBigskyShimmerPedal({
 export const StrymonBigskyShimmerControls = ({
   values = {},
   onChange,
+  accentColor,
 }: PedalComponentProps) => {
   const model = pedalLibrary.find((p) => p.id === pedalId)
   if (!model) return null
+  
+  // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
+  const pedalAccentColor = accentColor || model.accentColor
   
   return (
     <>
@@ -71,7 +79,7 @@ export const StrymonBigskyShimmerControls = ({
             value={value}
             min={def.min}
             max={def.max}
-            color={model.accentColor}
+            color={pedalAccentColor}
             onChange={(v) => onChange?.(name, v)}
           />
         )

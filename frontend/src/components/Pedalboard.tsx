@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, memo, useCallback } from 'react'
-import { Plus, GripVertical, X, Trash2, Save, Power, Plug, PlugZap } from 'lucide-react'
+import { Plus, GripVertical, X, Trash2, Save, Power, Plug, PlugZap, Users } from 'lucide-react'
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, horizontalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
@@ -20,6 +20,7 @@ import { ShortcutAction } from '../types/keyboardShortcuts'
 import { analyzeControlTypes, analyzeControlTypesFromModel, determineKnobSize } from '../utils/pedalControlHelpers'
 import { syncEffectToAudio, syncEffectToWebSocket, removeEffectFromAudio, updateEffectParametersInAudio, setEffectEnabledInAudio } from '../utils/pedalboardSync'
 import { PEDAL_BUTTON_COLORS, getContrastTextColor } from '../utils/pedalColors'
+import { formatDateFrench } from '../utils/dateFormatter'
 
 export interface Effect {
   id: string
@@ -57,6 +58,9 @@ const SortableEffect = memo(function SortableEffect({ effect, onRemove, onToggle
   )
 
   const pedalSize = useMemo(() => determinePedalSize(pedalModel), [pedalModel])
+  
+  // Couleur principale de la pédale - utilisée de manière cohérente partout
+  const accentColor = pedalModel.accentColor
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -85,9 +89,9 @@ const SortableEffect = memo(function SortableEffect({ effect, onRemove, onToggle
         title={effect.bypassed ? 'Activer la pédale' : 'Bypasser la pédale'}
         className={`rounded-md flex-[0.5] touch-manipulation ${pedalSize === 'S' ? 'min-w-[44px] min-h-[44px] px-1 py-1' : 'min-w-[44px] min-h-[44px]'}`}
         style={{
-          backgroundColor: effect.bypassed ? PEDAL_BUTTON_COLORS.bypassed.backgroundColor : pedalModel.accentColor,
-          color: effect.bypassed ? PEDAL_BUTTON_COLORS.bypassed.textColor : getContrastTextColor(pedalModel.accentColor),
-          borderColor: effect.bypassed ? PEDAL_BUTTON_COLORS.bypassed.borderColor : pedalModel.accentColor
+          backgroundColor: effect.bypassed ? PEDAL_BUTTON_COLORS.bypassed.backgroundColor : accentColor,
+          color: effect.bypassed ? PEDAL_BUTTON_COLORS.bypassed.textColor : getContrastTextColor(accentColor),
+          borderColor: effect.bypassed ? PEDAL_BUTTON_COLORS.bypassed.borderColor : accentColor
         }}
         onClick={(e) => {
           e.preventDefault()
@@ -107,7 +111,7 @@ const SortableEffect = memo(function SortableEffect({ effect, onRemove, onToggle
         }}
       />
     </div>
-  ), [pedalSize, effect.bypassed, pedalModel.accentColor, attributes, listeners, onToggleBypass, effect.id, onRemove])
+  ), [pedalSize, effect.bypassed, accentColor, attributes, listeners, onToggleBypass, effect.id, onRemove])
 
   // Essayer d'utiliser le composant complet de pédale (nouveau système)
   const CompletePedalComponent = useMemo(() => {
@@ -125,6 +129,7 @@ const SortableEffect = memo(function SortableEffect({ effect, onRemove, onToggle
             bypassed={effect.bypassed}
             onBypassToggle={() => onToggleBypass(effect.id)}
             bottomActions={bottomActions}
+            accentColor={accentColor}
           />
         </div>
         {!isLast && (
@@ -144,6 +149,7 @@ const SortableEffect = memo(function SortableEffect({ effect, onRemove, onToggle
         <CustomControls
           values={effect.parameters}
           onChange={(param: string, val: number) => onUpdateParameter(effect.id, param, val)}
+          accentColor={accentColor}
         />
       )
     }
@@ -177,7 +183,7 @@ const SortableEffect = memo(function SortableEffect({ effect, onRemove, onToggle
             max={paramDef.max}
             label={paramDef.label}
             orientation={sliderOrientation}
-            color={pedalModel.accentColor}
+            color={accentColor}
             onChange={(newValue) => onUpdateParameter(effect.id, paramName, newValue)}
           />
         )
@@ -191,7 +197,7 @@ const SortableEffect = memo(function SortableEffect({ effect, onRemove, onToggle
             min={paramDef.min}
             max={paramDef.max}
             label={paramDef.label}
-            color={pedalModel.accentColor}
+            color={accentColor}
             orientation={isEQ ? 'horizontal' : (controlType === 'switch-vertical' ? 'vertical' : 'horizontal')}
             onChange={(newValue) => onUpdateParameter(effect.id, paramName, newValue)}
           />
@@ -208,7 +214,7 @@ const SortableEffect = memo(function SortableEffect({ effect, onRemove, onToggle
             max={paramDef.max}
             labels={paramDef.labels}
             icons={paramDef.icons}
-            color={pedalModel.accentColor}
+            color={accentColor}
             onChange={(newValue) => onUpdateParameter(effect.id, paramName, newValue)}
             className={hasSwitchSelectorWithKnobs || isGmajor2Switch ? 'switch-selector-full-width' : ''}
           />
@@ -230,14 +236,14 @@ const SortableEffect = memo(function SortableEffect({ effect, onRemove, onToggle
           min={paramDef.min}
           max={paramDef.max}
           label={paramDef.label}
-          color={pedalModel.accentColor}
+          color={accentColor}
           size={knobSize}
           onChange={(newValue) => onUpdateParameter(effect.id, paramName, newValue)}
           className={isThirdKnob ? 'knob-center' : ''}
         />
       )
     })
-  }, [effect.parameters, effect.id, pedalModel, onUpdateParameter])
+  }, [effect.parameters, effect.id, pedalModel, accentColor, onUpdateParameter])
   
   const hasThreeKnobsOnly = useMemo(() => {
     const analysis = analyzeControlTypesFromModel(pedalModel)
@@ -291,7 +297,7 @@ const SortableEffect = memo(function SortableEffect({ effect, onRemove, onToggle
         <Pedal
           brand={pedalModel.brand}
           model={pedalModel.model}
-          accentColor={pedalModel.accentColor}
+          accentColor={accentColor}
           size={pedalSize}
           bypassed={effect.bypassed}
           onBypassToggle={() => onToggleBypass(effect.id)}
@@ -319,6 +325,7 @@ interface PedalboardProps {
   currentPedalIds?: string[]
   currentAmplifierId?: string
   peakInput?: number
+  onOpenProfiles?: () => void
 }
 
 export function Pedalboard({ 
@@ -328,13 +335,15 @@ export function Pedalboard({
   onEffectsChange,
   currentPedalIds = [],
   currentAmplifierId,
-  peakInput = -96
+  peakInput = -96,
+  onOpenProfiles
 }: PedalboardProps) {
   const { pedals: pedalLibrary, amplifiers: amplifierLibrary } = useCatalog()
   const { showToast } = useToast()
   const [effects, setEffects] = useState<Effect[]>([])
   const [showPedalLibrary, setShowPedalLibrary] = useState(false)
   const [showSaveProfileModal, setShowSaveProfileModal] = useState(false)
+  const [showClearConfirmModal, setShowClearConfirmModal] = useState(false)
   const [newProfileName, setNewProfileName] = useState('')
   const [newProfileStyle, setNewProfileStyle] = useState('')
 
@@ -372,9 +381,7 @@ export function Pedalboard({
         setShowPedalLibrary(true)
         break
       case 'clearPedalboard':
-        if (confirm('Supprimer toutes les pédales ?')) {
-          clearEffects()
-        }
+        setShowClearConfirmModal(true)
         break
       case 'saveProfile':
         setShowSaveProfileModal(true)
@@ -469,10 +476,11 @@ export function Pedalboard({
         effectId: id
       })
       
+      // Afficher une notification de suppression
       showToast({
-        variant: 'info',
+        variant: 'success',
         title: 'Pédale supprimée',
-        message: `${pedalName} retirée du pedalboard`
+        message: `${pedalName} a été retirée du pedalboard`
       })
       
       return prevEffects.filter(e => e.id !== id)
@@ -666,7 +674,7 @@ export function Pedalboard({
       style: newProfileStyle || 'Custom',
       amps: ampNames,
       pedals: pedalNames,
-      notes: `Profil sauvegardé le ${new Date().toLocaleDateString('fr-FR')}`
+      notes: `Profil sauvegardé le ${formatDateFrench(new Date())}`
     }
 
     try {
@@ -698,16 +706,20 @@ export function Pedalboard({
             <CTA
               onClick={() => setShowSaveProfileModal(true)}
               icon={<Save size={20} />}
-              variant="icon-only"
+              variant="important"
               title="Sauvegarder le profil actuel"
             />
+            {onOpenProfiles && (
+              <CTA
+                onClick={onOpenProfiles}
+                icon={<Users size={20} />}
+                variant="icon-only"
+                title="Profils"
+              />
+            )}
             {effects.length > 0 && (
               <CTA
-                onClick={() => {
-                  if (confirm('Supprimer toutes les pédales ?')) {
-                    clearEffects()
-                  }
-                }}
+                onClick={() => setShowClearConfirmModal(true)}
                 icon={<Trash2 size={20} />}
                 variant="icon-only"
                 title="Supprimer toutes les pédales"
@@ -841,6 +853,7 @@ export function Pedalboard({
             <CTA
               onClick={handleSaveProfile}
               icon={<Save size={16} />}
+              variant="important"
             >
               Sauvegarder
             </CTA>
@@ -850,6 +863,38 @@ export function Pedalboard({
               {effects.length > 0 ? effects.length : currentPedalIds.length} pédale(s) et {currentAmplifierId ? '1 ampli' : 'aucun ampli'} seront sauvegardés
             </p>
           )}
+        </div>
+      </Modal>
+
+      {/* Modale de confirmation pour supprimer toutes les pédales */}
+      <Modal
+        isOpen={showClearConfirmModal}
+        onClose={() => setShowClearConfirmModal(false)}
+        title="Supprimer toutes les pédales ?"
+        widthClassName="max-w-md"
+      >
+        <div className="flex flex-col gap-4 p-6">
+          <p className="text-sm text-black/85 dark:text-white/90">
+            Êtes-vous sûr de vouloir supprimer toutes les pédales du pedalboard ? Cette action est irréversible.
+          </p>
+          <div className="flex gap-3 justify-end">
+            <CTA
+              onClick={() => setShowClearConfirmModal(false)}
+              variant="secondary"
+            >
+              Annuler
+            </CTA>
+            <CTA
+              onClick={() => {
+                clearEffects()
+                setShowClearConfirmModal(false)
+              }}
+              variant="primary"
+              className="border-red-500/30 text-red-500/90 hover:bg-red-500/10 hover:border-red-500/60 hover:text-red-500"
+            >
+              Supprimer
+            </CTA>
+          </div>
         </div>
       </Modal>
     </>

@@ -17,11 +17,15 @@ export function WalrusAudioDelayPedal({
   onChange, 
   bypassed = false,
   onBypassToggle,
-  bottomActions
+  bottomActions,
+  accentColor
 }: PedalComponentProps) {
   const model = useMemo(() => pedalLibrary.find((p) => p.id === pedalId), [])
   
   if (!model) return null
+
+  // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
+  const pedalAccentColor = accentColor || model.accentColor
 
   const time = values.time ?? model.parameters.time.default
   const feedback = values.feedback ?? model.parameters.feedback.default
@@ -39,7 +43,7 @@ export function WalrusAudioDelayPedal({
           max={model.parameters.time.max}
           orientation="horizontal"
           onChange={(v) => onChange?.('time', v)}
-          color={model.accentColor}
+          color={pedalAccentColor}
         />
       </div>
 
@@ -52,7 +56,7 @@ export function WalrusAudioDelayPedal({
           max={model.parameters.feedback.max}
           orientation="horizontal"
           onChange={(v) => onChange?.('feedback', v)}
-          color={model.accentColor}
+          color={pedalAccentColor}
         />
       </div>
 
@@ -65,7 +69,7 @@ export function WalrusAudioDelayPedal({
           max={model.parameters.mix.max}
           orientation="horizontal"
           onChange={(v) => onChange?.('mix', v)}
-          color={model.accentColor}
+          color={pedalAccentColor}
         />
       </div>
 
@@ -77,13 +81,13 @@ export function WalrusAudioDelayPedal({
           max={model.parameters.mode.max}
           labels={['DIGITAL', 'ANALOG', 'REVERSE']}
           icons={[Radio, RadioReceiver, RotateCcw]}
-          color={model.accentColor}
+          color={pedalAccentColor}
           onChange={(v) => onChange?.('mode', v)}
           className="switch-selector-full-width"
         />
       </div>
     </div>
-  ), [time, feedback, mix, mode, model, onChange])
+  ), [time, feedback, mix, mode, model, onChange, pedalAccentColor])
 
   return (
     <PedalFrame
@@ -104,9 +108,13 @@ export function WalrusAudioDelayPedal({
 export const WalrusAudioDelayControls = ({
   values = {},
   onChange,
+  accentColor
 }: PedalComponentProps) => {
   const model = pedalLibrary.find((p) => p.id === pedalId)
   if (!model) return null
+
+  // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
+  const pedalAccentColor = accentColor || model.accentColor
 
   const time = values.time ?? model.parameters.time.default
   const feedback = values.feedback ?? model.parameters.feedback.default
@@ -123,7 +131,7 @@ export const WalrusAudioDelayControls = ({
           max={model.parameters.time.max}
           orientation="horizontal"
           onChange={(v) => onChange?.('time', v)}
-          color={model.accentColor}
+          color={pedalAccentColor}
         />
       </div>
       <div className="w-full">
@@ -134,7 +142,7 @@ export const WalrusAudioDelayControls = ({
           max={model.parameters.feedback.max}
           orientation="horizontal"
           onChange={(v) => onChange?.('feedback', v)}
-          color={model.accentColor}
+          color={pedalAccentColor}
         />
       </div>
       <div className="w-full">
@@ -145,7 +153,7 @@ export const WalrusAudioDelayControls = ({
           max={model.parameters.mix.max}
           orientation="horizontal"
           onChange={(v) => onChange?.('mix', v)}
-          color={model.accentColor}
+          color={pedalAccentColor}
         />
       </div>
       <div className="w-full mt-2">
@@ -155,7 +163,7 @@ export const WalrusAudioDelayControls = ({
           max={model.parameters.mode.max}
           labels={['DIGITAL', 'ANALOG', 'REVERSE']}
           icons={[Radio, RadioReceiver, RotateCcw]}
-          color={model.accentColor}
+          color={pedalAccentColor}
           onChange={(v) => onChange?.('mode', v)}
           className="switch-selector-full-width"
         />

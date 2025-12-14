@@ -34,6 +34,13 @@
     box-shadow: inset 4px 4px 8px #b8b9be, inset -4px -4px 8px #ffffff;
     background: #ebecf0;
   }
+
+  /* Réduire l'espacement entre les lignes pour whitespace-pre-line */
+  .whitespace-pre-line {
+    line-height: 1.5 !important;
+    white-space: pre-line;
+  }
+
 }
 
 @keyframes cableConnect {

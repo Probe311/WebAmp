@@ -155,15 +155,41 @@ void handleWebSocketMessage(const std::string& message, AudioEngine& engine, Web
     }
     else if (type == "setAmplifier") {
         std::string amplifierId = JsonParser::getString(data, "amplifierId");
-        // TODO: Implémenter la gestion des amplificateurs
+        // Les amplificateurs sont principalement gérés côté frontend avec Web Audio API
+        // Le backend peut être utilisé pour des traitements avancés (ex: modèles NAM)
         server.sendMessage("{\"type\":\"ack\"}");
     }
     else if (type == "setAmplifierParameter") {
         std::string amplifierId = JsonParser::getString(data, "amplifierId");
         std::string parameter = JsonParser::getString(data, "parameter");
         double value = JsonParser::getDouble(data, "value");
-        // TODO: Implémenter la gestion des paramètres d'amplificateur
+        // Les paramètres d'amplificateur sont principalement gérés côté frontend
+        // Le backend peut être utilisé pour des traitements avancés (ex: modèles NAM)
         server.sendMessage("{\"type\":\"ack\"}");
+    }
+    else if (type == "loadNAMModel") {
+        std::string filePath = JsonParser::getString(data, "filePath");
+        auto pipeline = engine.getPipeline();
+        if (pipeline) {
+            bool success = pipeline->loadNAMModel(filePath);
+            if (success) {
+                server.sendMessage("{\"type\":\"ack\"}");
+            } else {
+                server.sendMessage("{\"type\":\"error\",\"message\":\"Échec du chargement du modèle NAM\"}");
+            }
+        } else {
+            server.sendMessage("{\"type\":\"error\",\"message\":\"DSP pipeline non disponible\"}");
+        }
+    }
+    else if (type == "setNAMModelActive") {
+        bool active = JsonParser::getBool(data, "active", false);
+        auto pipeline = engine.getPipeline();
+        if (pipeline) {
+            pipeline->setNAMModelActive(active);
+            server.sendMessage("{\"type\":\"ack\"}");
+        } else {
+            server.sendMessage("{\"type\":\"error\",\"message\":\"DSP pipeline non disponible\"}");
+        }
     }
     else if (type == "setEqualizerParameter") {
         std::string parameter = JsonParser::getString(data, "parameter");

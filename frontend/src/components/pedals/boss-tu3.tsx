@@ -108,10 +108,14 @@ function detectPitch(buffer: Float32Array, sampleRate: number): number {
 export const BossTu3Controls = ({
   values = {},
   onChange,
-  bypassed = false
+  bypassed = false,
+  accentColor
 }: PedalComponentProps) => {
   const model = pedalLibrary.find((p) => p.id === pedalId)
   if (!model) return null
+
+  // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
+  const pedalAccentColor = accentColor || model.accentColor
 
   const [detectedNote, setDetectedNote] = useState<string>('-')
   const [detectedFrequency, setDetectedFrequency] = useState<number>(0)
@@ -301,7 +305,7 @@ export const BossTu3Controls = ({
             max={model.parameters.mode.max}
             labels={model.parameters.mode.labels || []}
             icons={model.parameters.mode.icons}
-            color={model.accentColor}
+            color={pedalAccentColor}
             onChange={(v) => onChange?.('mode', v)}
             className="switch-selector-full-width"
           />
@@ -424,7 +428,7 @@ export const BossTu3Controls = ({
             isActive ? 'text-white' : 'text-black/70'
           }`}
           style={{
-            background: isActive ? model.accentColor : '#ffffff',
+            background: isActive ? pedalAccentColor : '#ffffff',
             boxShadow: isActive
               ? '2px 2px 4px rgba(0, 0, 0, 0.15), -2px -2px 4px rgba(255, 255, 255, 0.9)'
               : '2px 2px 4px rgba(0, 0, 0, 0.08), -2px -2px 4px rgba(255, 255, 255, 0.9)'
@@ -446,7 +450,7 @@ export const BossTu3Controls = ({
             autoTune ? 'text-white' : 'text-black/70'
           }`}
           style={{
-            background: autoTune ? model.accentColor : '#ffffff',
+            background: autoTune ? pedalAccentColor : '#ffffff',
             boxShadow: autoTune
               ? '2px 2px 4px rgba(0, 0, 0, 0.15), -2px -2px 4px rgba(255, 255, 255, 0.9)'
               : '2px 2px 4px rgba(0, 0, 0, 0.08), -2px -2px 4px rgba(255, 255, 255, 0.9)'
@@ -477,7 +481,8 @@ export function BossTu3Pedal({
   onChange,
   bypassed = false,
   onBypassToggle,
-  bottomActions
+  bottomActions,
+  accentColor
 }: PedalComponentProps) {
   const model = useMemo(() => pedalLibrary.find((p) => p.id === pedalId), [])
   
@@ -493,7 +498,7 @@ export function BossTu3Pedal({
       showFootswitch={false}
       bottomActions={bottomActions}
     >
-      <BossTu3Controls values={values} onChange={onChange} bypassed={bypassed} />
+      <BossTu3Controls values={values} onChange={onChange} bypassed={bypassed} accentColor={accentColor} />
     </PedalFrame>
   )
 }

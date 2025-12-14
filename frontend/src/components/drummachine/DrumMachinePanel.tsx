@@ -1,3 +1,4 @@
+import { useMemo, useCallback } from 'react'
 import { Play, Pause, Square, RotateCcw, Volume2 } from 'lucide-react'
 import { CTA } from '../CTA'
 import { Slider } from '../Slider'
@@ -37,10 +38,22 @@ export function DrumMachinePanel() {
     setSelectedPattern(0)
   }
 
-  const handlePatternSelect = (index: number) => {
+  const handlePatternSelect = useCallback((index: number) => {
     handlePatternChange(index)
     setPattern([...DEFAULT_PATTERNS[index].steps])
-  }
+  }, [handlePatternChange, setPattern])
+
+  // Mémoriser les callbacks pour chaque step/instrument pour éviter les re-renders
+  const stepCallbacks = useMemo(() => {
+    const callbacks: Record<string, () => void> = {}
+    INSTRUMENTS.forEach(instrument => {
+      Array.from({ length: NUM_STEPS }).forEach((_, stepIndex) => {
+        const key = `${instrument}-${stepIndex}`
+        callbacks[key] = () => toggleStep(stepIndex, instrument)
+      })
+    })
+    return callbacks
+  }, [toggleStep])
 
   return (
     <div className="space-y-6 text-black/85 dark:text-white/90">
@@ -48,7 +61,7 @@ export function DrumMachinePanel() {
       <div className="flex items-center justify-between gap-4 p-4 bg-white dark:bg-gray-700 rounded-xl border border-black/10 dark:border-white/10">
         <div className="flex items-center gap-3">
           <CTA
-            variant="primary"
+            variant="important"
             icon={isPlaying ? <Pause size={18} /> : <Play size={18} />}
             onClick={(e) => {
               e.stopPropagation()
@@ -142,12 +155,12 @@ export function DrumMachinePanel() {
         <div className="bg-white dark:bg-gray-700 rounded-xl border border-black/10 dark:border-white/10 p-4 overflow-x-auto">
           <div className="min-w-max">
             {/* En-tête avec numéros de steps */}
-            <div className="grid grid-cols-[96px_repeat(16,40px)_120px] gap-1 mb-2 items-center">
+            <div className="grid grid-cols-[96px_repeat(16,40px)_160px] gap-1.5 mb-2 items-center">
               <div />
               {Array.from({ length: NUM_STEPS }).map((_, stepIndex) => (
                 <div
                   key={stepIndex}
-                  className={`h-6 flex items-center justify-center text-xs font-semibold rounded ${
+                  className={`h-6 w-full min-w-[40px] flex items-center justify-center text-xs font-semibold rounded ${
                     stepIndex === currentStep && isPlaying
                       ? 'bg-black dark:bg-white text-white dark:text-black'
                       : 'bg-gray-100 dark:bg-gray-600 text-black/60 dark:text-white/60'
@@ -173,6 +186,7 @@ export function DrumMachinePanel() {
                   {Array.from({ length: NUM_STEPS }).map((_, stepIndex) => {
                     const isStepActive = pattern[stepIndex]?.[instrument] || false
                     const isCurrentStepActive = stepIndex === currentStep && isPlaying && isStepActive
+                    const callbackKey = `${instrument}-${stepIndex}`
                     
                     return (
                       <DrumPad
@@ -180,7 +194,7 @@ export function DrumMachinePanel() {
                         instrument={instrument}
                         isActive={isCurrentStepActive}
                         isStepActive={isStepActive}
-                        onClick={() => toggleStep(stepIndex, instrument)}
+                        onClick={stepCallbacks[callbackKey]}
                         size="medium"
                         showLabel={false}
                         className="w-full min-w-[40px]"

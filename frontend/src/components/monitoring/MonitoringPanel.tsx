@@ -64,7 +64,7 @@ export function MonitoringPanel({ stats }: MonitoringPanelProps) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-black/85 dark:text-white/85">
       {/* Colonne gauche : niveau + width */}
-      <section className="bg-white dark:bg-gray-800 rounded-[24px] p-6 shadow-[0_12px_28px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.9)] dark:shadow-[0_12px_28px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(40,40,40,0.5)] border border-black/5 dark:border-white/10 flex flex-col gap-6 min-w-[220px]">
+      <section className="bg-white dark:bg-gray-800 rounded-[24px] p-6 shadow-[0_12px_28px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.9)] dark:shadow-[0_12px_28px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(60,60,60,0.5)] border border-black/5 dark:border-white/10 flex flex-col gap-6 min-w-[220px]">
         <div className="flex justify-center">
           <button
             className="w-10 h-10 rounded-full bg-[#f7f7f7] dark:bg-gray-700 border border-black/10 dark:border-white/10 flex items-center justify-center shadow-[inset_2px_2px_4px_rgba(0,0,0,0.05),inset_-2px_-2px_4px_rgba(255,255,255,1)] dark:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.5),inset_-2px_-2px_4px_rgba(60,60,60,0.5)]"
@@ -101,7 +101,7 @@ export function MonitoringPanel({ stats }: MonitoringPanelProps) {
       </section>
 
       {/* Colonne centre : EQ */}
-      <section className="bg-white dark:bg-gray-800 rounded-[24px] p-6 shadow-[0_12px_28px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.9)] dark:shadow-[0_12px_28px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(40,40,40,0.5)] border border-black/5 dark:border-white/10 flex flex-col gap-5 min-w-[260px]">
+      <section className="bg-white dark:bg-gray-800 rounded-[24px] p-6 shadow-[0_12px_28px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.9)] dark:shadow-[0_12px_28px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(60,60,60,0.5)] border border-black/5 dark:border-white/10 flex flex-col gap-5 min-w-[260px]">
         <div className="flex justify-center">
           <button
             onClick={() => setEqEnabled((prev) => !prev)}
@@ -221,7 +221,7 @@ export function MonitoringPanel({ stats }: MonitoringPanelProps) {
       </section>
 
       {/* Colonne droite : drive / output / mix */}
-      <section className="bg-white dark:bg-gray-800 rounded-[24px] p-6 shadow-[0_12px_28px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.9)] dark:shadow-[0_12px_28px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(40,40,40,0.5)] border border-black/5 dark:border-white/10 flex flex-col gap-6 min-w-[240px]">
+      <section className="bg-white dark:bg-gray-800 rounded-[24px] p-6 shadow-[0_12px_28px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.9)] dark:shadow-[0_12px_28px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(60,60,60,0.5)] border border-black/5 dark:border-white/10 flex flex-col gap-6 min-w-[240px]">
         <div className="flex justify-center">
           <button
             className="w-10 h-10 rounded-full bg-[#f7f7f7] dark:bg-gray-700 border border-black/10 dark:border-white/10 flex items-center justify-center shadow-[inset_2px_2px_4px_rgba(0,0,0,0.05),inset_-2px_-2px_4px_rgba(255,255,255,1)] dark:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.5),inset_-2px_-2px_4px_rgba(60,60,60,0.5)]"

@@ -5,7 +5,25 @@ Tous les changements notables de ce projet seront documentés dans ce fichier.
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/),
 et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 
-## [1.1.1] - 2024-12-19
+## [1.1.2] - 2025-12-13
+
+### 🎨 Amélioré
+- **Système de couleurs unifié** : 
+  - Ajout de `accentColor` dans `PedalComponentProps` pour cohérence
+  - Support de `accentColor` dans tous les composants de pédales
+  - Utilisation cohérente des couleurs dans toute l'interface
+- **Composant Loader** : Nouveau composant de chargement avec animation
+- **Préférences utilisateur** : Système de préférences pour contrôler l'affichage des modales
+
+### 🧹 Nettoyage
+- Suppression de tous les scripts de migration temporaires (`fix*.js`)
+- Code plus propre et maintenable
+
+### 📚 Documentation
+- Mise à jour des dates dans le CHANGELOG
+- Documentation du système de couleurs unifié
+
+## [1.1.1] - 2025-12-12
 
 ### 🐛 Corrigé
 - Correction des dépendances manquantes dans les `useCallback` :
@@ -14,7 +32,7 @@ et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 - Élimination des stale closures potentielles
 - Conformité aux règles ESLint pour les hooks React
 
-## [1.1.0] - 2024-12-19
+## [1.1.0] - 2025-12-09
 
 ### 🎉 Ajouté
 - **Boîte à rythmes intégrée** : Machine à rythmes complète avec interface compacte et modal plein écran
@@ -45,10 +63,10 @@ et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 - Documentation des nouvelles fonctions utilitaires
 - Guide d'optimisation du code
 
-## [1.0.0] - 2024-XX-XX
+## [1.0.0] - 2025-12-01
 
 ### 🎉 Version initiale
-- 100+ pédales d'effets
+- 80+ pédales d'effets
 - Amplificateurs modélisés (Fender, Marshall, Mesa Boogie, etc.)
 - Chaîne d'effets modulaire avec drag & drop
 - Système de presets avec Supabase

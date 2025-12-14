@@ -18,10 +18,14 @@ export function RolandSpaceEchoPedal({
   bypassed = false,
   onBypassToggle,
   bottomActions
-}: PedalComponentProps) {
+,
+  accentColor}: PedalComponentProps) {
   const model = useMemo(() => pedalLibrary.find((p) => p.id === pedalId), [])
   
   if (!model) return null
+
+  // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
+  const pedalAccentColor = accentColor || model.accentColor
 
   const repeat = values.repeat ?? model.parameters.repeat.default
   const intensity = values.intensity ?? model.parameters.intensity.default
@@ -38,7 +42,7 @@ export function RolandSpaceEchoPedal({
           max={model.parameters.heads.max}
           labels={model.parameters.heads.labels || []}
           icons={model.parameters.heads.icons}
-          color={model.accentColor}
+          color={pedalAccentColor}
           onChange={(v) => onChange?.('heads', v)}
           className="switch-selector-full-width"
         />
@@ -51,7 +55,7 @@ export function RolandSpaceEchoPedal({
           value={repeat}
           min={model.parameters.repeat.min}
           max={model.parameters.repeat.max}
-          color={model.accentColor}
+          color={pedalAccentColor}
           onChange={(v) => onChange?.('repeat', v)}
           size="small"
         />
@@ -60,7 +64,7 @@ export function RolandSpaceEchoPedal({
           value={intensity}
           min={model.parameters.intensity.min}
           max={model.parameters.intensity.max}
-          color={model.accentColor}
+          color={pedalAccentColor}
           onChange={(v) => onChange?.('intensity', v)}
           size="small"
         />
@@ -73,7 +77,7 @@ export function RolandSpaceEchoPedal({
           value={echoVolume}
           min={model.parameters.echoVolume.min}
           max={model.parameters.echoVolume.max}
-          color={model.accentColor}
+          color={pedalAccentColor}
           onChange={(v) => onChange?.('echoVolume', v)}
           size="small"
         />
@@ -99,9 +103,13 @@ export function RolandSpaceEchoPedal({
 export const RolandSpaceEchoControls = ({
   values = {},
   onChange,
+  accentColor,
 }: PedalComponentProps) => {
   const model = pedalLibrary.find((p) => p.id === pedalId)
   if (!model) return null
+  
+  // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
+  const pedalAccentColor = accentColor || model.accentColor
   
   return (
     <>
@@ -119,7 +127,7 @@ export const RolandSpaceEchoControls = ({
               max={def.max}
               orientation={def.orientation || 'vertical'}
               onChange={(v) => onChange?.(name, v)}
-              color={model.accentColor}
+              color={pedalAccentColor}
             />
           )
         }
@@ -133,7 +141,7 @@ export const RolandSpaceEchoControls = ({
               max={def.max}
               labels={def.labels}
               icons={def.icons}
-              color={model.accentColor}
+              color={pedalAccentColor}
               onChange={(v) => onChange?.(name, v)}
             />
           )
@@ -146,7 +154,7 @@ export const RolandSpaceEchoControls = ({
             value={value}
             min={def.min}
             max={def.max}
-            color={model.accentColor}
+            color={pedalAccentColor}
             onChange={(v) => onChange?.(name, v)}
           />
         )

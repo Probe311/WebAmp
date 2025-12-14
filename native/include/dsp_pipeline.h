@@ -4,11 +4,13 @@
 #include "ring_buffer.h"
 #include "test_tone_generator.h"
 #include "buffer_pool.h"
+#include "nam_loader.h"
 #include <cstdint>
 #include <vector>
 #include <atomic>
 #include <mutex>
 #include <memory>
+#include <string>
 
 namespace webamp {
 
@@ -53,6 +55,13 @@ public:
     void setTestToneAmplitude(float amplitude);
     bool isTestToneEnabled() const;
     
+    // Neural Amp Modeler (NAM) - Support des modèles d'amplis/pédales par IA
+    bool loadNAMModel(const std::string& filePath);
+    bool loadNAMModelFromMemory(const uint8_t* data, size_t size);
+    void setNAMModelActive(bool active);
+    bool isNAMModelActive() const { return nam_model_active_; }
+    std::shared_ptr<NAMModel> getNAMModel() const { return nam_model_; }
+    
 private:
     // Buffer de travail (alloué une fois, réutilisé)
     std::vector<float> work_buffer_;
@@ -78,6 +87,11 @@ private:
     
     // Générateur de signal de test
     TestToneGenerator test_tone_generator_;
+    
+    // Neural Amp Modeler (NAM)
+    std::shared_ptr<NAMModel> nam_model_;
+    std::unique_ptr<NAMLoader> nam_loader_;
+    bool nam_model_active_;
     
     // Helpers
     float dbToLinear(float db) const;

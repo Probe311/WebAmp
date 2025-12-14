@@ -2,12 +2,15 @@
  * Composant pour uploader des Impulse Responses
  */
 import { useState, useRef, useEffect } from 'react'
-import { Upload, FileAudio } from 'lucide-react'
+import { Upload, FileAudio, Search, Download, ExternalLink } from 'lucide-react'
 import { Modal } from './Modal'
 import { CTA } from './CTA'
+import { Loader } from './Loader'
 import { useToast } from './notifications/ToastProvider'
 import { useAuth } from '../auth/AuthProvider'
 import { uploadIR, loadUserIRs, ImpulseResponse } from '../services/supabase/impulseResponses'
+import { freesoundService, type FreesoundSound } from '../services/freesound'
+import { formatDateFrench } from '../utils/dateFormatter'
 
 interface IRUploadModalProps {
   isOpen: boolean
@@ -25,6 +28,9 @@ export function IRUploadModal({ isOpen, onClose, onIRSelected }: IRUploadModalPr
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [userIRs, setUserIRs] = useState<ImpulseResponse[]>([])
   const [loading, setLoading] = useState(false)
+  const [freesoundIRs, setFreesoundIRs] = useState<FreesoundSound[]>([])
+  const [searchingFreesound, setSearchingFreesound] = useState(false)
+  const [freesoundQuery, setFreesoundQuery] = useState('guitar cabinet impulse response')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Charger les IR de l'utilisateur à l'ouverture
@@ -43,6 +49,63 @@ export function IRUploadModal({ isOpen, onClose, onIRSelected }: IRUploadModalPr
       console.error('Erreur lors du chargement des IR:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  async function searchFreesoundIRs() {
+    try {
+      setSearchingFreesound(true)
+      const results = await freesoundService.searchImpulseResponses(freesoundQuery, 20)
+      setFreesoundIRs(results)
+    } catch (error) {
+      console.error('Erreur lors de la recherche Freesound:', error)
+      showToast({
+        variant: 'error',
+        title: 'Erreur de recherche',
+        message: error instanceof Error ? error.message : 'Erreur lors de la recherche sur Freesound'
+      })
+    } finally {
+      setSearchingFreesound(false)
+    }
+  }
+
+  async function handleDownloadFreesoundIR(sound: FreesoundSound) {
+    try {
+      showToast({
+        variant: 'info',
+        title: 'Téléchargement en cours',
+        message: `Téléchargement de ${sound.name}...`
+      })
+
+      const blob = await freesoundService.downloadSound(sound.id)
+      
+      // Utiliser l'IR téléchargée
+      if (onIRSelected) {
+        // Créer une URL temporaire pour l'IR
+        const url = URL.createObjectURL(blob)
+        // Note: On devrait créer un ImpulseResponse depuis le FreesoundSound
+        // Pour l'instant, on passe juste l'URL
+        const tempIR: ImpulseResponse = {
+          id: `freesound-${sound.id}`,
+          name: sound.name,
+          description: sound.description || `IR depuis Freesound (${sound.license})`,
+          file_path: url,
+          mime_type: 'audio/wav',
+          created_at: sound.created,
+          user_id: null,
+          is_public: false,
+          sample_rate: null,
+          length_ms: null
+        }
+        onIRSelected(tempIR)
+      }
+    } catch (error) {
+      console.error('Erreur lors du téléchargement:', error)
+      showToast({
+        variant: 'error',
+        title: 'Erreur de téléchargement',
+        message: error instanceof Error ? error.message : 'Erreur lors du téléchargement depuis Freesound'
+      })
     }
   }
 
@@ -220,6 +283,93 @@ export function IRUploadModal({ isOpen, onClose, onIRSelected }: IRUploadModalPr
           </div>
         </div>
 
+        {/* Recherche Freesound */}
+        <div className="p-4 bg-white dark:bg-gray-700 rounded-xl border border-black/10 dark:border-white/10">
+          <h3 className="text-lg font-semibold text-black dark:text-white mb-4 flex items-center gap-2">
+            <Search size={20} />
+            Rechercher des IR sur Freesound
+          </h3>
+
+          <div className="space-y-4">
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={freesoundQuery}
+                onChange={(e) => setFreesoundQuery(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && searchFreesoundIRs()}
+                className="flex-1 px-3 py-2 bg-white dark:bg-gray-800 rounded-lg border border-black/20 dark:border-white/20"
+                placeholder="Rechercher des IR (ex: guitar cabinet, reverb room...)"
+              />
+              <CTA
+                variant="primary"
+                icon={<Search size={18} />}
+                onClick={searchFreesoundIRs}
+                disabled={searchingFreesound || !freesoundQuery.trim()}
+              >
+                Rechercher
+              </CTA>
+            </div>
+
+            {searchingFreesound && (
+              <div className="text-center py-4 text-black/50 dark:text-white/50">
+                Recherche en cours...
+              </div>
+            )}
+
+            {freesoundIRs.length > 0 && (
+              <div className="space-y-2 max-h-64 overflow-y-auto">
+                {freesoundIRs.map(sound => (
+                  <div
+                    key={sound.id}
+                    className="p-3 bg-white dark:bg-gray-800 rounded-lg border border-black/10 dark:border-white/10 flex items-center justify-between"
+                  >
+                    <div className="flex-1">
+                      <h4 className="font-medium text-black dark:text-white">{sound.name}</h4>
+                      {sound.description && (
+                        <p className="text-sm text-black/60 dark:text-white/60 mt-1 line-clamp-2">
+                          {sound.description}
+                        </p>
+                      )}
+                      <div className="flex items-center gap-4 mt-2 text-xs text-black/40 dark:text-white/40">
+                        <span>Licence: {sound.license}</span>
+                        <span>Durée: {sound.duration.toFixed(1)}s</span>
+                        <span>Sample Rate: {sound.samplerate}Hz</span>
+                        {sound.tags.length > 0 && (
+                          <span>Tags: {sound.tags.slice(0, 3).join(', ')}</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      {sound.previews?.['preview-hq-mp3'] && (
+                        <CTA
+                          variant="icon-only"
+                          icon={<ExternalLink size={16} />}
+                          onClick={() => window.open(sound.previews['preview-hq-mp3'], '_blank')}
+                          title="Écouter l'aperçu"
+                        />
+                      )}
+                      <CTA
+                        variant="secondary"
+                        icon={<Download size={16} />}
+                        onClick={() => handleDownloadFreesoundIR(sound)}
+                        title="Télécharger et utiliser"
+                      >
+                        Utiliser
+                      </CTA>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {!searchingFreesound && freesoundIRs.length === 0 && freesoundQuery && (
+              <div className="text-center py-4 text-black/50 dark:text-white/50">
+                Aucun résultat. Essayez une autre recherche.
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* Liste des IR */}
         <div className="p-4 bg-white dark:bg-gray-700 rounded-xl border border-black/10 dark:border-white/10">
           <h3 className="text-lg font-semibold text-black dark:text-white mb-4">
@@ -227,8 +377,8 @@ export function IRUploadModal({ isOpen, onClose, onIRSelected }: IRUploadModalPr
           </h3>
 
           {loading ? (
-            <div className="text-center py-4 text-black/50 dark:text-white/50">
-              Chargement...
+            <div className="flex items-center justify-center py-8">
+              <Loader size="sm" variant="light" />
             </div>
           ) : userIRs.length === 0 ? (
             <div className="text-center py-4 text-black/50 dark:text-white/50">
@@ -247,7 +397,7 @@ export function IRUploadModal({ isOpen, onClose, onIRSelected }: IRUploadModalPr
                       <p className="text-sm text-black/60 dark:text-white/60 mt-1">{ir.description}</p>
                     )}
                     <p className="text-xs text-black/40 dark:text-white/40 mt-1">
-                      {ir.mime_type} • {new Date(ir.created_at).toLocaleDateString()}
+                      {ir.mime_type} • {formatDateFrench(ir.created_at)}
                     </p>
                   </div>
                   <CTA

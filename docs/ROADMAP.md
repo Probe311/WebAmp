@@ -157,7 +157,80 @@ Plan de développement et fonctionnalités prévues pour WebAmp.
 
 ## 🎯 Fonctionnalités prévues (Priorité MOYENNE)
 
-### 1. Effets supplémentaires
+### 1. Intégration Neural Amp Modeler (NAM)
+**Priorité** : HAUTE  
+**Status** : 📋 Planifié
+
+- [ ] Support des modèles NAM pour modélisation d'amplis/pédales par IA
+  - [ ] Import de fichiers NAM (.nam)
+  - [ ] Intégration dans le pipeline DSP
+  - [ ] Bibliothèque de modèles NAM pré-chargés
+  - [ ] Partage de modèles NAM entre utilisateurs
+- [ ] Support des IRs depuis dépôts communautaires (Tone3000, etc.)
+  - [ ] Import automatique depuis URLs
+  - [ ] Catalogue d'IRs gratuites
+  - [ ] Métadonnées enrichies pour les IRs
+
+**Ressources** :
+- Neural Amp Modeler : https://neuralampmodeler.com
+- Tone3000 : Dépôt communautaire d'IRs et modèles NAM
+- Format NAM : Modèles d'ampli/pédale exportables
+
+**Fichiers** : `native/src/nam_loader.cpp`, `frontend/src/utils/namLoader.ts`
+
+---
+
+### 2. Enrichissement métadonnées et catalogues
+**Priorité** : MOYENNE  
+**Status** : 📋 Planifié
+
+- [ ] Intégration MusicBrainz API
+  - [ ] Métadonnées enrichies pour les presets (artiste, album, genre)
+  - [ ] Recherche de presets par métadonnées
+  - [ ] Auto-complétion des tags depuis MusicBrainz
+- [ ] Intégration Freesound API
+  - [ ] Bibliothèque de samples pour machine à rythmes
+  - [ ] IRs et sons sous licence Creative Commons
+  - [ ] Recherche et import de samples depuis Freesound
+- [ ] Catalogue de presets communautaire
+  - [ ] Partage de presets avec métadonnées enrichies
+  - [ ] Système de notation/évaluation
+  - [ ] Collections thématiques (genre, artiste, style)
+
+**Ressources** :
+- MusicBrainz : https://musicbrainz.org (API REST, métadonnées ouvertes)
+- Freesound : https://freesound.org (API REST, samples CC)
+- Public Music APIs : Catalogues communautaires d'APIs musicales
+
+**Fichiers** : `frontend/src/services/musicbrainz.ts`, `frontend/src/services/freesound.ts`
+
+---
+
+### 3. Affichage de tablatures et notation
+**Priorité** : BASSE  
+**Status** : 📋 Planifié
+
+- [ ] Affichage de tablatures avec VexFlow
+  - [ ] Visualisation de tablatures pour les presets
+  - [ ] Association presets ↔ tablatures
+  - [ ] Export de tablatures depuis presets
+- [ ] Support format ABC (optionnel)
+  - [ ] Import/export ABC via abcjs
+  - [ ] Conversion ABC ↔ tablature
+  - [ ] Génération MIDI depuis ABC
+
+**Ressources** :
+- VexFlow : https://vexflow.com (JS, MIT) - Bibliothèque de gravure musicale
+- abcjs : https://github.com/paulrosen/abcjs (JS, MIT) - Moteur ABC
+- MuseScore : Logiciel libre de notation (MusicXML)
+
+**Fichiers** : `frontend/src/components/TabViewer.tsx`, `frontend/src/utils/abcConverter.ts`
+
+**Note** : Fonctionnalité optionnelle pour enrichir l'expérience utilisateur avec des tablatures associées aux presets.
+
+---
+
+### 4. Effets supplémentaires
 - ✅ **Phaser** : Modulation de phase (implémenté)
 - ✅ **Wah** : Filtre passe-bande modulé (implémenté via worklet)
 - ✅ **Octaver** : Octave up/down (implémenté via worklet)
@@ -248,7 +321,7 @@ Plan de développement et fonctionnalités prévues pour WebAmp.
   - [ ] Partage de presets en direct
   - [ ] Notifications
 
-### 2. Cloud
+### 2. Cloud et Partage
 - [ ] Synchronisation cloud des presets
   - [ ] Sauvegarde automatique
   - [ ] Synchronisation multi-appareils
@@ -257,10 +330,21 @@ Plan de développement et fonctionnalités prévues pour WebAmp.
   - [ ] Marketplace de presets
   - [ ] Système de recommandations
   - [ ] Presets certifiés par des artistes
+  - [ ] **Intégration MusicBrainz API** : Métadonnées enrichies (artiste, album, genre)
+    - [ ] Auto-complétion des tags depuis MusicBrainz
+    - [ ] Recherche de presets par métadonnées musicales
+    - [ ] Association presets ↔ artistes/albums
+  - [ ] **Intégration Freesound API** : Samples et IRs sous licence CC
+    - [ ] Bibliothèque de samples pour machine à rythmes
+    - [ ] IRs communautaires depuis Freesound
+    - [ ] Recherche et import de contenus audio
 - [ ] IR Library en ligne
   - [ ] Bibliothèque d'IR gratuites
   - [ ] IR premium
   - [ ] Upload et partage d'IR
+  - [ ] **Support dépôts communautaires** (Tone3000, etc.)
+    - [ ] Import automatique depuis URLs
+    - [ ] Catalogue d'IRs et modèles NAM
 
 ### 3. Mobile
 - [ ] Application mobile (React Native)
@@ -277,10 +361,10 @@ Plan de développement et fonctionnalités prévues pour WebAmp.
   - [ ] Mode paysage/portrait
 
 ### 4. Hardware
-- [x] ~~Support MIDI~~ (Supprimé - voir ANALYSE_UTILITE_MIDI.md)
-  - ~~Contrôle MIDI des paramètres~~
-  - ~~Apprentissage MIDI~~
-  - ~~Presets MIDI~~
+- [ ] Support MIDI
+  - Contrôle MIDI des paramètres
+  - Apprentissage MIDI
+  - Presets MIDI
 - [ ] Support pédales MIDI (pour contrôle externe uniquement)
   - [ ] Pédales de contrôle
   - [ ] Expression pedals
@@ -290,7 +374,7 @@ Plan de développement et fonctionnalités prévues pour WebAmp.
   - [ ] Configuration multi-périphériques
   - [ ] Mixage de sources
 
-### 5. Intelligence Artificielle
+### 5. Intelligence Artificielle et Modélisation
 - [ ] **Génération automatique de presets**
   - [ ] Presets basés sur un style musical
   - [ ] Suggestions intelligentes
@@ -303,6 +387,13 @@ Plan de développement et fonctionnalités prévues pour WebAmp.
   - [ ] Contrôle vocal des effets
   - [ ] Commandes naturelles
   - [ ] Aide contextuelle
+- [ ] **Neural Amp Modeler (NAM) - Intégration IA**
+  - [ ] Support des modèles NAM pour modélisation d'amplis/pédales par IA
+  - [ ] Import de fichiers NAM (.nam)
+  - [ ] Intégration dans le pipeline DSP
+  - [ ] Bibliothèque de modèles NAM pré-chargés
+  - [ ] Partage de modèles NAM entre utilisateurs
+  - [ ] Amélioration de la qualité des simulations d'amplis via IA
 
 ---
 
@@ -421,6 +512,76 @@ Les contributions sont les bienvenues ! Consultez :
 - Optimisation SIMD pour mixage dry/wet
 - Cache des résultats FFT pour IR fréquemment utilisés
 - Streaming audio pour IR très longs (>10s)
+- Optimisation du chargement des modèles NAM (lazy loading, cache)
+
+### Intégrations externes recommandées (Décembre 2024)
+
+#### Mapping des recommandations avec les fonctionnalités cibles
+
+**1. Neural Amp Modeler (NAM) → Intelligence Artificielle et Modélisation**
+- **Section cible** : "5. Intelligence Artificielle et Modélisation"
+- **Format** : Modèles .nam exportables
+- **Source** : https://neuralampmodeler.com
+- **Usage** : Amélioration de la qualité des simulations d'amplis via IA
+- **Dépôts communautaires** : Tone3000, etc.
+- **Fichiers** : `native/src/nam_loader.cpp`, `frontend/src/utils/namLoader.ts`
+
+**2. MusicBrainz API → Cloud et Partage**
+- **Section cible** : "2. Cloud et Partage" (Bibliothèque de presets communautaire)
+- **Source** : https://musicbrainz.org
+- **Usage** : Enrichissement des métadonnées de presets (artiste, album, genre)
+- **Fonctionnalités** :
+  - Auto-complétion des tags depuis MusicBrainz
+  - Recherche de presets par métadonnées musicales
+  - Association presets ↔ artistes/albums
+- **Licence** : Open data, réutilisable
+- **Fichiers** : `frontend/src/services/musicbrainz.ts`
+
+**3. Freesound API → Cloud et Partage + Machine à rythmes**
+- **Section cible** : "2. Cloud et Partage" (IR Library en ligne)
+- **Source** : https://freesound.org
+- **Usage** :
+  - Bibliothèque de samples pour machine à rythmes
+  - IRs et sons sous licence Creative Commons
+  - Recherche et import de contenus audio
+- **Licence** : Creative Commons (vérifier selon auteur)
+- **Fichiers** : `frontend/src/services/freesound.ts`
+
+**4. LMS (Learning Management System) avec Supabase**
+- **Section cible** : "6. Apprentissage et Pédagogie (Learn)"
+- **Status** : ✅ Implémenté
+- **VexFlow** : https://vexflow.com (JS, MIT)
+  - Usage : Visualisation de tablatures associées aux presets
+  - Fonctionnalités : Affichage de tablatures, association presets ↔ tablatures
+- **abcjs** : https://github.com/paulrosen/abcjs (JS, MIT)
+  - Usage : Import/export de notation musicale, génération MIDI
+  - Fonctionnalités : Support format ABC, conversion ABC ↔ tablature
+- **MuseScore** : Logiciel libre de notation (MusicXML)
+  - Usage : Import de partitions, conversion partitions ↔ tablatures
+- **Fichiers** : `frontend/src/components/TabViewer.tsx`, `frontend/src/utils/abcConverter.ts`
+
+**5. Formats d'échange et interopérabilité**
+- **IR (Impulse Responses)** : ✅ Déjà implémenté
+- **NAM (.nam)** : 📋 À implémenter → Section "5. Intelligence Artificielle"
+- **MusicXML** : 📋 Optionnel → Section "6. Apprentissage et Pédagogie"
+- **ABC** : 📋 Optionnel → Section "6. Apprentissage et Pédagogie"
+- **MIDI** : 📋 Optionnel → Section "4. Hardware" (Support MIDI)
+- **SFZ** : 📋 Optionnel → Section "2. Cloud et Partage" (Samples)
+
+**6. Bibliothèques de référence**
+- **Pedalboard.js** : Framework JS pour effets de guitare (référence)
+  - Source : https://dashersw.github.io/pedalboardjs/
+  - Usage : Inspiration pour architecture d'effets
+- **Tone.js** : Framework JS pour synthèse musicale (déjà utilisé partiellement)
+  - Usage : Machine à rythmes, synthèse
+
+#### Notes importantes
+- **Licences** : Toujours vérifier les licences (CC, GPL, MIT) avant intégration
+- **Formats d'échange** : Privilégier MusicXML, ABC, MIDI, IR, NAM, SFZ pour interopérabilité
+- **Priorités** : 
+  1. NAM (Intelligence Artificielle) - Priorité HAUTE
+  2. MusicBrainz/Freesound (Cloud et Partage) - Priorité MOYENNE
+  3. VexFlow/abcjs (Apprentissage) - Priorité BASSE
 
 ### Audit Décembre 2024 - Résumé
 
@@ -475,4 +636,53 @@ Les contributions sont les bienvenues ! Consultez :
 - **Total amplificateurs** : 50+ amplis dans la bibliothèque
 - **Drivers audio** : 4 drivers (WASAPI, ASIO, CoreAudio, PipeWire)
 - **Fonctionnalités avancées** : 6 outils (Looper, Tuner, Metronome, Room Simulator, Spectrum Analyzer, Drum Machine)
+- **LMS (Learning Management System)** : ✅ Système complet avec Supabase (cours, progression, statistiques, quiz)
+
+---
+
+## 6. Apprentissage et Pédagogie (Learn) - LMS
+
+**Status** : ✅ Implémenté (Janvier 2025)
+
+### LMS avec Supabase
+- ✅ **Architecture complète** : 13 tables Supabase pour gérer tous les aspects du LMS
+- ✅ **Gestion des cours** : Création, édition, publication de cours depuis Supabase
+- ✅ **Leçons** : Système de leçons avec contenu riche (texte, vidéo, interactif)
+- ✅ **Quiz** : Questions à choix multiples avec explications
+- ✅ **Progression utilisateur** : Suivi détaillé par leçon avec sauvegarde automatique
+- ✅ **Statistiques** : Dashboard avec XP, badges, cours complétés, série de jours
+- ✅ **Tablatures** : Intégration des tablatures dans les cours
+- ✅ **Accords** : Diagrammes d'accords dans les leçons
+- ✅ **Artistes** : Profils d'artistes via MusicBrainz API
+- ✅ **Migration** : Script de migration des données existantes vers Supabase
+
+### Fonctionnalités implémentées
+- [x] Page Learn complète avec filtres et recherche
+- [x] Affichage des cours depuis Supabase
+- [x] Système de progression avec sauvegarde automatique
+- [x] Dashboard LMS avec statistiques utilisateur
+- [x] Support quiz avec enregistrement des tentatives
+- [x] Fallback localStorage pour utilisateurs non authentifiés
+- [x] Composants réutilisables (TutorialCard, TutorialViewer, QuizViewer, etc.)
+
+### Documentation
+- `docs/SUPABASE_SCHEMA.md` : Schéma complet de la base de données
+- `docs/LMS_SETUP.md` : Guide de configuration Supabase
+- `docs/LMS_MIGRATION.md` : Instructions de migration
+- `docs/LMS_FEATURES.md` : Liste complète des fonctionnalités
+
+### Fichiers principaux
+- `frontend/src/services/supabase.ts` : Client Supabase et types
+- `frontend/src/services/lms.ts` : Service LMS avec toutes les méthodes
+- `frontend/src/hooks/useLMS.ts` : Hooks React pour utiliser le LMS
+- `frontend/src/pages/LearnPage.tsx` : Page principale Learn
+- `frontend/src/components/learn/` : Tous les composants Learn
+- `frontend/src/scripts/migrateToSupabase.ts` : Script de migration
+
+### Fonctionnalités à venir
+- [ ] Recommandations intelligentes de cours
+- [ ] Génération de certificats PDF
+- [ ] Analytics avancés avec graphiques
+- [ ] Fonctionnalités sociales (partage, classements)
+- [ ] Contenu enrichi (vidéos, exercices interactifs)
 

@@ -18,10 +18,14 @@ export function BossTr2Pedal({
   bypassed = false,
   onBypassToggle,
   bottomActions
-}: PedalComponentProps) {
+,
+  accentColor}: PedalComponentProps) {
   const model = useMemo(() => pedalLibrary.find((p) => p.id === pedalId), [])
   
   if (!model) return null
+
+  // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
+  const pedalAccentColor = accentColor || model.accentColor
 
   const rate = values.rate ?? model.parameters.rate.default
   const depth = values.depth ?? model.parameters.depth.default
@@ -37,7 +41,7 @@ export function BossTr2Pedal({
           max={model.parameters.wave.max}
           labels={model.parameters.wave.labels || []}
           icons={model.parameters.wave.icons}
-          color={model.accentColor}
+          color={pedalAccentColor}
           onChange={(v) => onChange?.('wave', v)}
           className="switch-selector-full-width"
         />
@@ -50,7 +54,7 @@ export function BossTr2Pedal({
           value={rate}
           min={model.parameters.rate.min}
           max={model.parameters.rate.max}
-          color={model.accentColor}
+          color={pedalAccentColor}
           onChange={(v) => onChange?.('rate', v)}
         />
         <Potentiometer
@@ -58,7 +62,7 @@ export function BossTr2Pedal({
           value={depth}
           min={model.parameters.depth.min}
           max={model.parameters.depth.max}
-          color={model.accentColor}
+          color={pedalAccentColor}
           onChange={(v) => onChange?.('depth', v)}
         />
       </div>
@@ -83,9 +87,13 @@ export function BossTr2Pedal({
 export const BossTr2Controls = ({
   values = {},
   onChange,
+  accentColor
 }: PedalComponentProps) => {
   const model = pedalLibrary.find((p) => p.id === pedalId)
   if (!model) return null
+  
+  // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
+  const pedalAccentColor = accentColor || model.accentColor
   
   return (
     <>
@@ -103,7 +111,7 @@ export const BossTr2Controls = ({
               max={def.max}
               orientation={def.orientation || 'vertical'}
               onChange={(v) => onChange?.(name, v)}
-              color={model.accentColor}
+              color={pedalAccentColor}
             />
           )
         }
@@ -117,7 +125,7 @@ export const BossTr2Controls = ({
               max={def.max}
               labels={def.labels}
               icons={def.icons}
-              color={model.accentColor}
+              color={pedalAccentColor}
               onChange={(v) => onChange?.(name, v)}
             />
           )
@@ -130,7 +138,7 @@ export const BossTr2Controls = ({
             value={value}
             min={def.min}
             max={def.max}
-            color={model.accentColor}
+            color={pedalAccentColor}
             onChange={(v) => onChange?.(name, v)}
           />
         )

@@ -1,6 +1,17 @@
 import { createContext, useContext, useState, useRef, useCallback, ReactNode, useEffect } from 'react'
-import * as Tone from 'tone'
 import { DEFAULT_PATTERNS } from './patterns'
+
+// Type pour Tone.js (importé dynamiquement)
+type ToneType = typeof import('tone')
+let ToneModule: ToneType | null = null
+
+// Fonction helper pour charger Tone.js dynamiquement
+const loadTone = async (): Promise<ToneType> => {
+  if (!ToneModule) {
+    ToneModule = await import('tone')
+  }
+  return ToneModule
+}
 
 // Types d'instruments de batterie
 export type DrumInstrument = 'kick' | 'snare' | 'hihat' | 'openhat' | 'crash' | 'ride' | 'tom1' | 'tom2' | 'tom3'
@@ -18,7 +29,7 @@ export interface DrumPattern {
 
 interface DrumMachineContextType {
   isPlaying: boolean
-  isActive: boolean // Indique si la machine est active (jouée ou en pause)
+  isActive: boolean
   masterVolume: number
   currentStep: number
   bpm: number
@@ -56,16 +67,8 @@ interface DrumMachineProviderProps {
 
 export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
   const [isPlaying, setIsPlaying] = useState(false)
-  const [isActive, setIsActive] = useState(false) // Active = jouée ou en pause
+  const [isActive, setIsActive] = useState(false)
   const [currentStep, setCurrentStepState] = useState(0)
-  
-  const setCurrentStep = useCallback((step: number | ((prev: number) => number)) => {
-    if (typeof step === 'function') {
-      setCurrentStepState(step)
-    } else {
-      setCurrentStepState(step)
-    }
-  }, [])
   const [bpm, setBpm] = useState(120)
   const [pattern, setPattern] = useState<DrumStep[]>(() => [...DEFAULT_PATTERNS[0].steps])
   const [selectedPattern, setSelectedPattern] = useState(0)
@@ -82,38 +85,86 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
   })
   const [masterVolume, setMasterVolume] = useState(80)
 
-  const volumeNodesRef = useRef<Record<DrumInstrument, Tone.Volume> | null>(null)
-  const masterGainRef = useRef<Tone.Gain | null>(null)
+  // Références pour Tone.js
+  const toneRef = useRef<ToneType | null>(null)
+  const volumeNodesRef = useRef<Record<DrumInstrument, any> | null>(null)
+  const masterGainRef = useRef<any | null>(null)
   const initializedRef = useRef(false)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const synthCacheRef = useRef<Record<DrumInstrument, any | null>>({
+    kick: null,
+    snare: null,
+    hihat: null,
+    openhat: null,
+    crash: null,
+    ride: null,
+    tom1: null,
+    tom2: null,
+    tom3: null
+  })
+  const snareNoiseRef = useRef<any | null>(null)
+  const snareBodyRef = useRef<any | null>(null)
+  
+  // Références pour éviter les problèmes de closure
+  const volumesRef = useRef(volumes)
+  const bpmRef = useRef(bpm)
+  const patternRef = useRef(pattern)
+  
+  useEffect(() => {
+    volumesRef.current = volumes
+  }, [volumes])
+  
+  useEffect(() => {
+    bpmRef.current = bpm
+  }, [bpm])
+  
+  useEffect(() => {
+    patternRef.current = pattern
+  }, [pattern])
+
+  const setCurrentStep = useCallback((step: number | ((prev: number) => number)) => {
+    if (typeof step === 'function') {
+      setCurrentStepState(step)
+    } else {
+      setCurrentStepState(step)
+    }
+  }, [])
 
   // Initialiser Tone.js et les instruments
-  const initializeTone = useCallback(async () => {
-    if (initializedRef.current && volumeNodesRef.current) return
-
-    try {
-      // Vérifier l'état du contexte avant de démarrer
-      // Ne pas appeler Tone.start() si le contexte est suspendu (évite l'erreur)
-      if (Tone.context.state === 'suspended') {
-        // Essayer de résumer le contexte silencieusement
+  const initializeTone = useCallback(async (): Promise<boolean> => {
+    if (initializedRef.current && volumeNodesRef.current) {
+      const Tone = toneRef.current
+      if (Tone && Tone.context.state === 'suspended') {
         try {
           await Tone.start()
         } catch (error) {
-          // Si ça échoue, on attendra une interaction utilisateur
-          // Ne pas lever d'erreur pour éviter les messages dans la console
-          return
+          console.warn('[DrumMachine] Impossible de démarrer le contexte audio:', error)
+          return false
         }
-      } else if (Tone.context.state === 'closed') {
-        // Le contexte est fermé, on ne peut rien faire
-        return
+      }
+      return true
+    }
+
+    try {
+      const Tone = await loadTone()
+      toneRef.current = Tone
+      
+      // Démarrer le contexte audio
+      if (Tone.context.state === 'suspended' || Tone.context.state === 'closed') {
+        try {
+          await Tone.start()
+        } catch (error) {
+          console.error('[DrumMachine] Impossible de démarrer le contexte audio:', error)
+          return false
+        }
       }
       
-      // Créer un bus master puis les nœuds de volume pour chaque instrument
+      // Créer le bus master
       const masterGain = new Tone.Gain(masterVolume / 100).toDestination()
       masterGainRef.current = masterGain
 
       // Créer les nœuds de volume pour chaque instrument
-      const volumeNodes: Record<DrumInstrument, Tone.Volume> = {} as Record<DrumInstrument, Tone.Volume>
+      const volumeNodes: Record<DrumInstrument, any> = {} as Record<DrumInstrument, any>
       const instruments: DrumInstrument[] = ['kick', 'snare', 'hihat', 'openhat', 'crash', 'ride', 'tom1', 'tom2', 'tom3']
       
       instruments.forEach(instrument => {
@@ -123,152 +174,262 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
       })
       
       volumeNodesRef.current = volumeNodes
+      
+      // Créer les synths
+      const synthCache: Record<DrumInstrument, any | null> = {
+        kick: null,
+        snare: null,
+        hihat: null,
+        openhat: null,
+        crash: null,
+        ride: null,
+        tom1: null,
+        tom2: null,
+        tom3: null
+      }
+      
+      synthCache.kick = new Tone.MembraneSynth({
+        pitchDecay: 0.05,
+        octaves: 3,
+        oscillator: { type: 'sine' },
+        envelope: { attack: 0.001, decay: 0.3, sustain: 0, release: 0.1 }
+      }).connect(volumeNodes.kick)
+      
+      snareNoiseRef.current = new Tone.NoiseSynth({
+        noise: { type: 'white' },
+        envelope: { attack: 0.001, decay: 0.2, sustain: 0, release: 0.1 }
+      }).connect(volumeNodes.snare)
+      snareBodyRef.current = new Tone.MembraneSynth({
+        pitchDecay: 0.05,
+        octaves: 1,
+        oscillator: { type: 'sine' },
+        envelope: { attack: 0.001, decay: 0.1, sustain: 0, release: 0.05 }
+      }).connect(volumeNodes.snare)
+      
+      synthCache.hihat = new Tone.NoiseSynth({
+        noise: { type: 'white' },
+        envelope: { attack: 0.001, decay: 0.05, sustain: 0, release: 0.05 }
+      }).connect(volumeNodes.hihat)
+      
+      synthCache.openhat = new Tone.NoiseSynth({
+        noise: { type: 'white' },
+        envelope: { attack: 0.001, decay: 0.2, sustain: 0, release: 0.2 }
+      }).connect(volumeNodes.openhat)
+      
+      synthCache.crash = new Tone.NoiseSynth({
+        noise: { type: 'white' },
+        envelope: { attack: 0.001, decay: 0.5, sustain: 0, release: 0.5 }
+      }).connect(volumeNodes.crash)
+      
+      synthCache.ride = new Tone.NoiseSynth({
+        noise: { type: 'white' },
+        envelope: { attack: 0.001, decay: 0.35, sustain: 0, release: 0.35 }
+      }).connect(volumeNodes.ride)
+      
+      synthCache.tom1 = new Tone.MembraneSynth({
+        pitchDecay: 0.05,
+        octaves: 2,
+        oscillator: { type: 'sine' },
+        envelope: { attack: 0.001, decay: 0.2, sustain: 0, release: 0.2 }
+      }).connect(volumeNodes.tom1)
+      
+      synthCache.tom2 = new Tone.MembraneSynth({
+        pitchDecay: 0.05,
+        octaves: 2,
+        oscillator: { type: 'sine' },
+        envelope: { attack: 0.001, decay: 0.2, sustain: 0, release: 0.2 }
+      }).connect(volumeNodes.tom2)
+      
+      synthCache.tom3 = new Tone.MembraneSynth({
+        pitchDecay: 0.05,
+        octaves: 2,
+        oscillator: { type: 'sine' },
+        envelope: { attack: 0.001, decay: 0.25, sustain: 0, release: 0.25 }
+      }).connect(volumeNodes.tom3)
+      
+      synthCacheRef.current = synthCache
       initializedRef.current = true
+      return true
     } catch (error) {
-      console.error('Erreur lors de l\'initialisation de Tone.js:', error)
+      console.error('[DrumMachine] Erreur lors de l\'initialisation de Tone.js:', error)
+      return false
     }
-  }, [])
+  }, [masterVolume])
 
-  // Jouer un son avec Tone.js
+  // Jouer un son individuel
   const playSound = useCallback(async (instrument: DrumInstrument) => {
-    await initializeTone()
-    
-    if (!volumeNodesRef.current) return
+    const initialized = await initializeTone()
+    if (!initialized || !volumeNodesRef.current || !synthCacheRef.current) return
+
+    const Tone = toneRef.current
+    if (!Tone) return
 
     const volumeNode = volumeNodesRef.current[instrument]
-    const volumeDb = (volumes[instrument] / 100) * 20 - 20 // Convertir 0-100% en dB (-20 à 0)
-    volumeNode.volume.value = volumeDb
-
-    // Créer le synth approprié selon l'instrument
-    let synth: Tone.ToneAudioNode
-
-    switch (instrument) {
-      case 'kick':
-        // Kick : MembraneSynth pour un son de grosse caisse
-        synth = new Tone.MembraneSynth({
-          pitchDecay: 0.05,
-          octaves: 3,
-          oscillator: { type: 'sine' },
-          envelope: { attack: 0.001, decay: 0.3, sustain: 0, release: 0.1 }
-        }).connect(volumeNode)
-        ;(synth as Tone.MembraneSynth).triggerAttackRelease('C2', '8n')
-        break
-      case 'snare':
-        // Snare : NoiseSynth pour le bruit blanc + MembraneSynth pour le corps
-        const snareNoise = new Tone.NoiseSynth({
-          noise: { type: 'white' },
-          envelope: { attack: 0.001, decay: 0.2, sustain: 0, release: 0.1 }
-        }).connect(volumeNode)
-        const snareBody = new Tone.MembraneSynth({
-          pitchDecay: 0.05,
-          octaves: 1,
-          oscillator: { type: 'sine' },
-          envelope: { attack: 0.001, decay: 0.1, sustain: 0, release: 0.05 }
-        }).connect(volumeNode)
-        snareNoise.triggerAttackRelease('8n')
-        snareBody.triggerAttackRelease('C3', '8n')
-        setTimeout(() => {
-          snareNoise.dispose()
-          snareBody.dispose()
-        }, 500)
-        return
-      case 'hihat':
-        // Hi-Hat : NoiseSynth pour un son métallique
-        synth = new Tone.NoiseSynth({
-          noise: { type: 'white' },
-          envelope: { attack: 0.001, decay: 0.05, sustain: 0, release: 0.05 }
-        }).connect(volumeNode)
-        ;(synth as Tone.NoiseSynth).triggerAttackRelease('8n')
-        break
-      case 'openhat':
-        // Open Hat : NoiseSynth avec plus de sustain
-        synth = new Tone.NoiseSynth({
-          noise: { type: 'white' },
-          envelope: { attack: 0.001, decay: 0.2, sustain: 0, release: 0.2 }
-        }).connect(volumeNode)
-        ;(synth as Tone.NoiseSynth).triggerAttackRelease('8n')
-        break
-      case 'crash':
-        // Crash : NoiseSynth avec beaucoup de sustain
-        synth = new Tone.NoiseSynth({
-          noise: { type: 'white' },
-          envelope: { attack: 0.001, decay: 0.5, sustain: 0, release: 0.5 }
-        }).connect(volumeNode)
-        ;(synth as Tone.NoiseSynth).triggerAttackRelease('8n')
-        break
-      case 'ride':
-        // Ride : NoiseSynth pour un son métallique (comme les autres cymbales)
-        // Decay/release intermédiaire entre hi-hat (0.05) et crash (0.5) pour un son de ride réaliste
-        synth = new Tone.NoiseSynth({
-          noise: { type: 'white' },
-          envelope: { attack: 0.001, decay: 0.35, sustain: 0, release: 0.35 }
-        }).connect(volumeNode)
-        ;(synth as Tone.NoiseSynth).triggerAttackRelease('8n')
-        break
-      case 'tom1':
-        // Tom 1 : MembraneSynth
-        synth = new Tone.MembraneSynth({
-          pitchDecay: 0.05,
-          octaves: 2,
-          oscillator: { type: 'sine' },
-          envelope: { attack: 0.001, decay: 0.2, sustain: 0, release: 0.2 }
-        }).connect(volumeNode)
-        ;(synth as Tone.MembraneSynth).triggerAttackRelease('C3', '8n')
-        break
-      case 'tom2':
-        // Tom 2 : MembraneSynth (plus grave)
-        synth = new Tone.MembraneSynth({
-          pitchDecay: 0.05,
-          octaves: 2,
-          oscillator: { type: 'sine' },
-          envelope: { attack: 0.001, decay: 0.2, sustain: 0, release: 0.2 }
-        }).connect(volumeNode)
-        ;(synth as Tone.MembraneSynth).triggerAttackRelease('B2', '8n')
-        break
-      case 'tom3':
-        // Tom 3 : MembraneSynth (encore plus grave)
-        synth = new Tone.MembraneSynth({
-          pitchDecay: 0.05,
-          octaves: 2,
-          oscillator: { type: 'sine' },
-          envelope: { attack: 0.001, decay: 0.25, sustain: 0, release: 0.25 }
-        }).connect(volumeNode)
-        ;(synth as Tone.MembraneSynth).triggerAttackRelease('A2', '8n')
-        break
-      default:
-        return
+    const volumeDb = (volumesRef.current[instrument] / 100) * 20 - 20
+    if (Math.abs(volumeNode.volume.value - volumeDb) > 0.01) {
+      volumeNode.volume.value = volumeDb
     }
 
-    // Nettoyer après la note
-    setTimeout(() => {
-      synth.dispose()
-    }, 1000)
-  }, [volumes, initializeTone])
+    const now = Tone.now()
 
-  // Gérer la boucle de lecture dans le contexte (pour continuer même si la modale est fermée)
+    try {
+      switch (instrument) {
+        case 'kick': {
+          const synth = synthCacheRef.current.kick
+          if (synth) synth.triggerAttackRelease('C2', '8n', now)
+          break
+        }
+        case 'snare': {
+          if (snareNoiseRef.current && snareBodyRef.current) {
+            snareNoiseRef.current.triggerAttackRelease('8n', now)
+            snareBodyRef.current.triggerAttackRelease('C3', '8n', now + 0.001)
+          }
+          break
+        }
+        case 'hihat': {
+          const synth = synthCacheRef.current.hihat
+          if (synth) synth.triggerAttackRelease('8n', now)
+          break
+        }
+        case 'openhat': {
+          const synth = synthCacheRef.current.openhat
+          if (synth) synth.triggerAttackRelease('8n', now)
+          break
+        }
+        case 'crash': {
+          const synth = synthCacheRef.current.crash
+          if (synth) synth.triggerAttackRelease('8n', now)
+          break
+        }
+        case 'ride': {
+          const synth = synthCacheRef.current.ride
+          if (synth) synth.triggerAttackRelease('8n', now)
+          break
+        }
+        case 'tom1': {
+          const synth = synthCacheRef.current.tom1
+          if (synth) synth.triggerAttackRelease('C3', '8n', now)
+          break
+        }
+        case 'tom2': {
+          const synth = synthCacheRef.current.tom2
+          if (synth) synth.triggerAttackRelease('B2', '8n', now)
+          break
+        }
+        case 'tom3': {
+          const synth = synthCacheRef.current.tom3
+          if (synth) synth.triggerAttackRelease('A2', '8n', now)
+          break
+        }
+      }
+    } catch (error) {
+      console.warn(`[DrumMachine] Erreur lors de la lecture de ${instrument}:`, error)
+    }
+  }, [initializeTone])
+
+  // Gérer la boucle de lecture avec setInterval (comme la version précédente fonctionnelle)
   useEffect(() => {
     if (isPlaying && pattern.length > 0) {
-      const NUM_STEPS = 16
-      const stepDuration = (60 / bpm / 4) * 1000 // Durée d'un step en ms (16th notes)
-      
-      intervalRef.current = setInterval(() => {
-        setCurrentStepState(prev => {
-          const nextStep = (prev + 1) % NUM_STEPS
-          
-          // Jouer les sons pour ce step
-          const currentStepData = pattern[prev]
-          if (currentStepData) {
-            const instruments: DrumInstrument[] = ['kick', 'snare', 'hihat', 'openhat', 'crash', 'ride', 'tom1', 'tom2', 'tom3']
-            instruments.forEach(instrument => {
-              if (currentStepData[instrument]) {
-                playSound(instrument)
-              }
-            })
-          }
-          
-          return nextStep
-        })
-      }, stepDuration)
+      // Initialiser Tone.js avant de démarrer la boucle
+      initializeTone().then(() => {
+        const NUM_STEPS = 16
+        // Calculer la durée d'un step en ms basé sur le BPM (16th notes)
+        // 60 secondes / BPM = durée d'une mesure en secondes
+        // Diviser par 4 pour obtenir la durée d'un quart de note
+        // Multiplier par 1000 pour convertir en millisecondes
+        const stepDuration = (60 / bpm / 4) * 1000
+        
+        intervalRef.current = setInterval(() => {
+          setCurrentStepState(prev => {
+            const nextStep = (prev + 1) % NUM_STEPS
+            
+            // Jouer les sons pour ce step
+            const currentStepData = pattern[prev]
+            if (currentStepData && volumeNodesRef.current && synthCacheRef.current) {
+              const instruments: DrumInstrument[] = ['kick', 'snare', 'hihat', 'openhat', 'crash', 'ride', 'tom1', 'tom2', 'tom3']
+              const Tone = toneRef.current
+              if (!Tone) return nextStep
+              
+              // Obtenir le temps de base une seule fois
+              const baseTime = Tone.now()
+              let timeOffset = 0
+              
+              instruments.forEach(instrument => {
+                if (currentStepData[instrument]) {
+                  // Jouer le son de manière synchrone avec un offset pour éviter les conflits de timing
+                  const volumeNode = volumeNodesRef.current![instrument]
+                  const volumeDb = (volumesRef.current[instrument] / 100) * 20 - 20
+                  if (Math.abs(volumeNode.volume.value - volumeDb) > 0.01) {
+                    volumeNode.volume.value = volumeDb
+                  }
+
+                  // Utiliser un offset pour chaque instrument pour garantir des temps uniques
+                  const now = baseTime + timeOffset
+                  timeOffset += 0.001 // Incrémenter de 1ms pour chaque instrument suivant
+
+                  try {
+                    switch (instrument) {
+                      case 'kick': {
+                        const synth = synthCacheRef.current!.kick
+                        if (synth) synth.triggerAttackRelease('C2', '8n', now)
+                        break
+                      }
+                      case 'snare': {
+                        if (snareNoiseRef.current && snareBodyRef.current) {
+                          snareNoiseRef.current.triggerAttackRelease('8n', now)
+                          snareBodyRef.current.triggerAttackRelease('C3', '8n', now + 0.001)
+                        }
+                        break
+                      }
+                      case 'hihat': {
+                        const synth = synthCacheRef.current!.hihat
+                        if (synth) synth.triggerAttackRelease('8n', now)
+                        break
+                      }
+                      case 'openhat': {
+                        const synth = synthCacheRef.current!.openhat
+                        if (synth) synth.triggerAttackRelease('8n', now)
+                        break
+                      }
+                      case 'crash': {
+                        const synth = synthCacheRef.current!.crash
+                        if (synth) synth.triggerAttackRelease('8n', now)
+                        break
+                      }
+                      case 'ride': {
+                        const synth = synthCacheRef.current!.ride
+                        if (synth) synth.triggerAttackRelease('8n', now)
+                        break
+                      }
+                      case 'tom1': {
+                        const synth = synthCacheRef.current!.tom1
+                        if (synth) synth.triggerAttackRelease('C3', '8n', now)
+                        break
+                      }
+                      case 'tom2': {
+                        const synth = synthCacheRef.current!.tom2
+                        if (synth) synth.triggerAttackRelease('B2', '8n', now)
+                        break
+                      }
+                      case 'tom3': {
+                        const synth = synthCacheRef.current!.tom3
+                        if (synth) synth.triggerAttackRelease('A2', '8n', now)
+                        break
+                      }
+                    }
+                  } catch (error) {
+                    console.warn(`[DrumMachine] Erreur lors de la lecture de ${instrument}:`, error)
+                  }
+                }
+              })
+            }
+            
+            return nextStep
+          })
+        }, stepDuration)
+      }).catch((error) => {
+        console.error('[DrumMachine] Erreur lors de l\'initialisation:', error)
+      })
     } else {
       if (intervalRef.current) {
         clearInterval(intervalRef.current)
@@ -282,7 +443,7 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
         intervalRef.current = null
       }
     }
-  }, [isPlaying, bpm, pattern, playSound])
+  }, [isPlaying, bpm, pattern, initializeTone])
 
   // Mettre à jour les volumes
   const updateVolumes = useCallback((newVolumes: Record<DrumInstrument, number>) => {
@@ -290,25 +451,51 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
     if (volumeNodesRef.current) {
       Object.keys(newVolumes).forEach(instrument => {
         const volumeNode = volumeNodesRef.current![instrument as DrumInstrument]
-        const volumeDb = (newVolumes[instrument as DrumInstrument] / 100) * 20 - 20
-        volumeNode.volume.value = volumeDb
+        const newVolume = newVolumes[instrument as DrumInstrument]
+        const volumeDb = (newVolume / 100) * 20 - 20
+        if (Math.abs(volumeNode.volume.value - volumeDb) > 0.01) {
+          volumeNode.volume.value = volumeDb
+        }
       })
     }
   }, [])
 
-  // Mettre à jour le master volume (pour liaison avec égaliseur)
+  // Mettre à jour le master volume
   const updateMasterVolume = useCallback((value: number) => {
     setMasterVolume(value)
     if (masterGainRef.current) {
-      masterGainRef.current.gain.value = value / 100
+      const gainValue = value / 100
+      if (Math.abs(masterGainRef.current.gain.value - gainValue) > 0.001) {
+        masterGainRef.current.gain.value = gainValue
+      }
     }
   }, [])
 
-  const handlePlayPause = useCallback(() => {
-    initializeTone()
+  // Gérer Play/Pause
+  const handlePlayPause = useCallback(async () => {
+    const initialized = await initializeTone()
+    if (!initialized) {
+      console.error('[DrumMachine] Impossible d\'initialiser Tone.js')
+      return
+    }
+
+    const Tone = toneRef.current
+    if (!Tone) {
+      console.error('[DrumMachine] Tone.js n\'est pas chargé')
+      return
+    }
+    
+    if (Tone.context.state === 'suspended') {
+      try {
+        await Tone.start()
+      } catch (error) {
+        console.error('[DrumMachine] Impossible de démarrer le contexte audio:', error)
+        return
+      }
+    }
+    
     setIsPlaying(prev => {
       const newPlaying = !prev
-      // Si on démarre la lecture, on active la machine
       if (newPlaying) {
         setIsActive(true)
       }
@@ -316,27 +503,33 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
     })
   }, [initializeTone])
 
+  // Gérer Stop
   const handleStop = useCallback(() => {
     setIsPlaying(false)
-    setIsActive(false) // Stop désactive complètement la machine
+    setIsActive(false)
     setCurrentStepState(0)
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current)
+      intervalRef.current = null
+    }
   }, [])
 
+  // Gérer le changement de pattern
   const handlePatternChange = useCallback((index: number) => {
     setSelectedPattern(index)
-    // Appliquer BPM et volumes du pattern
     const selected = DEFAULT_PATTERNS[index]
     if (selected?.bpm) {
       setBpm(selected.bpm)
     }
     if (selected?.volumes) {
       updateVolumes({
-        ...volumes,
+        ...volumesRef.current,
         ...selected.volumes
       })
     }
-  }, [])
+  }, [updateVolumes])
 
+  // Toggle un step
   const toggleStep = useCallback((stepIndex: number, instrument: DrumInstrument) => {
     setPattern(prev => {
       const newPattern = [...prev]
@@ -346,7 +539,6 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
         [instrument]: !wasActive
       }
       
-      // Jouer le son immédiatement si activé
       if (!wasActive) {
         playSound(instrument)
       }
@@ -355,12 +547,51 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
     })
   }, [playSound])
 
+  // Gérer le changement de volume
   const handleVolumeChange = useCallback((instrument: DrumInstrument, value: number) => {
     updateVolumes({
-      ...volumes,
+      ...volumesRef.current,
       [instrument]: value
     })
-  }, [volumes, updateVolumes])
+  }, [updateVolumes])
+
+  // Nettoyer les ressources au démontage
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+        intervalRef.current = null
+      }
+
+      if (synthCacheRef.current) {
+        Object.values(synthCacheRef.current).forEach(synth => {
+          if (synth) synth.dispose()
+        })
+      }
+      
+      if (snareNoiseRef.current) {
+        snareNoiseRef.current.dispose()
+        snareNoiseRef.current = null
+      }
+      
+      if (snareBodyRef.current) {
+        snareBodyRef.current.dispose()
+        snareBodyRef.current = null
+      }
+      
+      if (volumeNodesRef.current) {
+        Object.values(volumeNodesRef.current).forEach(node => {
+          node.dispose()
+        })
+        volumeNodesRef.current = null
+      }
+      
+      if (masterGainRef.current) {
+        masterGainRef.current.dispose()
+        masterGainRef.current = null
+      }
+    }
+  }, [])
 
   return (
     <DrumMachineContext.Provider
@@ -392,4 +623,3 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
     </DrumMachineContext.Provider>
   )
 }
-

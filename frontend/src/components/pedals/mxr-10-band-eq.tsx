@@ -16,10 +16,14 @@ export function Mxr10BandEqPedal({
   bypassed = false,
   onBypassToggle,
   bottomActions
-}: PedalComponentProps) {
+,
+  accentColor}: PedalComponentProps) {
   const model = useMemo(() => pedalLibrary.find((p) => p.id === pedalId), [])
   
   if (!model) return null
+
+  // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
+  const pedalAccentColor = accentColor || model.accentColor
 
   // Séparer les bandes EQ du contrôle level
   const { bands, level } = useMemo(() => {
@@ -55,7 +59,7 @@ export function Mxr10BandEqPedal({
               max={def.max}
               orientation="vertical"
               onChange={(v) => onChange?.(name, v)}
-              color={model.accentColor}
+              color={pedalAccentColor}
             />
           )
         })}
@@ -70,7 +74,7 @@ export function Mxr10BandEqPedal({
             max={levelDef.max ?? 100}
             orientation="vertical"
             onChange={(v) => onChange?.(levelName, v)}
-            color={model.accentColor}
+            color={pedalAccentColor}
           />
         </div>
       )}
@@ -95,9 +99,13 @@ export function Mxr10BandEqPedal({
 export const Mxr10BandEqControls = ({
   values = {},
   onChange,
+  accentColor,
 }: PedalComponentProps) => {
   const model = pedalLibrary.find((p) => p.id === pedalId)
   if (!model) return null
+
+  // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
+  const pedalAccentColor = accentColor || model.accentColor
 
   const { bands, level } = useMemo(() => {
     const bands: Array<[string, any]> = []
@@ -131,7 +139,7 @@ export const Mxr10BandEqControls = ({
               max={def.max}
               orientation="vertical"
               onChange={(v) => onChange?.(name, v)}
-              color={model.accentColor}
+              color={pedalAccentColor}
             />
           )
         })}
@@ -145,7 +153,7 @@ export const Mxr10BandEqControls = ({
             max={levelDef.max ?? 100}
             orientation="vertical"
             onChange={(v) => onChange?.(levelName, v)}
-            color={model.accentColor}
+            color={pedalAccentColor}
           />
         </div>
       )}

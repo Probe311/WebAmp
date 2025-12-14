@@ -1,9 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Volume2, Mic, Headphones, Monitor, Globe, Moon, Sun, Keyboard } from 'lucide-react'
 import { Dropdown, DropdownOption } from './Dropdown'
 import { CTA } from './CTA'
 import { useTheme } from '../contexts/ThemeContext'
 import { KeyboardShortcutsConfig } from './KeyboardShortcutsConfig'
+import { Switch } from './Switch'
+import { getPreference, setPreference } from '../utils/userPreferences'
 
 interface SettingsPanelProps {
   onClose?: () => void
@@ -16,6 +18,12 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
   const [bufferSize, setBufferSize] = useState<string>('128')
   const [language, setLanguage] = useState<string>('fr')
   const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState(false)
+  const [showThankYouMessage, setShowThankYouMessage] = useState<boolean>(true)
+
+  // Charger la préférence au montage du composant
+  useEffect(() => {
+    setShowThankYouMessage(getPreference('showThankYouMessage'))
+  }, [])
 
   const audioDeviceOptions: DropdownOption[] = [
     { value: 'default', label: 'Périphérique par défaut', icon: <Monitor size={16} /> },
@@ -145,6 +153,25 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
             >
               Configurer les raccourcis
             </CTA>
+          </div>
+
+          <div className="flex items-center justify-between pt-2">
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-black/70 dark:text-white/70 mb-1">
+                Message de remerciements
+              </label>
+              <p className="text-xs text-black/50 dark:text-white/50">
+                Afficher le message de remerciements à la connexion
+              </p>
+            </div>
+            <Switch
+              label=""
+              checked={showThankYouMessage}
+              onChange={(checked) => {
+                setShowThankYouMessage(checked)
+                setPreference('showThankYouMessage', checked)
+              }}
+            />
           </div>
         </div>
       </section>

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useKeyboardShortcuts } from '../contexts/KeyboardShortcutsContext'
 import { Modal } from './Modal'
 import { CTA } from './CTA'
+import { Guitar, Zap, Wrench, Compass } from 'lucide-react'
 // Imports non utilisés supprimés
 
 interface KeyboardShortcutsConfigProps {
@@ -15,10 +16,10 @@ export function KeyboardShortcutsConfig({ isOpen, onClose }: KeyboardShortcutsCo
   const [capturingKey, setCapturingKey] = useState<string | null>(null)
 
   const categories = [
-    { id: 'pedal', name: 'Pédales', icon: '🎸' },
-    { id: 'action', name: 'Actions', icon: '⚡' },
-    { id: 'tool', name: 'Outils', icon: '🔧' },
-    { id: 'navigation', name: 'Navigation', icon: '🧭' }
+    { id: 'pedal', name: 'Pédales', icon: Guitar },
+    { id: 'action', name: 'Actions', icon: Zap },
+    { id: 'tool', name: 'Outils', icon: Wrench },
+    { id: 'navigation', name: 'Navigation', icon: Compass }
   ]
 
   const shortcutsByCategory = categories.map(cat => ({
@@ -100,10 +101,12 @@ export function KeyboardShortcutsConfig({ isOpen, onClose }: KeyboardShortcutsCo
         </div>
 
         {/* Raccourcis par catégorie */}
-        {shortcutsByCategory.map(category => (
+        {shortcutsByCategory.map(category => {
+          const IconComponent = category.icon
+          return (
           <div key={category.id} className="space-y-3">
             <h3 className="text-lg font-semibold text-black dark:text-white flex items-center gap-2">
-              <span>{category.icon}</span>
+              <IconComponent size={20} />
               {category.name}
             </h3>
             <div className="space-y-2">
@@ -171,7 +174,8 @@ export function KeyboardShortcutsConfig({ isOpen, onClose }: KeyboardShortcutsCo
               ))}
             </div>
           </div>
-        ))}
+          )
+        })}
 
         {/* Actions globales */}
         <div className="flex items-center justify-between pt-4 border-t border-black/10 dark:border-white/10">

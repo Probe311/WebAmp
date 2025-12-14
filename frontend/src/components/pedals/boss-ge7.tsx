@@ -15,11 +15,15 @@ export function BossGe7Pedal({
   onChange, 
   bypassed = false,
   onBypassToggle,
-  bottomActions
+  bottomActions,
+  accentColor
 }: PedalComponentProps) {
   const model = useMemo(() => pedalLibrary.find((p) => p.id === pedalId), [])
   
   if (!model) return null
+
+  // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
+  const pedalAccentColor = accentColor || model.accentColor
 
   // Séparer les bandes EQ du contrôle level
   const { bands, level } = useMemo(() => {
@@ -55,7 +59,7 @@ export function BossGe7Pedal({
               max={def.max}
               orientation="vertical"
               onChange={(v) => onChange?.(name, v)}
-              color={model.accentColor}
+              color={pedalAccentColor}
             />
           )
         })}
@@ -70,7 +74,7 @@ export function BossGe7Pedal({
             max={levelDef.max ?? 100}
             orientation="vertical"
             onChange={(v) => onChange?.(levelName, v)}
-            color={model.accentColor}
+            color={pedalAccentColor}
           />
         </div>
       )}
@@ -95,9 +99,13 @@ export function BossGe7Pedal({
 export const BossGe7Controls = ({
   values = {},
   onChange,
+  accentColor
 }: PedalComponentProps) => {
   const model = pedalLibrary.find((p) => p.id === pedalId)
   if (!model) return null
+
+  // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
+  const pedalAccentColor = accentColor || model.accentColor
 
   const { bands, level } = useMemo(() => {
     const bands: Array<[string, any]> = []
@@ -131,7 +139,7 @@ export const BossGe7Controls = ({
               max={def.max}
               orientation="vertical"
               onChange={(v) => onChange?.(name, v)}
-              color={model.accentColor}
+              color={pedalAccentColor}
             />
           )
         })}
@@ -145,7 +153,7 @@ export const BossGe7Controls = ({
             max={levelDef.max ?? 100}
             orientation="vertical"
             onChange={(v) => onChange?.(levelName, v)}
-            color={model.accentColor}
+            color={pedalAccentColor}
           />
         </div>
       )}

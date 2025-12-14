@@ -16,11 +16,15 @@ export function BossPh3Pedal({
   onChange, 
   bypassed = false,
   onBypassToggle,
-  bottomActions
+  bottomActions,
+  accentColor
 }: PedalComponentProps) {
   const model = useMemo(() => pedalLibrary.find((p) => p.id === pedalId), [])
   
   if (!model) return null
+
+  // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
+  const pedalAccentColor = accentColor || model.accentColor
 
   const { switchSelectors, knobs } = useMemo(() => {
     const entries = Object.entries(model.parameters)
@@ -42,7 +46,7 @@ export function BossPh3Pedal({
               max={def.max}
               labels={def.labels || []}
               icons={def.icons}
-              color={model.accentColor}
+              color={pedalAccentColor}
               onChange={(v) => onChange?.(name, v)}
               className="switch-selector-full-width"
             />
@@ -61,7 +65,7 @@ export function BossPh3Pedal({
               value={value}
               min={def.min}
               max={def.max}
-              color={model.accentColor}
+              color={pedalAccentColor}
               onChange={(v) => onChange?.(name, v)}
             />
           )
@@ -88,9 +92,13 @@ export function BossPh3Pedal({
 export const BossPh3Controls = ({
   values = {},
   onChange,
+  accentColor
 }: PedalComponentProps) => {
   const model = pedalLibrary.find((p) => p.id === pedalId)
   if (!model) return null
+  
+  // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
+  const pedalAccentColor = accentColor || model.accentColor
   
   const entries = Object.entries(model.parameters)
   const switchSelectors = entries.filter(([, def]) => def.controlType === 'switch-selector')
@@ -108,7 +116,7 @@ export const BossPh3Controls = ({
               max={def.max}
               labels={def.labels || []}
               icons={def.icons}
-              color={model.accentColor}
+              color={pedalAccentColor}
               onChange={(v) => onChange?.(name, v)}
               className="switch-selector-full-width"
             />
@@ -125,7 +133,7 @@ export const BossPh3Controls = ({
               value={value}
               min={def.min}
               max={def.max}
-              color={model.accentColor}
+              color={pedalAccentColor}
               onChange={(v) => onChange?.(name, v)}
             />
           )

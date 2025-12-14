@@ -12,12 +12,16 @@ if (!hasConfig) {
   console.warn('[Auth] VITE_SUPABASE_ANON_KEY=ton_cle_anon')
 }
 
+// Utiliser une clé de stockage unique pour éviter les conflits avec d'autres instances
+const STORAGE_KEY = 'webamp-auth'
+
 const client: SupabaseClient | null = hasConfig
   ? createClient(SUPABASE_URL as string, SUPABASE_ANON_KEY as string, {
       auth: {
         persistSession: true,
         autoRefreshToken: true,
-        detectSessionInUrl: true
+        detectSessionInUrl: true,
+        storageKey: STORAGE_KEY
       }
     })
   : null

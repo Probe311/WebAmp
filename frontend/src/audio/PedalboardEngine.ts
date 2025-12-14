@@ -665,6 +665,43 @@ export class PedalboardEngine {
   }
 
   /**
+   * Charge une Impulse Response depuis Freesound
+   * Utilise le service Freesound pour rechercher et télécharger des IRs
+   */
+  async loadImpulseResponseFromFreesound(
+    effectId: string,
+    freesoundSoundId: number
+  ): Promise<void> {
+    const config = this.effectConfigs.get(effectId)
+    if (!config) {
+      throw new Error(`Effet ${effectId} non trouvé`)
+    }
+
+    try {
+      // Importer dynamiquement pour éviter les dépendances circulaires
+      const { freesoundService } = await import('../services/freesound')
+      
+      // Télécharger le son depuis Freesound
+      const blob = await freesoundService.downloadSound(freesoundSoundId)
+      
+      // Créer une URL temporaire pour l'IR
+      const url = URL.createObjectURL(blob)
+      
+      // Stocker l'URL de l'IR
+      this.impulseResponses.set(effectId, url)
+      
+      // Recréer l'effet avec la nouvelle IR
+      const pedalModel = this.getPedalModelFromConfig(config)
+      if (pedalModel && (pedalModel.type === 'reverb' || pedalModel.type === 'delay')) {
+        await this.addEffect(pedalModel, config.parameters)
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement de l\'IR depuis Freesound:', error)
+      throw error
+    }
+  }
+
+  /**
    * Obtient l'entrée audio (pour connecter une source)
    */
   getInput(): GainNode {

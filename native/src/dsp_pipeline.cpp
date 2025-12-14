@@ -14,10 +14,12 @@ DSPPipeline::DSPPipeline()
     , output_gain_(0.0f)
     , sample_rate_(48000)  // Support jusqu'à 192kHz
     , buffer_size_(64)      // Optimisé pour latence < 5ms
+    , nam_model_active_(false)
 {
     stats_ = Stats{};
     // Initialiser le pool de buffers (taille pour stéréo)
     buffer_pool_ = std::make_unique<BufferPool>(buffer_size_ * 2, 4);
+    nam_loader_ = std::make_unique<NAMLoader>();
 }
 
 DSPPipeline::~DSPPipeline() {
@@ -94,6 +96,11 @@ void DSPPipeline::process(float* input, float* output, uint32_t frameCount) {
             // Pas d'effets : copie directe
             std::copy(work_buffer_.begin(), work_buffer_.begin() + frameCount * 2, output);
         }
+    }
+    
+    // Appliquer le modèle NAM si actif (après les effets)
+    if (nam_model_active_ && nam_model_ && nam_model_->isValid()) {
+        nam_model_->processAudio(output, output, frameCount, sample_rate_);
     }
     
     // Application du gain de sortie (optimisé avec SIMD si disponible)
@@ -198,6 +205,40 @@ void DSPPipeline::setTestToneAmplitude(float amplitude) {
 
 bool DSPPipeline::isTestToneEnabled() const {
     return test_tone_generator_.isEnabled();
+}
+
+bool DSPPipeline::loadNAMModel(const std::string& filePath) {
+    if (!nam_loader_) {
+        nam_loader_ = std::make_unique<NAMLoader>();
+    }
+    
+    nam_model_ = nam_loader_->loadModel(filePath);
+    if (nam_model_ && nam_model_->isValid()) {
+        nam_model_active_ = true;
+        return true;
+    }
+    
+    nam_model_active_ = false;
+    return false;
+}
+
+bool DSPPipeline::loadNAMModelFromMemory(const uint8_t* data, size_t size) {
+    if (!nam_loader_) {
+        nam_loader_ = std::make_unique<NAMLoader>();
+    }
+    
+    nam_model_ = nam_loader_->loadModelFromMemory(data, size);
+    if (nam_model_ && nam_model_->isValid()) {
+        nam_model_active_ = true;
+        return true;
+    }
+    
+    nam_model_active_ = false;
+    return false;
+}
+
+void DSPPipeline::setNAMModelActive(bool active) {
+    nam_model_active_ = active && nam_model_ && nam_model_->isValid();
 }
 
 } // namespace webamp

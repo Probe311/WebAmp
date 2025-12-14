@@ -9,6 +9,7 @@ export type PedalSize = 'S' | 'M' | 'L' | 'XL' | 'XXL'
 export interface PedalProps {
   brand?: string
   model?: string
+  color?: string
   accentColor?: string
   size?: PedalSize
   bypassed?: boolean
@@ -67,6 +68,7 @@ const FOOTSWITCH_SIZE: Record<PedalSize, string> = {
 export function Pedal({
   brand = '',
   model = '',
+  color: _color = '#ffffff',
   accentColor = '#fff',
   size = 'M',
   bypassed = false,
