@@ -36,10 +36,12 @@
 ### Étape 1 : Exécuter le script
 
 1. Aller dans **SQL Editor** de Supabase
-2. Ouvrir le fichier `docs/SUPABASE_SECURE_RLS.sql`
+2. Ouvrir le fichier `docs/SUPABASE_COMPLETE.sql`
 3. Copier tout le contenu
 4. Coller dans l'éditeur SQL
 5. Cliquer sur **Run**
+
+**Note** : Ce script crée toutes les tables ET applique les politiques RLS sécurisées en une seule fois.
 
 ### Étape 2 : Vérification
 
