@@ -108,7 +108,7 @@ export function MicrophoneSelector({
         onClose={() => setShowModal(false)}
         title="Sélectionner un Microphone"
       >
-        <div className="grid grid-cols-2 gap-4 max-h-96 overflow-y-auto">
+        <div className="grid grid-cols-2 gap-4 max-h-96 overflow-y-auto custom-scrollbar">
           {microphoneLibrary.map(mic => (
             <button
               key={mic.id}

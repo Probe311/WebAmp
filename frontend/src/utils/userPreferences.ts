@@ -24,7 +24,7 @@ export function getUserPreferences(): UserPreferences {
       return { ...DEFAULT_PREFERENCES, ...parsed }
     }
   } catch (error) {
-    console.error('Erreur lors de la lecture des préférences:', error)
+    // lecture silencieuse des préférences
   }
   return DEFAULT_PREFERENCES
 }
@@ -38,7 +38,7 @@ export function saveUserPreferences(preferences: Partial<UserPreferences>): void
     const updated = { ...current, ...preferences }
     localStorage.setItem(`${STORAGE_KEY_PREFIX}preferences`, JSON.stringify(updated))
   } catch (error) {
-    console.error('Erreur lors de la sauvegarde des préférences:', error)
+    // écriture silencieuse des préférences
   }
 }
 

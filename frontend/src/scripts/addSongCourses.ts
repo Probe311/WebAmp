@@ -1413,7 +1413,6 @@ Expérimentez pour trouver votre son !`
 ]
 
 export async function addSongCoursesToSupabase() {
-  console.log('🚀 Début de l\'ajout des cours de chansons dans Supabase...')
   let successCount = 0
   let errorCount = 0
   let skippedCount = 0
@@ -1429,7 +1428,6 @@ export async function addSongCoursesToSupabase() {
         .maybeSingle()
 
       if (existingCourse) {
-        console.log(`⏭️ Cours déjà existant, ignoré: ${course.title} (ID: ${existingCourse.id})`)
         skippedCount++
         continue
       }
@@ -1452,12 +1450,9 @@ export async function addSongCoursesToSupabase() {
         .single()
 
       if (courseError) {
-        console.error(`Erreur lors de la création du cours ${course.title}:`, courseError)
         errorCount++
         continue
       }
-
-      console.log(`✓ Cours créé: ${courseData.id} - ${course.title}`)
 
       // 2. Créer les récompenses
       await supabase
@@ -1485,7 +1480,6 @@ export async function addSongCoursesToSupabase() {
           .single()
 
         if (lessonError) {
-          console.error(`Erreur lors de la création de la leçon ${step.title}:`, lessonError)
           continue
         }
 
@@ -1503,7 +1497,7 @@ export async function addSongCoursesToSupabase() {
                 .maybeSingle()
 
               if (chordError && chordError.code !== 'PGRST116') {
-                console.warn(`Erreur lors de la recherche de l'accord ${chordName}:`, chordError)
+                // On ignore les erreurs de recherche d'accord pour ne pas polluer la console
               } else if (chordData) {
                 existingChord = chordData
               }
@@ -1522,7 +1516,6 @@ export async function addSongCoursesToSupabase() {
                   .single()
 
                 if (insertError) {
-                  console.warn(`Erreur lors de la création de l'accord ${chordName}:`, insertError)
                   continue
                 }
                 existingChord = newChord
@@ -1541,11 +1534,11 @@ export async function addSongCoursesToSupabase() {
                   })
 
                 if (associationError && associationError.code !== '23505') {
-                  console.warn(`Erreur lors de l'association de l'accord ${chordName}:`, associationError)
+                  // On ignore les erreurs d'association déjà existantes
                 }
               }
             } else {
-              console.warn(`Accord ${chordName} non trouvé dans tablatureService`)
+              // Accord non trouvé dans le service local, on ignore
             }
           }
         }
@@ -1600,11 +1593,9 @@ export async function addSongCoursesToSupabase() {
           let tablatureUuid: string
           if (existingTablature) {
             tablatureUuid = existingTablature.id
-            console.log(`📋 Tablature existante trouvée par slug "${tablatureSlug}": ${tablatureUuid}`)
           } else {
             // Générer un UUID v4
             tablatureUuid = crypto.randomUUID()
-            console.log(`🆕 Nouveau UUID généré pour la tablature "${tablatureSlug}": ${tablatureUuid}`)
           }
           
           // Note: On ne cherche pas Songsterr ici car CORS bloque les appels depuis le navigateur
@@ -1626,9 +1617,7 @@ export async function addSongCoursesToSupabase() {
               })
             
             if (tablatureError) {
-              console.warn(`⚠️ Erreur lors de la création de la tablature ${tablatureSlug}:`, tablatureError)
-            } else {
-              console.log(`✅ Tablature créée: ${tablatureSlug} (UUID: ${tablatureUuid}${songsterrId ? `, Songsterr ID: ${songsterrId}` : ''})`)
+              // On ignore les erreurs de création de tablature pour ne pas polluer la console
             }
           } else {
             // Mettre à jour l'ID Songsterr si on l'a et qu'il n'est pas déjà défini
@@ -1649,13 +1638,10 @@ export async function addSongCoursesToSupabase() {
                   .eq('id', tablatureUuid)
                 
                 if (updateError) {
-                  console.warn(`⚠️ Erreur lors de la mise à jour de l'ID Songsterr pour ${tablatureSlug}:`, updateError)
-                } else {
-                  console.log(`✅ ID Songsterr mis à jour pour "${tablatureSlug}": ${songsterrId}`)
+                  // On ignore les erreurs de mise à jour de Songsterr
                 }
               }
             }
-            console.log(`ℹ️ Tablature "${tablatureSlug}" existe déjà`)
           }
           
           // Associer la tablature au cours et à la leçon (utiliser l'UUID)
@@ -1670,9 +1656,7 @@ export async function addSongCoursesToSupabase() {
             })
           
           if (tablatureAssociationError) {
-            console.warn(`⚠️ Erreur lors de l'association de la tablature ${tablatureSlug}:`, tablatureAssociationError)
-          } else {
-            console.log(`✅ Tablature "${tablatureSlug}" associée au cours et à la leçon`)
+            // On ignore les erreurs d'association pour ne pas polluer la console
           }
         }
       }
@@ -1691,11 +1675,7 @@ export async function addSongCoursesToSupabase() {
       }
 
       successCount++
-      console.log(`✅ Cours ajouté avec succès: ${course.title}`)
-      console.log(`   - Artiste: ${course.artist || 'N/A'}`)
-      console.log(`   - Accords: ${course.steps.flatMap(s => s.chords || []).filter((v, i, a) => a.indexOf(v) === i).join(', ') || 'Aucun'}`)
     } catch (error) {
-      console.error(`Erreur lors de l'ajout du cours ${course.title}:`, error)
       errorCount++
     }
     
@@ -1703,11 +1683,6 @@ export async function addSongCoursesToSupabase() {
     await new Promise(resolve => setTimeout(resolve, 100))
   }
 
-  console.log(`\n✅ Ajout terminé:`)
-  console.log(`   - ${successCount} cours ajoutés avec succès`)
-  console.log(`   - ${skippedCount} cours déjà existants (ignorés)`)
-  console.log(`   - ${errorCount} erreurs`)
-  
   return { 
     success: successCount > 0, 
     successCount,
@@ -1720,6 +1695,5 @@ export async function addSongCoursesToSupabase() {
 // Exposer la fonction globalement pour la console
 if (typeof window !== 'undefined') {
   (window as any).addSongCoursesToSupabase = addSongCoursesToSupabase
-  console.log('✅ Fonction addSongCoursesToSupabase disponible globalement')
 }
 

@@ -11,9 +11,13 @@ import { Tutorial } from '../../data/tutorials'
 interface CourseViewerProps {
   courseId: string
   onBack: () => void
+  /**
+   * Callback appelé quand le cours est terminé (pour rafraîchir le listing/XP)
+   */
+  onCompleted?: () => void
 }
 
-export function CourseViewer({ courseId, onBack }: CourseViewerProps) {
+export function CourseViewer({ courseId, onBack, onCompleted }: CourseViewerProps) {
   const { course, loading, refresh } = useCourse(courseId)
   const { userId } = useLMS()
   const [tutorial, setTutorial] = useState<Tutorial | null>(null)
@@ -22,20 +26,12 @@ export function CourseViewer({ courseId, onBack }: CourseViewerProps) {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       ;(window as any).refreshCourse = refresh
-      console.log('✅ Fonction refreshCourse exposée globalement')
     }
   }, [refresh])
 
   useEffect(() => {
     const loadCourseData = async () => {
       if (!course) return
-
-      console.log('📚 CourseViewer - Chargement des données du cours:', {
-        courseId,
-        courseTitle: course.title,
-        lessonsCount: course.lessons?.length,
-        lessons: course.lessons?.map((l: any) => ({ id: l.id, title: l.title, descriptionPreview: l.description.substring(0, 100) }))
-      })
 
       // Charger les questions de quiz si c'est un quiz
       let quizQuestions: any[] = []
@@ -48,12 +44,6 @@ export function CourseViewer({ courseId, onBack }: CourseViewerProps) {
 
       // Convertir en format Tutorial
       const tutorialData = courseToTutorial(course, course.lessons, quizQuestions, rewards)
-      console.log('📚 CourseViewer - Tutorial créé:', {
-        id: tutorialData.id,
-        title: tutorialData.title,
-        stepsCount: tutorialData.content?.steps?.length,
-        steps: tutorialData.content?.steps?.map(s => ({ id: s.id, title: s.title, descriptionPreview: s.description.substring(0, 100) }))
-      })
       setTutorial(tutorialData)
     }
 
@@ -105,14 +95,13 @@ export function CourseViewer({ courseId, onBack }: CourseViewerProps) {
             100,
             true
           )
+        } else {
         }
-        onBack()
-      }}
-      onLoadPreset={(presetId) => {
-        console.log('Charger preset:', presetId)
-      }}
-      onAddPedal={(pedalId) => {
-        console.log('Ajouter pédale:', pedalId)
+
+        // Prévenir le parent pour qu'il rafraîchisse les stats / progression
+        if (onCompleted) {
+          onCompleted()
+        }
       }}
     />
   )

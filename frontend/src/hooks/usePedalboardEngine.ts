@@ -55,14 +55,13 @@ export function usePedalboardEngine(options: UsePedalboardEngineOptions = {}) {
         setAudioStream(stream)
         const audioCtx = engineRef.current.getAudioContext()
         if (!audioCtx) {
-          console.error('AudioContext non disponible pour l\'entrée audio')
           return
         }
         const source = audioCtx.createMediaStreamSource(stream)
         source.connect(engineRef.current.getInput())
       }
     } catch (error) {
-      console.error('Erreur démarrage moteur audio:', error)
+      // démarrage silencieux du moteur audio
     }
   }, [enableAudioInput])
 
@@ -90,7 +89,6 @@ export function usePedalboardEngine(options: UsePedalboardEngineOptions = {}) {
 
     const pedalModel = pedalLibrary.find(p => p.id === effect.pedalId)
     if (!pedalModel) {
-      console.error(`Pédale ${effect.pedalId} non trouvée`)
       return
     }
 
@@ -98,7 +96,7 @@ export function usePedalboardEngine(options: UsePedalboardEngineOptions = {}) {
       // Utiliser l'effect.id comme clé dans le moteur (pas le pedalId)
       await engineRef.current.addEffect(pedalModel, effect.parameters, effect.id)
     } catch (error) {
-      console.error(`Erreur ajout effet ${effect.id}:`, error)
+      // échec silencieux d'ajout d'effet
     }
   }, [])
 
@@ -121,7 +119,7 @@ export function usePedalboardEngine(options: UsePedalboardEngineOptions = {}) {
     try {
       await engineRef.current.updateEffectParameters(effectId, parameters)
     } catch (error) {
-      console.error(`Erreur mise à jour paramètres ${effectId}:`, error)
+      // échec silencieux de mise à jour des paramètres
     }
   }, [])
 
@@ -141,7 +139,6 @@ export function usePedalboardEngine(options: UsePedalboardEngineOptions = {}) {
     try {
       await engineRef.current.loadImpulseResponse(effectId, irUrl)
     } catch (error) {
-      console.error(`Erreur chargement IR pour ${effectId}:`, error)
       throw error
     }
   }, [])
@@ -156,7 +153,6 @@ export function usePedalboardEngine(options: UsePedalboardEngineOptions = {}) {
     try {
       await engineRef.current.loadImpulseResponseFromFreesound(effectId, freesoundSoundId)
     } catch (error) {
-      console.error(`Erreur chargement IR Freesound pour ${effectId}:`, error)
       throw error
     }
   }, [])

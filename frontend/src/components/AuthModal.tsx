@@ -44,7 +44,6 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
       setPassword('')
     } catch (error) {
       // L'erreur est déjà gérée dans AuthProvider avec un toast
-      console.error('Erreur auth:', error)
     }
   }
 

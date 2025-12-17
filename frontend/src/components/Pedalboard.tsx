@@ -591,7 +591,7 @@ export function Pedalboard({
             await addAudioEffect(effect)
             setEffectEnabled(effect.id, !effect.bypassed)
           } catch (error) {
-            console.error(`Erreur synchronisation effet ${effect.id}:`, error)
+            // échec silencieux de la synchro d'un effet
           }
         }
       }
@@ -605,7 +605,6 @@ export function Pedalboard({
     
     const handleStateSync = (state: any) => {
       if (state.effects && Array.isArray(state.effects)) {
-        console.log('Synchronisation des effets depuis le serveur:', state.effects)
         // Reconstruire les effets depuis l'état du serveur
         const syncedEffects: Effect[] = state.effects.map((serverEffect: any) => {
           const pedalModel = pedalLibrary.find(p => p.id === serverEffect.pedalId || p.type === serverEffect.type)
@@ -687,14 +686,13 @@ export function Pedalboard({
       setShowSaveProfileModal(false)
       alert('Profil sauvegardé avec succès !')
     } catch (error) {
-      console.error('Erreur sauvegarde profil:', error)
       alert('Erreur lors de la sauvegarde')
     }
   }
 
   return (
     <>
-      <div className="flex flex-col h-full p-6 overflow-y-auto">
+      <div className="flex flex-col h-full p-6 overflow-y-auto custom-scrollbar">
         <div className="flex items-center justify-between mb-4 px-2">
           <CTA
             onClick={() => setShowPedalLibrary(true)}
@@ -729,7 +727,7 @@ export function Pedalboard({
           </div>
         </div>
 
-        <div className="flex-1 overflow-x-auto overflow-y-hidden bg-[#f5f5f5] dark:bg-gray-700 rounded-xl min-h-[400px] shadow-[inset_2px_2px_4px_rgba(0,0,0,0.05),inset_-2px_-2px_4px_rgba(255,255,255,0.8)] dark:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.5),inset_-2px_-2px_4px_rgba(60,60,60,0.5)] pb-6">
+        <div className="flex-1 overflow-x-auto overflow-y-hidden custom-scrollbar bg-[#f5f5f5] dark:bg-gray-700 rounded-xl min-h-[400px] shadow-[inset_2px_2px_4px_rgba(0,0,0,0.05),inset_-2px_-2px_4px_rgba(255,255,255,0.8)] dark:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.5),inset_-2px_-2px_4px_rgba(60,60,60,0.5)] pb-6">
           {effects.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-black/70 dark:text-white/70 gap-2 p-6">
               <p>Ajoutez des pédales pour commencer</p>

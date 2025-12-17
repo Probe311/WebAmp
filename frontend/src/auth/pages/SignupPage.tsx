@@ -11,6 +11,7 @@ export function SignupPage({ onSwitchView }: Props) {
     <AuthCard
       title="Créer un compte"
       subtitle="Synchronise tes sessions."
+      showLogo
       footer="Astuce : un mot de passe > 12 caractères avec lettres, chiffres et symboles est recommandé."
     >
       <SignupForm

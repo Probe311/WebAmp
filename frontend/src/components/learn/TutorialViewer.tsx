@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { ArrowLeft, CheckCircle2, PlayCircle } from 'lucide-react'
+import ConfettiBoom from 'react-confetti-boom'
 import { Tutorial, TutorialStep } from '../../data/tutorials'
 import { Block } from '../Block'
 import { useToast } from '../notifications/ToastProvider'
@@ -28,6 +29,9 @@ export function TutorialViewer({
   const [currentStepIndex, setCurrentStepIndex] = useState(0)
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set())
   const [isCompleted, setIsCompleted] = useState(false)
+  const [showCelebration, setShowCelebration] = useState(false)
+  const [redirectCountdown, setRedirectCountdown] = useState<number | null>(null)
+  const [stepEnterTime, setStepEnterTime] = useState<number>(() => Date.now())
 
   // Charger la progression depuis Supabase ou localStorage (fallback)
   useEffect(() => {
@@ -39,6 +43,7 @@ export function TutorialViewer({
         
         if (courseProgress?.is_completed) {
           setIsCompleted(true)
+          setShowCelebration(true)
         }
         
         // Trouver la dernière leçon complétée
@@ -80,10 +85,39 @@ export function TutorialViewer({
     loadProgress()
   }, [tutorial.id, userId])
 
+  // Mettre à jour le timestamp d'entrée à chaque changement d'étape
+  useEffect(() => {
+    setStepEnterTime(Date.now())
+  }, [currentStepIndex])
+
+  // Quand on affiche l'écran de célébration, démarrer le compte à rebours et la redirection
+  useEffect(() => {
+    if (!showCelebration) return
+
+    setRedirectCountdown(5)
+
+    const intervalId = window.setInterval(() => {
+      setRedirectCountdown(prev => {
+        const next = (prev ?? 5) - 1
+        return next <= 0 ? 0 : next
+      })
+    }, 1000)
+
+    const timeoutId = window.setTimeout(onBack, 5000)
+
+    return () => {
+      window.clearInterval(intervalId)
+      window.clearTimeout(timeoutId)
+    }
+  }, [showCelebration, onBack])
+
   const steps = tutorial.content?.steps || []
   const currentStep = steps[currentStepIndex]
 
   const handleNext = async () => {
+    const now = Date.now()
+    const timeSpentSeconds = (now - stepEnterTime) / 1000
+
     if (currentStepIndex < steps.length - 1) {
       const newIndex = currentStepIndex + 1
       setCurrentStepIndex(newIndex)
@@ -100,7 +134,8 @@ export function TutorialViewer({
           tutorial.id,
           currentStep.id,
           progress,
-          false
+          true,
+          timeSpentSeconds
         )
       } else {
         // Fallback sur localStorage
@@ -122,9 +157,21 @@ export function TutorialViewer({
   }
 
   const handleComplete = async () => {
+    // Marquer le tutoriel comme complété côté UI
     setIsCompleted(true)
+    setShowCelebration(true)
+    
+    // Marquer toutes les étapes comme complétées (y compris la dernière)
+    const steps = tutorial.content?.steps || []
+    const allCompleted = new Set<number>()
+    steps.forEach((_step, index) => {
+      allCompleted.add(index)
+    })
+    setCompletedSteps(allCompleted)
     
     const currentStep = steps[currentStepIndex]
+    const now = Date.now()
+    const timeSpentSeconds = (now - stepEnterTime) / 1000
     
     if (userId) {
       // Sauvegarder dans Supabase
@@ -133,12 +180,14 @@ export function TutorialViewer({
         tutorial.id,
         currentStep?.id || null,
         100,
-        true
+        true,
+        timeSpentSeconds
       )
     } else {
       // Fallback sur localStorage
       localStorage.setItem(`tutorial-completed-${tutorial.id}`, 'true')
       localStorage.setItem(`tutorial-progress-${tutorial.id}`, '100')
+      localStorage.setItem(`tutorial-step-${tutorial.id}`, (steps.length - 1).toString())
       
       // Ajouter les XP
       const currentXP = parseInt(localStorage.getItem('user-xp') || '0', 10)
@@ -226,7 +275,9 @@ export function TutorialViewer({
             onPrevious={handlePrevious}
             onNext={handleNext}
             canGoPrevious={currentStepIndex > 0}
-            canGoNext={currentStepIndex < steps.length - 1 || !isCompleted}
+            // On autorise toujours le clic sur "Suivant/Terminer" tant
+            // que l'écran de célébration n'est pas affiché
+            canGoNext={!showCelebration && steps.length > 0}
             isCompleted={isCompleted}
           />
 
@@ -244,7 +295,50 @@ export function TutorialViewer({
           </Block>
         ) : (
           <>
-            {/* Étape actuelle */}
+            {/* Étape actuelle ou écran de célébration */}
+            {showCelebration ? (
+              <Block className="p-8 mb-6 relative overflow-hidden">
+                {/* Confettis */}
+                <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                  <ConfettiBoom
+                    mode="boom"
+                    shapeSize={10}
+                    particleCount={120}
+                    spreadAngle={90}
+                    boomOptions={{
+                      x: 0.5,
+                      y: 0.2,
+                    }}
+                    colors={['#22c55e', '#f97316', '#eab308', '#38bdf8', '#6366f1']}
+                  />
+                </div>
+
+                <div className="flex flex-col items-center text-center relative">
+                  <div className="mb-4 inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-500/10 border border-green-500/40">
+                    <CheckCircle2 size={40} className="text-green-500" />
+                  </div>
+                  <h2 className="text-3xl font-extrabold text-black/90 dark:text-white mb-2">
+                    Bravo, tutoriel terminé !
+                  </h2>
+                  <p className="text-sm uppercase tracking-[0.2em] text-green-500 dark:text-green-400 mb-4">
+                    Félicitations
+                  </p>
+                  <p className="text-base text-black/70 dark:text-white/70 max-w-xl mb-6">
+                    Tu as complété toutes les étapes de « {tutorial.title} ». 
+                    Prends un moment pour savourer ta progression, puis reviens sur les étapes si tu veux revoir un passage.
+                  </p>
+                  <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-green-500/10 border border-green-500/40 text-sm text-green-700 dark:text-green-300">
+                    <span className="font-semibold">{tutorial.rewards.xp} XP remportés</span>
+                    <span className="w-1 h-1 rounded-full bg-green-500" />
+                    <span>Cours marqué comme terminé</span>
+                  </div>
+
+                  <p className="mt-4 text-xs text-black/60 dark:text-white/60">
+                    Retour aux cours dans {redirectCountdown ?? 5} seconde{(redirectCountdown ?? 5) > 1 ? 's' : ''}...
+                  </p>
+                </div>
+              </Block>
+            ) : (
             <Block className="p-4 mb-6">
               <div className="flex items-start gap-4 mb-6">
                 {/* Numéro d'étape */}
@@ -252,9 +346,7 @@ export function TutorialViewer({
                   flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg
                   ${completedSteps.has(currentStepIndex)
                     ? 'bg-green-500 text-white'
-                    : currentStepIndex === currentStepIndex
-                    ? 'bg-orange-500 text-white'
-                    : 'bg-gray-300 dark:bg-gray-600 text-black/50 dark:text-white/50'
+                      : 'bg-orange-500 text-white'
                   }
                 `}>
                   {completedSteps.has(currentStepIndex) ? (
@@ -268,15 +360,6 @@ export function TutorialViewer({
                   <h2 className="text-2xl font-bold text-black/85 dark:text-white/90 mb-3">
                     {currentStep.title}
                   </h2>
-                  {(() => {
-                    console.log('📚 TutorialViewer - Rendu TutorialContentRenderer:', {
-                      stepTitle: currentStep.title,
-                      stepId: currentStep.id,
-                      courseId: tutorial.id,
-                      courseTitle: tutorial.title,
-                      stepDescriptionPreview: currentStep.description.substring(0, 150)
-                    })
-                    return (
                       <TutorialContentRenderer
                         step={currentStep}
                         courseId={tutorial.id}
@@ -284,8 +367,6 @@ export function TutorialViewer({
                         onLoadPreset={onLoadPreset}
                         onAddPedal={onAddPedal}
                       />
-                    )
-                  })()}
 
                   {/* Action suggérée */}
                   {currentStep.action && (
@@ -312,6 +393,7 @@ export function TutorialViewer({
                 </div>
               </div>
             </Block>
+            )}
 
             </>
           )}

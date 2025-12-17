@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Block } from './Block'
 
 // Import du logo partenaire
@@ -19,6 +19,7 @@ interface PartnerLogosCarouselProps {
 export function PartnerLogosCarousel({ withBlock = false }: PartnerLogosCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isVisible, setIsVisible] = useState(true)
+  const timeoutRef = useRef<number | null>(null)
 
   // Désactiver l'animation s'il n'y a qu'un seul logo
   useEffect(() => {
@@ -31,13 +32,18 @@ export function PartnerLogosCarousel({ withBlock = false }: PartnerLogosCarousel
       setIsVisible(false)
       
       // Après la transition, changer de logo et le faire apparaître
-      setTimeout(() => {
+      timeoutRef.current = window.setTimeout(() => {
         setCurrentIndex((prevIndex) => (prevIndex + 1) % LOGOS.length)
         setIsVisible(true)
       }, 300) // Durée de la transition de sortie
     }, DISPLAY_DURATION)
 
-    return () => clearInterval(interval)
+    return () => {
+      clearInterval(interval)
+      if (timeoutRef.current) {
+        window.clearTimeout(timeoutRef.current)
+      }
+    }
   }, [])
 
   const content = (

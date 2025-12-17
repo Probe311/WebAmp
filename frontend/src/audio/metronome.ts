@@ -41,7 +41,6 @@ export class Metronome {
 
     // Vérifier que l'AudioContext est actif
     if (this.audioCtx.state !== 'running') {
-      console.warn('Métronome: AudioContext non actif, état:', this.audioCtx.state)
       return
     }
 
@@ -54,8 +53,6 @@ export class Metronome {
     const subdivisionDuration = beatDuration / this.config.subdivisions
     const intervalMs = subdivisionDuration * 1000
 
-    console.log('Métronome: Démarrage avec intervalle', intervalMs, 'ms, tempo:', this.config.tempo, 'subdivisions:', this.config.subdivisions)
-
     // Démarrer le timer
     this.intervalId = window.setInterval(() => {
       this.playTick()
@@ -63,7 +60,6 @@ export class Metronome {
 
     // Jouer le premier tick immédiatement
     this.playTick()
-    console.log('Métronome: Premier tick joué')
   }
 
   /**
@@ -88,7 +84,6 @@ export class Metronome {
   private playTick(): void {
     // Vérifier que l'AudioContext est toujours actif
     if (this.audioCtx.state !== 'running') {
-      console.warn('Métronome: AudioContext non actif lors du tick, état:', this.audioCtx.state)
       return
     }
 
@@ -116,7 +111,6 @@ export class Metronome {
       tickOsc.start()
       tickOsc.stop(this.audioCtx.currentTime + 0.1)
     } catch (error) {
-      console.error('Métronome: Erreur lors de la création du tick:', error)
       return
     }
 

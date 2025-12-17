@@ -1,0 +1,3997 @@
+{
+  "title": "Shake It Off",
+  "artist": "Taylor Swift",
+  "tracks": [
+    {
+      "name": "Electric Guitar",
+      "instrument": "electricGuitar",
+      "tuning": [
+        "E",
+        "A",
+        "D",
+        "G",
+        "B",
+        "E"
+      ],
+      "tempo": 160,
+      "timeSignature": "4/4",
+      "measures": [
+        {
+          "number": 1,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 2,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 3,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 4,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 5,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 6,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 7,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 8,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 9,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 10,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 11,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 12,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 13,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 14,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 15,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 16,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 17,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 18,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 19,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 20,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 21,
+          "notes": [
+            {
+              "measure": 21,
+              "position": 0,
+              "string": 1,
+              "fret": 0,
+              "x": 1097.87,
+              "y": 1.52
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 22,
+          "notes": [
+            {
+              "measure": 22,
+              "position": 0,
+              "string": 1,
+              "fret": 1,
+              "x": 1223.5,
+              "y": -6.57
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 23,
+          "notes": [
+            {
+              "measure": 23,
+              "position": 0,
+              "string": 1,
+              "fret": 0,
+              "x": 29.81,
+              "y": 2.29
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 24,
+          "notes": [
+            {
+              "measure": 24,
+              "position": 0,
+              "string": 1,
+              "fret": 0,
+              "x": 169.5,
+              "y": -6.57
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 25,
+          "notes": [
+            {
+              "measure": 25,
+              "position": 0,
+              "string": 1,
+              "fret": 0,
+              "x": 322.56,
+              "y": 4.96
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 26,
+          "notes": [
+            {
+              "measure": 26,
+              "position": 0,
+              "string": 1,
+              "fret": 2,
+              "x": 467.5,
+              "y": -6.57
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 27,
+          "notes": [
+            {
+              "measure": 27,
+              "position": 0,
+              "string": 1,
+              "fret": null,
+              "x": 616.5,
+              "y": -6.57
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 28,
+          "notes": [
+            {
+              "measure": 28,
+              "position": 0,
+              "string": 1,
+              "fret": 0,
+              "x": 765.5,
+              "y": -6.57
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 29,
+          "notes": [
+            {
+              "measure": 29,
+              "position": 1,
+              "string": 3,
+              "fret": 0,
+              "x": 29.75,
+              "y": 24
+            },
+            {
+              "measure": 29,
+              "position": 0,
+              "string": 1,
+              "fret": null,
+              "x": 923.81,
+              "y": 2.29
+            }
+          ],
+          "chords": [
+            {
+              "measure": 29,
+              "frets": [
+                null,
+                null,
+                0,
+                null,
+                null,
+                null
+              ],
+              "notes": [
+                {
+                  "string": 3,
+                  "fret": 0
+                },
+                {
+                  "string": 1,
+                  "fret": null
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "number": 30,
+          "notes": [
+            {
+              "measure": 30,
+              "position": 1,
+              "string": 3,
+              "fret": 0,
+              "x": 178.75,
+              "y": 24
+            },
+            {
+              "measure": 30,
+              "position": 0,
+              "string": 1,
+              "fret": 0,
+              "x": 1063.5,
+              "y": -6.57
+            }
+          ],
+          "chords": [
+            {
+              "measure": 30,
+              "frets": [
+                0,
+                null,
+                0,
+                null,
+                null,
+                null
+              ],
+              "notes": [
+                {
+                  "string": 3,
+                  "fret": 0
+                },
+                {
+                  "string": 1,
+                  "fret": 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "number": 31,
+          "notes": [
+            {
+              "measure": 31,
+              "position": 1,
+              "string": 3,
+              "fret": 0,
+              "x": 327.81,
+              "y": 26.29
+            },
+            {
+              "measure": 31,
+              "position": 0,
+              "string": 1,
+              "fret": 1,
+              "x": 1221.81,
+              "y": 2.29
+            }
+          ],
+          "chords": [
+            {
+              "measure": 31,
+              "frets": [
+                1,
+                null,
+                0,
+                null,
+                null,
+                null
+              ],
+              "notes": [
+                {
+                  "string": 3,
+                  "fret": 0
+                },
+                {
+                  "string": 1,
+                  "fret": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "number": 32,
+          "notes": [
+            {
+              "measure": 32,
+              "position": 0,
+              "string": 1,
+              "fret": 0,
+              "x": 20.5,
+              "y": -6.57
+            },
+            {
+              "measure": 32,
+              "position": 1,
+              "string": 3,
+              "fret": 1,
+              "x": 476.81,
+              "y": 26.29
+            }
+          ],
+          "chords": [
+            {
+              "measure": 32,
+              "frets": [
+                0,
+                null,
+                1,
+                null,
+                null,
+                null
+              ],
+              "notes": [
+                {
+                  "string": 1,
+                  "fret": 0
+                },
+                {
+                  "string": 3,
+                  "fret": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "number": 33,
+          "notes": [
+            {
+              "measure": 33,
+              "position": 0,
+              "string": 1,
+              "fret": 0,
+              "x": 178.81,
+              "y": 2.29
+            },
+            {
+              "measure": 33,
+              "position": 1,
+              "string": 4,
+              "fret": 1,
+              "x": 625.81,
+              "y": 38.29
+            }
+          ],
+          "chords": [
+            {
+              "measure": 33,
+              "frets": [
+                0,
+                null,
+                null,
+                1,
+                null,
+                null
+              ],
+              "notes": [
+                {
+                  "string": 1,
+                  "fret": 0
+                },
+                {
+                  "string": 4,
+                  "fret": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "number": 34,
+          "notes": [
+            {
+              "measure": 34,
+              "position": 0,
+              "string": 1,
+              "fret": 0,
+              "x": 318.5,
+              "y": -6.57
+            },
+            {
+              "measure": 34,
+              "position": 1,
+              "string": 4,
+              "fret": 1,
+              "x": 774.81,
+              "y": 38.29
+            }
+          ],
+          "chords": [
+            {
+              "measure": 34,
+              "frets": [
+                0,
+                null,
+                null,
+                1,
+                null,
+                null
+              ],
+              "notes": [
+                {
+                  "string": 1,
+                  "fret": 0
+                },
+                {
+                  "string": 4,
+                  "fret": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "number": 35,
+          "notes": [
+            {
+              "measure": 35,
+              "position": 0,
+              "string": 1,
+              "fret": 2,
+              "x": 467.5,
+              "y": -6.57
+            },
+            {
+              "measure": 35,
+              "position": 1,
+              "string": 4,
+              "fret": null,
+              "x": 923.81,
+              "y": 38.29
+            }
+          ],
+          "chords": [
+            {
+              "measure": 35,
+              "frets": [
+                2,
+                null,
+                null,
+                null,
+                null,
+                null
+              ],
+              "notes": [
+                {
+                  "string": 1,
+                  "fret": 2
+                },
+                {
+                  "string": 4,
+                  "fret": null
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "number": 36,
+          "notes": [
+            {
+              "measure": 36,
+              "position": 0,
+              "string": 1,
+              "fret": null,
+              "x": 616.5,
+              "y": -6.57
+            },
+            {
+              "measure": 36,
+              "position": 1,
+              "string": 4,
+              "fret": 1,
+              "x": 1072.81,
+              "y": 38.29
+            }
+          ],
+          "chords": [
+            {
+              "measure": 36,
+              "frets": [
+                null,
+                null,
+                null,
+                1,
+                null,
+                null
+              ],
+              "notes": [
+                {
+                  "string": 1,
+                  "fret": null
+                },
+                {
+                  "string": 4,
+                  "fret": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "number": 37,
+          "notes": [
+            {
+              "measure": 37,
+              "position": 0,
+              "string": 1,
+              "fret": 1,
+              "x": 774.81,
+              "y": 2.29
+            },
+            {
+              "measure": 37,
+              "position": 1,
+              "string": 3,
+              "fret": 1,
+              "x": 1221.75,
+              "y": 24
+            }
+          ],
+          "chords": [
+            {
+              "measure": 37,
+              "frets": [
+                1,
+                null,
+                1,
+                null,
+                null,
+                null
+              ],
+              "notes": [
+                {
+                  "string": 1,
+                  "fret": 1
+                },
+                {
+                  "string": 3,
+                  "fret": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "number": 38,
+          "notes": [
+            {
+              "measure": 38,
+              "position": 1,
+              "string": 3,
+              "fret": 0,
+              "x": 32.75,
+              "y": 24
+            },
+            {
+              "measure": 38,
+              "position": 0,
+              "string": 1,
+              "fret": 0,
+              "x": 914.5,
+              "y": -6.57
+            }
+          ],
+          "chords": [
+            {
+              "measure": 38,
+              "frets": [
+                0,
+                null,
+                0,
+                null,
+                null,
+                null
+              ],
+              "notes": [
+                {
+                  "string": 3,
+                  "fret": 0
+                },
+                {
+                  "string": 1,
+                  "fret": 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "number": 39,
+          "notes": [
+            {
+              "measure": 39,
+              "position": 1,
+              "string": 3,
+              "fret": 1,
+              "x": 197.81,
+              "y": 26.29
+            },
+            {
+              "measure": 39,
+              "position": 0,
+              "string": 1,
+              "fret": 1,
+              "x": 1072.81,
+              "y": 2.29
+            }
+          ],
+          "chords": [
+            {
+              "measure": 39,
+              "frets": [
+                1,
+                null,
+                1,
+                null,
+                null,
+                null
+              ],
+              "notes": [
+                {
+                  "string": 3,
+                  "fret": 1
+                },
+                {
+                  "string": 1,
+                  "fret": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "number": 40,
+          "notes": [
+            {
+              "measure": 40,
+              "position": 1,
+              "string": 3,
+              "fret": 0,
+              "x": 363.81,
+              "y": 26.29
+            },
+            {
+              "measure": 40,
+              "position": 0,
+              "string": 1,
+              "fret": 1,
+              "x": 1212.5,
+              "y": -6.57
+            }
+          ],
+          "chords": [
+            {
+              "measure": 40,
+              "frets": [
+                1,
+                null,
+                0,
+                null,
+                null,
+                null
+              ],
+              "notes": [
+                {
+                  "string": 3,
+                  "fret": 0
+                },
+                {
+                  "string": 1,
+                  "fret": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "number": 41,
+          "notes": [
+            {
+              "measure": 41,
+              "position": 0,
+              "string": 1,
+              "fret": 0,
+              "x": 27.81,
+              "y": 2.29
+            },
+            {
+              "measure": 41,
+              "position": 1,
+              "string": 4,
+              "fret": 0,
+              "x": 528.81,
+              "y": 38.29
+            }
+          ],
+          "chords": [
+            {
+              "measure": 41,
+              "frets": [
+                0,
+                null,
+                null,
+                0,
+                null,
+                null
+              ],
+              "notes": [
+                {
+                  "string": 1,
+                  "fret": 0
+                },
+                {
+                  "string": 4,
+                  "fret": 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "number": 42,
+          "notes": [
+            {
+              "measure": 42,
+              "position": 0,
+              "string": 1,
+              "fret": 1,
+              "x": 158.5,
+              "y": -6.57
+            },
+            {
+              "measure": 42,
+              "position": 1,
+              "string": 4,
+              "fret": 0,
+              "x": 694.81,
+              "y": 38.29
+            }
+          ],
+          "chords": [
+            {
+              "measure": 42,
+              "frets": [
+                1,
+                null,
+                null,
+                0,
+                null,
+                null
+              ],
+              "notes": [
+                {
+                  "string": 1,
+                  "fret": 1
+                },
+                {
+                  "string": 4,
+                  "fret": 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "number": 43,
+          "notes": [
+            {
+              "measure": 43,
+              "position": 0,
+              "string": 1,
+              "fret": 0,
+              "x": 299.5,
+              "y": -6.57
+            },
+            {
+              "measure": 43,
+              "position": 1,
+              "string": 4,
+              "fret": 0,
+              "x": 859.81,
+              "y": 38.29
+            }
+          ],
+          "chords": [
+            {
+              "measure": 43,
+              "frets": [
+                0,
+                null,
+                null,
+                0,
+                null,
+                null
+              ],
+              "notes": [
+                {
+                  "string": 1,
+                  "fret": 0
+                },
+                {
+                  "string": 4,
+                  "fret": 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "number": 44,
+          "notes": [
+            {
+              "measure": 44,
+              "position": 0,
+              "string": 1,
+              "fret": 0,
+              "x": 440.5,
+              "y": -6.57
+            },
+            {
+              "measure": 44,
+              "position": 1,
+              "string": 4,
+              "fret": 1,
+              "x": 1025.81,
+              "y": 38.29
+            }
+          ],
+          "chords": [
+            {
+              "measure": 44,
+              "frets": [
+                0,
+                null,
+                null,
+                1,
+                null,
+                null
+              ],
+              "notes": [
+                {
+                  "string": 1,
+                  "fret": 0
+                },
+                {
+                  "string": 4,
+                  "fret": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "number": 45,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 46,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 47,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 48,
+          "notes": [
+            {
+              "measure": 48,
+              "position": 0,
+              "string": 3,
+              "fret": 0,
+              "x": 26,
+              "y": 24
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 49,
+          "notes": [
+            {
+              "measure": 49,
+              "position": 0,
+              "string": 4,
+              "fret": 1,
+              "x": 354.81,
+              "y": 38.29
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 50,
+          "notes": [
+            {
+              "measure": 50,
+              "position": 0,
+              "string": 1,
+              "fret": 0,
+              "x": 636.5,
+              "y": 6
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 51,
+          "notes": [
+            {
+              "measure": 51,
+              "position": 0,
+              "string": 4,
+              "fret": 0,
+              "x": 806.81,
+              "y": 38.29
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 52,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 53,
+          "notes": [
+            {
+              "measure": 53,
+              "position": 0,
+              "string": 4,
+              "fret": 0,
+              "x": 1139.87,
+              "y": 37.52
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 54,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 55,
+          "notes": [
+            {
+              "measure": 55,
+              "position": 0,
+              "string": 3,
+              "fret": 0,
+              "x": 27.81,
+              "y": 26.29
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 56,
+          "notes": [
+            {
+              "measure": 56,
+              "position": 0,
+              "string": 1,
+              "fret": 1,
+              "x": 198.5,
+              "y": 6
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 57,
+          "notes": [
+            {
+              "measure": 57,
+              "position": 0,
+              "string": 4,
+              "fret": 0,
+              "x": 359.81,
+              "y": 38.29
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 58,
+          "notes": [
+            {
+              "measure": 58,
+              "position": 0,
+              "string": 3,
+              "fret": 0,
+              "x": 622,
+              "y": 24
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 59,
+          "notes": [
+            {
+              "measure": 59,
+              "position": 0,
+              "string": 4,
+              "fret": 0,
+              "x": 934.81,
+              "y": 38.29
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 60,
+          "notes": [
+            {
+              "measure": 60,
+              "position": 0,
+              "string": 1,
+              "fret": 1,
+              "x": 1203.5,
+              "y": 6
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 61,
+          "notes": [
+            {
+              "measure": 61,
+              "position": 1,
+              "string": 4,
+              "fret": 0,
+              "x": 27.87,
+              "y": 37.52
+            },
+            {
+              "measure": 61,
+              "position": 0,
+              "string": 1,
+              "fret": 2,
+              "x": 80.87,
+              "y": 1.52
+            }
+          ],
+          "chords": [
+            {
+              "measure": 61,
+              "frets": [
+                2,
+                null,
+                null,
+                0,
+                null,
+                null
+              ],
+              "notes": [
+                {
+                  "string": 4,
+                  "fret": 0
+                },
+                {
+                  "string": 1,
+                  "fret": 2
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "number": 62,
+          "notes": [
+            {
+              "measure": 62,
+              "position": 0,
+              "string": 1,
+              "fret": 0,
+              "x": 214.5,
+              "y": -6.57
+            },
+            {
+              "measure": 62,
+              "position": 1,
+              "string": 4,
+              "fret": 2,
+              "x": 316.87,
+              "y": 37.52
+            }
+          ],
+          "chords": [
+            {
+              "measure": 62,
+              "frets": [
+                0,
+                null,
+                null,
+                2,
+                null,
+                null
+              ],
+              "notes": [
+                {
+                  "string": 1,
+                  "fret": 0
+                },
+                {
+                  "string": 4,
+                  "fret": 2
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "number": 63,
+          "notes": [
+            {
+              "measure": 63,
+              "position": 0,
+              "string": 1,
+              "fret": 1,
+              "x": 367.81,
+              "y": 2.29
+            },
+            {
+              "measure": 63,
+              "position": 1,
+              "string": 4,
+              "fret": 1,
+              "x": 563.79,
+              "y": 38.02
+            }
+          ],
+          "chords": [
+            {
+              "measure": 63,
+              "frets": [
+                1,
+                null,
+                null,
+                1,
+                null,
+                null
+              ],
+              "notes": [
+                {
+                  "string": 1,
+                  "fret": 1
+                },
+                {
+                  "string": 4,
+                  "fret": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "number": 64,
+          "notes": [
+            {
+              "measure": 64,
+              "position": 0,
+              "string": 1,
+              "fret": 0,
+              "x": 501.5,
+              "y": -6.57
+            },
+            {
+              "measure": 64,
+              "position": 1,
+              "string": 4,
+              "fret": 1,
+              "x": 853.79,
+              "y": 38.02
+            }
+          ],
+          "chords": [
+            {
+              "measure": 64,
+              "frets": [
+                0,
+                null,
+                null,
+                1,
+                null,
+                null
+              ],
+              "notes": [
+                {
+                  "string": 1,
+                  "fret": 0
+                },
+                {
+                  "string": 4,
+                  "fret": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "number": 65,
+          "notes": [
+            {
+              "measure": 65,
+              "position": 0,
+              "string": 1,
+              "fret": 0,
+              "x": 648.56,
+              "y": 4.96
+            },
+            {
+              "measure": 65,
+              "position": 1,
+              "string": 4,
+              "fret": 0,
+              "x": 1099.81,
+              "y": 38.29
+            }
+          ],
+          "chords": [
+            {
+              "measure": 65,
+              "frets": [
+                0,
+                null,
+                null,
+                0,
+                null,
+                null
+              ],
+              "notes": [
+                {
+                  "string": 1,
+                  "fret": 0
+                },
+                {
+                  "string": 4,
+                  "fret": 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "number": 66,
+          "notes": [
+            {
+              "measure": 66,
+              "position": 0,
+              "string": 1,
+              "fret": 0,
+              "x": 787.5,
+              "y": -6.57
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 67,
+          "notes": [
+            {
+              "measure": 67,
+              "position": 0,
+              "string": 1,
+              "fret": null,
+              "x": 930.5,
+              "y": -6.57
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 68,
+          "notes": [
+            {
+              "measure": 68,
+              "position": 0,
+              "string": 1,
+              "fret": 1,
+              "x": 1073.5,
+              "y": -6.57
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 69,
+          "notes": [
+            {
+              "measure": 69,
+              "position": 0,
+              "string": 1,
+              "fret": 2,
+              "x": 1226.81,
+              "y": 2.29
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 70,
+          "notes": [
+            {
+              "measure": 70,
+              "position": 0,
+              "string": 1,
+              "fret": 0,
+              "x": 20.5,
+              "y": -6.57
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 71,
+          "notes": [
+            {
+              "measure": 71,
+              "position": 0,
+              "string": 1,
+              "fret": 0,
+              "x": 178.81,
+              "y": 2.29
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 72,
+          "notes": [
+            {
+              "measure": 72,
+              "position": 0,
+              "string": 1,
+              "fret": 0,
+              "x": 318.5,
+              "y": -6.57
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 73,
+          "notes": [
+            {
+              "measure": 73,
+              "position": 0,
+              "string": 1,
+              "fret": 1,
+              "x": 476.81,
+              "y": 2.29
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 74,
+          "notes": [
+            {
+              "measure": 74,
+              "position": 0,
+              "string": 1,
+              "fret": null,
+              "x": 616.5,
+              "y": -6.57
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 75,
+          "notes": [
+            {
+              "measure": 75,
+              "position": 0,
+              "string": 1,
+              "fret": 0,
+              "x": 765.5,
+              "y": -6.57
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 76,
+          "notes": [
+            {
+              "measure": 76,
+              "position": 0,
+              "string": 1,
+              "fret": 0,
+              "x": 914.5,
+              "y": -6.57
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 77,
+          "notes": [
+            {
+              "measure": 77,
+              "position": 0,
+              "string": 1,
+              "fret": 1,
+              "x": 1072.81,
+              "y": 2.29
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 78,
+          "notes": [
+            {
+              "measure": 78,
+              "position": 0,
+              "string": 1,
+              "fret": 1,
+              "x": 1212.5,
+              "y": -6.57
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 79,
+          "notes": [
+            {
+              "measure": 79,
+              "position": 0,
+              "string": 1,
+              "fret": 1,
+              "x": 28.81,
+              "y": 2.29
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 80,
+          "notes": [
+            {
+              "measure": 80,
+              "position": 0,
+              "string": 1,
+              "fret": 1,
+              "x": 162.5,
+              "y": -6.57
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 81,
+          "notes": [
+            {
+              "measure": 81,
+              "position": 0,
+              "string": 1,
+              "fret": 2,
+              "x": 314.81,
+              "y": 2.29
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 82,
+          "notes": [
+            {
+              "measure": 82,
+              "position": 0,
+              "string": 1,
+              "fret": 0,
+              "x": 448.5,
+              "y": -6.57
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 83,
+          "notes": [
+            {
+              "measure": 83,
+              "position": 0,
+              "string": 1,
+              "fret": 1,
+              "x": 591.5,
+              "y": -6.57
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 84,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 85,
+          "notes": [
+            {
+              "measure": 85,
+              "position": 0,
+              "string": 1,
+              "fret": 1,
+              "x": 796.81,
+              "y": 2.29
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 86,
+          "notes": [
+            {
+              "measure": 86,
+              "position": 0,
+              "string": 1,
+              "fret": null,
+              "x": 930.5,
+              "y": -6.57
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 87,
+          "notes": [
+            {
+              "measure": 87,
+              "position": 0,
+              "string": 1,
+              "fret": 0,
+              "x": 1082.81,
+              "y": 2.29
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 88,
+          "notes": [
+            {
+              "measure": 88,
+              "position": 0,
+              "string": 1,
+              "fret": 1,
+              "x": 1217.5,
+              "y": -6.57
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 89,
+          "notes": [
+            {
+              "measure": 89,
+              "position": 0,
+              "string": 1,
+              "fret": 0,
+              "x": 29.81,
+              "y": 2.29
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 90,
+          "notes": [
+            {
+              "measure": 90,
+              "position": 0,
+              "string": 1,
+              "fret": 0,
+              "x": 169.5,
+              "y": -6.57
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 91,
+          "notes": [
+            {
+              "measure": 91,
+              "position": 0,
+              "string": 1,
+              "fret": 0,
+              "x": 318.5,
+              "y": -6.57
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 92,
+          "notes": [
+            {
+              "measure": 92,
+              "position": 0,
+              "string": 1,
+              "fret": 2,
+              "x": 467.5,
+              "y": -6.57
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 93,
+          "notes": [
+            {
+              "measure": 93,
+              "position": 0,
+              "string": 1,
+              "fret": 1,
+              "x": 625.87,
+              "y": 1.52
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 94,
+          "notes": [
+            {
+              "measure": 94,
+              "position": 0,
+              "string": 1,
+              "fret": 0,
+              "x": 765.5,
+              "y": -6.57
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 95,
+          "notes": [
+            {
+              "measure": 95,
+              "position": 0,
+              "string": 1,
+              "fret": null,
+              "x": 923.81,
+              "y": 2.29
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 96,
+          "notes": [
+            {
+              "measure": 96,
+              "position": 0,
+              "string": 1,
+              "fret": 0,
+              "x": 1063.5,
+              "y": -6.57
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 97,
+          "notes": [
+            {
+              "measure": 97,
+              "position": 0,
+              "string": 1,
+              "fret": 1,
+              "x": 1216.56,
+              "y": 4.96
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 98,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 99,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 100,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 101,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 102,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 103,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 104,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 105,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 106,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 107,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 108,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 109,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 110,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 111,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 112,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 113,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 114,
+          "notes": [],
+          "chords": []
+        }
+      ],
+      "allNotes": [
+        {
+          "measure": 21,
+          "position": 0,
+          "string": 1,
+          "fret": 0,
+          "x": 1097.87,
+          "y": 1.52
+        },
+        {
+          "measure": 22,
+          "position": 0,
+          "string": 1,
+          "fret": 1,
+          "x": 1223.5,
+          "y": -6.57
+        },
+        {
+          "measure": 23,
+          "position": 0,
+          "string": 1,
+          "fret": 0,
+          "x": 29.81,
+          "y": 2.29
+        },
+        {
+          "measure": 24,
+          "position": 0,
+          "string": 1,
+          "fret": 0,
+          "x": 169.5,
+          "y": -6.57
+        },
+        {
+          "measure": 25,
+          "position": 0,
+          "string": 1,
+          "fret": 0,
+          "x": 322.56,
+          "y": 4.96
+        },
+        {
+          "measure": 26,
+          "position": 0,
+          "string": 1,
+          "fret": 2,
+          "x": 467.5,
+          "y": -6.57
+        },
+        {
+          "measure": 27,
+          "position": 0,
+          "string": 1,
+          "fret": null,
+          "x": 616.5,
+          "y": -6.57
+        },
+        {
+          "measure": 28,
+          "position": 0,
+          "string": 1,
+          "fret": 0,
+          "x": 765.5,
+          "y": -6.57
+        },
+        {
+          "measure": 29,
+          "position": 1,
+          "string": 3,
+          "fret": 0,
+          "x": 29.75,
+          "y": 24
+        },
+        {
+          "measure": 29,
+          "position": 0,
+          "string": 1,
+          "fret": null,
+          "x": 923.81,
+          "y": 2.29
+        },
+        {
+          "measure": 30,
+          "position": 1,
+          "string": 3,
+          "fret": 0,
+          "x": 178.75,
+          "y": 24
+        },
+        {
+          "measure": 30,
+          "position": 0,
+          "string": 1,
+          "fret": 0,
+          "x": 1063.5,
+          "y": -6.57
+        },
+        {
+          "measure": 31,
+          "position": 1,
+          "string": 3,
+          "fret": 0,
+          "x": 327.81,
+          "y": 26.29
+        },
+        {
+          "measure": 31,
+          "position": 0,
+          "string": 1,
+          "fret": 1,
+          "x": 1221.81,
+          "y": 2.29
+        },
+        {
+          "measure": 32,
+          "position": 0,
+          "string": 1,
+          "fret": 0,
+          "x": 20.5,
+          "y": -6.57
+        },
+        {
+          "measure": 32,
+          "position": 1,
+          "string": 3,
+          "fret": 1,
+          "x": 476.81,
+          "y": 26.29
+        },
+        {
+          "measure": 33,
+          "position": 0,
+          "string": 1,
+          "fret": 0,
+          "x": 178.81,
+          "y": 2.29
+        },
+        {
+          "measure": 33,
+          "position": 1,
+          "string": 4,
+          "fret": 1,
+          "x": 625.81,
+          "y": 38.29
+        },
+        {
+          "measure": 34,
+          "position": 0,
+          "string": 1,
+          "fret": 0,
+          "x": 318.5,
+          "y": -6.57
+        },
+        {
+          "measure": 34,
+          "position": 1,
+          "string": 4,
+          "fret": 1,
+          "x": 774.81,
+          "y": 38.29
+        },
+        {
+          "measure": 35,
+          "position": 0,
+          "string": 1,
+          "fret": 2,
+          "x": 467.5,
+          "y": -6.57
+        },
+        {
+          "measure": 35,
+          "position": 1,
+          "string": 4,
+          "fret": null,
+          "x": 923.81,
+          "y": 38.29
+        },
+        {
+          "measure": 36,
+          "position": 0,
+          "string": 1,
+          "fret": null,
+          "x": 616.5,
+          "y": -6.57
+        },
+        {
+          "measure": 36,
+          "position": 1,
+          "string": 4,
+          "fret": 1,
+          "x": 1072.81,
+          "y": 38.29
+        },
+        {
+          "measure": 37,
+          "position": 0,
+          "string": 1,
+          "fret": 1,
+          "x": 774.81,
+          "y": 2.29
+        },
+        {
+          "measure": 37,
+          "position": 1,
+          "string": 3,
+          "fret": 1,
+          "x": 1221.75,
+          "y": 24
+        },
+        {
+          "measure": 38,
+          "position": 1,
+          "string": 3,
+          "fret": 0,
+          "x": 32.75,
+          "y": 24
+        },
+        {
+          "measure": 38,
+          "position": 0,
+          "string": 1,
+          "fret": 0,
+          "x": 914.5,
+          "y": -6.57
+        },
+        {
+          "measure": 39,
+          "position": 1,
+          "string": 3,
+          "fret": 1,
+          "x": 197.81,
+          "y": 26.29
+        },
+        {
+          "measure": 39,
+          "position": 0,
+          "string": 1,
+          "fret": 1,
+          "x": 1072.81,
+          "y": 2.29
+        },
+        {
+          "measure": 40,
+          "position": 1,
+          "string": 3,
+          "fret": 0,
+          "x": 363.81,
+          "y": 26.29
+        },
+        {
+          "measure": 40,
+          "position": 0,
+          "string": 1,
+          "fret": 1,
+          "x": 1212.5,
+          "y": -6.57
+        },
+        {
+          "measure": 41,
+          "position": 0,
+          "string": 1,
+          "fret": 0,
+          "x": 27.81,
+          "y": 2.29
+        },
+        {
+          "measure": 41,
+          "position": 1,
+          "string": 4,
+          "fret": 0,
+          "x": 528.81,
+          "y": 38.29
+        },
+        {
+          "measure": 42,
+          "position": 0,
+          "string": 1,
+          "fret": 1,
+          "x": 158.5,
+          "y": -6.57
+        },
+        {
+          "measure": 42,
+          "position": 1,
+          "string": 4,
+          "fret": 0,
+          "x": 694.81,
+          "y": 38.29
+        },
+        {
+          "measure": 43,
+          "position": 0,
+          "string": 1,
+          "fret": 0,
+          "x": 299.5,
+          "y": -6.57
+        },
+        {
+          "measure": 43,
+          "position": 1,
+          "string": 4,
+          "fret": 0,
+          "x": 859.81,
+          "y": 38.29
+        },
+        {
+          "measure": 44,
+          "position": 0,
+          "string": 1,
+          "fret": 0,
+          "x": 440.5,
+          "y": -6.57
+        },
+        {
+          "measure": 44,
+          "position": 1,
+          "string": 4,
+          "fret": 1,
+          "x": 1025.81,
+          "y": 38.29
+        },
+        {
+          "measure": 48,
+          "position": 0,
+          "string": 3,
+          "fret": 0,
+          "x": 26,
+          "y": 24
+        },
+        {
+          "measure": 49,
+          "position": 0,
+          "string": 4,
+          "fret": 1,
+          "x": 354.81,
+          "y": 38.29
+        },
+        {
+          "measure": 50,
+          "position": 0,
+          "string": 1,
+          "fret": 0,
+          "x": 636.5,
+          "y": 6
+        },
+        {
+          "measure": 51,
+          "position": 0,
+          "string": 4,
+          "fret": 0,
+          "x": 806.81,
+          "y": 38.29
+        },
+        {
+          "measure": 53,
+          "position": 0,
+          "string": 4,
+          "fret": 0,
+          "x": 1139.87,
+          "y": 37.52
+        },
+        {
+          "measure": 55,
+          "position": 0,
+          "string": 3,
+          "fret": 0,
+          "x": 27.81,
+          "y": 26.29
+        },
+        {
+          "measure": 56,
+          "position": 0,
+          "string": 1,
+          "fret": 1,
+          "x": 198.5,
+          "y": 6
+        },
+        {
+          "measure": 57,
+          "position": 0,
+          "string": 4,
+          "fret": 0,
+          "x": 359.81,
+          "y": 38.29
+        },
+        {
+          "measure": 58,
+          "position": 0,
+          "string": 3,
+          "fret": 0,
+          "x": 622,
+          "y": 24
+        },
+        {
+          "measure": 59,
+          "position": 0,
+          "string": 4,
+          "fret": 0,
+          "x": 934.81,
+          "y": 38.29
+        },
+        {
+          "measure": 60,
+          "position": 0,
+          "string": 1,
+          "fret": 1,
+          "x": 1203.5,
+          "y": 6
+        },
+        {
+          "measure": 61,
+          "position": 1,
+          "string": 4,
+          "fret": 0,
+          "x": 27.87,
+          "y": 37.52
+        },
+        {
+          "measure": 61,
+          "position": 0,
+          "string": 1,
+          "fret": 2,
+          "x": 80.87,
+          "y": 1.52
+        },
+        {
+          "measure": 62,
+          "position": 0,
+          "string": 1,
+          "fret": 0,
+          "x": 214.5,
+          "y": -6.57
+        },
+        {
+          "measure": 62,
+          "position": 1,
+          "string": 4,
+          "fret": 2,
+          "x": 316.87,
+          "y": 37.52
+        },
+        {
+          "measure": 63,
+          "position": 0,
+          "string": 1,
+          "fret": 1,
+          "x": 367.81,
+          "y": 2.29
+        },
+        {
+          "measure": 63,
+          "position": 1,
+          "string": 4,
+          "fret": 1,
+          "x": 563.79,
+          "y": 38.02
+        },
+        {
+          "measure": 64,
+          "position": 0,
+          "string": 1,
+          "fret": 0,
+          "x": 501.5,
+          "y": -6.57
+        },
+        {
+          "measure": 64,
+          "position": 1,
+          "string": 4,
+          "fret": 1,
+          "x": 853.79,
+          "y": 38.02
+        },
+        {
+          "measure": 65,
+          "position": 0,
+          "string": 1,
+          "fret": 0,
+          "x": 648.56,
+          "y": 4.96
+        },
+        {
+          "measure": 65,
+          "position": 1,
+          "string": 4,
+          "fret": 0,
+          "x": 1099.81,
+          "y": 38.29
+        },
+        {
+          "measure": 66,
+          "position": 0,
+          "string": 1,
+          "fret": 0,
+          "x": 787.5,
+          "y": -6.57
+        },
+        {
+          "measure": 67,
+          "position": 0,
+          "string": 1,
+          "fret": null,
+          "x": 930.5,
+          "y": -6.57
+        },
+        {
+          "measure": 68,
+          "position": 0,
+          "string": 1,
+          "fret": 1,
+          "x": 1073.5,
+          "y": -6.57
+        },
+        {
+          "measure": 69,
+          "position": 0,
+          "string": 1,
+          "fret": 2,
+          "x": 1226.81,
+          "y": 2.29
+        },
+        {
+          "measure": 70,
+          "position": 0,
+          "string": 1,
+          "fret": 0,
+          "x": 20.5,
+          "y": -6.57
+        },
+        {
+          "measure": 71,
+          "position": 0,
+          "string": 1,
+          "fret": 0,
+          "x": 178.81,
+          "y": 2.29
+        },
+        {
+          "measure": 72,
+          "position": 0,
+          "string": 1,
+          "fret": 0,
+          "x": 318.5,
+          "y": -6.57
+        },
+        {
+          "measure": 73,
+          "position": 0,
+          "string": 1,
+          "fret": 1,
+          "x": 476.81,
+          "y": 2.29
+        },
+        {
+          "measure": 74,
+          "position": 0,
+          "string": 1,
+          "fret": null,
+          "x": 616.5,
+          "y": -6.57
+        },
+        {
+          "measure": 75,
+          "position": 0,
+          "string": 1,
+          "fret": 0,
+          "x": 765.5,
+          "y": -6.57
+        },
+        {
+          "measure": 76,
+          "position": 0,
+          "string": 1,
+          "fret": 0,
+          "x": 914.5,
+          "y": -6.57
+        },
+        {
+          "measure": 77,
+          "position": 0,
+          "string": 1,
+          "fret": 1,
+          "x": 1072.81,
+          "y": 2.29
+        },
+        {
+          "measure": 78,
+          "position": 0,
+          "string": 1,
+          "fret": 1,
+          "x": 1212.5,
+          "y": -6.57
+        },
+        {
+          "measure": 79,
+          "position": 0,
+          "string": 1,
+          "fret": 1,
+          "x": 28.81,
+          "y": 2.29
+        },
+        {
+          "measure": 80,
+          "position": 0,
+          "string": 1,
+          "fret": 1,
+          "x": 162.5,
+          "y": -6.57
+        },
+        {
+          "measure": 81,
+          "position": 0,
+          "string": 1,
+          "fret": 2,
+          "x": 314.81,
+          "y": 2.29
+        },
+        {
+          "measure": 82,
+          "position": 0,
+          "string": 1,
+          "fret": 0,
+          "x": 448.5,
+          "y": -6.57
+        },
+        {
+          "measure": 83,
+          "position": 0,
+          "string": 1,
+          "fret": 1,
+          "x": 591.5,
+          "y": -6.57
+        },
+        {
+          "measure": 85,
+          "position": 0,
+          "string": 1,
+          "fret": 1,
+          "x": 796.81,
+          "y": 2.29
+        },
+        {
+          "measure": 86,
+          "position": 0,
+          "string": 1,
+          "fret": null,
+          "x": 930.5,
+          "y": -6.57
+        },
+        {
+          "measure": 87,
+          "position": 0,
+          "string": 1,
+          "fret": 0,
+          "x": 1082.81,
+          "y": 2.29
+        },
+        {
+          "measure": 88,
+          "position": 0,
+          "string": 1,
+          "fret": 1,
+          "x": 1217.5,
+          "y": -6.57
+        },
+        {
+          "measure": 89,
+          "position": 0,
+          "string": 1,
+          "fret": 0,
+          "x": 29.81,
+          "y": 2.29
+        },
+        {
+          "measure": 90,
+          "position": 0,
+          "string": 1,
+          "fret": 0,
+          "x": 169.5,
+          "y": -6.57
+        },
+        {
+          "measure": 91,
+          "position": 0,
+          "string": 1,
+          "fret": 0,
+          "x": 318.5,
+          "y": -6.57
+        },
+        {
+          "measure": 92,
+          "position": 0,
+          "string": 1,
+          "fret": 2,
+          "x": 467.5,
+          "y": -6.57
+        },
+        {
+          "measure": 93,
+          "position": 0,
+          "string": 1,
+          "fret": 1,
+          "x": 625.87,
+          "y": 1.52
+        },
+        {
+          "measure": 94,
+          "position": 0,
+          "string": 1,
+          "fret": 0,
+          "x": 765.5,
+          "y": -6.57
+        },
+        {
+          "measure": 95,
+          "position": 0,
+          "string": 1,
+          "fret": null,
+          "x": 923.81,
+          "y": 2.29
+        },
+        {
+          "measure": 96,
+          "position": 0,
+          "string": 1,
+          "fret": 0,
+          "x": 1063.5,
+          "y": -6.57
+        },
+        {
+          "measure": 97,
+          "position": 0,
+          "string": 1,
+          "fret": 1,
+          "x": 1216.56,
+          "y": 4.96
+        }
+      ],
+      "allChords": [
+        {
+          "measure": 29,
+          "frets": [
+            null,
+            null,
+            0,
+            null,
+            null,
+            null
+          ],
+          "notes": [
+            {
+              "string": 3,
+              "fret": 0
+            },
+            {
+              "string": 1,
+              "fret": null
+            }
+          ]
+        },
+        {
+          "measure": 30,
+          "frets": [
+            0,
+            null,
+            0,
+            null,
+            null,
+            null
+          ],
+          "notes": [
+            {
+              "string": 3,
+              "fret": 0
+            },
+            {
+              "string": 1,
+              "fret": 0
+            }
+          ]
+        },
+        {
+          "measure": 31,
+          "frets": [
+            1,
+            null,
+            0,
+            null,
+            null,
+            null
+          ],
+          "notes": [
+            {
+              "string": 3,
+              "fret": 0
+            },
+            {
+              "string": 1,
+              "fret": 1
+            }
+          ]
+        },
+        {
+          "measure": 32,
+          "frets": [
+            0,
+            null,
+            1,
+            null,
+            null,
+            null
+          ],
+          "notes": [
+            {
+              "string": 1,
+              "fret": 0
+            },
+            {
+              "string": 3,
+              "fret": 1
+            }
+          ]
+        },
+        {
+          "measure": 33,
+          "frets": [
+            0,
+            null,
+            null,
+            1,
+            null,
+            null
+          ],
+          "notes": [
+            {
+              "string": 1,
+              "fret": 0
+            },
+            {
+              "string": 4,
+              "fret": 1
+            }
+          ]
+        },
+        {
+          "measure": 34,
+          "frets": [
+            0,
+            null,
+            null,
+            1,
+            null,
+            null
+          ],
+          "notes": [
+            {
+              "string": 1,
+              "fret": 0
+            },
+            {
+              "string": 4,
+              "fret": 1
+            }
+          ]
+        },
+        {
+          "measure": 35,
+          "frets": [
+            2,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "notes": [
+            {
+              "string": 1,
+              "fret": 2
+            },
+            {
+              "string": 4,
+              "fret": null
+            }
+          ]
+        },
+        {
+          "measure": 36,
+          "frets": [
+            null,
+            null,
+            null,
+            1,
+            null,
+            null
+          ],
+          "notes": [
+            {
+              "string": 1,
+              "fret": null
+            },
+            {
+              "string": 4,
+              "fret": 1
+            }
+          ]
+        },
+        {
+          "measure": 37,
+          "frets": [
+            1,
+            null,
+            1,
+            null,
+            null,
+            null
+          ],
+          "notes": [
+            {
+              "string": 1,
+              "fret": 1
+            },
+            {
+              "string": 3,
+              "fret": 1
+            }
+          ]
+        },
+        {
+          "measure": 38,
+          "frets": [
+            0,
+            null,
+            0,
+            null,
+            null,
+            null
+          ],
+          "notes": [
+            {
+              "string": 3,
+              "fret": 0
+            },
+            {
+              "string": 1,
+              "fret": 0
+            }
+          ]
+        },
+        {
+          "measure": 39,
+          "frets": [
+            1,
+            null,
+            1,
+            null,
+            null,
+            null
+          ],
+          "notes": [
+            {
+              "string": 3,
+              "fret": 1
+            },
+            {
+              "string": 1,
+              "fret": 1
+            }
+          ]
+        },
+        {
+          "measure": 40,
+          "frets": [
+            1,
+            null,
+            0,
+            null,
+            null,
+            null
+          ],
+          "notes": [
+            {
+              "string": 3,
+              "fret": 0
+            },
+            {
+              "string": 1,
+              "fret": 1
+            }
+          ]
+        },
+        {
+          "measure": 41,
+          "frets": [
+            0,
+            null,
+            null,
+            0,
+            null,
+            null
+          ],
+          "notes": [
+            {
+              "string": 1,
+              "fret": 0
+            },
+            {
+              "string": 4,
+              "fret": 0
+            }
+          ]
+        },
+        {
+          "measure": 42,
+          "frets": [
+            1,
+            null,
+            null,
+            0,
+            null,
+            null
+          ],
+          "notes": [
+            {
+              "string": 1,
+              "fret": 1
+            },
+            {
+              "string": 4,
+              "fret": 0
+            }
+          ]
+        },
+        {
+          "measure": 43,
+          "frets": [
+            0,
+            null,
+            null,
+            0,
+            null,
+            null
+          ],
+          "notes": [
+            {
+              "string": 1,
+              "fret": 0
+            },
+            {
+              "string": 4,
+              "fret": 0
+            }
+          ]
+        },
+        {
+          "measure": 44,
+          "frets": [
+            0,
+            null,
+            null,
+            1,
+            null,
+            null
+          ],
+          "notes": [
+            {
+              "string": 1,
+              "fret": 0
+            },
+            {
+              "string": 4,
+              "fret": 1
+            }
+          ]
+        },
+        {
+          "measure": 61,
+          "frets": [
+            2,
+            null,
+            null,
+            0,
+            null,
+            null
+          ],
+          "notes": [
+            {
+              "string": 4,
+              "fret": 0
+            },
+            {
+              "string": 1,
+              "fret": 2
+            }
+          ]
+        },
+        {
+          "measure": 62,
+          "frets": [
+            0,
+            null,
+            null,
+            2,
+            null,
+            null
+          ],
+          "notes": [
+            {
+              "string": 1,
+              "fret": 0
+            },
+            {
+              "string": 4,
+              "fret": 2
+            }
+          ]
+        },
+        {
+          "measure": 63,
+          "frets": [
+            1,
+            null,
+            null,
+            1,
+            null,
+            null
+          ],
+          "notes": [
+            {
+              "string": 1,
+              "fret": 1
+            },
+            {
+              "string": 4,
+              "fret": 1
+            }
+          ]
+        },
+        {
+          "measure": 64,
+          "frets": [
+            0,
+            null,
+            null,
+            1,
+            null,
+            null
+          ],
+          "notes": [
+            {
+              "string": 1,
+              "fret": 0
+            },
+            {
+              "string": 4,
+              "fret": 1
+            }
+          ]
+        },
+        {
+          "measure": 65,
+          "frets": [
+            0,
+            null,
+            null,
+            0,
+            null,
+            null
+          ],
+          "notes": [
+            {
+              "string": 1,
+              "fret": 0
+            },
+            {
+              "string": 4,
+              "fret": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Piano",
+      "instrument": "piano",
+      "tempo": 160,
+      "timeSignature": "4/4",
+      "measures": [
+        {
+          "number": 1,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 2,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 3,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 4,
+          "notes": [
+            {
+              "measure": 4,
+              "position": 0,
+              "string": 2,
+              "fret": 0,
+              "x": 305.5,
+              "y": 18
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 5,
+          "notes": [
+            {
+              "measure": 5,
+              "position": 0,
+              "string": 2,
+              "fret": null,
+              "x": 584.25,
+              "y": 17.04
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 6,
+          "notes": [
+            {
+              "measure": 6,
+              "position": 0,
+              "string": 3,
+              "fret": 0,
+              "x": 797,
+              "y": 23.5
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 7,
+          "notes": [
+            {
+              "measure": 7,
+              "position": 0,
+              "string": 2,
+              "fret": 0,
+              "x": 1132.25,
+              "y": 17.04
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 8,
+          "notes": [
+            {
+              "measure": 8,
+              "position": 0,
+              "string": 2,
+              "fret": 0,
+              "x": 30.5,
+              "y": 18
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 9,
+          "notes": [
+            {
+              "measure": 9,
+              "position": 0,
+              "string": 2,
+              "fret": null,
+              "x": 294.25,
+              "y": 17.04
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 10,
+          "notes": [
+            {
+              "measure": 10,
+              "position": 0,
+              "string": 4,
+              "fret": null,
+              "x": 545.25,
+              "y": 41.04
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 11,
+          "notes": [
+            {
+              "measure": 11,
+              "position": 0,
+              "string": 2,
+              "fret": 0,
+              "x": 818.25,
+              "y": 17.04
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 12,
+          "notes": [
+            {
+              "measure": 12,
+              "position": 0,
+              "string": 4,
+              "fret": 1,
+              "x": 1068.25,
+              "y": 41.04
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 13,
+          "notes": [
+            {
+              "measure": 13,
+              "position": 0,
+              "string": 2,
+              "fret": 0,
+              "x": 24.25,
+              "y": 17.04
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 14,
+          "notes": [
+            {
+              "measure": 14,
+              "position": 0,
+              "string": 3,
+              "fret": 0,
+              "x": 249,
+              "y": 23.5
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 15,
+          "notes": [
+            {
+              "measure": 15,
+              "position": 0,
+              "string": 2,
+              "fret": 0,
+              "x": 559.25,
+              "y": 17.04
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 16,
+          "notes": [
+            {
+              "measure": 16,
+              "position": 0,
+              "string": 4,
+              "fret": 0,
+              "x": 780,
+              "y": 36
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 17,
+          "notes": [
+            {
+              "measure": 17,
+              "position": 0,
+              "string": 2,
+              "fret": 0,
+              "x": 1095.25,
+              "y": 17.04
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 18,
+          "notes": [
+            {
+              "measure": 18,
+              "position": 0,
+              "string": 4,
+              "fret": 0,
+              "x": 25.25,
+              "y": 41.04
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 19,
+          "notes": [
+            {
+              "measure": 19,
+              "position": 0,
+              "string": 2,
+              "fret": 0,
+              "x": 322.25,
+              "y": 17.04
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 20,
+          "notes": [
+            {
+              "measure": 20,
+              "position": 0,
+              "string": 4,
+              "fret": 0,
+              "x": 595.25,
+              "y": 41.04
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 21,
+          "notes": [
+            {
+              "measure": 21,
+              "position": 0,
+              "string": 3,
+              "fret": 0,
+              "x": 907,
+              "y": 23.5
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 22,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 23,
+          "notes": [
+            {
+              "measure": 23,
+              "position": 0,
+              "string": 3,
+              "fret": 2,
+              "x": 85,
+              "y": 23.5
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 24,
+          "notes": [
+            {
+              "measure": 24,
+              "position": 0,
+              "string": 4,
+              "fret": 1,
+              "x": 311.25,
+              "y": 41.04
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 25,
+          "notes": [
+            {
+              "measure": 25,
+              "position": 0,
+              "string": 3,
+              "fret": 0,
+              "x": 612,
+              "y": 23.5
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 26,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 27,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 28,
+          "notes": [
+            {
+              "measure": 28,
+              "position": 0,
+              "string": 3,
+              "fret": 2,
+              "x": 83,
+              "y": 23.5
+            }
+          ],
+          "chords": []
+        },
+        {
+          "number": 29,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 30,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 31,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 32,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 33,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 34,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 35,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 36,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 37,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 38,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 39,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 40,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 41,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 42,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 43,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 44,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 45,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 46,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 47,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 48,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 49,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 50,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 51,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 52,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 53,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 54,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 55,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 56,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 57,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 58,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 59,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 60,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 61,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 62,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 63,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 64,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 65,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 66,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 67,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 68,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 69,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 70,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 71,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 72,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 73,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 74,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 75,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 76,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 77,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 78,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 79,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 80,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 81,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 82,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 83,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 84,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 85,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 86,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 87,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 88,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 89,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 90,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 91,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 92,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 93,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 94,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 95,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 96,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 97,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 98,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 99,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 100,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 101,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 102,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 103,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 104,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 105,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 106,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 107,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 108,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 109,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 110,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 111,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 112,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 113,
+          "notes": [],
+          "chords": []
+        },
+        {
+          "number": 114,
+          "notes": [],
+          "chords": []
+        }
+      ],
+      "allNotes": [
+        {
+          "measure": 4,
+          "position": 0,
+          "string": 2,
+          "fret": 0,
+          "x": 305.5,
+          "y": 18
+        },
+        {
+          "measure": 5,
+          "position": 0,
+          "string": 2,
+          "fret": null,
+          "x": 584.25,
+          "y": 17.04
+        },
+        {
+          "measure": 6,
+          "position": 0,
+          "string": 3,
+          "fret": 0,
+          "x": 797,
+          "y": 23.5
+        },
+        {
+          "measure": 7,
+          "position": 0,
+          "string": 2,
+          "fret": 0,
+          "x": 1132.25,
+          "y": 17.04
+        },
+        {
+          "measure": 8,
+          "position": 0,
+          "string": 2,
+          "fret": 0,
+          "x": 30.5,
+          "y": 18
+        },
+        {
+          "measure": 9,
+          "position": 0,
+          "string": 2,
+          "fret": null,
+          "x": 294.25,
+          "y": 17.04
+        },
+        {
+          "measure": 10,
+          "position": 0,
+          "string": 4,
+          "fret": null,
+          "x": 545.25,
+          "y": 41.04
+        },
+        {
+          "measure": 11,
+          "position": 0,
+          "string": 2,
+          "fret": 0,
+          "x": 818.25,
+          "y": 17.04
+        },
+        {
+          "measure": 12,
+          "position": 0,
+          "string": 4,
+          "fret": 1,
+          "x": 1068.25,
+          "y": 41.04
+        },
+        {
+          "measure": 13,
+          "position": 0,
+          "string": 2,
+          "fret": 0,
+          "x": 24.25,
+          "y": 17.04
+        },
+        {
+          "measure": 14,
+          "position": 0,
+          "string": 3,
+          "fret": 0,
+          "x": 249,
+          "y": 23.5
+        },
+        {
+          "measure": 15,
+          "position": 0,
+          "string": 2,
+          "fret": 0,
+          "x": 559.25,
+          "y": 17.04
+        },
+        {
+          "measure": 16,
+          "position": 0,
+          "string": 4,
+          "fret": 0,
+          "x": 780,
+          "y": 36
+        },
+        {
+          "measure": 17,
+          "position": 0,
+          "string": 2,
+          "fret": 0,
+          "x": 1095.25,
+          "y": 17.04
+        },
+        {
+          "measure": 18,
+          "position": 0,
+          "string": 4,
+          "fret": 0,
+          "x": 25.25,
+          "y": 41.04
+        },
+        {
+          "measure": 19,
+          "position": 0,
+          "string": 2,
+          "fret": 0,
+          "x": 322.25,
+          "y": 17.04
+        },
+        {
+          "measure": 20,
+          "position": 0,
+          "string": 4,
+          "fret": 0,
+          "x": 595.25,
+          "y": 41.04
+        },
+        {
+          "measure": 21,
+          "position": 0,
+          "string": 3,
+          "fret": 0,
+          "x": 907,
+          "y": 23.5
+        },
+        {
+          "measure": 23,
+          "position": 0,
+          "string": 3,
+          "fret": 2,
+          "x": 85,
+          "y": 23.5
+        },
+        {
+          "measure": 24,
+          "position": 0,
+          "string": 4,
+          "fret": 1,
+          "x": 311.25,
+          "y": 41.04
+        },
+        {
+          "measure": 25,
+          "position": 0,
+          "string": 3,
+          "fret": 0,
+          "x": 612,
+          "y": 23.5
+        },
+        {
+          "measure": 28,
+          "position": 0,
+          "string": 3,
+          "fret": 2,
+          "x": 83,
+          "y": 23.5
+        }
+      ],
+      "allChords": []
+    }
+  ]
+}

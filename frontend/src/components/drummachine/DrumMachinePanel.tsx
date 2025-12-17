@@ -152,7 +152,7 @@ export function DrumMachinePanel() {
           </div>
         </div>
         
-        <div className="bg-white dark:bg-gray-700 rounded-xl border border-black/10 dark:border-white/10 p-4 overflow-x-auto">
+        <div className="bg-white dark:bg-gray-700 rounded-xl border border-black/10 dark:border-white/10 p-4 overflow-x-auto custom-scrollbar">
           <div className="min-w-max">
             {/* En-tête avec numéros de steps */}
             <div className="grid grid-cols-[96px_repeat(16,40px)_160px] gap-1.5 mb-2 items-center">

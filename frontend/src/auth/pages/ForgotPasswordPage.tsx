@@ -11,6 +11,7 @@ export function ForgotPasswordPage({ onSwitchView }: Props) {
     <AuthCard
       title="Mot de passe oublié"
       subtitle="Renseigne ton email pour recevoir un lien de réinitialisation."
+      showLogo
       footer="Pense à vérifier tes spams si tu ne reçois rien."
     >
       <ForgotPasswordForm onBackToLogin={() => onSwitchView('login')} />

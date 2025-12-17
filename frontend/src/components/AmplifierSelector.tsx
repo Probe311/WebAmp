@@ -7,6 +7,8 @@ import { CTA } from './CTA'
 import { useCatalog } from '../hooks/useCatalog'
 import { WebSocketClient } from '../services/websocket'
 import { type NAMModel, namLoader } from '../utils/namLoader'
+import { Modal } from './Modal'
+import { Loader } from './Loader'
 
 interface AmplifierSelectorProps {
   selectedAmplifier?: string | null
@@ -19,9 +21,13 @@ export function AmplifierSelector({ selectedAmplifier, onAmplifierChange, onPara
   const { amplifiers: amplifierLibrary } = useCatalog()
   const [selected, setSelected] = useState<string | null>(selectedAmplifier || null)
   const [showLibrary, setShowLibrary] = useState(false)
+  const [showNamLibrary, setShowNamLibrary] = useState(false)
   const [parameters, setParameters] = useState<Record<string, number>>({})
   const [isPowered, setIsPowered] = useState(true)
   const [namModel, setNamModel] = useState<NAMModel | null>(null)
+  const [namLibraryLoading, setNamLibraryLoading] = useState(false)
+  const [namLibraryError, setNamLibraryError] = useState<string | null>(null)
+  const [namLibrary, setNamLibrary] = useState<import('../utils/namLoader').NAMModelLibrary | null>(null)
 
   const currentAmp = selected ? amplifierLibrary.find(amp => amp.id === selected) : null
 
@@ -82,7 +88,24 @@ export function AmplifierSelector({ selectedAmplifier, onAmplifierChange, onPara
       const model = await namLoader.loadFromFile(file)
       setNamModel(model)
     } catch (error) {
-      console.error('Erreur lors du chargement du modèle NAM:', error)
+      // échec silencieux du chargement du modèle NAM
+    }
+  }
+
+  const handleOpenNamLibrary = async () => {
+    setShowNamLibrary(true)
+    if (namLibrary || namLibraryLoading) return
+
+    try {
+      setNamLibraryLoading(true)
+      setNamLibraryError(null)
+      // Bibliothèque locale pré‑chargée
+      const library = await namLoader.loadLibrary('/src/data/nam-library.json')
+      setNamLibrary(library)
+    } catch (error) {
+      setNamLibraryError(error instanceof Error ? error.message : 'Erreur inconnue lors du chargement de la bibliothèque NAM')
+    } finally {
+      setNamLibraryLoading(false)
     }
   }
 
@@ -151,7 +174,7 @@ export function AmplifierSelector({ selectedAmplifier, onAmplifierChange, onPara
 
   // Fonction pour obtenir les classes de layout des knobs - toujours une seule ligne avec max 10
   const getKnobLayoutClasses = () => {
-    return 'flex-1 flex justify-start items-center gap-4 flex-nowrap overflow-x-auto py-2 min-w-0 max-w-full'
+    return 'flex-1 flex justify-start items-center gap-4 flex-nowrap overflow-x-auto custom-scrollbar py-2 min-w-0 max-w-full'
   }
 
   return (
@@ -231,7 +254,7 @@ export function AmplifierSelector({ selectedAmplifier, onAmplifierChange, onPara
                         amplifierId: selected,
                         powered: !isPowered
                       }).catch((error) => {
-                        console.error('Erreur set power ampli WebSocket:', error)
+                        // échec silencieux côté WebSocket
                       })
                     }
                   }}
@@ -321,7 +344,7 @@ export function AmplifierSelector({ selectedAmplifier, onAmplifierChange, onPara
             </div>
             
             <div className="absolute bottom-8 right-8 flex gap-2 z-10 shrink-0">
-              {/* Bouton pour charger un modèle NAM */}
+              {/* Bouton pour charger un modèle NAM depuis un fichier local */}
               <input
                 type="file"
                 accept=".nam"
@@ -342,12 +365,21 @@ export function AmplifierSelector({ selectedAmplifier, onAmplifierChange, onPara
                   className="w-[52px] h-[52px]"
                 />
               </label>
-            
-            <CTA
-              variant="icon-only"
-              icon={<Settings size={20} />}
-              onClick={() => setShowLibrary(true)}
-              title="Changer d'ampli"
+
+              {/* Bouton pour ouvrir la bibliothèque NAM pré‑chargée */}
+              <CTA
+                variant="icon-only"
+                icon={<Brain size={20} />}
+                onClick={handleOpenNamLibrary}
+                title="Bibliothèque NAM"
+                className="w-[52px] h-[52px]"
+              />
+
+              <CTA
+                variant="icon-only"
+                icon={<Settings size={20} />}
+                onClick={() => setShowLibrary(true)}
+                title="Changer d'ampli"
                 className="w-[52px] h-[52px]"
               />
             </div>
@@ -375,6 +407,67 @@ export function AmplifierSelector({ selectedAmplifier, onAmplifierChange, onPara
         onSelectAmplifier={handleSelectAmplifier}
         selectedAmplifier={selected || undefined}
       />
+
+      {/* Modal de bibliothèque NAM pré‑chargée */}
+      <Modal
+        isOpen={showNamLibrary}
+        onClose={() => setShowNamLibrary(false)}
+        title="Bibliothèque de modèles NAM"
+        className="flex flex-col"
+        bodyClassName="flex-1 overflow-y-auto custom-scrollbar p-4"
+      >
+        {namLibraryLoading && (
+          <div className="flex items-center justify-center py-8">
+            <Loader label="Chargement de la bibliothèque NAM..." />
+          </div>
+        )}
+
+        {namLibraryError && !namLibraryLoading && (
+          <div className="text-sm text-red-600 dark:text-red-400 py-4">
+            {namLibraryError}
+          </div>
+        )}
+
+        {!namLibraryLoading && namLibrary && (
+          <div className="space-y-4">
+            {Object.entries(namLibrary.categories).map(([category, models]) => (
+              <div key={category}>
+                <h3 className="text-xs font-semibold uppercase tracking-[1px] text-black/60 dark:text-white/60 mb-2">
+                  {category === 'amp' ? 'Amplis' : category === 'pedal' ? 'Pédales' : 'Autres modèles'}
+                </h3>
+                <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-3">
+                  {models.map((model) => (
+                    <button
+                      key={model.fileName}
+                      onClick={async () => {
+                        setNamModel(model)
+                        setShowNamLibrary(false)
+                      }}
+                      className="w-full text-left bg-white dark:bg-gray-800 border border-black/10 dark:border-white/10 rounded-lg p-3 hover:shadow-md dark:hover:shadow-[0_6px_18px_rgba(0,0,0,0.7)] transition-all duration-200 cursor-pointer"
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm font-semibold text-black/85 dark:text-white/90 truncate">
+                          {model.metadata.name}
+                        </span>
+                      </div>
+                      {model.metadata.author && (
+                        <div className="text-[0.7rem] text-black/50 dark:text-white/50 mb-1 truncate">
+                          par {model.metadata.author}
+                        </div>
+                      )}
+                      {model.metadata.description && (
+                        <div className="text-[0.7rem] text-black/60 dark:text-white/60 line-clamp-2">
+                          {model.metadata.description}
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </Modal>
     </>
   )
 }

@@ -45,7 +45,6 @@ const Toggle: React.FC<ToggleProps> = (props) => {
     // Conversion de l'ancienne interface vers la nouvelle
     const legacyProps = props as TogglePropsLegacy
     if (legacyProps.options.length !== 2) {
-      console.warn('Toggle component expects exactly 2 options')
       return null
     }
     const [leftOption, rightOption] = legacyProps.options

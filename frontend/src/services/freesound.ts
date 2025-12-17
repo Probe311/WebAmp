@@ -129,7 +129,6 @@ class FreesoundService {
       this.accessToken = data.access_token || '';
       return this.accessToken || '';
     } catch (error) {
-      console.error('Freesound OAuth2 failed:', error);
       throw error;
     }
   }
@@ -167,7 +166,6 @@ class FreesoundService {
 
       return await response.json();
     } catch (error) {
-      console.error('Freesound API request failed:', error);
       throw error;
     }
   }

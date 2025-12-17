@@ -187,13 +187,6 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
           variant="primary"
           onClick={() => {
             // Le thème est déjà sauvegardé automatiquement via le contexte
-            console.log('Paramètres sauvegardés', {
-              audioDevice,
-              sampleRate,
-              bufferSize,
-              theme,
-              language
-            })
             if (onClose) onClose()
           }}
           className="flex-1"

@@ -11,7 +11,6 @@ import { tablatureService } from '../services/tablatures'
 export async function migrateSingleTutorial(tutorialId: string) {
   const tutorial = tutorials.find(t => t.id === tutorialId)
   if (!tutorial) {
-    console.error(`Tutoriel ${tutorialId} non trouvé`)
     return false
   }
 
@@ -34,11 +33,8 @@ export async function migrateSingleTutorial(tutorialId: string) {
       .single()
 
     if (courseError) {
-      console.error(`Erreur lors de la création du cours ${tutorial.title}:`, courseError)
       return false
     }
-
-    console.log(`✓ Cours créé: ${course.id} - ${course.title}`)
 
     // 2. Créer les récompenses
     if (tutorial.rewards) {
@@ -72,7 +68,6 @@ export async function migrateSingleTutorial(tutorialId: string) {
           .single()
 
         if (lessonError) {
-          console.error(`Erreur lors de la création de la leçon ${step.title}:`, lessonError)
           continue
         }
 
@@ -178,10 +173,8 @@ export async function migrateSingleTutorial(tutorialId: string) {
       }
     }
 
-    console.log(`✅ Tutoriel migré avec succès: ${tutorial.title}`)
     return true
   } catch (error) {
-    console.error(`Erreur lors de la migration du tutoriel ${tutorial.title}:`, error)
     return false
   }
 }
@@ -190,7 +183,6 @@ export async function migrateSingleTutorial(tutorialId: string) {
  * Migre tous les tutoriels vers Supabase
  */
 export async function migrateAllTutorials() {
-  console.log('🚀 Début de la migration de tous les tutoriels...')
   let successCount = 0
   let errorCount = 0
 
@@ -206,10 +198,6 @@ export async function migrateAllTutorials() {
     await new Promise(resolve => setTimeout(resolve, 100))
   }
 
-  console.log(`\n✅ Migration terminée:`)
-  console.log(`   - ${successCount} tutoriels migrés avec succès`)
-  console.log(`   - ${errorCount} erreurs`)
-  
   return { successCount, errorCount }
 }
 
@@ -217,7 +205,6 @@ export async function migrateAllTutorials() {
  * Migre tous les accords vers Supabase
  */
 export async function migrateAllChords() {
-  console.log('🚀 Début de la migration des accords...')
   const chords = tablatureService.getAllChords()
   let successCount = 0
   let errorCount = 0
@@ -235,18 +222,12 @@ export async function migrateAllChords() {
       })
 
     if (error) {
-      console.error(`Erreur lors de la migration de l'accord ${chord.name}:`, error)
       errorCount++
     } else {
       successCount++
-      console.log(`✓ Accord migré: ${chord.name}`)
     }
   }
 
-  console.log(`\n✅ Migration des accords terminée:`)
-  console.log(`   - ${successCount} accords migrés avec succès`)
-  console.log(`   - ${errorCount} erreurs`)
-  
   return { successCount, errorCount }
 }
 
@@ -283,9 +264,4 @@ if (typeof window !== 'undefined') {
   ;(window as any).migrateAllTutorials = migrateAllTutorials
   ;(window as any).migrateSingleTutorial = migrateSingleTutorial
   ;(window as any).countCourses = countCourses
-  console.log('✅ Fonctions de migration disponibles globalement:')
-  console.log('   - migrateAllChords()')
-  console.log('   - migrateAllTutorials()')
-  console.log('   - migrateSingleTutorial(tutorialId)')
-  console.log('   - countCourses()')
 }

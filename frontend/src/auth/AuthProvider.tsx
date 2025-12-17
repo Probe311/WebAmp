@@ -12,6 +12,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [initializing, setInitializing] = useState(true)
   const [loading, setLoading] = useState(false)
+  const authEnabled = useMemo(() => isSupabaseEnabled && Boolean(supabase), [])
 
   useEffect(() => {
     if (!supabase) {
@@ -22,7 +23,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     supabase.auth.getSession()
       .then(({ data, error }) => {
         if (error) {
-          console.error('[Auth] Impossible de récupérer la session', error)
           return
         }
         setSession(data.session)
@@ -41,8 +41,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const ensureClient = useCallback(() => {
-    if (!isSupabaseEnabled || !supabase) {
-      const errorMsg = 'Authentification non configurée. Vérifie les paramètres.'
+    if (!authEnabled) {
+      const errorMsg = 'Authentification non configurée. Ajoute VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY dans frontend/.env.local.'
       showToast({
         variant: 'error',
         title: 'Auth indisponible',
@@ -51,9 +51,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw new Error(errorMsg)
     }
     return requireSupabase()
-  }, [showToast])
+  }, [authEnabled, showToast])
 
   const login = useCallback(async (email: string, password: string) => {
+    if (!authEnabled) {
+      const errorMsg = 'Authentification non configurée. Ajoute VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY.'
+      showToast({
+        variant: 'error',
+        title: 'Connexion impossible',
+        message: errorMsg
+      })
+      throw new Error(errorMsg)
+    }
     setLoading(true)
     try {
       const client = ensureClient()
@@ -65,7 +74,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         message: 'Bienvenue de retour sur WebAmp.'
       })
     } catch (error) {
-      console.error('[Auth] Erreur de connexion', error)
       showToast({
         variant: 'error',
         title: 'Connexion impossible',
@@ -110,7 +118,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       })
       return false
     } catch (error) {
-      console.error('[Auth] Erreur lors de la création de compte', error)
       const errorMessage = error instanceof Error 
         ? (error.message.includes('API key') || error.message.includes('Invalid')
           ? 'Configuration incorrecte. Vérifie les paramètres d\'authentification.'
@@ -139,7 +146,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         message: 'À bientôt sur WebAmp.'
       })
     } catch (error) {
-      console.error('[Auth] Erreur de déconnexion', error)
       showToast({
         variant: 'error',
         title: 'Déconnexion impossible',
@@ -165,7 +171,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         message: 'Consulte ta boîte mail pour réinitialiser ton mot de passe.'
       })
     } catch (error) {
-      console.error('[Auth] Erreur de demande de reset password', error)
       showToast({
         variant: 'error',
         title: 'Impossible d\'envoyer l\'e-mail',
@@ -189,7 +194,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         message: 'Ton mot de passe a bien été changé.'
       })
     } catch (error) {
-      console.error('[Auth] Erreur lors de la mise à jour du mot de passe', error)
       showToast({
         variant: 'error',
         title: 'Mise à jour impossible',
@@ -223,7 +227,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         message: 'Tes informations ont été enregistrées.'
       })
     } catch (error) {
-      console.error('[Auth] Erreur lors de la mise à jour des métadonnées', error)
       showToast({
         variant: 'error',
         title: 'Mise à jour impossible',
@@ -239,7 +242,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const client = ensureClient()
     const { data, error } = await client.auth.getSession()
     if (error) {
-      console.error('[Auth] Rafraîchissement de session impossible', error)
       return
     }
     setSession(data.session)
@@ -251,6 +253,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     user,
     initializing,
     loading,
+    authEnabled,
     login,
     signUp,
     logout,
@@ -258,7 +261,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     updatePassword,
     updateUserMetadata,
     refreshSession
-  }), [session, user, initializing, loading, login, signUp, logout, resetPassword, updatePassword, updateUserMetadata, refreshSession])
+  }), [session, user, initializing, loading, authEnabled, login, signUp, logout, resetPassword, updatePassword, updateUserMetadata, refreshSession])
 
   return (
     <AuthContext.Provider value={value}>

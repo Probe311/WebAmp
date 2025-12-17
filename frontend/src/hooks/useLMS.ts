@@ -1,26 +1,12 @@
 // Hook React pour utiliser le service LMS
 import { useState, useEffect } from 'react'
 import { lmsService } from '../services/lms'
-import { supabase, Course as CourseType, Lesson, UserProgress, UserStats } from '../services/supabase'
+import { Course as CourseType, Lesson, UserProgress, UserStats, supabase } from '../services/supabase'
+import { useAuth } from '../auth'
 
 export function useLMS() {
-  const [user, setUser] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    // Vérifier l'utilisateur actuel
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setUser(user)
-      setLoading(false)
-    })
-
-    // Écouter les changements d'authentification
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
-    })
-
-    return () => subscription.unsubscribe()
-  }, [])
+  // On s'appuie sur le système d'auth global (AuthProvider)
+  const { user, loading, authEnabled } = useAuth()
 
   return {
     user,
@@ -59,38 +45,19 @@ export function useCourse(courseId: string) {
 
   // Exposer une fonction de rechargement
   const refresh = () => {
-    console.log('🔄 Rechargement du cours:', courseId)
     setRefreshKey(prev => prev + 1)
   }
 
   useEffect(() => {
     const loadCourse = async () => {
       setLoading(true)
-      console.log('📚 Chargement du cours:', courseId, 'refreshKey:', refreshKey)
       const data = await lmsService.getCourseWithLessons(courseId)
-      console.log('📚 Cours chargé:', data ? { id: data.id, title: data.title, lessonsCount: data.lessons?.length } : null)
       if (data?.lessons) {
-        console.log('📚 Titres des leçons:', data.lessons.map(l => ({ 
-          id: l.id, 
-          title: l.title, 
-          descriptionPreview: l.description.substring(0, 100),
-          hasFullTablature: l.description.includes('[fulltablature:')
-        })))
-        
-        // Log détaillé pour la leçon de tablature
         const tablatureLesson = data.lessons.find(l => 
           l.title.includes('tablature') || 
           l.title.includes('progression complète') ||
           l.id === '913ebd57-4fc9-4162-b071-84647dbbf108'
         )
-        if (tablatureLesson) {
-          console.log('🎸 Leçon de tablature trouvée:', {
-            id: tablatureLesson.id,
-            title: tablatureLesson.title,
-            description: tablatureLesson.description,
-            hasFullTablatureTag: tablatureLesson.description.includes('[fulltablature:')
-          })
-        }
       }
       setCourse(data)
       setLoading(false)
@@ -127,20 +94,13 @@ export function useUserProgress(userId: string | undefined, courseId: string) {
   return { progress, loading }
 }
 
-export function useUserStats(userId: string | undefined) {
+export function useUserStats(userId: string | undefined, refreshKey: number = 0) {
   const [stats, setStats] = useState<UserStats | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const loadStats = async () => {
       if (!userId) {
-        setLoading(false)
-        return
-      }
-
-      // Vérifier que l'utilisateur est authentifié avant de charger les stats
-      const { data: { user }, error: authError } = await supabase.auth.getUser()
-      if (authError || !user || user.id !== userId) {
         setLoading(false)
         return
       }
@@ -152,7 +112,7 @@ export function useUserStats(userId: string | undefined) {
     }
 
     loadStats()
-  }, [userId])
+  }, [userId, refreshKey])
 
   return { stats, loading }
 }
@@ -220,7 +180,7 @@ export function useCurrentCourse(userId: string | undefined) {
  * Hook pour récupérer toutes les progressions de l'utilisateur pour tous les cours
  * Retourne un Map avec course_id comme clé et { progress, completed } comme valeur
  */
-export function useAllCoursesProgress(userId: string | undefined) {
+export function useAllCoursesProgress(userId: string | undefined, refreshKey: number = 0) {
   const [progressMap, setProgressMap] = useState<Map<string, { progress: number; completed: boolean }>>(new Map())
   const [loading, setLoading] = useState(true)
 
@@ -243,7 +203,6 @@ export function useAllCoursesProgress(userId: string | undefined) {
         .order('updated_at', { ascending: false })
 
       if (progressError) {
-        console.error('Error fetching all courses progress:', progressError)
         setLoading(false)
         return
       }
@@ -276,7 +235,7 @@ export function useAllCoursesProgress(userId: string | undefined) {
     }
 
     loadAllProgress()
-  }, [userId])
+  }, [userId, refreshKey])
 
   return { progressMap, loading }
 }

@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { ChevronDown, Loader2 } from 'lucide-react'
 import { Block } from '../Block'
+import { CTA } from '../CTA'
 import { lmsService } from '../../services/lms'
-import { songsterrService } from '../../services/songsterr'
 import { useTheme } from '../../contexts/ThemeContext'
 
 interface TablatureNote {
@@ -61,187 +61,13 @@ export function FullTablatureViewer({
   const MEASURE_WIDTH = 200 // Largeur d'une mesure en pixels
   const STRING_HEIGHT = 30 // Hauteur entre chaque ligne de corde
 
-  // Charger les informations de la tablature
+  // Charger les informations de la tablature (uniquement depuis Supabase)
   useEffect(() => {
     const loadTablatureInfo = async () => {
-      console.log('🎸 FullTablatureViewer - Début chargement tablature:', {
-        tablatureId,
-        title,
-        artist,
-        courseId,
-        lessonId
-      })
-      
       setLoadingInfo(true)
       setError(null)
       try {
-        // 1. Essayer de charger depuis Supabase
-        console.log('🎸 FullTablatureViewer - Recherche dans Supabase pour:', tablatureId)
-        let info = await lmsService.getTablature(tablatureId)
-        
-        if (info) {
-          console.log('✅ FullTablatureViewer - Tablature trouvée dans Supabase:', {
-            id: info.id,
-            title: info.title,
-            artist: info.artist,
-            measuresCount: info.measures?.length || 0,
-            songsterr_id: (info as any).songsterr_id,
-            songsterrId: (info as any).songsterrId,
-            songsterr_url: (info as any).songsterr_url,
-            songsterrUrl: (info as any).songsterrUrl
-          })
-        } else {
-          console.log('⚠️ FullTablatureViewer - Tablature non trouvée dans Supabase')
-        }
-        
-        // 2. Si pas trouvé dans Supabase et qu'on a title/artist, essayer Songsterr
-        if (!info && title && artist) {
-          console.log(`🎸 FullTablatureViewer - Appel Songsterr pour: "${title}" par "${artist}"`)
-          const songsterrData = await songsterrService.getTablatureByTitleAndArtist(title, artist)
-          
-          if (songsterrData) {
-            console.log('✅ FullTablatureViewer - Données Songsterr reçues:', {
-              id: songsterrData.id,
-              title: songsterrData.title,
-              artist: songsterrData.artist,
-              songsterrId: songsterrData.songsterrId,
-              songsterrUrl: songsterrData.songsterrUrl,
-              measuresCount: songsterrData.measures?.length || 0
-            })
-            
-            // Convertir les données Songsterr au format attendu
-            info = {
-              id: tablatureId, // Utiliser l'ID du cours plutôt que l'ID Songsterr
-              title: songsterrData.title,
-              artist: songsterrData.artist,
-              tempo: songsterrData.tempo,
-              time_signature: songsterrData.timeSignature,
-              key: songsterrData.key,
-              measures: songsterrData.measures,
-              songsterrUrl: songsterrData.songsterrUrl
-            }
-            
-            // Sauvegarder dans Supabase pour les prochaines fois
-            try {
-              console.log('💾 FullTablatureViewer - Sauvegarde dans Supabase...')
-              await lmsService.saveTablature({
-                id: tablatureId,
-                title: songsterrData.title,
-                artist: songsterrData.artist,
-                tempo: songsterrData.tempo,
-                time_signature: songsterrData.timeSignature,
-                key: songsterrData.key,
-                measures: songsterrData.measures || [],
-                songsterrUrl: songsterrData.songsterrUrl,
-                songsterrId: songsterrData.songsterrId
-              })
-              console.log(`✅ FullTablatureViewer - Tablature "${tablatureId}" sauvegardée dans Supabase`)
-              
-              // Associer la tablature au cours si courseId est fourni
-              if (courseId) {
-                console.log('🔗 FullTablatureViewer - Association au cours:', { courseId, lessonId })
-                await lmsService.associateTablatureToCourse(courseId, tablatureId, lessonId)
-                console.log(`✅ FullTablatureViewer - Tablature associée au cours "${courseId}"`)
-              }
-            } catch (saveError) {
-              console.warn('⚠️ FullTablatureViewer - Erreur sauvegarde Supabase:', saveError)
-              // On continue quand même avec les données Songsterr
-            }
-          } else {
-            console.log('❌ FullTablatureViewer - Aucune donnée Songsterr trouvée')
-          }
-        } else if (!info && (!title || !artist)) {
-          console.log('⚠️ FullTablatureViewer - Pas de title/artist fourni pour Songsterr:', { title, artist })
-        }
-        
-        // 3. Si la tablature existe mais n'a pas de mesures, essayer Songsterr
-        if (info && (!info.measures || info.measures.length === 0)) {
-          // Priorité 1: Utiliser l'ID Songsterr stocké s'il existe
-          const songsterrId = (info as any).songsterr_id || (info as any).songsterrId
-          
-          console.log(`🔍 FullTablatureViewer - Vérification ID Songsterr:`, {
-            songsterr_id: (info as any).songsterr_id,
-            songsterrId: (info as any).songsterrId,
-            found: !!songsterrId,
-            value: songsterrId
-          })
-          
-          if (songsterrId) {
-            console.log(`🎸 FullTablatureViewer - Tablature trouvée mais sans mesures, utilisation ID Songsterr: ${songsterrId}`)
-            try {
-              const songsterrData = await songsterrService.getTablatureBySongsterrId(songsterrId)
-              
-              if (songsterrData && songsterrData.measures && songsterrData.measures.length > 0) {
-                console.log(`✅ FullTablatureViewer - ${songsterrData.measures.length} mesures récupérées depuis Songsterr (par ID)`)
-                
-                // Mettre à jour les mesures dans l'info
-                info.measures = songsterrData.measures
-                info.songsterr_id = songsterrData.songsterrId
-                info.songsterr_url = songsterrData.songsterrUrl
-                
-                // Sauvegarder les mesures dans Supabase
-                try {
-                  await lmsService.saveTablature({
-                    id: info.id,
-                    title: songsterrData.title || info.title,
-                    artist: songsterrData.artist || info.artist,
-                    tempo: songsterrData.tempo || info.tempo,
-                    time_signature: songsterrData.timeSignature || info.time_signature,
-                    key: songsterrData.key || info.key,
-                    measures: songsterrData.measures,
-                    songsterrUrl: songsterrData.songsterrUrl,
-                    songsterrId: songsterrData.songsterrId
-                  })
-                  console.log(`✅ FullTablatureViewer - Mesures sauvegardées dans Supabase`)
-                } catch (saveError) {
-                  console.warn('⚠️ FullTablatureViewer - Erreur sauvegarde mesures:', saveError)
-                }
-              } else {
-                console.log('⚠️ FullTablatureViewer - Songsterr n\'a pas retourné de mesures (par ID)')
-              }
-            } catch (songsterrError) {
-              console.warn('⚠️ FullTablatureViewer - Erreur appel Songsterr par ID:', songsterrError)
-            }
-          } else if (title && artist) {
-            // Priorité 2: Chercher par titre et artiste si pas d'ID Songsterr
-            // Note: Cette méthode échouera à cause de CORS, mais on essaie quand même
-            console.log(`🎸 FullTablatureViewer - Tablature trouvée mais sans mesures, tentative appel Songsterr pour: "${title}" par "${artist}" (sera bloqué par CORS)`)
-            try {
-              const songsterrData = await songsterrService.getTablatureByTitleAndArtist(title, artist)
-              
-              if (songsterrData && songsterrData.measures && songsterrData.measures.length > 0) {
-                console.log(`✅ FullTablatureViewer - ${songsterrData.measures.length} mesures récupérées depuis Songsterr`)
-                
-                // Mettre à jour les mesures dans l'info
-                info.measures = songsterrData.measures
-                info.songsterr_id = songsterrData.songsterrId
-                info.songsterr_url = songsterrData.songsterrUrl
-                
-                // Sauvegarder les mesures dans Supabase
-                try {
-                  await lmsService.saveTablature({
-                    id: info.id,
-                    title: info.title,
-                    artist: info.artist,
-                    tempo: songsterrData.tempo || info.tempo,
-                    time_signature: songsterrData.timeSignature || info.time_signature,
-                    key: songsterrData.key || info.key,
-                    measures: songsterrData.measures,
-                    songsterrUrl: songsterrData.songsterrUrl,
-                    songsterrId: songsterrData.songsterrId
-                  })
-                  console.log(`✅ FullTablatureViewer - Mesures sauvegardées dans Supabase`)
-                } catch (saveError) {
-                  console.warn('⚠️ FullTablatureViewer - Erreur sauvegarde mesures:', saveError)
-                }
-              } else {
-                console.log('⚠️ FullTablatureViewer - Songsterr n\'a pas retourné de mesures')
-              }
-            } catch (songsterrError) {
-              console.warn('⚠️ FullTablatureViewer - Erreur appel Songsterr:', songsterrError)
-            }
-          }
-        }
+        const info = await lmsService.getTablature(tablatureId)
         
         if (info) {
           setTablatureInfo(info)
@@ -254,32 +80,23 @@ export function FullTablatureViewer({
             setMeasures(info.measures.slice(0, PAGE_SIZE))
             setHasMore(info.measures.length > PAGE_SIZE)
           } else if ((info as any).songsterr_url || (info as any).songsterrUrl) {
-            // Si on a un lien Songsterr mais pas de mesures, afficher le lien
+            // Si on a un lien Songsterr mais pas de mesures, afficher uniquement le lien
             setMeasures([])
             setHasMore(false)
-            console.log(`💡 FullTablatureViewer - Tablature "${tablatureId}" a une URL Songsterr mais pas de mesures directes.`)
           } else {
             setError(`La tablature "${tablatureId}" existe mais ne contient aucune mesure.`)
-            console.error(`❌ FullTablatureViewer - La tablature "${tablatureId}" existe mais ne contient aucune mesure.`)
           }
         } else {
-          if (title && artist) {
-            setError(`La tablature "${title}" de ${artist} n'a pas été trouvée dans Supabase ni sur Songsterr.`)
-            console.error(`❌ FullTablatureViewer - La tablature "${title}" de ${artist} n'a pas été trouvée dans Supabase ni sur Songsterr.`)
-          } else {
-            setError(`La tablature "${tablatureId}" n'a pas été trouvée dans la base de données.`)
-            console.error(`❌ FullTablatureViewer - La tablature "${tablatureId}" n'a pas été trouvée dans la base de données.`)
-          }
+          setError(`La tablature "${tablatureId}" n'a pas été trouvée dans la base de données.`)
         }
       } catch (err) {
-        console.error('Error loading tablature:', err)
         setError(`Erreur lors du chargement de la tablature "${tablatureId}".`)
       } finally {
         setLoadingInfo(false)
       }
     }
     loadTablatureInfo()
-  }, [tablatureId, initialMeasures, title, artist, courseId, lessonId])
+  }, [tablatureId, initialMeasures])
 
   // Charger plus de mesures
   const loadMoreMeasures = async () => {
@@ -312,7 +129,6 @@ export function FullTablatureViewer({
         }
       }
     } catch (error) {
-      console.error('Error loading more measures:', error)
       setHasMore(false)
     } finally {
       setLoading(false)
@@ -352,29 +168,32 @@ export function FullTablatureViewer({
         <circle
           cx={x}
           cy={y}
-          r="10"
-          fill={isDark ? '#f59e0b' : '#f97316'}
-          stroke={isDark ? '#ffffff' : '#000000'}
-          strokeWidth="1"
+          r="11"
+          fill={isDark ? '#f97316' : '#f97316'}
+          stroke={isDark ? '#ffffff' : '#ffffff'}
+          strokeWidth="2"
+          opacity="0.95"
         />
         {/* Numéro de frette */}
         <text
           x={x}
-          y={y + 4}
+          y={y + 5}
           textAnchor="middle"
-          fill={isDark ? '#000000' : '#ffffff'}
-          fontSize="10"
+          fill={isDark ? '#ffffff' : '#ffffff'}
+          fontSize="11"
           fontWeight="bold"
+          style={{ textShadow: '0 1px 2px rgba(0,0,0,0.3)' }}
         >
           {fretText}
         </text>
         {/* Indicateur de technique */}
         {note.technique && (
           <text
-            x={x + 12}
+            x={x + 14}
             y={y - 8}
-            fill={isDark ? '#ffffff' : '#000000'}
-            fontSize="8"
+            fill={isDark ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.85)'}
+            fontSize="9"
+            fontWeight="600"
           >
             {note.technique}
           </text>
@@ -394,8 +213,8 @@ export function FullTablatureViewer({
           x={x + MEASURE_WIDTH / 2}
           y={15}
           textAnchor="middle"
-          fill={isDark ? '#ffffff' : '#000000'}
-          fontSize="10"
+          fill={isDark ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.85)'}
+          fontSize="11"
           fontWeight="bold"
         >
           {measureIndex + 1}
@@ -407,9 +226,10 @@ export function FullTablatureViewer({
             x={x + MEASURE_WIDTH / 2}
             y={30}
             textAnchor="middle"
-            fill={isDark ? '#f59e0b' : '#f97316'}
-            fontSize="12"
+            fill={isDark ? '#f97316' : '#f97316'}
+            fontSize="13"
             fontWeight="bold"
+            style={{ textShadow: '0 1px 2px rgba(0,0,0,0.2)' }}
           >
             {measure.chord}
           </text>
@@ -420,9 +240,9 @@ export function FullTablatureViewer({
           <text
             x={x}
             y={25}
-            fill={isDark ? '#9ca3af' : '#6b7280'}
+            fill={isDark ? 'rgba(156,163,175,0.9)' : 'rgba(107,114,128,0.9)'}
             fontSize="10"
-            fontWeight="bold"
+            fontWeight="600"
             textDecoration="underline"
           >
             {measure.section}
@@ -435,8 +255,8 @@ export function FullTablatureViewer({
           y1={40}
           x2={x}
           y2={40 + STRING_HEIGHT * 6}
-          stroke={isDark ? '#ffffff' : '#000000'}
-          strokeWidth="2"
+          stroke={isDark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.5)'}
+          strokeWidth="2.5"
         />
 
         {/* Notes de la mesure */}
@@ -465,8 +285,8 @@ export function FullTablatureViewer({
           y1={40}
           x2={x + MEASURE_WIDTH}
           y2={40 + STRING_HEIGHT * 6}
-          stroke={isDark ? '#ffffff' : '#000000'}
-          strokeWidth="2"
+          stroke={isDark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.5)'}
+          strokeWidth="2.5"
         />
 
         {/* Instructions */}
@@ -474,7 +294,7 @@ export function FullTablatureViewer({
           <text
             x={x + 5}
             y={40 + STRING_HEIGHT * 6 + 15}
-            fill={isDark ? '#9ca3af' : '#6b7280'}
+            fill={isDark ? 'rgba(156,163,175,0.8)' : 'rgba(107,114,128,0.8)'}
             fontSize="9"
             fontStyle="italic"
           >
@@ -576,7 +396,18 @@ export function FullTablatureViewer({
               href={(tablatureInfo as any).songsterrUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-medium bg-orange-500 text-white hover:bg-orange-600 shadow-lg hover:shadow-xl transition-all duration-200"
+              className="
+                inline-flex items-center gap-2 px-6 py-3 rounded-lg
+                bg-white dark:bg-gray-700 text-black/90 dark:text-white/90
+                font-semibold text-sm
+                cursor-pointer transition-all duration-200 select-none touch-manipulation
+                shadow-[2px_2px_4px_rgba(0,0,0,0.08),-2px_-2px_4px_rgba(255,255,255,0.9)]
+                dark:shadow-[2px_2px_4px_rgba(0,0,0,0.5),-2px_-2px_4px_rgba(60,60,60,0.5)]
+                hover:shadow-[3px_3px_6px_rgba(0,0,0,0.12),-3px_-3px_6px_rgba(255,255,255,1)]
+                dark:hover:shadow-[3px_3px_6px_rgba(0,0,0,0.6),-3px_-3px_6px_rgba(70,70,70,0.6)]
+                hover:-translate-y-0.5 active:scale-95
+                border-2 border-black/15 dark:border-white/15
+              "
             >
               Voir la tablature sur Songsterr
               <ChevronDown size={18} className="rotate-[-90deg]" />
@@ -587,13 +418,22 @@ export function FullTablatureViewer({
 
       {/* Tablature horizontale */}
       {measures.length > 0 && (
-        <Block className="p-4 overflow-x-auto">
-          <div ref={containerRef} className="relative" style={{ minWidth: `${measures.length * MEASURE_WIDTH + 60}px` }}>
+        <Block className="p-4">
+          <div 
+            ref={containerRef} 
+            className="relative overflow-x-auto custom-scrollbar"
+            style={{ 
+              maxWidth: '100%',
+              maxHeight: '80vh',
+              overflowY: 'auto'
+            }}
+          >
             <svg
               width="100%"
               height={STRING_HEIGHT * 6 + 80}
               viewBox={`0 0 ${measures.length * MEASURE_WIDTH + 60} ${STRING_HEIGHT * 6 + 80}`}
               className="overflow-visible"
+              style={{ minWidth: `${measures.length * MEASURE_WIDTH + 60}px` }}
             >
             {/* Noms des cordes à gauche */}
             {STRING_NAMES.map((name, index) => {
@@ -602,10 +442,11 @@ export function FullTablatureViewer({
                 <text
                   key={`string-${index}`}
                   x="10"
-                  y={y + 4}
-                  fill={isDark ? '#ffffff' : '#000000'}
-                  fontSize="14"
+                  y={y + 5}
+                  fill={isDark ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.85)'}
+                  fontSize="15"
                   fontWeight="bold"
+                  style={{ textShadow: '0 1px 2px rgba(0,0,0,0.1)' }}
                 >
                   {name}
                 </text>
@@ -622,8 +463,8 @@ export function FullTablatureViewer({
                   y1={y}
                   x2={measures.length * MEASURE_WIDTH + 60}
                   y2={y}
-                  stroke={isDark ? '#525252' : '#9ca3af'}
-                  strokeWidth={index < 2 ? '2' : '1'}
+                  stroke={isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.3)'}
+                  strokeWidth={index < 2 ? '2.5' : '1.5'}
                 />
               )
             })}
@@ -638,10 +479,10 @@ export function FullTablatureViewer({
       {/* Bouton "Charger plus" */}
       {hasMore && (
         <div ref={loadMoreRef} className="flex justify-center py-4">
-          <button
+          <CTA
             onClick={loadMoreMeasures}
             disabled={loading}
-            className="flex items-center gap-2 px-6 py-3 rounded-xl font-medium bg-orange-500 text-white hover:bg-orange-600 shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2"
           >
             {loading ? (
               <>
@@ -654,7 +495,7 @@ export function FullTablatureViewer({
                 <span>Voir la tablature complète ({measures.length} mesure{measures.length > 1 ? 's' : ''} affichée{measures.length > 1 ? 's' : ''})</span>
               </>
             )}
-          </button>
+          </CTA>
         </div>
       )}
 

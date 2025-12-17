@@ -87,8 +87,21 @@ export function SystemMonitoringPanel() {
       rafId = requestAnimationFrame(measureCpuWithRAF)
     }
 
+    const startRAF = () => {
+      if (rafId === null) {
+        rafId = requestAnimationFrame(measureCpuWithRAF)
+      }
+    }
+
+    const stopRAF = () => {
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId)
+        rafId = null
+      }
+    }
+
     // Démarrer la mesure avec RAF
-    rafId = requestAnimationFrame(measureCpuWithRAF)
+    startRAF()
 
     // Fonction pour estimer l'utilisation CPU
     const estimateCpuUsage = () => {
@@ -178,19 +191,34 @@ export function SystemMonitoringPanel() {
 
         setSystemStats(stats)
       } catch (error) {
-        console.error('Erreur lors de la récupération des métriques système:', error)
+        // échec silencieux de la récupération des métriques système
       }
     }
 
-    fetchSystemStats()
-    const interval = setInterval(fetchSystemStats, 1000)
+    const safeFetch = () => {
+      if (document.visibilityState !== 'visible') return
+      fetchSystemStats()
+    }
+
+    safeFetch()
+    const interval = setInterval(safeFetch, 2000)
+
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        startRAF()
+        safeFetch()
+      } else {
+        stopRAF()
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibility, { passive: true })
 
     return () => {
       isActive = false
       clearInterval(interval)
-      if (rafId !== null) {
-        cancelAnimationFrame(rafId)
-      }
+      stopRAF()
+      document.removeEventListener('visibilitychange', handleVisibility)
     }
   }, [])
 

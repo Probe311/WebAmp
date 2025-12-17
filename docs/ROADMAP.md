@@ -82,12 +82,12 @@ Plan de développement et fonctionnalités prévues pour WebAmp.
 **Priorité** : HAUTE  
 **Status** : ✅ Implémenté (nécessite ASIO SDK pour compilation)
 
-- [x] Intégrer ASIO SDK (structure prête, nécessite HAS_ASIO_SDK)
-- [x] Implémenter callbacks ASIO (bufferSwitchTimeInfo, sampleRateChanged, asioMessage)
-- [x] Gestion des buffers ASIO (double buffering, conversion de formats)
-- [x] Support multi-channel (configurable jusqu'à 32 canaux)
-- [x] Détection automatique des périphériques ASIO (énumération des drivers)
-- [x] Gestion des changements de périphérique à chaud (handleDeviceChange)
+- ✅ Intégrer ASIO SDK (structure prête, nécessite HAS_ASIO_SDK)
+- ✅ Implémenter callbacks ASIO (bufferSwitchTimeInfo, sampleRateChanged, asioMessage)
+- ✅ Gestion des buffers ASIO (double buffering, conversion de formats)
+- ✅ Support multi-channel (configurable jusqu'à 32 canaux)
+- ✅ Détection automatique des périphériques ASIO (énumération des drivers)
+- ✅ Gestion des changements de périphérique à chaud (handleDeviceChange)
 
 **Fichiers** : `native/src/asio_driver.cpp`, `native/include/asio_driver.h`
 
@@ -99,13 +99,13 @@ Plan de développement et fonctionnalités prévues pour WebAmp.
 **Priorité** : HAUTE  
 **Status** : ✅ Implémenté
 
-- [x] Créer `native/src/coreaudio_driver.cpp`
-- [x] Implémenter interface AudioDriver
-- [x] Gestion des callbacks CoreAudio (AudioUnit callback)
-- [x] Support multi-channel (configurable)
-- [x] Support Aggregate Device (structure prête, nécessite permissions)
-- [x] Gestion de la latence variable (calcul automatique depuis les devices)
-- [x] Support des formats audio haute résolution (32-bit float, extensible)
+- ✅ Créer `native/src/coreaudio_driver.cpp`
+- ✅ Implémenter interface AudioDriver
+- ✅ Gestion des callbacks CoreAudio (AudioUnit callback)
+- ✅ Support multi-channel (configurable)
+- ✅ Support Aggregate Device (structure prête, nécessite permissions)
+- ✅ Gestion de la latence variable (calcul automatique depuis les devices)
+- ✅ Support des formats audio haute résolution (32-bit float, extensible)
 
 **Fichiers** : `native/src/coreaudio_driver.cpp`, `native/include/coreaudio_driver.h`
 
@@ -117,13 +117,13 @@ Plan de développement et fonctionnalités prévues pour WebAmp.
 **Priorité** : HAUTE  
 **Status** : ✅ Implémenté
 
-- [x] Créer `native/src/pipewire_driver.cpp`
-- [x] Implémenter interface AudioDriver
-- [x] Gestion des callbacks PipeWire (stream events, process callback)
-- [x] Support multi-channel (configurable)
-- [x] Détection automatique des périphériques (structure prête)
-- [x] Support JACK via PipeWire (détection automatique si JACK_SERVER défini)
-- [x] Gestion des permissions et sécurité (via PipeWire natif)
+- ✅ Créer `native/src/pipewire_driver.cpp`
+- ✅ Implémenter interface AudioDriver
+- ✅ Gestion des callbacks PipeWire (stream events, process callback)
+- ✅ Support multi-channel (configurable)
+- ✅ Détection automatique des périphériques (structure prête)
+- ✅ Support JACK via PipeWire (détection automatique si JACK_SERVER défini)
+- ✅ Gestion des permissions et sécurité (via PipeWire natif)
 
 **Fichiers** : `native/src/pipewire_driver.cpp`, `native/include/pipewire_driver.h`
 
@@ -135,14 +135,14 @@ Plan de développement et fonctionnalités prévues pour WebAmp.
 **Priorité** : MOYENNE  
 **Status** : ✅ Implémenté
 
-- [x] Tests pour les effets DSP (frontend) - Vitest avec mocks Web Audio API
-- [x] Tests pour les effets DSP (native C++) - Google Test pour tous les effets
-- [x] Tests pour le pipeline - Tests de latence, CPU, sample rates élevés
-- [x] Tests pour la chaîne d'effets - Tests jusqu'à 20 effets, add/remove, presets
-- [x] Tests d'intégration WebSocket - Tests de connexion, messages, retry
-- [x] Tests de performance et latence - Vérification < 5ms, < 15% CPU
-- [x] Tests de charge (stress tests) - 20 effets, changements rapides, sample rates élevés
-- [x] Tests de compatibilité navigateurs - Web Audio API, WebSocket, ES6
+- ✅ Tests pour les effets DSP (frontend) - Vitest avec mocks Web Audio API
+- ✅ Tests pour les effets DSP (native C++) - Google Test pour tous les effets
+- ✅ Tests pour le pipeline - Tests de latence, CPU, sample rates élevés
+- ✅ Tests pour la chaîne d'effets - Tests jusqu'à 20 effets, add/remove, presets
+- ✅ Tests d'intégration WebSocket - Tests de connexion, messages, retry
+- ✅ Tests de performance et latence - Vérification < 5ms, < 15% CPU
+- ✅ Tests de charge (stress tests) - 20 effets, changements rapides, sample rates élevés
+- ✅ Tests de compatibilité navigateurs - Web Audio API, WebSocket, ES6
 
 **Fichiers** :
 - Frontend : `frontend/src/audio/__tests__/`, `frontend/src/test/`
@@ -161,15 +161,15 @@ Plan de développement et fonctionnalités prévues pour WebAmp.
 **Priorité** : HAUTE  
 **Status** : 📋 Planifié
 
-- [ ] Support des modèles NAM pour modélisation d'amplis/pédales par IA
-  - [ ] Import de fichiers NAM (.nam)
-  - [ ] Intégration dans le pipeline DSP
-  - [ ] Bibliothèque de modèles NAM pré-chargés
+- ✅ Support des modèles NAM pour modélisation d'amplis/pédales par IA
+  - ✅ Import de fichiers NAM (.nam)
+  - ✅ Intégration dans le pipeline DSP
+  - ✅ Bibliothèque de modèles NAM pré-chargés
   - [ ] Partage de modèles NAM entre utilisateurs
-- [ ] Support des IRs depuis dépôts communautaires (Tone3000, etc.)
-  - [ ] Import automatique depuis URLs
-  - [ ] Catalogue d'IRs gratuites
-  - [ ] Métadonnées enrichies pour les IRs
+- ✅ Support des IRs depuis dépôts communautaires (Tone3000, etc.)
+  - ✅ Import automatique depuis URLs
+  - ✅ Catalogue d'IRs gratuites
+  - ✅ Métadonnées enrichies pour les IRs
 
 **Ressources** :
 - Neural Amp Modeler : https://neuralampmodeler.com
@@ -182,16 +182,16 @@ Plan de développement et fonctionnalités prévues pour WebAmp.
 
 ### 2. Enrichissement métadonnées et catalogues
 **Priorité** : MOYENNE  
-**Status** : 📋 Planifié
+**Status** : 🚧 En cours
 
-- [ ] Intégration MusicBrainz API
-  - [ ] Métadonnées enrichies pour les presets (artiste, album, genre)
-  - [ ] Recherche de presets par métadonnées
-  - [ ] Auto-complétion des tags depuis MusicBrainz
-- [ ] Intégration Freesound API
-  - [ ] Bibliothèque de samples pour machine à rythmes
-  - [ ] IRs et sons sous licence Creative Commons
-  - [ ] Recherche et import de samples depuis Freesound
+- ✅ Intégration MusicBrainz API
+  - ✅ Métadonnées enrichies pour les contenus (artiste, album, genre) via `musicBrainzService`
+  - ✅ Recherche par métadonnées musicales (artiste, album) et tags associés
+  - ✅ Auto-complétion des tags depuis MusicBrainz (profil artiste, tags musicaux)
+- ✅ Intégration Freesound API
+  - ✅ Bibliothèque de samples pour machine à rythmes (recherche de drum samples)
+  - ✅ IRs et sons sous licence Creative Commons (filtres de licence, recherche d'IR)
+  - ✅ Recherche et import de samples depuis Freesound (download et usage dans IR/Drum Machine)
 - [ ] Catalogue de presets communautaire
   - [ ] Partage de presets avec métadonnées enrichies
   - [ ] Système de notation/évaluation
@@ -208,16 +208,16 @@ Plan de développement et fonctionnalités prévues pour WebAmp.
 
 ### 3. Affichage de tablatures et notation
 **Priorité** : BASSE  
-**Status** : 📋 Planifié
+**Status** : 🚧 En cours
 
-- [ ] Affichage de tablatures avec VexFlow
-  - [ ] Visualisation de tablatures pour les presets
-  - [ ] Association presets ↔ tablatures
-  - [ ] Export de tablatures depuis presets
-- [ ] Support format ABC (optionnel)
-  - [ ] Import/export ABC via abcjs
-  - [ ] Conversion ABC ↔ tablature
-  - [ ] Génération MIDI depuis ABC
+- ✅ Affichage de tablatures et notation
+  - ✅ Visualisation de tablatures dans le LMS (`TabViewer`, `FullTablatureViewer`, `TablaturePreview`)
+  - ✅ Association cours/leçons ↔ tablatures (via `lmsService` et les tables Supabase `tablatures` / `course_tablatures`)
+  - ✅ Support de tablatures locales associées à des presets (`tablatureService.getTablaturesByPreset`)
+- ✅ Support format ABC (niveau utilitaire)
+  - ✅ Conversion tablature ↔ ABC (`tablatureToABC`, `abcToTablature`, `validateABC`)
+  - ✅ Intégration UI ABC (éditeur, prévisualisation, import/export basique dans `TabViewer`)
+  - ✅ Génération MIDI depuis ABC (implémentation abcjs dans `abcToMIDI`)
 
 **Ressources** :
 - VexFlow : https://vexflow.com (JS, MIT) - Bibliothèque de gravure musicale
@@ -254,45 +254,45 @@ Plan de développement et fonctionnalités prévues pour WebAmp.
 - ✅ **Supro** : Blues King 12, Black Magick (implémenté)
 
 ### 3. Fonctionnalités avancées
-- [x] **Room** : Simulation d'environnement (implémenté)
-  - [x] Taille de la pièce (0-100)
-  - [x] Réverbération ambiante (0-100)
-  - [x] Position dans la pièce (0-100: centre à bord)
-  - [x] Amortissement (0-100)
-- [x] **Looper** : Enregistrement et lecture de boucles (implémenté)
-  - [x] Enregistrement multi-pistes (illimité)
-  - [x] Overdub (enregistrement par-dessus)
-  - [x] Reverse (lecture inversée)
-  - [x] Half-speed / Double-speed (0.25x à 4x)
-  - [x] Export des boucles (WAV)
-- [x] **Tuner** : Accordeur intégré (implémenté)
-  - [x] Détection de note en temps réel (FFT 8192)
-  - [x] Support de différents accords (standard, drop D, drop C, open G, open D, DADGAD)
-  - [x] Affichage visuel (aiguille, cents, fréquence)
-- [x] **Metronome** : Métronome intégré (implémenté)
-  - [x] Tempo variable (30-300 BPM)
-  - [x] Signatures rythmiques (4/4, 3/4, 2/4, 6/8, 7/8)
-  - [x] Accents et subdivisions (noires, croches, doubles, triples)
+- ✅ **Room** : Simulation d'environnement (implémenté)
+  - ✅ Taille de la pièce (0-100)
+  - ✅ Réverbération ambiante (0-100)
+  - ✅ Position dans la pièce (0-100: centre à bord)
+  - ✅ Amortissement (0-100)
+- ✅ **Looper** : Enregistrement et lecture de boucles (implémenté)
+  - ✅ Enregistrement multi-pistes (illimité)
+  - ✅ Overdub (enregistrement par-dessus)
+  - ✅ Reverse (lecture inversée)
+  - ✅ Half-speed / Double-speed (0.25x à 4x)
+  - ✅ Export des boucles (WAV)
+- ✅ **Tuner** : Accordeur intégré (implémenté)
+  - ✅ Détection de note en temps réel (FFT 8192)
+  - ✅ Support de différents accords (standard, drop D, drop C, open G, open D, DADGAD)
+  - ✅ Affichage visuel (aiguille, cents, fréquence)
+- ✅ **Metronome** : Métronome intégré (implémenté)
+  - ✅ Tempo variable (30-300 BPM)
+  - ✅ Signatures rythmiques (4/4, 3/4, 2/4, 6/8, 7/8)
+  - ✅ Accents et subdivisions (noires, croches, doubles, triples)
 
 ### 4. Améliorations UI
-- [x] **Raccourcis clavier** : Raccourcis pour actions courantes
-  - [x] Raccourcis configurables
-  - [x] Mode sans souris (keyboard-only)
-  - [x] Raccourcis pour pédales (1-9 pour activer/désactiver)
-  - [x] Profil compatible avec Logi Option + (MX creative console)
-- [x] **Export/Import** : Export de presets en JSON
-  - [x] Format standardisé (version 1.0.0)
-  - [x] Métadonnées (auteur, tags, genre, style, description)
-  - [x] Validation de presets
-  - [x] Téléchargement/Upload de fichiers JSON
-- [x] **Comparaison A/B** : Comparaison de presets
-  - [x] Chargement alterné de deux presets
-  - [x] Détection des différences
-  - [x] Interface de comparaison visuelle
-- [x] **Favoris** : Système de presets favoris
-  - [x] Ajout/Suppression de favoris
-  - [x] Stockage localStorage
-  - [x] Détection de doublons
+- ✅ **Raccourcis clavier** : Raccourcis pour actions courantes
+  - ✅ Raccourcis configurables
+  - ✅ Mode sans souris (keyboard-only)
+  - ✅ Raccourcis pour pédales (1-9 pour activer/désactiver)
+  - ✅ Profil compatible avec Logi Option + (MX creative console)
+- ✅ **Export/Import** : Export de presets en JSON
+  - ✅ Format standardisé (version 1.0.0)
+  - ✅ Métadonnées (auteur, tags, genre, style, description)
+  - ✅ Validation de presets
+  - ✅ Téléchargement/Upload de fichiers JSON
+- ✅ **Comparaison A/B** : Comparaison de presets
+  - ✅ Chargement alterné de deux presets
+  - ✅ Détection des différences
+  - ✅ Interface de comparaison visuelle
+- ✅ **Favoris** : Système de presets favoris
+  - ✅ Ajout/Suppression de favoris
+  - ✅ Stockage localStorage
+  - ✅ Détection de doublons
 - [ ] **Undo/Redo** : Historique des actions
   - [ ] Historique illimité
   - [ ] Historique par session
@@ -375,34 +375,42 @@ Plan de développement et fonctionnalités prévues pour WebAmp.
   - [ ] Mixage de sources
 
 ### 5. Intelligence Artificielle et Modélisation
-- [ ] **Génération automatique de presets**
-  - [ ] Presets basés sur un style musical
-  - [ ] Suggestions intelligentes
+**Status** : 🚧 En cours
+
+- ✅ **Génération automatique de presets**
+  - ✅ Presets basés sur un style musical (Edge Function `ai-presets`, service `generatePresetFromDescription`)
+  - ✅ Suggestions intelligentes (ranking IA via Edge Function `ai-rank-presets`, service `rankPresetsForUser`)
   - [ ] Apprentissage des préférences utilisateur
-- [ ] **Analyse audio intelligente**
-  - [ ] Détection automatique de genre
-  - [ ] Suggestions d'effets adaptés
+- ✅ **Analyse audio intelligente (niveau métadonnées)**
+  - [ ] Détection automatique de genre (à partir de l'audio brut)
+  - ✅ Suggestions d'effets adaptés (Edge Function `ai-analyze`, service `analyzeContext`)
   - [ ] Correction automatique de tonalité
+- [ ] **Transposition automatique en tablature**
+  - [ ] Détection de la tonalité, du tempo et de la grille d'accords à partir de l'audio (ou de sources externes comme Songsterr)
+  - [ ] Génération de tablatures adaptées au niveau de l'utilisateur (simplification des positions, filtres de difficulté)
+  - [ ] Prise en compte des accordages spécifiques (standard, drop, open tunings) et du nombre de cordes
+  - [ ] Synchronisation avec le LMS (leçons, exercices) et le moteur de playback (boucles, ralenti, métronome)
+  - [ ] Export des tablatures en formats ouverts (MusicXML, ABC, MIDI) et affichage via VexFlow/TabViewer
 - [ ] **Assistant vocal**
-  - [ ] Contrôle vocal des effets
-  - [ ] Commandes naturelles
+  - ✅ Contrôle vocal des effets (intent parser via Edge Function `ai-voice-intent`, service `interpretVoiceCommand`)
+  - [ ] Commandes naturelles (flux complet voix → texte → action + feedback UI)
   - [ ] Aide contextuelle
 - [ ] **Neural Amp Modeler (NAM) - Intégration IA**
-  - [ ] Support des modèles NAM pour modélisation d'amplis/pédales par IA
-  - [ ] Import de fichiers NAM (.nam)
-  - [ ] Intégration dans le pipeline DSP
-  - [ ] Bibliothèque de modèles NAM pré-chargés
-  - [ ] Partage de modèles NAM entre utilisateurs
-  - [ ] Amélioration de la qualité des simulations d'amplis via IA
+  - ✅ Support des modèles NAM pour modélisation d'amplis/pédales par IA (`nam_loader`, `DSPPipeline`)
+  - ✅ Import de fichiers NAM (.nam) (`NAMModel::loadFromFile`, `namLoader.ts`)
+  - ✅ Intégration dans le pipeline DSP (post-chaîne d'effets avec activation via WebSocket)
+  - ✅ Bibliothèque de modèles NAM pré-chargés (JSON `nam-library.json`, UI dans `AmplifierSelector`)
+  - [ ] Partage de modèles NAM entre utilisateurs (stockage Supabase + UI à implémenter)
+  - [ ] Amélioration de la qualité des simulations d'amplis via IA (processus de training/curation des modèles NAM)
 
 ---
 
 ## 🐛 Corrections de bugs
 
 ### Bugs connus
-- [x] Vérifier la gestion des reconnexions WebSocket
-- [x] Optimiser la latence avec beaucoup d'effets (cache de courbes)
-- [x] Corriger les fuites mémoire potentielles (cleanup optimisé)
+- ✅ Vérifier la gestion des reconnexions WebSocket
+- ✅ Optimiser la latence avec beaucoup d'effets (cache de courbes)
+- ✅ Corriger les fuites mémoire potentielles (cleanup optimisé)
 - [ ] Gestion des erreurs audio context suspendu
 - [ ] Synchronisation des paramètres lors de reconnexion
 - [ ] Gestion des périphériques audio déconnectés
@@ -417,12 +425,12 @@ Plan de développement et fonctionnalités prévues pour WebAmp.
 - ✅ Build time < 2min (atteint)
 
 ### Objectifs futurs
-- [x] Latence < 5ms (optimisé : buffer_size 64 @ 48kHz = 1.33ms, objectif atteint)
-- [x] CPU usage < 15% (optimisé : moyenne glissante, SIMD, optimisations DSP)
-- [x] Support jusqu'à 20 effets simultanés (implémenté avec buffers réutilisés)
-- [x] Mémoire < 100MB pour 10 effets (optimisé : buffer pool, allocations réduites)
-- [x] Temps de chargement < 1s (optimisé : lazy loading, code splitting, minification)
-- [x] Support de 96kHz/192kHz (implémenté dans tous les drivers)
+- ✅ Latence < 5ms (optimisé : buffer_size 64 @ 48kHz = 1.33ms, objectif atteint)
+- ✅ CPU usage < 15% (optimisé : moyenne glissante, SIMD, optimisations DSP)
+- ✅ Support jusqu'à 20 effets simultanés (implémenté avec buffers réutilisés)
+- ✅ Mémoire < 100MB pour 10 effets (optimisé : buffer pool, allocations réduites)
+- ✅ Temps de chargement < 1s (optimisé : lazy loading, code splitting, minification)
+- ✅ Support de 96kHz/192kHz (implémenté dans tous les drivers)
 
 ---
 
@@ -435,13 +443,13 @@ Plan de développement et fonctionnalités prévues pour WebAmp.
 - ✅ Communication WebSocket
 
 ### Q2 2024
-- [x] Drivers audio complets (ASIO, CoreAudio, PipeWire)
+- ✅ Drivers audio complets (ASIO, CoreAudio, PipeWire)
 - [ ] Tests unitaires
-- [x] Optimisations de performance
+- ✅ Optimisations de performance
 
 ### Q3 2024
-- [x] Effets supplémentaires (Ring Modulator, Bit Crusher, Lo-Fi, Tape Delay, Spring Reverb, Shimmer Reverb)
-- [x] Amplificateurs supplémentaires (Mesa Boogie, Orange, Vox, Peavey, Supro)
+- ✅ Effets supplémentaires (Ring Modulator, Bit Crusher, Lo-Fi, Tape Delay, Spring Reverb, Shimmer Reverb)
+- ✅ Amplificateurs supplémentaires (Mesa Boogie, Orange, Vox, Peavey, Supro)
 - [ ] Fonctionnalités avancées
 
 ### Q4 2024
@@ -657,13 +665,31 @@ Les contributions sont les bienvenues ! Consultez :
 - ✅ **Migration** : Script de migration des données existantes vers Supabase
 
 ### Fonctionnalités implémentées
-- [x] Page Learn complète avec filtres et recherche
-- [x] Affichage des cours depuis Supabase
-- [x] Système de progression avec sauvegarde automatique
-- [x] Dashboard LMS avec statistiques utilisateur
-- [x] Support quiz avec enregistrement des tentatives
-- [x] Fallback localStorage pour utilisateurs non authentifiés
-- [x] Composants réutilisables (TutorialCard, TutorialViewer, QuizViewer, etc.)
+- ✅ Page Learn complète avec filtres et recherche
+- ✅ Affichage des cours depuis Supabase
+- ✅ Système de progression avec sauvegarde automatique
+- ✅ Dashboard LMS avec statistiques utilisateur
+- ✅ Support quiz avec enregistrement des tentatives
+- ✅ Fallback localStorage pour utilisateurs non authentifiés
+- ✅ Composants réutilisables (TutorialCard, TutorialViewer, QuizViewer, etc.)
+
+### Recommandations d'évolution (2025)
+- ✅ **XP & progression temps réel unifiés** (implémenté dans Learn, Home et Dashboard)
+  - Unifier la source de vérité entre `user_stats` (calcul backend) et les progressions calculées côté client via `useAllCoursesProgress`, afin que Learn et l'accueil affichent toujours les mêmes chiffres.
+  - Ajouter des tests de bout en bout pour vérifier la cohérence entre `user_progress`, `course_rewards`, `user_stats` et l’affichage XP / taux de complétion.
+- ✅ **Gamification enrichie**
+  - ✅ Définir une vraie courbe de niveau (XP → niveau) dans un utilitaire partagé (`lmsLevelService`) et l’utiliser partout (Learn, accueil, dashboard).
+  - ✅ Ajouter des succès/badges contextuels : première leçon terminée, premier cours, multi-cours, explorateur (combinaison cours + leçons).
+  - ✅ Afficher un petit historique récent d’XP gagné (timeline simple dans le dashboard Learn via `LMSDashboard` et `getUserXpHistory`).
+- ✅ **Personnalisation de l'accueil pédagogique**
+  - ✅ Sur la Home, la carte "Continue Learning" propose un cours recommandé basé sur la progression (cours non complété le plus adapté en fonction de la difficulté).
+  - ✅ Afficher un résumé condensé : XP total, nombre de cours/leçons complétés, progression globale du catalogue (via `LearningProgress` et `ProgressBadge`).
+- ✅ **Suivi détaillé des leçons**
+  - `user_progress` stocke le temps passé par leçon / cours (`time_spent` mis à jour à chaque changement d'étape via `updateProgress`), exploitable pour analytics et suggestions.
+  - La page Learn expose par cours un mini-résumé dans `TutorialCard` : leçons complétées / totales et dernière leçon visitée, ainsi que l’XP gagnée (bandeau XP déjà présent).
+- 🔶 **Qualité de vie pour les auteurs de contenu**
+  - Documenter clairement dans `docs/LMS_SETUP.md` la convention autour de `course_rewards` (XP par cours, badges associés) et la matrice difficulté ↔ XP.
+  - Prévoir un outil interne ou une petite UI (admin) pour gérer les récompenses, auditer les parcours et vérifier les trous (cours sans XP, leçons orphelines, etc.).
 
 ### Documentation
 - `docs/SUPABASE_SCHEMA.md` : Schéma complet de la base de données

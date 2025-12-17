@@ -3,8 +3,6 @@ import { supabase } from '../services/supabase'
 import { tablatureService } from '../services/tablatures'
 
 export async function addMissingChordsToSupabase() {
-  console.log('🚀 Début de l\'ajout des accords manquants dans Supabase...')
-  
   const chords = tablatureService.getAllChords()
   let successCount = 0
   let errorCount = 0
@@ -20,13 +18,11 @@ export async function addMissingChordsToSupabase() {
         .maybeSingle()
 
       if (checkError && checkError.code !== 'PGRST116') {
-        console.warn(`Erreur lors de la vérification de l'accord ${chord.name}:`, checkError)
         errorCount++
         continue
       }
 
       if (existingChord) {
-        console.log(`⏭️  Accord ${chord.name} existe déjà, ignoré`)
         skippedCount++
         continue
       }
@@ -42,14 +38,11 @@ export async function addMissingChordsToSupabase() {
         })
 
       if (insertError) {
-        console.error(`Erreur lors de la création de l'accord ${chord.name}:`, insertError)
         errorCount++
       } else {
-        console.log(`✓ Accord créé: ${chord.name}`)
         successCount++
       }
     } catch (error) {
-      console.error(`Erreur lors du traitement de l'accord ${chord.name}:`, error)
       errorCount++
     }
     
@@ -57,11 +50,6 @@ export async function addMissingChordsToSupabase() {
     await new Promise(resolve => setTimeout(resolve, 50))
   }
 
-  console.log(`\n✅ Ajout terminé:`)
-  console.log(`   - ${successCount} accords ajoutés avec succès`)
-  console.log(`   - ${skippedCount} accords déjà existants (ignorés)`)
-  console.log(`   - ${errorCount} erreurs`)
-  
   return {
     success: errorCount === 0,
     successCount,
@@ -73,6 +61,5 @@ export async function addMissingChordsToSupabase() {
 // Exposer la fonction globalement pour la console
 if (typeof window !== 'undefined') {
   (window as any).addMissingChordsToSupabase = addMissingChordsToSupabase
-  console.log('✅ Fonction addMissingChordsToSupabase disponible globalement')
 }
 

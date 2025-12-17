@@ -5715,7 +5715,9 @@ export const difficultyLabels: Record<TutorialDifficulty, string> = {
 }
 
 export const difficultyColors: Record<TutorialDifficulty, string> = {
-  beginner: 'bg-green-500',
+  // On réserve le vert pour indiquer un cours terminé,
+  // donc on utilise une autre couleur pour les cours débutant
+  beginner: 'bg-blue-500',
   intermediate: 'bg-yellow-500',
   advanced: 'bg-red-500',
   pro: 'bg-purple-500',

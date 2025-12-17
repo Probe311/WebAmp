@@ -1,0 +1,169 @@
+La tablature complète est disponible ci-dessous pour différents instruments :
+
+[html instrument="Guitare électrique" title="Shake It Off - Guitare électrique"]
+<div class="tablature-container">
+  <div class="tablature-header">
+    <h3 class="tablature-title">Shake It Off - Guitare électrique</h3>
+    <div class="tablature-meta">
+      <span><strong>Tuning:</strong> Standard (E A D G B E)</span>
+      <span><strong>Tempo:</strong> J = 160</span>
+      <span><strong>Clé:</strong> G Major</span>
+    </div>
+  </div>
+
+  <div class="tablature-section">
+    <div class="section-header">
+      <span class="section-header-text">Verse 1</span>
+    </div>
+
+    <div class="measure-block">
+      <div class="measure-meta">
+        <div class="measure-number">1</div>
+        <div class="chord-label">Am</div>
+      </div>
+      <div class="tablature-lines">
+        <div class="tab-line">e <span class="tab-structure">|</span><span class="tab-dash">-------</span><span class="tab-fret">0-0</span><span class="tab-dash">-----</span><span class="tab-fret">0</span><span class="tab-dash">-------</span><span class="tab-fret">0-0</span><span class="tab-dash">-----</span><span class="tab-fret">0</span><span class="tab-structure">-|</span></div>
+        <div class="tab-line">B <span class="tab-structure">|</span><span class="tab-dash">-------</span><span class="tab-fret">1-1</span><span class="tab-dash">-----</span><span class="tab-fret">1</span><span class="tab-dash">-------</span><span class="tab-fret">1-1</span><span class="tab-dash">-----</span><span class="tab-fret">1</span><span class="tab-structure">-|</span></div>
+        <div class="tab-line">G <span class="tab-structure">|</span><span class="tab-dash">-------</span><span class="tab-fret">2-2</span><span class="tab-dash">-----</span><span class="tab-fret">2</span><span class="tab-dash">-------</span><span class="tab-fret">2-2</span><span class="tab-dash">-----</span><span class="tab-fret">2</span><span class="tab-structure">-|</span></div>
+        <div class="tab-line">D <span class="tab-structure">|</span><span class="tab-dash">-------</span><span class="tab-fret">2-2</span><span class="tab-dash">-----</span><span class="tab-fret">2</span><span class="tab-dash">-------</span><span class="tab-fret">2-2</span><span class="tab-dash">-----</span><span class="tab-fret">2</span><span class="tab-structure">-|</span></div>
+        <div class="tab-line">A <span class="tab-structure">|</span><span class="tab-fret">0</span><span class="tab-dash">---</span><span class="tab-fret">0</span><span class="tab-dash">-------</span><span class="tab-fret">0</span><span class="tab-dash">---</span><span class="tab-fret">0</span><span class="tab-dash">---</span><span class="tab-fret">0</span><span class="tab-dash">-------</span><span class="tab-fret">0</span><span class="tab-dash">---</span><span class="tab-structure">|</span></div>
+        <div class="tab-line">E <span class="tab-structure">|</span><span class="tab-dash">---------------------------------</span><span class="tab-structure">|</span></div>
+      </div>
+    </div>
+
+    <div class="measure-block">
+      <div class="measure-meta">
+        <div class="measure-number">2</div>
+        <div class="chord-label">C</div>
+      </div>
+      <div class="tablature-lines">
+        <div class="tab-line">e <span class="tab-structure">|</span><span class="tab-dash">-------</span><span class="tab-fret">0-0</span><span class="tab-dash">-----</span><span class="tab-fret">0</span><span class="tab-dash">-------</span><span class="tab-fret">0-0</span><span class="tab-dash">-----</span><span class="tab-fret">0</span><span class="tab-structure">-|</span></div>
+        <div class="tab-line">B <span class="tab-structure">|</span><span class="tab-dash">-------</span><span class="tab-fret">1-1</span><span class="tab-dash">-----</span><span class="tab-fret">1</span><span class="tab-dash">-------</span><span class="tab-fret">1-1</span><span class="tab-dash">-----</span><span class="tab-fret">1</span><span class="tab-structure">-|</span></div>
+        <div class="tab-line">G <span class="tab-structure">|</span><span class="tab-dash">-------</span><span class="tab-fret">0-0</span><span class="tab-dash">-----</span><span class="tab-fret">0</span><span class="tab-dash">-------</span><span class="tab-fret">0-0</span><span class="tab-dash">-----</span><span class="tab-fret">0</span><span class="tab-structure">-|</span></div>
+        <div class="tab-line">D <span class="tab-structure">|</span><span class="tab-dash">-------</span><span class="tab-fret">2-2</span><span class="tab-dash">-----</span><span class="tab-fret">2</span><span class="tab-dash">-------</span><span class="tab-fret">2-2</span><span class="tab-dash">-----</span><span class="tab-fret">2</span><span class="tab-structure">-|</span></div>
+        <div class="tab-line">A <span class="tab-structure">|</span><span class="tab-fret">3</span><span class="tab-dash">---</span><span class="tab-fret">3</span><span class="tab-dash">-------</span><span class="tab-fret">3</span><span class="tab-dash">---</span><span class="tab-fret">3</span><span class="tab-dash">---</span><span class="tab-fret">3</span><span class="tab-dash">-------</span><span class="tab-fret">3</span><span class="tab-dash">---</span><span class="tab-structure">|</span></div>
+        <div class="tab-line">E <span class="tab-structure">|</span><span class="tab-dash">---------------------------------</span><span class="tab-structure">|</span></div>
+      </div>
+    </div>
+
+    <div class="measure-block">
+      <div class="measure-meta">
+        <div class="measure-number">3</div>
+        <div class="chord-label">G</div>
+      </div>
+      <div class="tablature-lines">
+        <div class="tab-line">e <span class="tab-structure">|</span><span class="tab-dash">-------</span><span class="tab-fret">3-3</span><span class="tab-dash">-----</span><span class="tab-fret">3</span><span class="tab-dash">-------</span><span class="tab-fret">3-3</span><span class="tab-dash">-----</span><span class="tab-fret">3</span><span class="tab-structure">-|</span></div>
+        <div class="tab-line">B <span class="tab-structure">|</span><span class="tab-dash">-------</span><span class="tab-fret">0-0</span><span class="tab-dash">-----</span><span class="tab-fret">0</span><span class="tab-dash">-------</span><span class="tab-fret">0-0</span><span class="tab-dash">-----</span><span class="tab-fret">0</span><span class="tab-structure">-|</span></div>
+        <div class="tab-line">G <span class="tab-structure">|</span><span class="tab-dash">-------</span><span class="tab-fret">0-0</span><span class="tab-dash">-----</span><span class="tab-fret">0</span><span class="tab-dash">-------</span><span class="tab-fret">0-0</span><span class="tab-dash">-----</span><span class="tab-fret">0</span><span class="tab-structure">-|</span></div>
+        <div class="tab-line">D <span class="tab-structure">|</span><span class="tab-dash">-------</span><span class="tab-fret">0-0</span><span class="tab-dash">-----</span><span class="tab-fret">0</span><span class="tab-dash">-------</span><span class="tab-fret">0-0</span><span class="tab-dash">-----</span><span class="tab-fret">0</span><span class="tab-structure">-|</span></div>
+        <div class="tab-line">A <span class="tab-structure">|</span><span class="tab-dash">---------------------------------</span><span class="tab-structure">|</span></div>
+        <div class="tab-line">E <span class="tab-structure">|</span><span class="tab-fret">3</span><span class="tab-dash">---</span><span class="tab-fret">3</span><span class="tab-dash">-------</span><span class="tab-fret">3</span><span class="tab-dash">---</span><span class="tab-fret">3</span><span class="tab-dash">---</span><span class="tab-fret">3</span><span class="tab-dash">-------</span><span class="tab-fret">3</span><span class="tab-dash">---</span><span class="tab-structure">|</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tablature-section">
+    <div class="section-header">
+      <span class="section-header-text">Solo</span>
+    </div>
+
+    <div class="measure-block">
+      <div class="measure-meta">
+        <div class="measure-number">5</div>
+        <div class="chord-label">Am</div>
+      </div>
+      <div class="tablature-lines">
+        <div class="tab-line">e <span class="tab-structure">|</span><span class="tab-dash">---------------------------------</span><span class="tab-structure">|</span></div>
+        <div class="tab-line">B <span class="tab-structure">|</span><span class="tab-dash">-------</span><span class="tab-fret">12</span><span class="tab-technique">b</span><span class="tab-fret">14</span><span class="tab-technique">r</span><span class="tab-fret">12</span><span class="tab-technique">~</span><span class="tab-dash">-----------------</span><span class="tab-structure">|</span></div>
+        <div class="tab-line">G <span class="tab-structure">|</span><span class="tab-dash">---</span><span class="tab-technique">/</span><span class="tab-fret">14</span><span class="tab-dash">-----------</span><span class="tab-fret">14</span><span class="tab-technique">p</span><span class="tab-fret">12</span><span class="tab-dash">-----------</span><span class="tab-structure">|</span></div>
+        <div class="tab-line">D <span class="tab-structure">|</span><span class="tab-dash">-----------------------</span><span class="tab-fret">14</span><span class="tab-dash">--------</span><span class="tab-structure">|</span></div>
+        <div class="tab-line">A <span class="tab-structure">|</span><span class="tab-dash">---------------------------------</span><span class="tab-structure">|</span></div>
+        <div class="tab-line">E <span class="tab-structure">|</span><span class="tab-dash">---------------------------------</span><span class="tab-structure">|</span></div>
+      </div>
+    </div>
+
+    <div class="measure-block">
+      <div class="measure-meta">
+        <div class="measure-number">6</div>
+        <div class="chord-label">C</div>
+      </div>
+      <div class="tablature-lines">
+        <div class="tab-line">e <span class="tab-structure">|</span><span class="tab-dash">----------------------</span><span class="tab-fret">15</span><span class="tab-dash">---------</span><span class="tab-structure">|</span></div>
+        <div class="tab-line">B <span class="tab-structure">|</span><span class="tab-dash">----------------</span><span class="tab-fret">15</span><span class="tab-technique">b</span><span class="tab-fret">17</span><span class="tab-dash">----</span><span class="tab-fret">15</span><span class="tab-technique">b</span><span class="tab-fret">17</span><span class="tab-dash">---</span><span class="tab-structure">|</span></div>
+        <div class="tab-line">G <span class="tab-structure">|</span><span class="tab-dash">-------</span><span class="tab-fret">12-14</span><span class="tab-dash">---------------------</span><span class="tab-structure">|</span></div>
+        <div class="tab-line">D <span class="tab-structure">|</span><span class="tab-technique">/</span><span class="tab-fret">14</span><span class="tab-dash">-----------------------------</span><span class="tab-structure">|</span></div>
+        <div class="tab-line">A <span class="tab-structure">|</span><span class="tab-dash">---------------------------------</span><span class="tab-structure">|</span></div>
+        <div class="tab-line">E <span class="tab-structure">|</span><span class="tab-dash">---------------------------------</span><span class="tab-structure">|</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tablature-legend">
+    <span><span class="tab-technique">h</span> Hammer-on</span>
+    <span><span class="tab-technique">p</span> Pull-off</span>
+    <span><span class="tab-technique">b</span> Bend</span>
+    <span><span class="tab-technique">r</span> Release</span>
+    <span><span class="tab-technique">/</span> Slide up</span>
+    <span><span class="tab-technique">\</span> Slide down</span>
+    <span><span class="tab-technique">~</span> Vibrato</span>
+  </div>
+</div>
+[/html]
+
+[html instrument="Basse" title="Shake It Off - Basse"]
+<div class="tablature-container">
+  <div class="tablature-header">
+    <h3 class="tablature-title">Shake It Off - Basse</h3>
+    <div class="tablature-meta">
+      <span><strong>Tuning:</strong> Standard (E A D G)</span>
+      <span><strong>Tempo:</strong> J = 160</span>
+      <span><strong>Clé:</strong> G Major</span>
+    </div>
+  </div>
+
+  <div class="tablature-section">
+    <div class="section-header">
+      <span class="section-header-text">Verse 1</span>
+    </div>
+
+    <div class="measure-block">
+      <div class="measure-meta">
+        <div class="measure-number">1</div>
+        <div class="chord-label">Am</div>
+      </div>
+      <div class="tablature-lines">
+        <div class="tab-line">G <span class="tab-structure">|</span><span class="tab-dash">-------</span><span class="tab-fret">2</span><span class="tab-dash">-------</span><span class="tab-fret">2</span><span class="tab-dash">-------</span><span class="tab-structure">|</span></div>
+        <div class="tab-line">D <span class="tab-structure">|</span><span class="tab-dash">-------</span><span class="tab-fret">2</span><span class="tab-dash">-------</span><span class="tab-fret">2</span><span class="tab-dash">-------</span><span class="tab-structure">|</span></div>
+        <div class="tab-line">A <span class="tab-structure">|</span><span class="tab-fret">0</span><span class="tab-dash">-------</span><span class="tab-fret">0</span><span class="tab-dash">-------</span><span class="tab-fret">0</span><span class="tab-dash">---</span><span class="tab-structure">|</span></div>
+        <div class="tab-line">E <span class="tab-structure">|</span><span class="tab-dash">---------------------------------</span><span class="tab-structure">|</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+[/html]
+
+[html instrument="Piano" title="Shake It Off - Piano"]
+<div class="tablature-container">
+  <div class="tablature-header">
+    <h3 class="tablature-title">Shake It Off - Piano</h3>
+    <div class="tablature-meta">
+      <span><strong>Tempo:</strong> J = 160</span>
+      <span><strong>Clé:</strong> G Major</span>
+    </div>
+  </div>
+
+  <div class="tablature-section">
+    <div class="section-header">
+      <span class="section-header-text">Verse 1</span>
+    </div>
+
+    <div class="tablature-lines">
+      <div class="tab-line"><strong>Main droite:</strong> G - B - D (G Major)</div>
+      <div class="tab-line"><strong>Main gauche:</strong> A - C - E (Am)</div>
+      <div class="tab-line" style="margin-top: 0.5rem; color: rgba(0,0,0,0.7);">Pattern: 1-2-3-4 avec accent sur le 2 et 4</div>
+    </div>
+  </div>
+</div>
+[/html]
+
+Utilisez le sélecteur ci-dessus pour choisir l'instrument que vous souhaitez apprendre.

@@ -619,7 +619,6 @@ export async function makeReverb(
       const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer)
       convolver.buffer = audioBuffer
     } catch (error) {
-      console.warn('Erreur chargement IR, utilisation IR synthétique', error)
       convolver.buffer = createSimpleIR(audioCtx, decayValue)
     }
   } else {
@@ -734,7 +733,6 @@ export async function makeCabinetSimulator(
     const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer)
     convolver.buffer = audioBuffer
   } catch (error) {
-    console.error('Erreur chargement IR cabinet:', error)
     throw error
   }
 
@@ -1116,7 +1114,6 @@ export async function makeShimmerReverb(
       const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer)
       convolver.buffer = audioBuffer
     } catch (error) {
-      console.warn('Erreur chargement IR, utilisation IR synthétique', error)
       convolver.buffer = createSimpleIR(audioCtx, decayValue)
     }
   } else {

@@ -57,7 +57,7 @@ export function AudioMixingTable({ tracks: initialTracks }: AudioMixingTableProp
   }
 
   return (
-    <div className="w-full overflow-x-auto">
+    <div className="w-full overflow-x-auto custom-scrollbar">
       <div className="min-w-[1200px]">
         {/* En-tête avec contrôles master */}
         <div className="mb-6 p-4 bg-white dark:bg-gray-700 rounded-xl shadow-[inset_2px_2px_4px_rgba(0,0,0,0.05),inset_-2px_-2px_4px_rgba(255,255,255,0.8)] dark:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.5),inset_-2px_-2px_4px_rgba(60,60,60,0.5)] border border-black/10 dark:border-white/10">

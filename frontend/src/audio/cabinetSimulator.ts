@@ -42,7 +42,6 @@ export async function makeCabinetSimulator(
       const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer)
       convolver.buffer = audioBuffer
     } catch (error) {
-      console.warn(`Erreur chargement IR cabinet ${i}:`, error)
       // Créer une IR simple en fallback
       convolver.buffer = createSimpleCabinetIR(audioCtx)
     }

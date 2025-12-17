@@ -19,7 +19,7 @@ export function Looper() {
   const [isEditingProjectName, setIsEditingProjectName] = useState(false)
   const [tempProjectName, setTempProjectName] = useState('Sunday Jam #4')
   const [tempo] = useState(110)
-  const positionUpdateIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const positionUpdateIntervalRef = useRef<number | null>(null)
   const projectNameInputRef = useRef<HTMLInputElement>(null)
 
   // Initialiser le looper avec le moteur audio
@@ -48,7 +48,7 @@ export function Looper() {
           }
         }
       } catch (error) {
-        console.error('Erreur initialisation looper:', error)
+        // échec silencieux de l'initialisation du looper
       }
     }
 
@@ -60,7 +60,8 @@ export function Looper() {
         looperRef.current.stopRecording()
       }
       if (positionUpdateIntervalRef.current) {
-        clearInterval(positionUpdateIntervalRef.current)
+        window.clearInterval(positionUpdateIntervalRef.current)
+        positionUpdateIntervalRef.current = null
       }
     }
   }, [engine])
@@ -69,7 +70,8 @@ export function Looper() {
   useEffect(() => {
     if (!looperRef.current) return
 
-    const interval = setInterval(() => {
+    const interval = window.setInterval(() => {
+      if (document.visibilityState !== 'visible') return
       const state = looperRef.current?.getState()
       if (state) {
         setIsPlaying(state.isPlaying)
@@ -113,7 +115,10 @@ export function Looper() {
 
     positionUpdateIntervalRef.current = interval
 
-    return () => clearInterval(interval)
+    return () => {
+      window.clearInterval(interval)
+      positionUpdateIntervalRef.current = null
+    }
   }, [tracks.length])
 
   const toggleTrackMute = useCallback((id: string) => {
@@ -155,7 +160,7 @@ export function Looper() {
         }
       }
     } catch (error) {
-      console.error('Erreur enregistrement:', error)
+      // échec silencieux de l'enregistrement
     }
   }
 
@@ -181,7 +186,7 @@ export function Looper() {
         }
       }
     } catch (error) {
-      console.error('Erreur lecture:', error)
+      // échec silencieux de la lecture
     }
   }
 
@@ -194,7 +199,6 @@ export function Looper() {
 
   const handleAddTrack = () => {
     // Cette fonctionnalité sera implémentée plus tard
-    console.log('Ajout de piste - à implémenter')
   }
 
   const handleStartEditProjectName = () => {
@@ -300,7 +304,7 @@ export function Looper() {
       </div>
 
       {/* Tracks Area */}
-      <div className="flex-1 flex flex-col gap-3 overflow-y-auto mb-6 pr-2">
+      <div className="flex-1 flex flex-col gap-3 overflow-y-auto custom-scrollbar mb-6 pr-2">
         {tracks.map(track => {
           const waveformData = getWaveformData(track)
           

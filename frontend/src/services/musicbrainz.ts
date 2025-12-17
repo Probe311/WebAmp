@@ -124,7 +124,6 @@ class MusicBrainzService {
 
       return await response.json();
     } catch (error) {
-      console.error('MusicBrainz API request failed:', error);
       throw error;
     }
   }

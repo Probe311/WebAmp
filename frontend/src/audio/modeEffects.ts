@@ -469,7 +469,6 @@ export async function makeReverbWithMode(
       const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer)
       convolver.buffer = audioBuffer
     } catch (error) {
-      console.warn('Erreur chargement IR, utilisation IR synthétique', error)
       convolver.buffer = createModeIR(audioCtx, decayValue, mode)
     }
   } else {
