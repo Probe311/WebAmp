@@ -1,8 +1,8 @@
 import { BookOpen, Play } from 'lucide-react'
 import { Block } from '../Block'
-import { useCurrentCourse } from '../../hooks/useLMS'
+import { useCurrentCourse, useAllCoursesProgress, useCourses } from '../../hooks/useLMS'
 import { useAuth } from '../../auth/AuthProvider'
-import { useCourses } from '../../hooks/useLMS'
+import { useMemo } from 'react'
 
 interface ContinueLearningProps {
   onNavigateToLearn?: () => void
@@ -11,7 +11,35 @@ interface ContinueLearningProps {
 export function ContinueLearning({ onNavigateToLearn }: ContinueLearningProps) {
   const { user } = useAuth()
   const { currentCourse, loading: courseLoading } = useCurrentCourse(user?.id)
+  const { progressMap } = useAllCoursesProgress(user?.id)
   const { courses, loading: coursesLoading } = useCourses()
+
+  // Cours recommandé calculé à partir de la progression globale
+  const recommendedCourse = useMemo(() => {
+    if (!courses || courses.length === 0) return null
+
+    // Filtrer d'abord les cours non complétés
+    const notCompleted = courses.filter((course) => {
+      const prog = progressMap.get(course.id)
+      return !prog || !prog.completed
+    })
+
+    const pool = notCompleted.length > 0 ? notCompleted : courses
+
+    const difficultyOrder: Record<string, number> = {
+      beginner: 1,
+      intermediate: 2,
+      advanced: 3,
+      pro: 4
+    }
+
+    return [...pool].sort((a, b) => {
+      const diffA = difficultyOrder[a.difficulty] || 0
+      const diffB = difficultyOrder[b.difficulty] || 0
+      if (diffA !== diffB) return diffA - diffB
+      return a.title.localeCompare(b.title, 'fr', { sensitivity: 'base' })
+    })[0]
+  }, [courses, progressMap])
 
   const handleResume = () => {
     if (onNavigateToLearn) {
@@ -113,10 +141,7 @@ export function ContinueLearning({ onNavigateToLearn }: ContinueLearningProps) {
     )
   }
 
-  // Si l'utilisateur n'a pas de cours en cours, proposer de commencer un nouveau cours
-  const firstCourse = courses.length > 0 ? courses[0] : null
-
-  if (firstCourse) {
+  if (recommendedCourse) {
     return (
       <Block className="md:col-span-2 lg:col-span-2 min-h-[280px]">
         <div className="flex items-center gap-2 mb-4">
@@ -126,10 +151,10 @@ export function ContinueLearning({ onNavigateToLearn }: ContinueLearningProps) {
           </span>
         </div>
         <h2 className="text-2xl font-bold text-black/85 dark:text-white/90 mb-2">
-          {firstCourse.title}
+          {recommendedCourse.title}
         </h2>
         <p className="text-sm text-black/70 dark:text-white/70 mb-4">
-          {firstCourse.description || 'Commencez votre parcours d\'apprentissage'}
+          {recommendedCourse.description || 'Commencez votre parcours d\'apprentissage'}
         </p>
         <button
           onClick={handleStart}

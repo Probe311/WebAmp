@@ -10,7 +10,7 @@ interface CategoryTabsProps {
 
 export function CategoryTabs({ categories, activeCategory, onCategoryChange }: CategoryTabsProps) {
   return (
-    <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+    <div className="flex items-center gap-2 overflow-x-auto custom-scrollbar pb-2">
       {/* Tous */}
       <button
         onClick={() => onCategoryChange('all')}

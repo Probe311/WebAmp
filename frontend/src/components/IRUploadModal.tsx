@@ -2,7 +2,7 @@
  * Composant pour uploader des Impulse Responses
  */
 import { useState, useRef, useEffect } from 'react'
-import { Upload, FileAudio, Search, Download, ExternalLink } from 'lucide-react'
+import { Upload, FileAudio, Search, Download, ExternalLink, Link as LinkIcon } from 'lucide-react'
 import { Modal } from './Modal'
 import { CTA } from './CTA'
 import { Loader } from './Loader'
@@ -31,6 +31,8 @@ export function IRUploadModal({ isOpen, onClose, onIRSelected }: IRUploadModalPr
   const [freesoundIRs, setFreesoundIRs] = useState<FreesoundSound[]>([])
   const [searchingFreesound, setSearchingFreesound] = useState(false)
   const [freesoundQuery, setFreesoundQuery] = useState('guitar cabinet impulse response')
+  const [irUrl, setIrUrl] = useState('')
+  const [importingFromUrl, setImportingFromUrl] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Charger les IR de l'utilisateur à l'ouverture
@@ -46,7 +48,7 @@ export function IRUploadModal({ isOpen, onClose, onIRSelected }: IRUploadModalPr
       const irs = await loadUserIRs()
       setUserIRs(irs)
     } catch (error) {
-      console.error('Erreur lors du chargement des IR:', error)
+      // échec silencieux du chargement des IR
     } finally {
       setLoading(false)
     }
@@ -58,7 +60,6 @@ export function IRUploadModal({ isOpen, onClose, onIRSelected }: IRUploadModalPr
       const results = await freesoundService.searchImpulseResponses(freesoundQuery, 20)
       setFreesoundIRs(results)
     } catch (error) {
-      console.error('Erreur lors de la recherche Freesound:', error)
       showToast({
         variant: 'error',
         title: 'Erreur de recherche',
@@ -100,7 +101,6 @@ export function IRUploadModal({ isOpen, onClose, onIRSelected }: IRUploadModalPr
         onIRSelected(tempIR)
       }
     } catch (error) {
-      console.error('Erreur lors du téléchargement:', error)
       showToast({
         variant: 'error',
         title: 'Erreur de téléchargement',
@@ -188,6 +188,77 @@ export function IRUploadModal({ isOpen, onClose, onIRSelected }: IRUploadModalPr
     }
   }
 
+  async function handleImportFromUrl() {
+    if (!irUrl.trim()) {
+      showToast({
+        variant: 'error',
+        title: 'URL requise',
+        message: 'Veuillez saisir une URL de fichier IR (WAV ou OGG)'
+      })
+      return
+    }
+
+    try {
+      setImportingFromUrl(true)
+
+      const response = await fetch(irUrl)
+      if (!response.ok) {
+        throw new Error(`Erreur HTTP ${response.status}`)
+      }
+
+      const contentType = response.headers.get('content-type') || ''
+      const isAudio = contentType.includes('audio') || !!irUrl.match(/\.(wav|ogg)$/i)
+      if (!isAudio) {
+        throw new Error('Le fichier distant ne semble pas être un audio (WAV/OGG)')
+      }
+
+      const blob = await response.blob()
+
+      // Limite de taille 50MB comme pour l’upload local
+      if (blob.size > 50 * 1024 * 1024) {
+        throw new Error('Fichier trop volumineux (max 50 MB)')
+      }
+
+      // Déduire un nom à partir de l’URL si besoin
+      const urlFileName = irUrl.split('/').pop() || 'remote-ir.wav'
+      const finalName = irName.trim() || urlFileName.replace(/\.[^/.]+$/, '')
+
+      const file = new File([blob], urlFileName, { type: contentType || 'audio/wav' })
+
+      const ir = await uploadIR({
+        name: finalName,
+        description: irDescription || `IR importée depuis ${irUrl}`,
+        file,
+        is_public: false
+      })
+
+      showToast({
+        variant: 'success',
+        title: 'IR importée',
+        message: 'Le fichier IR distant a été importé avec succès'
+      })
+
+      setIrUrl('')
+      if (!irName.trim()) {
+        setIrName(finalName)
+      }
+
+      await loadIRs()
+
+      if (onIRSelected) {
+        onIRSelected(ir)
+      }
+    } catch (error) {
+      showToast({
+        variant: 'error',
+        title: 'Erreur import URL',
+        message: error instanceof Error ? error.message : 'Erreur lors de l’import depuis l’URL'
+      })
+    } finally {
+      setImportingFromUrl(false)
+    }
+  }
+
   if (!isAuthenticated) {
     return (
       <Modal isOpen={isOpen} onClose={onClose} title="Upload d'IR">
@@ -271,15 +342,41 @@ export function IRUploadModal({ isOpen, onClose, onIRSelected }: IRUploadModalPr
               />
             </div>
 
-            <CTA
-              variant="primary"
-              icon={<Upload size={18} />}
-              onClick={handleUpload}
-              disabled={!selectedFile || !irName.trim() || uploading}
-              className="w-full"
-            >
-              {uploading ? 'Upload en cours...' : 'Uploader'}
-            </CTA>
+            <div className="flex flex-col md:flex-row gap-3">
+              <CTA
+                variant="primary"
+                icon={<Upload size={18} />}
+                onClick={handleUpload}
+                disabled={!selectedFile || !irName.trim() || uploading}
+                className="w-full md:w-1/2"
+              >
+                {uploading ? 'Upload en cours...' : 'Uploader'}
+              </CTA>
+
+              {/* Import depuis URL (dépôts communautaires type Tone3000, etc.) */}
+              <div className="flex-1 flex flex-col gap-2">
+                <label className="block text-xs font-medium text-black/60 dark:text-white/60">
+                  Importer depuis une URL (WAV/OGG)
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="url"
+                    value={irUrl}
+                    onChange={(e) => setIrUrl(e.target.value)}
+                    className="flex-1 px-3 py-2 bg-white dark:bg-gray-800 rounded-lg border border-black/20 dark:border-white/20 text-xs"
+                    placeholder="https://exemple.com/ir/gratuit.wav"
+                  />
+                  <CTA
+                    variant="secondary"
+                    icon={<LinkIcon size={16} />}
+                    onClick={handleImportFromUrl}
+                    disabled={importingFromUrl || !irUrl.trim()}
+                  >
+                    {importingFromUrl ? 'Import...' : 'Importer'}
+                  </CTA>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -317,7 +414,7 @@ export function IRUploadModal({ isOpen, onClose, onIRSelected }: IRUploadModalPr
             )}
 
             {freesoundIRs.length > 0 && (
-              <div className="space-y-2 max-h-64 overflow-y-auto">
+              <div className="space-y-2 max-h-64 overflow-y-auto custom-scrollbar">
                 {freesoundIRs.map(sound => (
                   <div
                     key={sound.id}
@@ -385,7 +482,7 @@ export function IRUploadModal({ isOpen, onClose, onIRSelected }: IRUploadModalPr
               Aucun IR uploadé
             </div>
           ) : (
-            <div className="space-y-2 max-h-64 overflow-y-auto">
+            <div className="space-y-2 max-h-64 overflow-y-auto custom-scrollbar">
               {userIRs.map(ir => (
                 <div
                   key={ir.id}

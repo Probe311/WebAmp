@@ -20,7 +20,6 @@ export function useCatalog() {
       
       // Si Supabase n'est pas configuré, utiliser les données statiques
       if (!supabase) {
-        console.warn('[useCatalog] Supabase non configuré, utilisation des données statiques')
         setLoading(false)
         return
       }
@@ -34,9 +33,7 @@ export function useCatalog() {
         
         setPedals(loadedPedals)
         setAmplifiers(loadedAmps)
-        console.log(`[useCatalog] Catalogue chargé: ${loadedPedals.length} pédales, ${loadedAmps.length} amplis`)
       } catch (err) {
-        console.error('[useCatalog] Erreur lors du chargement:', err)
         setError(err instanceof Error ? err.message : 'Erreur inconnue')
         // Fallback sur les données statiques en cas d'erreur
         setPedals(pedalLibrary)

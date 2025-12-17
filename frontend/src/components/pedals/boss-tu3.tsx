@@ -153,7 +153,7 @@ export const BossTu3Controls = ({
       
       source.connect(analyser)
     } catch (error) {
-      console.error('Erreur lors de l\'accès au microphone:', error)
+      // échec silencieux d'accès au microphone
     }
   }, [])
 

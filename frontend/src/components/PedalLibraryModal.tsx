@@ -355,7 +355,7 @@ export function PedalLibraryModal({ isOpen, onClose, onSelectPedal, searchQuery 
         previewSynthRef.current.releaseAll()
         previewSynthRef.current.dispose()
       } catch (err) {
-        console.warn('[PedalLibraryModal] Erreur arrêt synth:', err)
+        // échec silencieux à l'arrêt du synthé
       }
       previewSynthRef.current = null
     }
@@ -649,21 +649,18 @@ export function PedalLibraryModal({ isOpen, onClose, onSelectPedal, searchQuery 
           } else {
             // Si pas d'input accessible, utiliser Tone.connect pour connecter à la destination
             // Cela peut arriver avec certains effets Tone.js qui n'exposent pas directement .input
-            console.warn('Pas d\'input accessible sur l\'effet Tone.js, utilisation de Tone.connect')
             pedalInput.connect(masterGain)
             // Utiliser Tone.connect pour connecter un AudioNode natif à la destination Tone.js
             Tone.connect(masterGain, Tone.getDestination())
             finalDestination = pedalInput
           }
         } catch (err) {
-          console.error('Erreur connexion effet Tone.js:', err)
-          // En cas d'erreur, utiliser Tone.connect pour connecter à la destination
+          // En cas d'erreur, tenter un fallback silencieux
           try {
             pedalInput.connect(masterGain)
             Tone.connect(masterGain, Tone.getDestination())
             finalDestination = pedalInput
           } catch (connectErr) {
-            console.error('[PedalLibraryModal] Erreur lors de la connexion à la destination:', connectErr)
             // Dernière tentative : connecter directement à destination du contexte audio
             pedalInput.connect(ctx.destination)
             finalDestination = pedalInput
@@ -677,7 +674,6 @@ export function PedalLibraryModal({ isOpen, onClose, onSelectPedal, searchQuery 
           Tone.connect(masterGain, Tone.getDestination())
           finalDestination = pedalInput
         } catch (err) {
-          console.error('[PedalLibraryModal] Erreur connexion sans effet:', err)
           // Fallback : connecter directement à destination du contexte audio
           pedalInput.connect(ctx.destination)
           finalDestination = pedalInput
@@ -712,7 +708,6 @@ export function PedalLibraryModal({ isOpen, onClose, onSelectPedal, searchQuery 
         stopPreview()
       }, totalDuration * 1000 + 500)
     } catch (error) {
-      console.error('[PedalLibraryModal] Erreur lors de la prévisualisation:', error)
       setPreviewingPedalId(null)
     }
     }, [stopPreview, previewingPedalId, createPedalEffect, getAudioContext, createGuitarAudioChain, scheduleTabColumn, loadTone, getFrequency, pedalLibrary])
@@ -731,12 +726,12 @@ export function PedalLibraryModal({ isOpen, onClose, onSelectPedal, searchQuery 
   }, [stopPreview])
 
   return (
-    <Modal
+      <Modal
       isOpen={isOpen}
       onClose={handleClose}
       title="Bibliothèque de Pédales"
       className="flex flex-col"
-      bodyClassName="overflow-y-auto flex-1 p-4 min-h-0"
+        bodyClassName="overflow-y-auto custom-scrollbar flex-1 p-4 min-h-0"
     >
       {!searchQuery && (
         <div className="p-4 border-b border-black/10 dark:border-white/10 shrink-0">
@@ -777,7 +772,7 @@ export function PedalLibraryModal({ isOpen, onClose, onSelectPedal, searchQuery 
         </div>
       )}
 
-      <div className="overflow-y-auto flex-1 p-4 min-h-0">
+      <div className="overflow-y-auto custom-scrollbar flex-1 p-4 min-h-0">
         {Object.keys(pedalsByType).length === 0 ? (
           <div className="text-center py-12 text-black/50 dark:text-white/50 text-base">
             Aucune pédale trouvée

@@ -57,7 +57,6 @@ export async function loadProfileSequentially(
 export function loadProfile(profileName: string): ProfileLoadResult | null {
   const profile = rockStarProfiles.find(p => p.name === profileName)
   if (!profile) {
-    console.error(`Profil non trouvé: ${profileName}`)
     return null
   }
 

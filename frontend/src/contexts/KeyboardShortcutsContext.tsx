@@ -207,7 +207,7 @@ export function KeyboardShortcutsProvider({ children }: { children: ReactNode })
         }
       }
     } catch (error) {
-      console.error('Erreur lors du chargement des raccourcis:', error)
+      // échec silencieux du chargement des raccourcis
     }
     return {
       shortcuts: defaultShortcuts,
@@ -220,7 +220,7 @@ export function KeyboardShortcutsProvider({ children }: { children: ReactNode })
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(config))
     } catch (error) {
-      console.error('Erreur lors de la sauvegarde des raccourcis:', error)
+      // échec silencieux de la sauvegarde des raccourcis
     }
   }, [config])
 

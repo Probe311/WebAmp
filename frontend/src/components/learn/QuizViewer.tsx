@@ -116,7 +116,7 @@ export function QuizViewer({ tutorial, onBack, onComplete }: QuizViewerProps) {
     const savedScore = parseInt(localStorage.getItem(`quiz-score-${tutorial.id}`) || '0', 10)
 
     return (
-      <div className="h-full overflow-y-auto p-6 pb-32">
+      <div className="h-full overflow-y-auto custom-scrollbar p-6 pb-32">
         <div className="max-w-2xl mx-auto">
           <button
             onClick={onBack}
@@ -192,7 +192,7 @@ export function QuizViewer({ tutorial, onBack, onComplete }: QuizViewerProps) {
   }
 
   return (
-    <div className="h-full overflow-y-auto p-6 pb-32">
+    <div className="h-full overflow-y-auto custom-scrollbar p-6 pb-32">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="mb-6">

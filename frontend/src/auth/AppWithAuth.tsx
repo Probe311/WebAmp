@@ -16,31 +16,43 @@ function AppContent({ children }: Props) {
   const [view, setView] = useState<AuthView>('login')
   const [showBrandModal, setShowBrandModal] = useState(false)
   const previousUserRef = useRef<string | null>(null)
+  const hasShownModalRef = useRef(false)
 
   // Afficher automatiquement la modale à chaque nouvelle connexion (si activé dans les préférences)
   useEffect(() => {
     if (!initializing && user) {
       const currentUserId = user.id
       const previousUserId = previousUserRef.current
-      
-      // Si l'utilisateur vient de se connecter (changement de null vers un ID)
-      if (previousUserId === null && currentUserId) {
-        // Vérifier la préférence utilisateur
-        const shouldShowMessage = getPreference('showThankYouMessage')
+      const isNewLogin = previousUserId === null && Boolean(currentUserId)
+
+      if (isNewLogin && !hasShownModalRef.current) {
+        // Priorité aux préférences stockées dans Supabase, puis fallback localStorage
+        const metadata = user.user_metadata as any | undefined
+        const metaValue = metadata && typeof metadata.showThankYouMessage === 'boolean'
+          ? metadata.showThankYouMessage
+          : undefined
+
+        const shouldShowMessage =
+          typeof metaValue === 'boolean'
+            ? metaValue
+            : getPreference('showThankYouMessage')
         if (shouldShowMessage) {
-          // Petit délai pour que l'interface se stabilise après le login
-          setTimeout(() => {
+          // Attendre un court instant pour laisser l'app apparaître avant la modale
+          const timer = window.setTimeout(() => {
             setShowBrandModal(true)
-          }, 500)
+            hasShownModalRef.current = true
+          }, 400)
+
+          return () => window.clearTimeout(timer)
         }
       }
-      
-      // Mettre à jour la référence
+
       previousUserRef.current = currentUserId
     } else if (!user) {
-      // Réinitialiser l'état de la modale et la référence quand l'utilisateur se déconnecte
+      // Réinitialiser l'état de la modale et les références quand l'utilisateur se déconnecte
       setShowBrandModal(false)
       previousUserRef.current = null
+      hasShownModalRef.current = false
     }
   }, [user, initializing])
 

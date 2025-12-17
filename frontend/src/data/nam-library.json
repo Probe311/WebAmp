@@ -1,0 +1,27 @@
+{
+  "models": [
+    {
+      "name": "Clean Twin",
+      "url": "/nam/CleanTwin.nam",
+      "type": "amp",
+      "description": "Son clean inspiré d'un Twin Reverb, idéal pour les pédales.",
+      "author": "WebAmp Factory"
+    },
+    {
+      "name": "High Gain Lead",
+      "url": "/nam/HighGainLead.nam",
+      "type": "amp",
+      "description": "Lead moderne high‑gain, compressé et précis.",
+      "author": "WebAmp Factory"
+    },
+    {
+      "name": "Vintage Crunch",
+      "url": "/nam/VintageCrunch.nam",
+      "type": "amp",
+      "description": "Crunch vintage typé british pour rock classique.",
+      "author": "WebAmp Factory"
+    }
+  ]
+}
+
+

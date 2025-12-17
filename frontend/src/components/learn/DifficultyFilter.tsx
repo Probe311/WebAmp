@@ -10,7 +10,7 @@ export function DifficultyFilter({ activeDifficulty, onDifficultyChange }: Diffi
   const difficulties: (TutorialDifficulty | 'all')[] = ['all', 'beginner', 'intermediate', 'advanced', 'pro']
 
   return (
-    <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+    <div className="flex items-center gap-2 overflow-x-auto custom-scrollbar pb-2">
       {difficulties.map((difficulty) => {
         const isActive = activeDifficulty === difficulty
         const label = difficulty === 'all' ? 'Tous les niveaux' : difficultyLabels[difficulty as TutorialDifficulty]

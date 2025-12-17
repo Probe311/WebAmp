@@ -132,16 +132,53 @@ export function abcToTablature(abcString: string, tuning: string[] = ['E', 'A', 
 
 /**
  * Génère du MIDI depuis le format ABC
+ * Utilise abcjs de façon dynamique pour éviter de le charger côté serveur/test inutilement.
  */
-export async function abcToMIDI(_abcString: string): Promise<Blob> {
-  // TODO: Utiliser abcjs pour générer le MIDI
-  // Pour l'instant, retourner un blob vide
-  
-  // Exemple d'utilisation avec abcjs (nécessite l'import de abcjs):
-  // const midi = ABCJS.synth.getMidiFile(abcString, {});
-  // return new Blob([midi], { type: 'audio/midi' });
-  
-  throw new Error('MIDI generation not yet implemented. Requires abcjs library.');
+export async function abcToMIDI(abcString: string): Promise<Blob> {
+  // Validation de base pour éviter des appels inutiles
+  const validation = validateABC(abcString)
+  if (!validation.valid) {
+    throw new Error(validation.error || 'Invalid ABC string')
+  }
+
+  try {
+    // Import dynamique pour ne charger abcjs que dans le navigateur
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore - abcjs n'a pas forcément de typings complets
+    const ABCJS = await import('abcjs')
+
+    if (!ABCJS || !ABCJS.synth || typeof ABCJS.synth.getMidiFile !== 'function') {
+      throw new Error('abcjs.synth.getMidiFile is not available')
+    }
+
+    // getMidiFile peut renvoyer soit une data URI, soit un buffer binaire selon la version/options
+    const midiResult = ABCJS.synth.getMidiFile(abcString, {
+      midiOutputType: 'binary',
+    })
+
+    // Si c’est une data URI
+    if (typeof midiResult === 'string' && midiResult.startsWith('data:audio/midi')) {
+      const base64 = midiResult.split(',')[1] || ''
+      const binary = atob(base64)
+      const bytes = new Uint8Array(binary.length)
+      for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i)
+      }
+      return new Blob([bytes], { type: 'audio/midi' })
+    }
+
+    // Si c’est déjà un buffer/Uint8Array ou similaire
+    if (midiResult instanceof Uint8Array || ArrayBuffer.isView(midiResult)) {
+      return new Blob([midiResult], { type: 'audio/midi' })
+    }
+
+    // Fallback : tenter de sérialiser en Blob brut
+    return new Blob([midiResult], { type: 'audio/midi' })
+  } catch (error) {
+    throw error instanceof Error
+      ? error
+      : new Error('Failed to generate MIDI from ABC')
+  }
 }
 
 /**

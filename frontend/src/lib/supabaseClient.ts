@@ -8,7 +8,6 @@ const STORAGE_KEY = 'webamp-data'
 
 export function getSupabaseClient(): SupabaseClient | null {
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-    console.warn('[supabase] VITE_SUPABASE_URL ou VITE_SUPABASE_ANON_KEY manquants. Supabase non initialisé.')
     return null
   }
   if (!supabase) {

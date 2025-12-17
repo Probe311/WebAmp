@@ -31,7 +31,6 @@ class LMSService {
     const { data, error } = await query
 
     if (error) {
-      console.error('Error fetching courses:', error)
       return []
     }
 
@@ -50,7 +49,6 @@ class LMSService {
       .single()
 
     if (courseError || !course) {
-      console.error('Error fetching course:', courseError)
       return null
     }
 
@@ -61,7 +59,7 @@ class LMSService {
       .order('order_index', { ascending: true })
 
     if (lessonsError) {
-      console.error('Error fetching lessons:', lessonsError)
+      // échec silencieux du chargement des leçons
     }
 
     return {
@@ -81,7 +79,6 @@ class LMSService {
       .order('order_index', { ascending: true })
 
     if (error) {
-      console.error('Error fetching quiz questions:', error)
       return []
     }
 
@@ -99,11 +96,125 @@ class LMSService {
       .eq('course_id', courseId)
 
     if (error) {
-      console.error('Error fetching user progress:', error)
       return []
     }
 
     return data || []
+  }
+
+  /**
+   * Récupère le nombre de leçons par cours pour une liste d'IDs de cours.
+   */
+  async getLessonsCountByCourseIds(courseIds: string[]): Promise<Map<string, number>> {
+    if (courseIds.length === 0) {
+      return new Map()
+    }
+
+    const { data, error } = await supabase
+      .from('lessons')
+      .select('course_id')
+      .in('course_id', courseIds)
+
+    if (error || !data) {
+      return new Map()
+    }
+
+    const map = new Map<string, number>()
+    data.forEach((row: { course_id: string }) => {
+      const current = map.get(row.course_id) || 0
+      map.set(row.course_id, current + 1)
+    })
+
+    return map
+  }
+
+  /**
+   * Récupère, pour une liste de cours, le nombre de leçons complétées et la dernière leçon visitée.
+   */
+  async getUserLessonsSummaryByCourse(
+    userId: string,
+    courseIds: string[]
+  ): Promise<Map<string, { completed: number; lastLessonTitle: string | null }>> {
+    const summary = new Map<string, { completed: number; lastLessonTitle: string | null }>()
+
+    if (!courseIds.length) {
+      return summary
+    }
+
+    const { data: progress, error: progressError } = await supabase
+      .from('user_progress')
+      .select('course_id, lesson_id, is_completed, completed_at')
+      .eq('user_id', userId)
+      .in('course_id', courseIds)
+      .not('lesson_id', 'is', null)
+      .eq('is_completed', true)
+
+    if (progressError || !progress || progress.length === 0) {
+      if (progressError) {
+        // échec silencieux de chargement du résumé de leçons
+      }
+      return summary
+    }
+
+    const lessonsIds = Array.from(
+      new Set((progress as any[]).map((p) => p.lesson_id as string))
+    )
+
+    const { data: lessons, error: lessonsError } = await supabase
+      .from('lessons')
+      .select('id, title')
+      .in('id', lessonsIds)
+
+    if (lessonsError) {
+      return summary
+    }
+
+    const titleById = new Map<string, string>()
+    lessons?.forEach((l: any) => {
+      titleById.set(l.id, l.title)
+    })
+
+    const byCourse = new Map<string, { completed: number; lastCompletedAt: string | null; lastLessonId: string | null }>()
+
+    ;(progress as any[]).forEach((p) => {
+      const courseId = p.course_id as string
+      const existing = byCourse.get(courseId)
+      const completedAt = p.completed_at as string | null
+      const lessonId = p.lesson_id as string
+
+      if (!existing) {
+        byCourse.set(courseId, {
+          completed: 1,
+          lastCompletedAt: completedAt || null,
+          lastLessonId: lessonId || null
+        })
+      } else {
+        const nextCompleted = existing.completed + 1
+        let lastCompletedAt = existing.lastCompletedAt
+        let lastLessonId = existing.lastLessonId
+
+        if (completedAt && (!lastCompletedAt || new Date(completedAt) > new Date(lastCompletedAt))) {
+          lastCompletedAt = completedAt
+          lastLessonId = lessonId
+        }
+
+        byCourse.set(courseId, {
+          completed: nextCompleted,
+          lastCompletedAt,
+          lastLessonId
+        })
+      }
+    })
+
+    byCourse.forEach((value, courseId) => {
+      const lastTitle = value.lastLessonId ? titleById.get(value.lastLessonId) || null : null
+      summary.set(courseId, {
+        completed: value.completed,
+        lastLessonTitle: lastTitle
+      })
+    })
+
+    return summary
   }
 
   /**
@@ -114,9 +225,10 @@ class LMSService {
     courseId: string,
     lessonId: string | null,
     progress: number,
-    isCompleted: boolean = false
+    isCompleted: boolean = false,
+    timeSpentDelta: number = 0
   ): Promise<UserProgress | null> {
-    const progressData = {
+    const baseData = {
       user_id: userId,
       course_id: courseId,
       lesson_id: lessonId,
@@ -127,17 +239,34 @@ class LMSService {
     }
 
     // Vérifier si une entrée existe déjà
-    const { data: existing } = await supabase
+    // Construire la requête pour trouver une progression existante
+    let existingQuery = supabase
       .from('user_progress')
-      .select('id')
+      .select('id, time_spent')
       .eq('user_id', userId)
       .eq('course_id', courseId)
-      .eq('lesson_id', lessonId)
-      .single()
+
+    if (lessonId === null) {
+      existingQuery = existingQuery.is('lesson_id', null)
+    } else {
+      existingQuery = existingQuery.eq('lesson_id', lessonId)
+    }
+
+    const { data: existing, error: existingError } = await existingQuery.single()
+
+    if (existingError && existingError.code !== 'PGRST116') {
+      // Erreur de lecture de la progression existante, on continue en créant une entrée
+    }
 
     let result
+    const timeDelta = Math.max(0, Math.floor(timeSpentDelta))
     if (existing) {
-      // Mettre à jour
+      // Mettre à jour (en cumulant le temps passé)
+      const currentTimeSpent = (existing as any).time_spent || 0
+      const progressData = {
+        ...baseData,
+        time_spent: currentTimeSpent + timeDelta
+      }
       const { data, error } = await supabase
         .from('user_progress')
         .update(progressData)
@@ -146,12 +275,15 @@ class LMSService {
         .single()
 
       if (error) {
-        console.error('Error updating progress:', error)
         return null
       }
       result = data
     } else {
       // Créer
+      const progressData = {
+        ...baseData,
+        time_spent: timeDelta
+      }
       const { data, error } = await supabase
         .from('user_progress')
         .insert(progressData)
@@ -159,7 +291,6 @@ class LMSService {
         .single()
 
       if (error) {
-        console.error('Error creating progress:', error)
         return null
       }
       result = data
@@ -196,11 +327,10 @@ class LMSService {
       .single()
 
     if (error) {
-      console.error('Error saving quiz attempt:', error)
       return null
     }
 
-    // Mettre à jour les statistiques
+    // Mettre à jour les statistiques (échec silencieux)
     await this.updateUserStats(userId)
 
     return data
@@ -222,7 +352,6 @@ class LMSService {
       if (error.code === 'PGRST116' || error.code === '42P01') {
         return await this.createUserStats(userId)
       }
-      console.error('Error fetching user stats:', error)
       return null
     }
 
@@ -258,7 +387,6 @@ class LMSService {
       .single()
 
     if (error) {
-      console.error('Error creating user stats:', error)
       return null
     }
 
@@ -272,7 +400,7 @@ class LMSService {
     // Calculer les statistiques depuis les tables de progression
     const { data: progress } = await supabase
       .from('user_progress')
-      .select('course_id, is_completed')
+      .select('course_id, is_completed, completed_at')
       .eq('user_id', userId)
 
     const { data: quizAttempts } = await supabase
@@ -286,23 +414,83 @@ class LMSService {
       .in('course_id', progress?.filter(p => p.is_completed).map(p => p.course_id) || [])
 
     const totalXP = rewards?.reduce((sum, r) => sum + (r.xp || 0), 0) || 0
-    const coursesCompleted = new Set(progress?.filter(p => p.is_completed).map(p => p.course_id)).size
-    const lessonsCompleted = progress?.filter(p => p.is_completed).length || 0
+    const coursesCompleted = new Set(
+      (progress || [])
+        .filter((p: any) => p.is_completed)
+        .map((p: any) => p.course_id)
+    ).size
+    const lessonsCompleted = (progress || []).filter((p: any) => p.is_completed).length || 0
     const quizzesCompleted = new Set(quizAttempts?.map(q => q.course_id)).size
-    const badges = rewards?.flatMap(r => r.badges || []).filter((v, i, a) => a.indexOf(v) === i) || []
+    let badges = rewards?.flatMap(r => r.badges || []).filter((v, i, a) => a.indexOf(v) === i) || []
+
+    // Badges de gamification contextuels basés sur les stats globales
+    const extraBadges: string[] = []
+
+    if (lessonsCompleted >= 1) {
+      extraBadges.push('Première leçon')
+    }
+    if (coursesCompleted >= 1) {
+      extraBadges.push('Premier cours')
+    }
+    if (coursesCompleted >= 3) {
+      extraBadges.push('Multi-cours')
+    }
+    if (coursesCompleted >= 1 && lessonsCompleted >= 10) {
+      extraBadges.push('Explorateur')
+    }
+
+    // Calcul de la série de jours (streak) : nombre de jours consécutifs avec au moins une progression complétée
+    let currentStreak = 0
+    if (progress && progress.length > 0) {
+      const completedDates = new Set<string>()
+      progress
+        .filter((p: any) => p.is_completed && p.completed_at)
+        .forEach((p: any) => {
+          const d = new Date(p.completed_at as string)
+          // Normaliser à la date locale YYYY-MM-DD
+          const key = d.toISOString().slice(0, 10)
+          completedDates.add(key)
+        })
+
+      if (completedDates.size > 0) {
+        let current = new Date()
+        // on ignore l'heure, on ne garde que la date
+        current.setHours(0, 0, 0, 0)
+
+        while (true) {
+          const key = current.toISOString().slice(0, 10)
+          if (completedDates.has(key)) {
+            currentStreak += 1
+            // jour précédent
+            current.setDate(current.getDate() - 1)
+          } else {
+            break
+          }
+        }
+      }
+    }
+
+    // Fusionner badges cours + badges contextuels en supprimant les doublons
+    badges = [...badges, ...extraBadges].filter((v, i, a) => a.indexOf(v) === i)
 
     await supabase
       .from('user_stats')
-      .upsert({
+      .upsert(
+        {
         user_id: userId,
         total_xp: totalXP,
         courses_completed: coursesCompleted,
         lessons_completed: lessonsCompleted,
         quizzes_completed: quizzesCompleted,
         badges,
+        current_streak: currentStreak,
         last_activity_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
-      })
+        },
+        {
+          onConflict: 'user_id'
+        }
+      )
   }
 
   /**
@@ -316,11 +504,61 @@ class LMSService {
       .single()
 
     if (error) {
-      console.error('Error fetching course rewards:', error)
       return null
     }
 
     return data
+  }
+
+  /**
+   * Récupère l'historique récent d'XP (cours complétés) pour un utilisateur
+   */
+  async getUserXpHistory(
+    userId: string,
+    limit: number = 10
+  ): Promise<{ course_id: string; title: string; xp: number; completed_at: string }[]> {
+    const { data: progress, error: progressError } = await supabase
+      .from('user_progress')
+      .select('course_id, completed_at')
+      .eq('user_id', userId)
+      .eq('is_completed', true)
+      .is('lesson_id', null)
+      .order('completed_at', { ascending: false })
+      .limit(limit)
+
+    if (progressError || !progress || progress.length === 0) {
+      return []
+    }
+
+    const courseIds = Array.from(new Set(progress.map((p) => p.course_id)))
+
+    const [{ data: courses }, { data: rewards }] = await Promise.all([
+      supabase
+        .from('courses')
+        .select('id, title')
+        .in('id', courseIds),
+      supabase
+        .from('course_rewards')
+        .select('course_id, xp')
+        .in('course_id', courseIds)
+    ])
+
+    const titleById = new Map<string, string>()
+    const xpByCourse = new Map<string, number>()
+
+    courses?.forEach((c: any) => {
+      titleById.set(c.id, c.title)
+    })
+    rewards?.forEach((r: any) => {
+      xpByCourse.set(r.course_id, r.xp || 0)
+    })
+
+    return progress.map((p) => ({
+      course_id: p.course_id,
+      title: titleById.get(p.course_id) || 'Cours',
+      xp: xpByCourse.get(p.course_id) || 0,
+      completed_at: p.completed_at
+    }))
   }
 
   /**
@@ -337,7 +575,6 @@ class LMSService {
       .in('course_id', courseIds)
 
     if (error) {
-      console.error('Error fetching all course rewards:', error)
       return new Map()
     }
 
@@ -395,7 +632,6 @@ class LMSService {
     }
 
     if (error && error.code !== 'PGRST116') {
-      console.error('Error fetching tablature:', error)
       return null
     }
 
@@ -420,7 +656,6 @@ class LMSService {
       .single()
 
     if (error || !data) {
-      console.error('Error fetching tablature measures:', error)
       return { measures: [], total: 0, hasMore: false }
     }
 
@@ -459,7 +694,6 @@ class LMSService {
     const { data, error } = await query
 
     if (error) {
-      console.error('Error fetching course tablatures:', error)
       return []
     }
 
@@ -528,10 +762,8 @@ class LMSService {
         })
 
       if (error) {
-        console.error('Error saving tablature:', error)
         // Si l'erreur est due au type UUID, essayer avec slug comme ID alternatif
         if (error.code === '22P02' || error.message?.includes('invalid input syntax for type uuid')) {
-          console.warn('UUID error, trying to use slug as alternative identifier')
           // Essayer de trouver par slug d'abord
           const { data: existing } = await supabase
             .from('tablatures')
@@ -550,7 +782,6 @@ class LMSService {
               .eq('id', existing.id)
             
             if (updateError) {
-              console.error('Error updating existing tablature:', updateError)
               return { success: false, error: updateError }
             }
             return { success: true }
@@ -561,7 +792,6 @@ class LMSService {
 
       return { success: true }
     } catch (error) {
-      console.error('Error saving tablature:', error)
       return { success: false, error }
     }
   }
@@ -589,13 +819,11 @@ class LMSService {
         })
 
       if (error) {
-        console.error('Error associating tablature to course:', error)
         return { success: false, error }
       }
 
       return { success: true }
     } catch (error) {
-      console.error('Error associating tablature to course:', error)
       return { success: false, error }
     }
   }

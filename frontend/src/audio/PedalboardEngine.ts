@@ -78,8 +78,7 @@ export class PedalboardEngine {
         this.output.connect(this.audioCtx.destination)
       } catch (error) {
         // Si l'AudioContext ne peut pas être créé (politique autoplay), 
-        // on retourne null et l'appelant devra gérer l'erreur
-        console.warn('Impossible de créer l\'AudioContext:', error)
+        // on laisse l'appelant gérer l'erreur
         throw error
       }
       
@@ -454,7 +453,7 @@ export class PedalboardEngine {
         try {
           oldEffect.cleanup()
         } catch (error) {
-          console.warn(`Erreur cleanup ancien effet ${finalEffectId}:`, error)
+          // échec silencieux du cleanup d'un ancien effet
         }
       }
       
@@ -472,7 +471,6 @@ export class PedalboardEngine {
 
       return finalEffectId
     } catch (error) {
-      console.error(`Erreur création effet ${finalEffectId}:`, error)
       throw error
     }
   }
@@ -490,7 +488,7 @@ export class PedalboardEngine {
         try {
           effect.cleanup()
         } catch (error) {
-          console.warn(`Erreur cleanup effet ${effectId}:`, error)
+          // échec silencieux du cleanup d'effet
         }
       }
       
@@ -696,7 +694,6 @@ export class PedalboardEngine {
         await this.addEffect(pedalModel, config.parameters)
       }
     } catch (error) {
-      console.error('Erreur lors du chargement de l\'IR depuis Freesound:', error)
       throw error
     }
   }
@@ -734,7 +731,6 @@ export class PedalboardEngine {
       try {
         await audioCtx.resume()
       } catch (error) {
-        console.warn('Impossible de résumer l\'AudioContext:', error)
         // Ne pas lever d'erreur, l'utilisateur devra interagir avec la page
       }
     }

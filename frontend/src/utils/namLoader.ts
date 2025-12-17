@@ -62,7 +62,6 @@ class NAMLoader {
       this.modelCache.set(cacheKey, model);
       return model;
     } catch (error) {
-      console.error('Failed to load NAM model:', error);
       throw new Error(`Failed to load NAM model: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
@@ -95,7 +94,6 @@ class NAMLoader {
       this.modelCache.set(url, model);
       return model;
     } catch (error) {
-      console.error('Failed to load NAM model from URL:', error);
       throw new Error(`Failed to load NAM model from URL: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
@@ -142,7 +140,6 @@ class NAMLoader {
         tags: metadata.tags || [],
       };
     } catch (error) {
-      console.warn('Failed to parse NAM metadata, using defaults:', error);
       return {
         name: 'Unknown Model',
         modelType: 'amp',
@@ -184,14 +181,13 @@ class NAMLoader {
           }
           library.categories[category].push(model);
         } catch (error) {
-          console.warn(`Failed to load model ${modelEntry.name}:`, error);
+          // échec silencieux du chargement d'un modèle individuel
         }
       }
 
       this.libraryCache = library;
       return library;
     } catch (error) {
-      console.error('Failed to load NAM library:', error);
       throw error;
     }
   }

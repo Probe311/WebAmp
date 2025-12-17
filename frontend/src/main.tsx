@@ -16,8 +16,10 @@ import './utils/migrationHelper'
 import './scripts/importCourses'
 // Importer le script de nettoyage des doublons
 import './scripts/cleanDuplicateCourses'
-// Importer le script de mise à jour des IDs Songsterr
-import './scripts/updateSongsterrIds'
+// Importer le script de mise à jour des tablatures Shake It Off
+import './scripts/updateShakeItOffTablatures'
+// Importer le script d'import des tablatures depuis HTML
+import './scripts/importShakeItOffTabs'
 
 // Lazy loading pour temps de chargement < 1s
 const App = lazy(() => import('./App').then(module => ({ default: module.default })))

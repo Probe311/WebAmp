@@ -46,7 +46,7 @@ export function TopBanner({
             type="text"
             placeholder="Rechercher..."
             value={searchQuery}
-            onChange={(e) => onSearchChange(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => onSearchChange(e.target.value)}
             className="w-full px-6 py-3 bg-white dark:bg-gray-700 rounded-3xl text-black/85 dark:text-white/90 text-sm transition-all duration-200
               shadow-[inset_2px_2px_4px_rgba(0,0,0,0.05),inset_-2px_-2px_4px_rgba(255,255,255,0.8)]
               dark:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.5),inset_-2px_-2px_4px_rgba(60,60,60,0.5)]
@@ -73,7 +73,7 @@ export function TopBanner({
         onClose={() => setShowMonitoring(false)}
         title="Monitoring système"
         widthClassName="max-w-6xl"
-        bodyClassName="p-6 overflow-y-auto max-h-[calc(80vh-80px)]"
+        bodyClassName="p-6 overflow-y-auto custom-scrollbar max-h-[calc(80vh-80px)]"
       >
         <SystemMonitoringPanel />
       </Modal>

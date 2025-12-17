@@ -8,8 +8,6 @@ Ce dossier contient les Edge Functions Supabase pour contourner les restrictions
 functions/
 ├── _shared/          # Code partagé entre les fonctions
 │   └── cors.ts      # Service CORS réutilisable
-├── songsterr/        # Fonction pour les appels Songsterr
-│   └── index.ts
 └── README.md         # Ce fichier
 ```
 
@@ -24,9 +22,6 @@ functions/
 ### Déployer une fonction
 
 ```bash
-# Déployer la fonction songsterr
-supabase functions deploy songsterr
-
 # Déployer toutes les fonctions
 supabase functions deploy
 ```
@@ -36,46 +31,6 @@ supabase functions deploy
 ```bash
 # Démarrer l'environnement local
 supabase start
-
-# Tester la fonction songsterr
-curl -X POST http://localhost:54321/functions/v1/songsterr \
-  -H "Content-Type: application/json" \
-  -d '{"action": "search", "query": "shake it off taylor swift"}'
-```
-
-## Fonctions disponibles
-
-### songsterr
-
-Endpoint pour les appels à l'API Songsterr.
-
-**Actions disponibles :**
-- `search`: Recherche une chanson par titre et artiste
-- `getTabData`: Récupère les données complètes d'une tablature par ID
-
-**Exemple de requête :**
-
-```json
-{
-  "action": "search",
-  "query": "shake it off taylor swift"
-}
-```
-
-```json
-{
-  "action": "getTabData",
-  "tabId": 468698
-}
-```
-
-**Réponse :**
-
-```json
-{
-  "success": true,
-  "data": { ... }
-}
 ```
 
 ## Service CORS partagé

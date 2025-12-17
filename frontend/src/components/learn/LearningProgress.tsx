@@ -1,17 +1,58 @@
 import { BookOpen, Award, Target, TrendingUp } from 'lucide-react'
 import { Block } from '../Block'
-import { useUserStats } from '../../hooks/useLMS'
+import { useUserStats, useAllCoursesProgress } from '../../hooks/useLMS'
 import { useAuth } from '../../auth/AuthProvider'
+import { lmsService } from '../../services/lms'
+import { useEffect, useState } from 'react'
+import { computeCompletedCoursesCount, computeTotalXPFromProgress } from '../../utils/learningStats'
 
 export function LearningProgress() {
   const { user } = useAuth()
   const { stats, loading } = useUserStats(user?.id)
+  const { progressMap } = useAllCoursesProgress(user?.id)
+  const [totalXP, setTotalXP] = useState<number>(0)
+  const [coursesCompleted, setCoursesCompleted] = useState<number>(0)
+  const [lessonsCompleted, setLessonsCompleted] = useState<number>(0)
 
   if (!user) {
     return null
   }
 
-  if (loading) {
+  useEffect(() => {
+    const computeFromProgress = async () => {
+      if (!user) return
+
+      // Calculer côté client à partir des progressions et des rewards
+      const completedCount = computeCompletedCoursesCount(progressMap)
+
+      if (completedCount === 0) {
+        setTotalXP(0)
+        setCoursesCompleted(0)
+        setLessonsCompleted(0)
+        return
+      }
+
+      const completedCourseIds = Array.from(progressMap.entries())
+        .filter(([_, p]) => p.completed)
+        .map(([courseId]) => courseId)
+
+      const rewardsMap = await lmsService.getAllCourseRewards(completedCourseIds)
+
+      const xp = computeTotalXPFromProgress(progressMap, rewardsMap)
+
+      setTotalXP(xp)
+      setCoursesCompleted(completedCount)
+
+      // Pour le nombre de leçons complétées, on utilise la valeur agrégée de Supabase si disponible
+      if (stats) {
+        setLessonsCompleted(stats.lessons_completed || 0)
+      }
+    }
+
+    computeFromProgress()
+  }, [user, stats, progressMap])
+
+  if (loading && !stats) {
     return (
       <Block className="min-h-[280px] flex flex-col justify-center">
         <div className="text-center text-black/50 dark:text-white/50">
@@ -21,11 +62,13 @@ export function LearningProgress() {
     )
   }
 
-  const totalXP = stats?.total_xp || 0
-  const coursesCompleted = stats?.courses_completed || 0
-  const lessonsCompleted = stats?.lessons_completed || 0
   const badges = stats?.badges || []
   const streak = stats?.current_streak || 0
+
+  // Valeurs affichées (priorité aux stats calculées côté client)
+  const displayedXP = totalXP
+  const displayedCoursesCompleted = coursesCompleted
+  const displayedLessonsCompleted = lessonsCompleted
 
   return (
     <Block className="min-h-[280px] flex flex-col">
@@ -41,7 +84,7 @@ export function LearningProgress() {
         <div className="mb-4">
           <div className="flex items-baseline gap-2 mb-2">
             <span className="text-4xl font-bold text-black/85 dark:text-white/90">
-              {totalXP.toLocaleString()}
+              {displayedXP.toLocaleString()}
             </span>
             <span className="text-sm text-black/70 dark:text-white/70">XP</span>
           </div>
@@ -62,7 +105,7 @@ export function LearningProgress() {
             <Target size={16} className="text-black/50 dark:text-white/50" />
             <div>
               <div className="text-lg font-bold text-black/85 dark:text-white/90">
-                {coursesCompleted}
+                {displayedCoursesCompleted}
               </div>
               <div className="text-xs text-black/70 dark:text-white/70">
                 Cours terminés
@@ -74,7 +117,7 @@ export function LearningProgress() {
             <BookOpen size={16} className="text-black/50 dark:text-white/50" />
             <div>
               <div className="text-lg font-bold text-black/85 dark:text-white/90">
-                {lessonsCompleted}
+                {displayedLessonsCompleted}
               </div>
               <div className="text-xs text-black/70 dark:text-white/70">
                 Leçons complétées

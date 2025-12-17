@@ -32,7 +32,6 @@ export function ArtistProfile({ artistName }: ArtistProfileProps) {
         const artistDetails = await musicBrainzService.getArtistById(artists[0].id)
         setArtist(artistDetails)
       } catch (err) {
-        console.error('Error fetching artist:', err)
         setError('Erreur lors de la récupération des informations de l\'artiste')
       } finally {
         setLoading(false)

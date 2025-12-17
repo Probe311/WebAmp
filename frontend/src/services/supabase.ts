@@ -28,6 +28,21 @@ export interface Lesson {
   id: string
   course_id: string
   title: string
+  /**
+   * Description de la leçon. Peut contenir :
+   * - Texte simple
+   * - Tags spéciaux : [chord:C], [artist:Nom], [tablature:id]
+   * - Blocs HTML/SVG : [html]...contenu HTML/SVG...[/html]
+   * 
+   * Exemple :
+   * ```
+   * Voici un diagramme de solo :
+   * [html]
+   * <svg>...</svg>
+   * [/html]
+   * Travaille ce passage lentement.
+   * ```
+   */
   description: string
   content_type: 'text' | 'video' | 'interactive'
   order_index: number

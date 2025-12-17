@@ -30,7 +30,7 @@ export function HomePage({ onNavigateToLearn }: HomePageProps) {
   const greeting = getGreeting()
 
   return (
-    <div className="h-full overflow-y-auto p-6 pb-32">
+    <div className="h-full overflow-y-auto custom-scrollbar p-6 pb-32">
       <div className="max-w-7xl mx-auto">
         {/* Message de bienvenue */}
         <div className="mb-8">

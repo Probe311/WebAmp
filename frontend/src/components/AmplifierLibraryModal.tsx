@@ -59,12 +59,12 @@ export function AmplifierLibraryModal({ isOpen, onClose, onSelectAmplifier, sele
   )
 
   return (
-    <Modal
+      <Modal
       isOpen={isOpen}
       onClose={onClose}
       title="Bibliothèque d'Amplis"
       className="flex flex-col"
-      bodyClassName="overflow-y-auto flex-1 p-4 min-h-0"
+        bodyClassName="overflow-y-auto custom-scrollbar flex-1 p-4 min-h-0"
     >
       {!searchQuery && (
         <div className="p-4 border-b border-black/10 dark:border-white/10 shrink-0">
@@ -105,7 +105,7 @@ export function AmplifierLibraryModal({ isOpen, onClose, onSelectAmplifier, sele
         </div>
       )}
 
-      <div className="overflow-y-auto flex-1 p-4 min-h-0">
+      <div className="overflow-y-auto custom-scrollbar flex-1 p-4 min-h-0">
         {filteredAmps.length === 0 ? (
           <div className="text-center py-12 text-black/50 dark:text-white/50 text-base">
             Aucun ampli trouvé

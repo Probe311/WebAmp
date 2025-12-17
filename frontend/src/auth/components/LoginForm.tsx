@@ -10,7 +10,7 @@ interface Props {
 }
 
 export function LoginForm({ onForgotPassword, onSwitchSignup, onSuccess }: Props) {
-  const { login, loading } = useAuth()
+  const { login, loading, authEnabled } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -19,6 +19,10 @@ export function LoginForm({ onForgotPassword, onSwitchSignup, onSuccess }: Props
     event.preventDefault()
     setError(null)
     try {
+      if (!authEnabled) {
+        setError('Authentification non configurée. Ajoute VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY dans frontend/.env.local.')
+        return
+      }
       await login(email.trim(), password)
       // Le onSuccess n'est plus nécessaire car AppWithAuth redirige automatiquement
       onSuccess?.()
@@ -70,11 +74,12 @@ export function LoginForm({ onForgotPassword, onSwitchSignup, onSuccess }: Props
 
       <CTA
         variant="important"
-        disabled={loading}
+        disabled={loading || !authEnabled}
         className="w-full"
         type="submit"
+        title={!authEnabled ? 'Configure les variables Supabase pour activer la connexion' : undefined}
       >
-        {loading ? 'Connexion...' : 'Se connecter'}
+        {!authEnabled ? 'Auth non configurée' : loading ? 'Connexion...' : 'Se connecter'}
       </CTA>
     </form>
   )

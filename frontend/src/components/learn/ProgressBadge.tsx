@@ -1,14 +1,15 @@
 import { Award, TrendingUp } from 'lucide-react'
+import { getLevelFromXP } from '../../utils/lmsLevelService'
 
 interface ProgressBadgeProps {
   xp: number
-  level?: number
   completedCount?: number
   totalCount?: number
 }
 
-export function ProgressBadge({ xp, level = 1, completedCount = 0, totalCount = 0 }: ProgressBadgeProps) {
+export function ProgressBadge({ xp, completedCount = 0, totalCount = 0 }: ProgressBadgeProps) {
   const completionPercentage = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0
+  const level = getLevelFromXP(xp)
 
   return (
     <div className="flex items-center gap-4">

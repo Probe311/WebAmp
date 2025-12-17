@@ -79,7 +79,6 @@ function App() {
         message: `Ampli ${profileResult.amplifierId || 'par défaut'} et ${profileResult.pedalIds.length} pédale(s) appliqués.`
       })
     } catch (error) {
-      console.error('Erreur lors du chargement du profil:', error)
       showToast({
         variant: 'error',
         title: 'Erreur',
@@ -142,17 +141,14 @@ function App() {
           if (Tone.context && Tone.context.state === 'suspended') {
             try {
               await Tone.start()
-              console.log('[App] Tone.js AudioContext démarré')
-            } catch (error) {
+            } catch {
               // Ignorer silencieusement - l'utilisateur devra interagir
-              console.warn('[App] Impossible de démarrer Tone.js:', error)
             }
           } else if (Tone.context && Tone.context.state === 'running') {
-            console.log('[App] Tone.js AudioContext déjà actif')
+            // AudioContext déjà actif, rien à faire
           }
-        } catch (error) {
+        } catch {
           // Tone.js n'est peut-être pas encore chargé, ce n'est pas grave
-          console.warn('[App] Tone.js non disponible:', error)
         }
       } catch (error) {
         // Ignorer les erreurs silencieusement - l'AudioContext sera résumé lors de la prochaine interaction
@@ -257,7 +253,7 @@ function App() {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-white dark:bg-gray-900 overflow-hidden transition-colors duration-200">
+    <div className="flex flex-col h-screen bg-white dark:bg-gray-900 overflow-hidden transition-colors duration-200 custom-scrollbar">
       <TopBanner 
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
@@ -281,7 +277,7 @@ function App() {
         onClose={() => setShowDrumMachineModal(false)}
         title="Machine à rythmes"
         widthClassName="max-w-6xl"
-        bodyClassName="p-6 overflow-y-auto max-h-[calc(80vh-80px)]"
+        bodyClassName="p-6 overflow-y-auto custom-scrollbar max-h-[calc(80vh-80px)]"
       >
         <DrumMachinePanel />
       </Modal>

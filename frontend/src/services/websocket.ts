@@ -62,7 +62,6 @@ export class WebSocketClient {
         this.ws.onopen = () => {
           this.isConnecting = false
           this.reconnectAttempts = 0
-          console.log('[WebSocket] Connecté au Native Helper')
           resolve()
         }
 
@@ -71,13 +70,12 @@ export class WebSocketClient {
             const message = JSON.parse(event.data)
             this.handleMessage(message)
           } catch (error) {
-            console.error('[WebSocket] Erreur parsing message:', error)
+            // erreur de parsing silencieuse
           }
         }
 
         this.ws.onerror = (error) => {
           this.isConnecting = false
-          console.error('[WebSocket] Erreur:', error)
           if (this.reconnectAttempts === 0) {
             reject(new Error('Impossible de se connecter au Native Helper'))
           }
@@ -85,7 +83,6 @@ export class WebSocketClient {
 
         this.ws.onclose = () => {
           this.isConnecting = false
-          console.log('[WebSocket] Connexion fermée')
           this.attemptReconnect()
         }
       } catch (error) {
@@ -97,15 +94,13 @@ export class WebSocketClient {
 
   private attemptReconnect(): void {
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-      console.warn('[WebSocket] Nombre maximum de tentatives de reconnexion atteint')
       return
     }
 
     this.reconnectAttempts++
     const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1)
 
-    console.log(`[WebSocket] Tentative de reconnexion ${this.reconnectAttempts}/${this.maxReconnectAttempts} dans ${delay}ms`)
-
+    // tentative de reconnexion silencieuse
     setTimeout(() => {
       if (this.ws?.readyState !== WebSocket.OPEN) {
         this.connect().catch(() => {
@@ -205,7 +200,7 @@ export class WebSocketClient {
           const message = JSON.parse(event.data)
           handler(message)
         } catch (error) {
-          console.error('[WebSocket] Erreur parsing message:', error)
+          // erreur de parsing silencieuse
         }
       }
     }

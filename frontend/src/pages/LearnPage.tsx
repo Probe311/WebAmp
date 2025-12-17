@@ -11,6 +11,7 @@ import { Loader } from '../components/Loader'
 import { useLMS, useCourses, useUserStats, useAllCoursesProgress } from '../hooks/useLMS'
 import { lmsService } from '../services/lms'
 import { courseToTutorial } from '../utils/courseAdapter'
+import { computeCompletedCoursesCount, computeTotalXPFromProgress } from '../utils/learningStats'
 import type { Course, CourseReward } from '../services/supabase'
 import type { TutorialCategory, TutorialDifficulty } from '../data/tutorials'
 
@@ -20,6 +21,7 @@ export function LearnPage() {
   const [activeCategory, setActiveCategory] = useState<TutorialCategory | 'all'>('all')
   const [activeDifficulty, setActiveDifficulty] = useState<TutorialDifficulty | 'all'>('all')
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null)
+  const [statsRefreshKey, setStatsRefreshKey] = useState(0)
 
   // Récupérer les cours depuis Supabase
   const { courses, loading: coursesLoading } = useCourses({
@@ -29,13 +31,18 @@ export function LearnPage() {
   })
 
   // Récupérer les statistiques utilisateur
-  const { stats } = useUserStats(userId)
+  const { stats } = useUserStats(userId, statsRefreshKey)
 
   // Récupérer toutes les progressions de l'utilisateur
-  const { progressMap } = useAllCoursesProgress(userId)
+  const { progressMap } = useAllCoursesProgress(userId, statsRefreshKey)
 
   // Récupérer les récompenses pour tous les cours
   const [rewardsMap, setRewardsMap] = useState<Map<string, CourseReward>>(new Map())
+  // Récupérer le nombre de leçons et le résumé par cours
+  const [lessonsCountMap, setLessonsCountMap] = useState<Map<string, number>>(new Map())
+  const [lessonsSummaryMap, setLessonsSummaryMap] = useState<
+    Map<string, { completed: number; lastLessonTitle: string | null }>
+  >(new Map())
   
   useEffect(() => {
     const loadRewards = async () => {
@@ -50,13 +57,40 @@ export function LearnPage() {
         const rewards = await lmsService.getAllCourseRewards(courseIds)
         setRewardsMap(rewards)
       } catch (error) {
-        console.error('Error loading rewards:', error)
         setRewardsMap(new Map())
       }
     }
     
     loadRewards()
   }, [courses])
+
+  // Charger le nombre de leçons et le résumé des leçons par cours
+  useEffect(() => {
+    const loadLessonsData = async () => {
+      if (!userId || courses.length === 0) {
+        setLessonsCountMap(new Map())
+        setLessonsSummaryMap(new Map())
+        return
+      }
+
+      const courseIds = courses.map((c) => c.id)
+
+      try {
+        const [counts, summaries] = await Promise.all([
+          lmsService.getLessonsCountByCourseIds(courseIds),
+          lmsService.getUserLessonsSummaryByCourse(userId, courseIds)
+        ])
+
+        setLessonsCountMap(counts)
+        setLessonsSummaryMap(summaries)
+      } catch (error) {
+        setLessonsCountMap(new Map())
+        setLessonsSummaryMap(new Map())
+      }
+    }
+
+    loadLessonsData()
+  }, [userId, courses])
 
   // Récupérer toutes les catégories uniques
   const categories = useMemo(() => {
@@ -95,14 +129,26 @@ export function LearnPage() {
     setSelectedCourse(null)
   }
 
-  // Si un cours est sélectionné, afficher le viewer
-  if (selectedCourse) {
-    return <CourseViewer courseId={selectedCourse.id} onBack={handleBack} />
+  const handleCourseCompleted = () => {
+    // Rafraîchir les stats et la progression quand un cours est terminé
+    setStatsRefreshKey((prev) => prev + 1)
   }
 
-  const totalXP = stats?.total_xp || 0
-  const completedCount = stats?.courses_completed || 0
+  // Si un cours est sélectionné, afficher le viewer
+  if (selectedCourse) {
+    return (
+      <CourseViewer
+        courseId={selectedCourse.id}
+        onBack={handleBack}
+        onCompleted={handleCourseCompleted}
+      />
+    )
+  }
+
+  // XP et complétion globale calculés côté client à partir des progressions
   const totalCount = courses.length
+  const completedCount = computeCompletedCoursesCount(progressMap)
+  const totalXP = computeTotalXPFromProgress(progressMap, rewardsMap)
 
   return (
     <div className="h-full overflow-y-auto p-6 pb-32">
@@ -194,6 +240,11 @@ export function LearnPage() {
                 const reward = rewardsMap.get(course.id)
                 const totalXP = reward?.xp || tutorial.rewards.xp || 0
                 const earnedXP = Math.floor((progress / 100) * totalXP)
+
+                const lessonsTotal = lessonsCountMap.get(course.id) || 0
+                const lessonSummary = lessonsSummaryMap.get(course.id)
+                const lessonsCompleted = lessonSummary?.completed ?? 0
+                const lastLessonTitle = lessonSummary?.lastLessonTitle ?? null
                 
                 return (
                   <TutorialCard
@@ -202,6 +253,9 @@ export function LearnPage() {
                     progress={progress}
                     completed={completed}
                     earnedXP={earnedXP}
+                    lessonsCompleted={lessonsCompleted}
+                    lessonsTotal={lessonsTotal}
+                    lastLessonTitle={lastLessonTitle}
                     onStart={handleStartCourse}
                   />
                 )

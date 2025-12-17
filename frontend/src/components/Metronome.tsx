@@ -8,6 +8,7 @@ import { usePedalboardEngine } from '../hooks/usePedalboardEngine'
 export function Metronome() {
   const { engine } = usePedalboardEngine()
   const metronomeRef = useRef<MetronomeEngine | null>(null)
+  const pollIntervalRef = useRef<number | null>(null)
   const [state, setState] = useState<MetronomeState>({
     isPlaying: false,
     currentBeat: 0,
@@ -30,46 +31,57 @@ export function Metronome() {
   }, [])
 
   useEffect(() => {
-    if (!metronomeRef.current) return
+    if (!metronomeRef.current || !state.isPlaying) return
 
-    const interval = setInterval(() => {
+    const poll = () => {
       const newState = metronomeRef.current?.getState()
       if (newState) {
         setState(newState)
       }
-    }, 50)
+    }
 
-    return () => clearInterval(interval)
-  }, [])
+    poll()
+    pollIntervalRef.current = window.setInterval(() => {
+      if (document.visibilityState !== 'visible') return
+      poll()
+    }, 100)
+
+    return () => {
+      if (pollIntervalRef.current) {
+        window.clearInterval(pollIntervalRef.current)
+        pollIntervalRef.current = null
+      }
+    }
+  }, [state.isPlaying])
 
   const handlePlayPause = async () => {
     if (!engine) {
-      console.warn('Engine non disponible')
       return
     }
 
     if (state.isPlaying && metronomeRef.current) {
       metronomeRef.current.stop()
+      if (pollIntervalRef.current) {
+        window.clearInterval(pollIntervalRef.current)
+        pollIntervalRef.current = null
+      }
       return
     }
 
     try {
       await engine.start()
     } catch (error) {
-      console.error('Erreur démarrage moteur audio:', error)
       return
     }
 
     const audioCtx = engine.getAudioContext()
     if (!audioCtx) {
-      console.warn('AudioContext non disponible après démarrage')
       return
     }
 
     if (audioCtx.state === 'suspended') {
       await audioCtx.resume()
     } else if (audioCtx.state === 'closed') {
-      console.warn('AudioContext fermé, impossible de démarrer le métronome')
       return
     }
 
@@ -85,7 +97,7 @@ export function Metronome() {
     if (audioCtx.state === 'running') {
       metronomeRef.current.start()
     } else {
-      console.warn('AudioContext non actif, impossible de démarrer le métronome. État:', audioCtx.state)
+      // AudioContext non actif, on ne démarre pas le métronome
     }
   }
 

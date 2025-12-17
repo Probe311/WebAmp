@@ -138,7 +138,6 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
         try {
           await Tone.start()
         } catch (error) {
-          console.warn('[DrumMachine] Impossible de démarrer le contexte audio:', error)
           return false
         }
       }
@@ -154,7 +153,6 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
         try {
           await Tone.start()
         } catch (error) {
-          console.error('[DrumMachine] Impossible de démarrer le contexte audio:', error)
           return false
         }
       }
@@ -251,7 +249,6 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
       initializedRef.current = true
       return true
     } catch (error) {
-      console.error('[DrumMachine] Erreur lors de l\'initialisation de Tone.js:', error)
       return false
     }
   }, [masterVolume])
@@ -323,7 +320,7 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
         }
       }
     } catch (error) {
-      console.warn(`[DrumMachine] Erreur lors de la lecture de ${instrument}:`, error)
+      // Échec silencieux de la lecture d'un instrument
     }
   }, [initializeTone])
 
@@ -339,7 +336,10 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
         // Multiplier par 1000 pour convertir en millisecondes
         const stepDuration = (60 / bpm / 4) * 1000
         
-        intervalRef.current = setInterval(() => {
+        intervalRef.current = window.setInterval(() => {
+          if (document.visibilityState !== 'visible') {
+            return
+          }
           setCurrentStepState(prev => {
             const nextStep = (prev + 1) % NUM_STEPS
             
@@ -418,7 +418,7 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
                       }
                     }
                   } catch (error) {
-                    console.warn(`[DrumMachine] Erreur lors de la lecture de ${instrument}:`, error)
+                    // Échec silencieux de la lecture d'un instrument
                   }
                 }
               })
@@ -428,18 +428,18 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
           })
         }, stepDuration)
       }).catch((error) => {
-        console.error('[DrumMachine] Erreur lors de l\'initialisation:', error)
+        // Échec silencieux de l'initialisation
       })
     } else {
       if (intervalRef.current) {
-        clearInterval(intervalRef.current)
+        window.clearInterval(intervalRef.current)
         intervalRef.current = null
       }
     }
 
     return () => {
       if (intervalRef.current) {
-        clearInterval(intervalRef.current)
+        window.clearInterval(intervalRef.current)
         intervalRef.current = null
       }
     }
@@ -475,13 +475,11 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
   const handlePlayPause = useCallback(async () => {
     const initialized = await initializeTone()
     if (!initialized) {
-      console.error('[DrumMachine] Impossible d\'initialiser Tone.js')
       return
     }
 
     const Tone = toneRef.current
     if (!Tone) {
-      console.error('[DrumMachine] Tone.js n\'est pas chargé')
       return
     }
     
@@ -489,7 +487,6 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
       try {
         await Tone.start()
       } catch (error) {
-        console.error('[DrumMachine] Impossible de démarrer le contexte audio:', error)
         return
       }
     }

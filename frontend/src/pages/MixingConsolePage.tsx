@@ -161,7 +161,7 @@ export function MixingConsolePage({ stats }: MixingConsolePageProps) {
         }
       }
     } catch (error) {
-      console.error('Erreur lors du chargement de la configuration EQ:', error)
+      // chargement EQ échoué silencieusement
     }
   }, [sendEqualizerParam])
 
@@ -348,9 +348,7 @@ export function MixingConsolePage({ stats }: MixingConsolePageProps) {
       localStorage.setItem('webamp-eq-config', JSON.stringify(eqConfig))
       
       // Feedback visuel (vous pouvez utiliser un toast si disponible)
-      // Pour l'instant, on peut juste log ou afficher un message temporaire
-      console.log('Configuration EQ sauvegardée', eqConfig)
-      
+      // Pour l'instant, on peut juste afficher un message temporaire (pas de log console)
       // Optionnel: Envoyer via WebSocket pour sauvegarde serveur
       if (ws.isConnected()) {
         ws.send({
@@ -359,7 +357,7 @@ export function MixingConsolePage({ stats }: MixingConsolePageProps) {
         })
       }
     } catch (error) {
-      console.error('Erreur lors de la sauvegarde de la configuration EQ:', error)
+      // échec silencieux de la sauvegarde EQ
     }
   }, [eqBands, eqPreset, speedMode, phaseEnabled, lowCut, eqActive, ws])
 
@@ -405,7 +403,7 @@ export function MixingConsolePage({ stats }: MixingConsolePageProps) {
   const primaryColor = '#f97316' // orange-500 de Tailwind
 
   return (
-    <div className="h-full overflow-y-auto p-6 pb-32">
+    <div className="h-full overflow-y-auto custom-scrollbar p-6 pb-32">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-3xl font-bold text-black/85 dark:text-white/90 mb-6">
           Console de mixage
@@ -414,7 +412,7 @@ export function MixingConsolePage({ stats }: MixingConsolePageProps) {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
           {/* Section principale : Console de mixage complète */}
           <Block className="lg:col-span-12">
-            <div className="flex flex-col lg:flex-row gap-6 w-full transition-colors duration-200 items-stretch overflow-x-auto">
+            <div className="flex flex-col lg:flex-row gap-6 w-full transition-colors duration-200 items-stretch overflow-x-auto custom-scrollbar">
               {/* COLUMN 1: PRE-AMP / INPUT */}
               <div className="flex flex-col gap-4 flex-1 min-w-[200px] h-full">
                 <ColumnHeader 

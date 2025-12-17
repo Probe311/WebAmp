@@ -9,9 +9,21 @@ interface TutorialCardProps {
   completed?: boolean
   earnedXP?: number // XP gagnée par l'utilisateur (basée sur la progression)
   onStart: (tutorialId: string) => void
+  lessonsCompleted?: number
+  lessonsTotal?: number
+  lastLessonTitle?: string | null
 }
 
-export function TutorialCard({ tutorial, progress = 0, completed = false, earnedXP, onStart }: TutorialCardProps) {
+export function TutorialCard({
+  tutorial,
+  progress = 0,
+  completed = false,
+  earnedXP,
+  onStart,
+  lessonsCompleted,
+  lessonsTotal,
+  lastLessonTitle
+}: TutorialCardProps) {
   // Récupérer l'icône de catégorie ou utiliser l'icône du tutoriel
   const categoryIconName = categoryIcons[tutorial.category] || tutorial.icon
   const IconComponent = (LucideIcons[categoryIconName as keyof typeof LucideIcons] || LucideIcons.BookOpen) as LucideIcon
@@ -22,7 +34,8 @@ export function TutorialCard({ tutorial, progress = 0, completed = false, earned
 
   const getDifficultyBgColor = (difficulty: TutorialDifficulty) => {
     const colorMap: Record<TutorialDifficulty, string> = {
-      beginner: 'bg-green-500/10',
+      // Le vert est réservé pour l'état "cours terminé"
+      beginner: 'bg-blue-500/10',
       intermediate: 'bg-yellow-500/10',
       advanced: 'bg-red-500/10',
       pro: 'bg-purple-500/10',
@@ -32,7 +45,8 @@ export function TutorialCard({ tutorial, progress = 0, completed = false, earned
 
   const getDifficultyTextColor = (difficulty: TutorialDifficulty) => {
     const colorMap: Record<TutorialDifficulty, string> = {
-      beginner: 'text-green-500',
+      // Le vert est réservé pour l'état "cours terminé"
+      beginner: 'text-blue-500',
       intermediate: 'text-yellow-500',
       advanced: 'text-red-500',
       pro: 'text-purple-500',
@@ -56,7 +70,7 @@ export function TutorialCard({ tutorial, progress = 0, completed = false, earned
         {/* Icône */}
         <div className={`
           p-4 rounded-xl 
-          ${getDifficultyBgColor(tutorial.difficulty)}
+          ${completed ? 'bg-green-500/10' : getDifficultyBgColor(tutorial.difficulty)}
           group-hover:scale-110 transition-transform duration-300
         `}>
           {completed ? (
@@ -119,6 +133,23 @@ export function TutorialCard({ tutorial, progress = 0, completed = false, earned
               </span>
             </div>
           </div>
+
+          {/* Mini résumé des leçons */}
+          {lessonsTotal !== undefined && lessonsTotal > 0 && (
+            <div className="mt-2 text-xs text-black/60 dark:text-white/60">
+              <span>
+                Leçons : {lessonsCompleted ?? 0}/{lessonsTotal}
+              </span>
+              {lastLessonTitle && (
+                <>
+                  <span className="mx-1">•</span>
+                  <span className="italic line-clamp-1" title={lastLessonTitle}>
+                    Dernière : {lastLessonTitle}
+                  </span>
+                </>
+              )}
+            </div>
+          )}
 
           {/* Progression */}
           {progress > 0 && (

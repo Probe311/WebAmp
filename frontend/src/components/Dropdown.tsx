@@ -106,7 +106,7 @@ export function Dropdown({
             shadow-[8px_8px_16px_rgba(0,0,0,0.15),-8px_-8px_16px_rgba(255,255,255,0.9),inset_0_0_0_1px_rgba(255,255,255,0.8)]
             dark:shadow-[8px_8px_16px_rgba(0,0,0,0.5),-8px_-8px_16px_rgba(60,60,60,0.5),inset_0_0_0_1px_rgba(60,60,60,0.8)]
             overflow-hidden
-            max-h-60 overflow-y-auto
+            max-h-60 overflow-y-auto custom-scrollbar
           "
         >
           {options.map((option) => (

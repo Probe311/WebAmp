@@ -63,14 +63,9 @@ if (-not (Test-Path $CONFIG_FILE)) {
     }
 }
 
-# Déployer la fonction songsterr
-Write-Host "`n🚀 Déploiement de la fonction songsterr..." -ForegroundColor Cyan
-& $CLI_EXE functions deploy songsterr
+# Exemple : déployer une fonction nommée "my-function"
+# Write-Host "`n🚀 Déploiement de la fonction my-function..." -ForegroundColor Cyan
+# & $CLI_EXE functions deploy my-function
 
-if ($LASTEXITCODE -eq 0) {
-    Write-Host "`n✅ Fonction songsterr déployée avec succès!" -ForegroundColor Green
-} else {
-    Write-Host "`n❌ Erreur lors du déploiement" -ForegroundColor Red
-    exit 1
-}
+Write-Host "`nℹ️ Aucune fonction spécifique à déployer (l'intégration Songsterr a été retirée)." -ForegroundColor Yellow
 

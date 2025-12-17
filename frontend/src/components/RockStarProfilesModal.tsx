@@ -27,7 +27,7 @@ export function RockStarProfilesModal({
         setCustomProfiles(JSON.parse(saved))
       }
     } catch (error) {
-      console.error('Erreur chargement profils:', error)
+      // échec silencieux du chargement des profils
     }
   }, [])
 
@@ -92,7 +92,7 @@ export function RockStarProfilesModal({
       isOpen={isOpen}
       onClose={onClose}
       title="Profils"
-      bodyClassName="overflow-y-auto max-h-[calc(85vh-80px)] p-4"
+      bodyClassName="overflow-y-auto custom-scrollbar max-h-[calc(85vh-80px)] p-4"
       headerRight={(
         <div className="flex items-center gap-3">
           <input

@@ -16,7 +16,7 @@ export async function syncEffectToAudio(
     try {
       await addAudioEffect(effect)
     } catch (error) {
-      console.error('Erreur ajout effet audio:', error)
+      // échec silencieux d'ajout d'effet audio
     }
   }
 }
@@ -31,7 +31,6 @@ export function syncEffectToWebSocket(
   const ws = WebSocketClient.getInstance()
   if (ws.isConnected()) {
     return ws.send(message, requireAck).catch((error) => {
-      console.error('Erreur WebSocket:', error)
       throw error
     })
   }
@@ -51,7 +50,7 @@ export function removeEffectFromAudio(
     try {
       removeAudioEffect(id)
     } catch (error) {
-      console.error('Erreur suppression effet audio:', error)
+      // échec silencieux de suppression
     }
   }
 }
@@ -70,7 +69,7 @@ export async function updateEffectParametersInAudio(
     try {
       await updateAudioParameters(id, parameters)
     } catch (error) {
-      console.error('Erreur mise à jour paramètres audio:', error)
+      // échec silencieux de mise à jour
     }
   }
 }
@@ -89,7 +88,7 @@ export function setEffectEnabledInAudio(
     try {
       setEffectEnabled(id, enabled)
     } catch (error) {
-      console.error('Erreur toggle bypass audio:', error)
+      // échec silencieux du toggle bypass
     }
   }
 }
