@@ -233,14 +233,33 @@ async function enrichCourseContext(
   lessons: Lesson[]
 ): Promise<EnrichedContext> {
   const context: EnrichedContext = {}
+  const isSongCourse = isSongLearningCourse(course)
 
   try {
-    // Extraire les noms d'artistes mentionnés dans le cours
+    // Pour les cours "apprendre chanson", extraire l'artiste depuis le titre
+    let artistNames: string[] = []
+    
+    if (isSongCourse) {
+      // Extraire le nom de l'artiste depuis le titre du cours
+      const titleMatch = course.title.match(/(?:apprendre|jouer|maîtriser)\s+(?:à\s+)?(?:jouer\s+)?(?:la\s+)?(?:chanson\s+)?["']?([^"']+)["']?\s+(?:de|par)\s+([^"]+)/i)
+      if (titleMatch && titleMatch[2]) {
+        artistNames.push(titleMatch[2].trim())
+      } else {
+        // Fallback : chercher "de" ou "par" dans le titre
+        const parts = course.title.split(/\s+(?:de|par)\s+/i)
+        if (parts.length > 1) {
+          artistNames.push(parts[parts.length - 1].trim())
+        }
+      }
+    }
+
+    // Extraire aussi les noms d'artistes mentionnés dans le cours
     const artistMatches = [
       ...(course.description || '').matchAll(/\[artist:([^\]]+)\]/g),
       ...lessons.flatMap(l => (l.description || '').matchAll(/\[artist:([^\]]+)\]/g))
     ]
-    const artistNames = [...new Set(Array.from(artistMatches).map(m => (m as RegExpMatchArray)[1]))]
+    const matchedArtists = [...new Set(Array.from(artistMatches).map(m => (m as RegExpMatchArray)[1]))]
+    artistNames = [...new Set([...artistNames, ...matchedArtists])]
 
     if (artistNames.length > 0) {
       // Rechercher les artistes dans MusicBrainz
@@ -252,12 +271,51 @@ async function enrichCourseContext(
       const foundArtists = artists.flat()
       
       if (foundArtists.length > 0) {
+        // Pour les cours "apprendre chanson", récupérer plus de détails
+        const enrichedArtists = await Promise.all(
+          foundArtists.slice(0, 2).map(async (artist) => {
+            try {
+              const details = await musicBrainzService.getArtistById(artist.id)
+              return {
+                name: details.name,
+                tags: details.tags?.map(t => t.name) || [],
+                type: (details as any).type,
+                area: details.country,
+                beginDate: details['life-span']?.begin,
+                disambiguation: details.disambiguation
+              }
+            } catch {
+              return {
+                name: artist.name,
+                tags: artist.tags?.map(t => t.name) || []
+              }
+            }
+          })
+        )
+
         context.musicBrainz = {
-          artists: foundArtists.map(a => ({
-            name: a.name,
-            tags: a.tags?.map(t => t.name) || []
-          })),
-          tags: [...new Set(foundArtists.flatMap(a => a.tags?.map(t => t.name) || []))]
+          artists: enrichedArtists,
+          tags: [...new Set(enrichedArtists.flatMap(a => a.tags || []))]
+        }
+
+        // Pour les cours "apprendre chanson", chercher aussi les releases (albums)
+        if (isSongCourse && foundArtists.length > 0) {
+          try {
+            const songTitleMatch = course.title.match(/(?:apprendre|jouer|maîtriser)\s+(?:à\s+)?(?:jouer\s+)?(?:la\s+)?(?:chanson\s+)?["']?([^"']+)["']?/i)
+            const songTitle = songTitleMatch ? songTitleMatch[1].trim() : ''
+            
+            if (songTitle) {
+              const releases = await musicBrainzService.searchRelease(`${songTitle} ${foundArtists[0].name}`, 3).catch(() => [])
+              if (releases.length > 0) {
+                context.musicBrainz.releases = releases.map(r => ({
+                  title: r.title,
+                  date: r.date
+                }))
+              }
+            }
+          } catch (error) {
+            console.warn('Erreur lors de la recherche de releases:', error)
+          }
         }
       }
     }
@@ -452,27 +510,87 @@ Ce cours est un QUIZ. Tu dois optimiser les QUESTIONS, pas les leçons.
 - Évite les questions trop faciles ou trop difficiles pour le niveau
 `
   } else if (isSongCourse) {
+    // Extraire le nom de l'artiste et de la chanson depuis le titre
+    const titleMatch = course.title.match(/(?:apprendre|jouer|maîtriser)\s+(?:à\s+)?(?:jouer\s+)?(?:la\s+)?(?:chanson\s+)?["']?([^"']+)["']?\s+(?:de|par)\s+([^"]+)/i)
+    const songTitle = titleMatch ? titleMatch[1].trim() : course.title.replace(/(?:apprendre|jouer|maîtriser)\s+(?:à\s+)?(?:jouer\s+)?(?:la\s+)?(?:chanson\s+)?/i, '').split(/\s+(?:de|par)\s+/)[0]?.trim() || ''
+    const artistName = titleMatch ? titleMatch[2].trim() : course.title.split(/\s+(?:de|par)\s+/)[1]?.trim() || ''
+
     typeSpecificInstructions = `
 **TYPE DE COURS : APPRENDRE UNE CHANSON**
 
-Ce cours est de type "apprendre [titre de chanson]". Il doit avoir une structure spécifique :
+Ce cours est de type "apprendre [titre de chanson]". Il DOIT suivre une structure pédagogique stricte et complète.
 
-**STRUCTURE OBLIGATOIRE** :
-1. **Introduction à la chanson** : Contexte, artiste, style, difficulté
-2. **Analyse harmonique** : Accords utilisés, progression, tonalité
-3. **Rythme et tempo** : Pattern rythmique, tempo, signature rythmique
-4. **Tablature complète** : [fulltablature:id] ou tablature détaillée
-5. **Passages difficiles** : Techniques spécifiques, passages à travailler
-6. **Conseils d'interprétation** : Nuances, phrasé, style
-7. **Exercices progressifs** : Du rythme simple à la version complète
-8. **Ressources complémentaires** : Vidéos YouTube, références d'artistes
+**STRUCTURE OBLIGATOIRE (8 leçons minimum)** :
 
-**CONTENU SPÉCIFIQUE** :
-- Références d'accords : [chord:Nom] pour tous les accords de la chanson
-- Tablature complète : [fulltablature:id] ou [tablature:id]
-- Référence d'artiste : [artist:Nom de l'artiste]
-- Vidéos YouTube : Tutoriels de la chanson, versions live, analyses
-- Structure claire : Chaque section doit correspondre à une partie de la chanson (intro, couplet, refrain, solo, outro)
+1. **Présentation de l'artiste et de la chanson** (Leçon 1)
+   - Utilise les données MusicBrainz fournies pour présenter l'artiste (biographie courte, style, période)
+   - Contexte de la chanson : année de sortie, album, signification dans la discographie
+   - Style musical et esthétique (ex: "Whisper Pop", "ASMR Pop", "Minimalisme")
+   - Pourquoi cette chanson est importante/iconique
+   - Difficulté technique et ce que l'apprenant va apprendre
+
+2. **Analyse harmonique** (Leçon 2)
+   - Accords utilisés dans la chanson : liste complète avec [chord:Nom] pour chaque accord
+   - Progression harmonique : analyse de la séquence d'accords
+   - Tonalité et modulations éventuelles
+   - Fonctions harmoniques (tonique, dominante, sous-dominante)
+   - Comparaison avec d'autres morceaux similaires
+
+3. **Le rythme et le groove** (Leçon 3)
+   - Tempo et signature rythmique
+   - Pattern rythmique principal (décomposition détaillée)
+   - Placement rythmique (où frapper les cordes dans le temps)
+   - Techniques rythmiques spécifiques (palm muting, staccato, etc.)
+   - Exercices de métronome progressifs
+
+4. **Tablature : Le riff principal** (Leçon 4)
+   - Tablature complète du riff principal : [fulltablature:id] ou [tablature:id]
+   - Décomposition mesure par mesure
+   - Techniques utilisées (bending, slides, hammer-on, pull-off)
+   - Positions de main et doigtés recommandés
+   - Variantes et alternatives
+
+5. **Technique avancée** (Leçon 5)
+   - Passages difficiles identifiés et expliqués
+   - Techniques spécifiques à maîtriser
+   - Exercices préparatoires pour chaque technique
+   - Erreurs courantes et comment les éviter
+   - Conseils de pratique
+
+6. **Le solo ou partie instrumentale** (Leçon 6 - si applicable)
+   - Analyse du solo ou de la partie instrumentale principale
+   - Tablature détaillée : [tablature:id]
+   - Phrasé et nuances
+   - Techniques de solo utilisées
+   - Exercices pour développer ces techniques
+
+7. **Sound Design et effets** (Leçon 7)
+   - Effets utilisés dans la version originale
+   - Réglages recommandés pour reproduire le son
+   - Chaîne d'effets suggérée
+   - Conseils de production et d'enregistrement
+
+8. **Exercices progressifs** (Leçon 8)
+   - Exercices du simple au complexe
+   - Progression étape par étape
+   - Exercices de tempo (ralenti → tempo original)
+   - Exercices de précision rythmique
+   - Checklist de maîtrise
+
+**FORMAT DE CONTENU HTML (IMPORTANT)** :
+- Utilise UNIQUEMENT du HTML, JAMAIS de Markdown
+- Titres de sections : <h3>Titre court</h3> (sans numérotation, maximum 40 caractères)
+- Paragraphes : <p>Texte...</p>
+- Listes : <ul><li>Item</li></ul> ou <ol><li>Item</li></ol>
+- Mise en évidence : <strong>texte important</strong> ou <em>texte en italique</em>
+- Pas de Markdown (pas de ###, **, -, etc.)
+
+**RESSOURCES OBLIGATOIRES** :
+- Références d'accords : [chord:Nom] pour TOUS les accords de la chanson
+- Tablature complète : [fulltablature:id] ou [tablature:id] dans la leçon 4
+- Référence d'artiste : [artist:${artistName || 'Nom de l\'artiste'}] dans la leçon 1
+- Vidéos YouTube : Au moins 2-3 vidéos pertinentes (tutoriels, versions live, analyses)
+- Utilise les données MusicBrainz fournies pour enrichir la présentation de l'artiste
 `
   } else if (isPreset) {
     typeSpecificInstructions = `
@@ -607,7 +725,7 @@ ${idx + 1}. ID: ${lesson.id}
    - **Ressources externes pertinentes** : 
      * Tu PEUX et DOIS utiliser des ressources externes pertinentes pour enrichir le contenu
      * Références YouTube : Inclus des liens vers des tutoriels YouTube pertinents avec explication de pourquoi cette vidéo est utile
-     * Format : "Pour approfondir, je recommande ce tutoriel : [Titre de la vidéo](https://youtube.com/watch?v=...). Cette vidéo montre concrètement..."
+     * Format HTML : <p>Pour approfondir, je recommande ce tutoriel : <a href="https://youtube.com/watch?v=VIDEO_ID" target="_blank">Titre de la vidéo</a>. Cette vidéo montre concrètement...</p>
      * Diagrammes d'accords : Utilise [chord:Nom] pour afficher des diagrammes d'accords avec le module existant de la plateforme
      * Les ressources externes doivent être vraiment pertinentes et ajouter de la valeur pédagogique
 
@@ -616,7 +734,7 @@ ${idx + 1}. ID: ${lesson.id}
    - Utilise [tablature:id] pour référencer des tablatures
    - Utilise [artist:Nom] pour référencer des artistes
    - Utilise [html]...[/html] pour des blocs HTML/SVG de diagrammes si pertinent
-   - Utilise des liens YouTube pertinents pour des tutoriels complémentaires (format Markdown : [Titre](URL))
+   - Utilise des liens YouTube pertinents pour des tutoriels complémentaires (format HTML : <a href="URL" target="_blank">Titre</a>)
 
 5. **Description du cours** :
    - Minimum 300 caractères, idéalement 400-600
@@ -708,7 +826,7 @@ ${isQuiz ? `
       "order_index": 2,
       "action": "create", // Nouvelle leçon à créer
       "title": "Nouveau titre de leçon",
-      "description": "Contenu complet de la nouvelle leçon (minimum 500 mots)...",
+      "description": "Contenu complet en HTML (pas de Markdown !) de la nouvelle leçon (minimum 500 mots). Format : <h3>Titre</h3><p>Texte...</p>",
       "content_type": "text"
     }
   ],
@@ -746,6 +864,7 @@ ${isQuiz ? `
 
 4. **Enrichissement** :
    - Enrichis MASSIVEMENT chaque leçon existante pour atteindre 500+ mots minimum
+   - ⚠️ Format HTML obligatoire : Convertis tout le Markdown en HTML valide
    - Le contenu doit être profond, pédagogique et inspirant, pas juste plus long
    - Utilise ta culture musicale pour enrichir avec des références pertinentes
 
