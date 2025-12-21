@@ -5,6 +5,24 @@ Tous les changements notables de ce projet seront documentés dans ce fichier.
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/),
 et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 
+## [1.1.5] - 2025-01-XX
+
+### 🐛 Corrigé
+- **Variables d'environnement Vercel** : Amélioration de la gestion des variables d'environnement
+  - Messages d'erreur améliorés indiquant qu'un redéploiement est nécessaire
+  - Ajout de logs de debug en développement
+  - Création d'un guide complet pour la configuration des variables Vercel (`docs/VERCEL_ENV_VARS.md`)
+  - Mise à jour de la documentation de déploiement
+
+### 📚 Documentation
+- Nouveau guide : `docs/VERCEL_ENV_VARS.md` - Guide complet pour configurer les variables d'environnement dans Vercel
+- Mise à jour de `docs/DEPLOYMENT.md` avec les instructions détaillées pour les variables d'environnement
+
+### ✅ Vérifications
+- Aucune erreur TypeScript
+- Build de production réussi (9.32s)
+- Code prêt pour le déploiement
+
 ## [1.1.4] - 2025-01-XX
 
 ### 🔧 Amélioré
