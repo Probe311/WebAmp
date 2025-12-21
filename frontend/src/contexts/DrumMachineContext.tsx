@@ -258,64 +258,64 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
         tom3: undefined
       }
       
-      synthCache.kick = new Tone.MembraneSynth({
+      synthCache.kick = (new Tone.MembraneSynth({
         pitchDecay: 0.05,
         octaves: 3,
         oscillator: { type: 'sine' },
         envelope: { attack: 0.001, decay: 0.3, sustain: 0, release: 0.1 }
-      }).connect(volumeNodes.kick) as unknown as ToneSynth
+      }) as any).connect(volumeNodes.kick as any) as unknown as ToneSynth
       
-      snareNoiseRef.current = new Tone.NoiseSynth({
+      snareNoiseRef.current = (new Tone.NoiseSynth({
         noise: { type: 'white' },
         envelope: { attack: 0.001, decay: 0.2, sustain: 0, release: 0.1 }
-      }).connect(volumeNodes.snare)
-      snareBodyRef.current = new Tone.MembraneSynth({
+      }) as any).connect(volumeNodes.snare as any) as unknown as ToneNoiseSynth
+      snareBodyRef.current = (new Tone.MembraneSynth({
         pitchDecay: 0.05,
         octaves: 1,
         oscillator: { type: 'sine' },
         envelope: { attack: 0.001, decay: 0.1, sustain: 0, release: 0.05 }
-      }).connect(volumeNodes.snare)
+      }) as any).connect(volumeNodes.snare as any) as unknown as ToneSynth
       
-      synthCache.hihat = new Tone.NoiseSynth({
+      synthCache.hihat = (new Tone.NoiseSynth({
         noise: { type: 'white' },
         envelope: { attack: 0.001, decay: 0.05, sustain: 0, release: 0.05 }
-      }).connect(volumeNodes.hihat) as unknown as ToneNoiseSynth
+      }) as any).connect(volumeNodes.hihat as any) as unknown as ToneNoiseSynth
       
-      synthCache.openhat = new Tone.NoiseSynth({
+      synthCache.openhat = (new Tone.NoiseSynth({
         noise: { type: 'white' },
         envelope: { attack: 0.001, decay: 0.2, sustain: 0, release: 0.2 }
-      }).connect(volumeNodes.openhat) as unknown as ToneNoiseSynth
+      }) as any).connect(volumeNodes.openhat as any) as unknown as ToneNoiseSynth
       
-      synthCache.crash = new Tone.NoiseSynth({
+      synthCache.crash = (new Tone.NoiseSynth({
         noise: { type: 'white' },
         envelope: { attack: 0.001, decay: 0.5, sustain: 0, release: 0.5 }
-      }).connect(volumeNodes.crash) as unknown as ToneNoiseSynth
+      }) as any).connect(volumeNodes.crash as any) as unknown as ToneNoiseSynth
       
-      synthCache.ride = new Tone.NoiseSynth({
+      synthCache.ride = (new Tone.NoiseSynth({
         noise: { type: 'white' },
         envelope: { attack: 0.001, decay: 0.35, sustain: 0, release: 0.35 }
-      }).connect(volumeNodes.ride) as unknown as ToneNoiseSynth
+      }) as any).connect(volumeNodes.ride as any) as unknown as ToneNoiseSynth
       
-      synthCache.tom1 = new Tone.MembraneSynth({
+      synthCache.tom1 = (new Tone.MembraneSynth({
         pitchDecay: 0.05,
         octaves: 2,
         oscillator: { type: 'sine' },
         envelope: { attack: 0.001, decay: 0.2, sustain: 0, release: 0.2 }
-      }).connect(volumeNodes.tom1) as unknown as ToneSynth
+      }) as any).connect(volumeNodes.tom1 as any) as unknown as ToneSynth
       
-      synthCache.tom2 = new Tone.MembraneSynth({
+      synthCache.tom2 = (new Tone.MembraneSynth({
         pitchDecay: 0.05,
         octaves: 2,
         oscillator: { type: 'sine' },
         envelope: { attack: 0.001, decay: 0.2, sustain: 0, release: 0.2 }
-      }).connect(volumeNodes.tom2) as unknown as ToneSynth
+      }) as any).connect(volumeNodes.tom2 as any) as unknown as ToneSynth
       
-      synthCache.tom3 = new Tone.MembraneSynth({
+      synthCache.tom3 = (new Tone.MembraneSynth({
         pitchDecay: 0.05,
         octaves: 2,
         oscillator: { type: 'sine' },
         envelope: { attack: 0.001, decay: 0.25, sustain: 0, release: 0.25 }
-      }).connect(volumeNodes.tom3) as unknown as ToneSynth
+      }) as any).connect(volumeNodes.tom3 as any) as unknown as ToneSynth
       
       synthCacheRef.current = synthCache
       initializedRef.current = true
@@ -339,7 +339,7 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
 
     try {
       // Disposer de l'ancien sample s'il existe
-      const existingPlayer = samplePlayersRef.current[instrument]
+      const existingPlayer = samplePlayersRef.current[instrument] as ToneSamplePlayer | null
       if (existingPlayer) {
         existingPlayer.dispose()
         samplePlayersRef.current[instrument] = null
@@ -356,11 +356,11 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
         url = audioUrl
       }
 
-      const player = (new Tone.Player({
+      const player = ((new Tone.Player({
         url,
         volume: 0,
         autostart: false
-      }).connect(volumeNode as unknown) as unknown) as ToneSamplePlayer
+      }) as any).connect(volumeNode as any) as unknown) as ToneSamplePlayer
 
       await player.load()
       
@@ -379,8 +379,9 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
 
   // Effacer un sample (revenir au synth)
   const clearSample = useCallback((instrument: DrumInstrument) => {
-    if (samplePlayersRef.current[instrument]) {
-      samplePlayersRef.current[instrument].dispose()
+    const player = samplePlayersRef.current[instrument] as ToneSamplePlayer | null
+    if (player) {
+      player.dispose()
       samplePlayersRef.current[instrument] = null
     }
     setSampleSources(prev => ({
@@ -397,7 +398,7 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
     const Tone = toneRef.current
     if (!Tone) return
 
-    const volumeNode = volumeNodesRef.current[instrument]
+    const volumeNode = volumeNodesRef.current[instrument] as ToneVolumeNode
     const volumeDb = (volumesRef.current[instrument] / 100) * 20 - 20
     if (Math.abs(volumeNode.volume.value - volumeDb) > 0.01) {
       volumeNode.volume.value = volumeDb
@@ -407,7 +408,7 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
 
     try {
       // Utiliser le sample si disponible, sinon utiliser le synth
-      const samplePlayer = samplePlayersRef.current[instrument]
+      const samplePlayer = samplePlayersRef.current[instrument] as ToneSamplePlayer | null
       if (samplePlayer && samplePlayer.loaded) {
         samplePlayer.start(now)
         return
@@ -521,7 +522,7 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
               instruments.forEach(instrument => {
                 if (currentStepData[instrument]) {
                   // Jouer le son de manière synchrone avec un offset pour éviter les conflits de timing
-                  const volumeNode = volumeNodesRef.current![instrument]
+                  const volumeNode = volumeNodesRef.current![instrument] as ToneVolumeNode
                   const volumeDb = (volumesRef.current[instrument] / 100) * 20 - 20
                   if (Math.abs(volumeNode.volume.value - volumeDb) > 0.01) {
                     volumeNode.volume.value = volumeDb
@@ -533,64 +534,66 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
 
                   try {
                     // Utiliser le sample si disponible, sinon utiliser le synth
-                    const samplePlayer = samplePlayersRef.current[instrument]
+                    const samplePlayer = samplePlayersRef.current[instrument] as ToneSamplePlayer | null
                     if (samplePlayer && samplePlayer.loaded) {
                       samplePlayer.start(now)
                     } else {
                       // Fallback sur les synths
                       switch (instrument) {
                         case 'kick': {
-                          const synth = synthCacheRef.current!.kick
+                          const synth = synthCacheRef.current!.kick as ToneSynth | undefined
                           if (synth) synth.triggerAttackRelease('C2', '8n', now)
                           break
                         }
                         case 'snare': {
-                          if (snareNoiseRef.current && snareBodyRef.current) {
-                            snareNoiseRef.current.triggerAttackRelease('8n', now)
-                            snareBodyRef.current.triggerAttackRelease('C3', '8n', now + 0.001)
+                          const noiseSynth = snareNoiseRef.current as ToneNoiseSynth | null
+                          const bodySynth = snareBodyRef.current as ToneSynth | null
+                          if (noiseSynth && bodySynth) {
+                            noiseSynth.triggerAttackRelease('8n', now)
+                            bodySynth.triggerAttackRelease('C3', '8n', now + 0.001)
                           }
                           break
                         }
                         case 'hihat': {
-                          const synth = synthCacheRef.current!.hihat
-                          if (synth && 'triggerAttackRelease' in synth) {
-                            (synth as ToneNoiseSynth).triggerAttackRelease('8n', now)
+                          const synth = synthCacheRef.current!.hihat as ToneNoiseSynth | undefined
+                          if (synth) {
+                            synth.triggerAttackRelease('8n', now)
                           }
                           break
                         }
                         case 'openhat': {
-                          const synth = synthCacheRef.current!.openhat
-                          if (synth && 'triggerAttackRelease' in synth) {
-                            (synth as ToneNoiseSynth).triggerAttackRelease('8n', now)
+                          const synth = synthCacheRef.current!.openhat as ToneNoiseSynth | undefined
+                          if (synth) {
+                            synth.triggerAttackRelease('8n', now)
                           }
                           break
                         }
                         case 'crash': {
-                          const synth = synthCacheRef.current!.crash
-                          if (synth && 'triggerAttackRelease' in synth) {
-                            (synth as ToneNoiseSynth).triggerAttackRelease('8n', now)
+                          const synth = synthCacheRef.current!.crash as ToneNoiseSynth | undefined
+                          if (synth) {
+                            synth.triggerAttackRelease('8n', now)
                           }
                           break
                         }
                         case 'ride': {
-                          const synth = synthCacheRef.current!.ride
-                          if (synth && 'triggerAttackRelease' in synth) {
-                            (synth as ToneNoiseSynth).triggerAttackRelease('8n', now)
+                          const synth = synthCacheRef.current!.ride as ToneNoiseSynth | undefined
+                          if (synth) {
+                            synth.triggerAttackRelease('8n', now)
                           }
                           break
                         }
                         case 'tom1': {
-                          const synth = synthCacheRef.current!.tom1
+                          const synth = synthCacheRef.current!.tom1 as ToneSynth | undefined
                           if (synth) synth.triggerAttackRelease('C3', '8n', now)
                           break
                         }
                         case 'tom2': {
-                          const synth = synthCacheRef.current!.tom2
+                          const synth = synthCacheRef.current!.tom2 as ToneSynth | undefined
                           if (synth) synth.triggerAttackRelease('B2', '8n', now)
                           break
                         }
                         case 'tom3': {
-                          const synth = synthCacheRef.current!.tom3
+                          const synth = synthCacheRef.current!.tom3 as ToneSynth | undefined
                           if (synth) synth.triggerAttackRelease('A2', '8n', now)
                           break
                         }
@@ -629,7 +632,7 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
     setVolumes(newVolumes)
     if (volumeNodesRef.current) {
       Object.keys(newVolumes).forEach(instrument => {
-        const volumeNode = volumeNodesRef.current![instrument as DrumInstrument]
+        const volumeNode = volumeNodesRef.current![instrument as DrumInstrument] as ToneVolumeNode
         const newVolume = newVolumes[instrument as DrumInstrument]
         const volumeDb = (newVolume / 100) * 20 - 20
         if (Math.abs(volumeNode.volume.value - volumeDb) > 0.01) {
@@ -643,9 +646,10 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
   const updateMasterVolume = useCallback((value: number) => {
     setMasterVolume(value)
     if (masterGainRef.current) {
+      const masterGain = masterGainRef.current as ToneGainNode
       const gainValue = value / 100
-      if (Math.abs(masterGainRef.current.gain.value - gainValue) > 0.001) {
-        masterGainRef.current.gain.value = gainValue
+      if (Math.abs(masterGain.gain.value - gainValue) > 0.001) {
+        masterGain.gain.value = gainValue
       }
     }
   }, [])
@@ -741,36 +745,44 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
 
       if (synthCacheRef.current) {
         Object.values(synthCacheRef.current).forEach(synth => {
-          if (synth) synth.dispose()
+          if (synth) {
+            const typedSynth = synth as ToneSynth | ToneNoiseSynth
+            typedSynth.dispose()
+          }
         })
       }
       
       if (snareNoiseRef.current) {
-        snareNoiseRef.current.dispose()
+        const noiseSynth = snareNoiseRef.current as ToneNoiseSynth
+        noiseSynth.dispose()
         snareNoiseRef.current = null
       }
       
       if (snareBodyRef.current) {
-        snareBodyRef.current.dispose()
+        const bodySynth = snareBodyRef.current as ToneSynth
+        bodySynth.dispose()
         snareBodyRef.current = null
       }
       
       if (volumeNodesRef.current) {
         Object.values(volumeNodesRef.current).forEach(node => {
-          node.dispose()
+          const volumeNode = node as ToneVolumeNode
+          volumeNode.dispose()
         })
         volumeNodesRef.current = null
       }
       
       if (masterGainRef.current) {
-        masterGainRef.current.dispose()
+        const masterGain = masterGainRef.current as ToneGainNode
+        masterGain.dispose()
         masterGainRef.current = null
       }
 
       // Nettoyer les samples
       Object.values(samplePlayersRef.current).forEach(player => {
         if (player) {
-          player.dispose()
+          const typedPlayer = player as ToneSamplePlayer
+          typedPlayer.dispose()
         }
       })
       samplePlayersRef.current = {

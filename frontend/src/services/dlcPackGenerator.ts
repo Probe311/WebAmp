@@ -157,7 +157,7 @@ export async function createBrandDLCPack(brand: string): Promise<DLCPack | null>
     type: 'brand',
     category: 'brand',
     thumbnail: image?.thumbnail,
-    image,
+    image: image || undefined,
     content: {
       pedals: pedals.map(p => p.id),
       amplifiers: amplifiers.map(a => a.id),
@@ -229,7 +229,7 @@ export async function createStyleDLCPack(style: string): Promise<DLCPack | null>
     type: 'style',
     category: 'style',
     thumbnail: image?.thumbnail,
-    image,
+    image: image || undefined,
     content: {
       pedals: pedals.map(p => p.id),
       amplifiers: amplifiers.map(a => a.id)
@@ -751,7 +751,7 @@ export async function createThematicCoursePack(theme: string, courses: Course[])
     type: 'course',
     category: theme,
     thumbnail: image?.thumbnail,
-    image,
+    image: image || undefined,
     content: {
       courses: coursesToInclude.map(c => c.id)
     },
@@ -760,8 +760,7 @@ export async function createThematicCoursePack(theme: string, courses: Course[])
     isPremium: true, // Tous les packs sont premium (boutique)
     tags: Array.from(allTags),
     metadata: {
-      genre: theme,
-      courseCount: coursesToInclude.length
+      genre: theme
     }
   }
 }

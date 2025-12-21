@@ -402,7 +402,7 @@ export async function fetchUserFavorites(userId: string): Promise<TonePack[]> {
         updatedAt: pack.updated_at
       }
     })
-    .filter((pack: TonePack | null): pack is TonePack => pack !== null)
+    .filter(Boolean) as TonePack[]
 
   return packs
 }

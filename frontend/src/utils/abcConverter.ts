@@ -167,9 +167,9 @@ export async function abcToMIDI(abcString: string): Promise<Blob> {
       return new Blob([bytes], { type: 'audio/midi' })
     }
 
-    // Si c’est déjà un buffer/Uint8Array ou similaire
+    // Si c'est déjà un buffer/Uint8Array ou similaire
     if (midiResult instanceof Uint8Array || ArrayBuffer.isView(midiResult)) {
-      return new Blob([midiResult], { type: 'audio/midi' })
+      return new Blob([midiResult as BlobPart], { type: 'audio/midi' })
     }
 
     // Fallback : tenter de sérialiser en Blob brut
