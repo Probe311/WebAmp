@@ -5,6 +5,34 @@ Tous les changements notables de ce projet seront documentés dans ce fichier.
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/),
 et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 
+## [1.1.4] - 2025-01-XX
+
+### 🔧 Amélioré
+- **Service d'images** : Simplification du service d'images
+  - Suppression du support Unsplash
+  - Focus sur Pexels et Pixabay uniquement
+  - Code plus simple et maintenable
+
+### ✅ Vérifications
+- Aucune erreur TypeScript
+- Build de production réussi (10.08s)
+- Code prêt pour le déploiement
+
+## [1.1.3] - 2025-01-XX
+
+### 🐛 Corrigé
+- **Correction de toutes les erreurs TypeScript** :
+  - Correction des erreurs dans DrumMachineContext.tsx
+  - Correction des erreurs supabase possibly null dans useLMS.ts
+  - Correction des erreurs dans AdminPage.tsx, GalleryPage.tsx, LearnPage.tsx
+  - Correction des erreurs dans les services (dlcPackGenerator, gallery, gemini, imageService)
+  - Correction des erreurs dans les utils (abcConverter, tonePackLoader)
+  - Exclusion des fichiers utilitaires Node.js du build (migrationHelper, saveBrandLogos)
+
+### 🧹 Nettoyage
+- Nettoyage du code et build de production
+- Suppression des fichiers temporaires
+
 ## [1.1.2] - 2025-12-13
 
 ### 🎨 Amélioré

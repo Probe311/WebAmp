@@ -1,7 +1,6 @@
 /**
  * Service d'images open source
- * Utilise Unsplash API (gratuite, open source)
- * Alternative : Pexels, Pixabay
+ * Utilise Pexels et Pixabay APIs
  */
 import { createLogger } from './logger'
 
@@ -20,20 +19,19 @@ export interface ImageSearchResult {
 
 export interface ImageServiceConfig {
   apiKey?: string
-  provider?: 'unsplash' | 'pexels' | 'pixabay'
+  provider?: 'pexels' | 'pixabay'
 }
 
 class ImageService {
   private apiKey: string = ''
-  private provider: 'unsplash' | 'pexels' | 'pixabay' = 'pexels'
+  private provider: 'pexels' | 'pixabay' = 'pexels'
 
   constructor(config: ImageServiceConfig = {}) {
     // Détecter automatiquement le meilleur provider disponible
     const pexelsKey = import.meta.env.VITE_PEXELS_API_KEY
     const pixabayKey = import.meta.env.VITE_PIXABAY_API_KEY
-    const unsplashKey = import.meta.env.VITE_UNSPLASH_ACCESS_KEY
 
-    // Priorité : Pexels > Pixabay > Unsplash
+    // Priorité : Pexels > Pixabay
     if (config.provider) {
       this.provider = config.provider
       this.apiKey = config.apiKey || ''
@@ -43,54 +41,15 @@ class ImageService {
     } else if (pixabayKey) {
       this.provider = 'pixabay'
       this.apiKey = pixabayKey
-    } else if (unsplashKey) {
-      this.provider = 'unsplash'
-      this.apiKey = unsplashKey
     } else {
-      this.provider = 'unsplash' // Fallback sur Unsplash (fonctionne sans clé en mode démo)
+      // Fallback sur Pexels si aucune clé n'est disponible
+      this.provider = 'pexels'
       this.apiKey = config.apiKey || ''
     }
 
     // Si une clé est fournie dans la config, l'utiliser
     if (config.apiKey) {
       this.apiKey = config.apiKey
-    }
-  }
-
-  /**
-   * Recherche d'images via Unsplash (gratuit, 50 req/heure sans clé, illimité avec clé)
-   */
-  private async searchUnsplash(query: string, limit: number = 10): Promise<ImageSearchResult[]> {
-    const url = this.apiKey
-      ? `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=${limit}&client_id=${this.apiKey}`
-      : `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=${limit}`
-
-    try {
-      const response = await fetch(url, {
-        headers: this.apiKey ? {
-          'Authorization': `Client-ID ${this.apiKey}`
-        } : {}
-      })
-
-      if (!response.ok) {
-        throw new Error(`Unsplash API error: ${response.status}`)
-      }
-
-      const data = await response.json()
-      
-      return (data.results || []).map((photo: any) => ({
-        id: photo.id,
-        url: photo.urls.regular,
-        thumbnail: photo.urls.thumb,
-        author: photo.user.name,
-        authorUrl: photo.user.links.html,
-        description: photo.description || photo.alt_description,
-        width: photo.width,
-        height: photo.height
-      }))
-    } catch (error) {
-      logger.error('Erreur Unsplash', error)
-      return []
     }
   }
 
@@ -186,11 +145,8 @@ class ImageService {
           results = await this.searchPexels(query, limit)
           break
         case 'pixabay':
-          results = await this.searchPixabay(query, limit)
-          break
-        case 'unsplash':
         default:
-          results = await this.searchUnsplash(query, limit)
+          results = await this.searchPixabay(query, limit)
           break
       }
 
@@ -203,7 +159,7 @@ class ImageService {
     }
 
     // Fallback : essayer les autres providers si le premier échoue
-    const providers: Array<'pexels' | 'pixabay' | 'unsplash'> = ['pexels', 'pixabay', 'unsplash']
+    const providers: Array<'pexels' | 'pixabay'> = ['pexels', 'pixabay']
     const otherProviders = providers.filter(p => p !== this.provider)
 
     for (const provider of otherProviders) {
@@ -218,9 +174,6 @@ class ImageService {
             if (import.meta.env.VITE_PIXABAY_API_KEY) {
               results = await this.searchPixabay(query, limit)
             }
-            break
-          case 'unsplash':
-            results = await this.searchUnsplash(query, limit)
             break
         }
 
