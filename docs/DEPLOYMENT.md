@@ -37,9 +37,23 @@ cd frontend
 vercel
 
 # Variables d'environnement (via dashboard Vercel)
+# IMPORTANT : Les variables VITE_* sont injectées au BUILD TIME
+# Vous DEVEZ redéployer après avoir ajouté/modifié ces variables
+
 VITE_SUPABASE_URL=https://xxx.supabase.co
 VITE_SUPABASE_ANON_KEY=xxx
 VITE_WEBSOCKET_URL=ws://localhost:8765  # Local uniquement
+VITE_GEMINI_API_KEY=xxx  # Clé API Google Gemini
+VITE_PEXELS_API_KEY=xxx  # Clé API Pexels (optionnel)
+VITE_PIXABAY_API_KEY=xxx  # Clé API Pixabay (optionnel)
+VITE_FREESOUND_CLIENT_ID=xxx  # Client ID Freesound
+VITE_FREESOUND_CLIENT_SECRET=xxx  # Client Secret Freesound
+
+# Configuration dans Vercel Dashboard :
+# 1. Allez dans Settings > Environment Variables
+# 2. Ajoutez chaque variable avec le préfixe VITE_
+# 3. Sélectionnez les environnements (Production, Preview, Development)
+# 4. IMPORTANT : Cliquez sur "Redeploy" pour appliquer les changements
 ```
 
 **Prix :** Gratuit (Hobby) → $20/mois (Pro) pour plus de bande passante

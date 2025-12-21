@@ -55,8 +55,8 @@ export async function optimizeCourseWithAI(
   lessons: Lesson[],
   quizQuestions?: QuizQuestion[]
 ): Promise<OptimizationResult> {
-  if (!GEMINI_API_KEY) {
-    throw new Error('Clé API Gemini non configurée. Ajoutez VITE_GEMINI_API_KEY dans votre .env')
+  if (!GEMINI_API_KEY || GEMINI_API_KEY.length === 0) {
+    throw new Error('Clé API Gemini non configurée. Vérifiez que VITE_GEMINI_API_KEY est définie dans les variables d\'environnement Vercel et redéployez l\'application.')
   }
 
   // Calculer le score actuel
@@ -1271,8 +1271,8 @@ async function validateOptimizedContent(
  * Retourne l'image en base64 (data URI)
  */
 export async function generateCourseVisual(course: Course): Promise<string> {
-  if (!GEMINI_API_KEY) {
-    throw new Error('Clé API Gemini non configurée. Ajoutez VITE_GEMINI_API_KEY dans votre .env')
+  if (!GEMINI_API_KEY || GEMINI_API_KEY.length === 0) {
+    throw new Error('Clé API Gemini non configurée. Vérifiez que VITE_GEMINI_API_KEY est définie dans les variables d\'environnement Vercel et redéployez l\'application.')
   }
 
   const prompt = `Crée une infographie pédagogique professionnelle et moderne pour un cours de musique intitulé : "${course.title}".
@@ -1341,8 +1341,8 @@ Pas de texte illisible, focus sur l'esthétique et la clarté conceptuelle.`
  * Retourne l'image en base64 (data URI)
  */
 export async function generateLessonVisual(lesson: Lesson, courseTitle?: string): Promise<string> {
-  if (!GEMINI_API_KEY) {
-    throw new Error('Clé API Gemini non configurée. Ajoutez VITE_GEMINI_API_KEY dans votre .env')
+  if (!GEMINI_API_KEY || GEMINI_API_KEY.length === 0) {
+    throw new Error('Clé API Gemini non configurée. Vérifiez que VITE_GEMINI_API_KEY est définie dans les variables d\'environnement Vercel et redéployez l\'application.')
   }
 
   const prompt = `Crée une illustration pédagogique professionnelle et moderne pour une leçon de musique intitulée : "${lesson.title}".
