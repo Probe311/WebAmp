@@ -254,7 +254,130 @@ export async function interpretVoiceCommand(
   return data.intent.command as WebAmpCommand
 }
 
+/**
+ * Interface pour les modules d'effets générés par AI Tone Assistant
+ */
+export interface EffectModule {
+  type: 'amp' | 'cab' | 'pedal' | 'utility'
+  id: string
+  enabled: boolean
+  parameters: Record<string, number | string | boolean>
+  position?: number
+}
 
+/**
+ * Réponse de AI Tone Assistant
+ */
+export interface ToneAssistantResponse {
+  effects: EffectModule[]
+  name?: string
+  description?: string
+  notes?: string
+}
 
+/**
+ * Génération de chaîne d'effets complète via AI Tone Assistant (Gemini)
+ * Utilise gemini-1.5-flash pour des réponses rapides
+ */
+export async function generateToneFromDescription(
+  description: string,
+  context?: {
+    instrument?: 'guitar' | 'bass' | 'other'
+    genre?: string
+    artist?: string
+    currentEffects?: Array<{
+      id: string
+      type: string
+      enabled: boolean
+    }>
+  },
+): Promise<ToneAssistantResponse> {
+  if (!description.trim()) {
+    throw new Error('La description du ton est requise')
+  }
 
+  const endpoint =
+    import.meta.env.VITE_SUPABASE_EDGE_URL_AI_TONE_ASSISTANT ||
+    '/functions/v1/ai-tone-assistant'
+
+  const resp = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ description, context }),
+  })
+
+  if (!resp.ok) {
+    const text = await resp.text()
+    throw new Error(`Erreur IA (ai-tone-assistant): ${resp.status} - ${text}`)
+  }
+
+  const data = await resp.json()
+  if (!data.ok || !data.result) {
+    throw new Error('Réponse IA invalide (result manquant)')
+  }
+
+  return data.result as ToneAssistantResponse
+}
+
+/**
+ * Interface pour les steps de batterie générés par AI Beat Architect
+ */
+export interface DrumStep {
+  step: number // 0-15
+  instruments: Array<'kick' | 'snare' | 'hihat' | 'openhat' | 'crash' | 'ride' | 'tom1' | 'tom2' | 'tom3'>
+}
+
+/**
+ * Pattern de batterie généré par AI Beat Architect
+ */
+export interface BeatPattern {
+  name: string
+  description?: string
+  steps: DrumStep[]
+  tempo?: number
+  timeSignature?: string
+}
+
+/**
+ * Génération de rythmes de batterie intelligents via AI Beat Architect (Gemini)
+ * Retourne une grille de séquençage sur 16 pas pour la machine à rythmes
+ */
+export async function generateBeatFromDescription(
+  description: string,
+  context?: {
+    tempo?: number
+    timeSignature?: '4/4' | '3/4' | '2/4' | '6/8' | '7/8'
+    complexity?: 'simple' | 'medium' | 'complex'
+  },
+): Promise<BeatPattern> {
+  if (!description.trim()) {
+    throw new Error('La description du style est requise')
+  }
+
+  const endpoint =
+    import.meta.env.VITE_SUPABASE_EDGE_URL_AI_BEAT_ARCHITECT ||
+    '/functions/v1/ai-beat-architect'
+
+  const resp = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ description, context }),
+  })
+
+  if (!resp.ok) {
+    const text = await resp.text()
+    throw new Error(`Erreur IA (ai-beat-architect): ${resp.status} - ${text}`)
+  }
+
+  const data = await resp.json()
+  if (!data.ok || !data.pattern) {
+    throw new Error('Réponse IA invalide (pattern manquant)')
+  }
+
+  return data.pattern as BeatPattern
+}
 

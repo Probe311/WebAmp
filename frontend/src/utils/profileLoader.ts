@@ -1,6 +1,7 @@
 // Fonction utilitaire pour charger un profil de rock star
 import { rockStarProfiles } from '../data/rockStarProfiles'
 import { findAmplifierId, findPedalId } from './profileMapper'
+import { PROFILE_STATE_UPDATE_DELAY, PROFILE_PEDAL_ADD_DELAY } from '../config/constants'
 
 export interface ProfileLoadResult {
   amplifierId: string | null
@@ -13,9 +14,6 @@ export interface LoadableProfile {
   pedalIds: string[]
   name?: string
 }
-
-const STATE_UPDATE_DELAY = 300 // ms
-const PEDAL_ADD_DELAY = 150 // ms
 
 /**
  * Charge un profil de manière séquentielle
@@ -39,7 +37,7 @@ export async function loadProfileSequentially(
   }
 
   // Attendre que le state soit mis à jour
-  await new Promise(resolve => setTimeout(resolve, STATE_UPDATE_DELAY))
+  await new Promise(resolve => setTimeout(resolve, PROFILE_STATE_UPDATE_DELAY))
 
   // Ajouter les effets séquentiellement
   if (profile.pedalIds && profile.pedalIds.length > 0) {
@@ -48,7 +46,7 @@ export async function loadProfileSequentially(
       addEffect(pedalId)
       // Attendre entre chaque pédale pour laisser le state se mettre à jour
       if (i < profile.pedalIds.length - 1) {
-        await new Promise(resolve => setTimeout(resolve, PEDAL_ADD_DELAY))
+        await new Promise(resolve => setTimeout(resolve, PROFILE_PEDAL_ADD_DELAY))
       }
     }
   }

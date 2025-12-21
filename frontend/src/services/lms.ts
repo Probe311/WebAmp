@@ -1,5 +1,9 @@
 // Service LMS pour gérer les cours et la progression
-import { supabase, Course, Lesson, QuizQuestion, UserProgress, UserStats, UserQuizAttempt, CourseReward } from './supabase'
+import { Course, Lesson, QuizQuestion, UserProgress, UserStats, UserQuizAttempt, CourseReward, Tablature } from './supabase'
+import { requireSupabaseClient } from '../lib/supabase'
+import { createLogger } from './logger'
+
+const logger = createLogger('LMS')
 
 class LMSService {
   /**
@@ -10,6 +14,7 @@ class LMSService {
     difficulty?: string
     search?: string
   }): Promise<Course[]> {
+    const supabase = requireSupabaseClient()
     let query = supabase
       .from('courses')
       .select('*')
@@ -41,6 +46,7 @@ class LMSService {
    * Récupère un cours par ID avec ses leçons
    */
   async getCourseWithLessons(courseId: string): Promise<Course & { lessons: Lesson[] } | null> {
+    const supabase = requireSupabaseClient()
     const { data: course, error: courseError } = await supabase
       .from('courses')
       .select('*')
@@ -59,7 +65,7 @@ class LMSService {
       .order('order_index', { ascending: true })
 
     if (lessonsError) {
-      // échec silencieux du chargement des leçons
+      logger.error('Échec du chargement des leçons', lessonsError, { courseId })
     }
 
     return {
@@ -72,6 +78,7 @@ class LMSService {
    * Récupère les questions d'un quiz
    */
   async getQuizQuestions(courseId: string): Promise<QuizQuestion[]> {
+    const supabase = requireSupabaseClient()
     const { data, error } = await supabase
       .from('quiz_questions')
       .select('*')
@@ -89,6 +96,7 @@ class LMSService {
    * Récupère la progression d'un utilisateur pour un cours
    */
   async getUserProgress(userId: string, courseId: string): Promise<UserProgress[]> {
+    const supabase = requireSupabaseClient()
     const { data, error } = await supabase
       .from('user_progress')
       .select('*')
@@ -110,6 +118,7 @@ class LMSService {
       return new Map()
     }
 
+    const supabase = requireSupabaseClient()
     const { data, error } = await supabase
       .from('lessons')
       .select('course_id')
@@ -141,6 +150,7 @@ class LMSService {
       return summary
     }
 
+    const supabase = requireSupabaseClient()
     const { data: progress, error: progressError } = await supabase
       .from('user_progress')
       .select('course_id, lesson_id, is_completed, completed_at')
@@ -151,13 +161,13 @@ class LMSService {
 
     if (progressError || !progress || progress.length === 0) {
       if (progressError) {
-        // échec silencieux de chargement du résumé de leçons
+        logger.debug('Échec silencieux de chargement du résumé de leçons', { error: progressError })
       }
       return summary
     }
 
     const lessonsIds = Array.from(
-      new Set((progress as any[]).map((p) => p.lesson_id as string))
+      new Set(progress.map((p: { lesson_id: string | null }) => p.lesson_id as string).filter((id: string | null): id is string => id !== null))
     )
 
     const { data: lessons, error: lessonsError } = await supabase
@@ -170,14 +180,16 @@ class LMSService {
     }
 
     const titleById = new Map<string, string>()
-    lessons?.forEach((l: any) => {
-      titleById.set(l.id, l.title)
+    lessons?.forEach((l) => {
+      if (l && l.id && l.title) {
+        titleById.set(l.id, l.title)
+      }
     })
 
     const byCourse = new Map<string, { completed: number; lastCompletedAt: string | null; lastLessonId: string | null }>()
 
-    ;(progress as any[]).forEach((p) => {
-      const courseId = p.course_id as string
+    progress.forEach((p) => {
+      const courseId = p.course_id
       const existing = byCourse.get(courseId)
       const completedAt = p.completed_at as string | null
       const lessonId = p.lesson_id as string
@@ -238,6 +250,7 @@ class LMSService {
       updated_at: new Date().toISOString()
     }
 
+    const supabase = requireSupabaseClient()
     // Vérifier si une entrée existe déjà
     // Construire la requête pour trouver une progression existante
     let existingQuery = supabase
@@ -262,7 +275,7 @@ class LMSService {
     const timeDelta = Math.max(0, Math.floor(timeSpentDelta))
     if (existing) {
       // Mettre à jour (en cumulant le temps passé)
-      const currentTimeSpent = (existing as any).time_spent || 0
+      const currentTimeSpent = existing.time_spent || 0
       const progressData = {
         ...baseData,
         time_spent: currentTimeSpent + timeDelta
@@ -313,6 +326,7 @@ class LMSService {
     correctAnswers: number,
     answers: Record<string, number>
   ): Promise<UserQuizAttempt | null> {
+    const supabase = requireSupabaseClient()
     const { data, error } = await supabase
       .from('user_quiz_attempts')
       .insert({
@@ -341,6 +355,7 @@ class LMSService {
    * Note: RLS garantit que seul l'utilisateur authentifié peut voir ses propres stats
    */
   async getUserStats(userId: string): Promise<UserStats | null> {
+    const supabase = requireSupabaseClient()
     const { data, error } = await supabase
       .from('user_stats')
       .select('*')
@@ -368,6 +383,7 @@ class LMSService {
    * Note: RLS garantit que seul l'utilisateur authentifié peut créer ses propres stats
    */
   async createUserStats(userId: string): Promise<UserStats | null> {
+    const supabase = requireSupabaseClient()
     // Utiliser upsert pour éviter les erreurs si les stats existent déjà
     const { data, error } = await supabase
       .from('user_stats')
@@ -397,6 +413,7 @@ class LMSService {
    * Met à jour les statistiques d'un utilisateur
    */
   async updateUserStats(userId: string): Promise<void> {
+    const supabase = requireSupabaseClient()
     // Calculer les statistiques depuis les tables de progression
     const { data: progress } = await supabase
       .from('user_progress')
@@ -416,10 +433,10 @@ class LMSService {
     const totalXP = rewards?.reduce((sum, r) => sum + (r.xp || 0), 0) || 0
     const coursesCompleted = new Set(
       (progress || [])
-        .filter((p: any) => p.is_completed)
-        .map((p: any) => p.course_id)
+        .filter((p) => p.is_completed)
+        .map((p) => p.course_id)
     ).size
-    const lessonsCompleted = (progress || []).filter((p: any) => p.is_completed).length || 0
+    const lessonsCompleted = (progress || []).filter((p) => p.is_completed).length || 0
     const quizzesCompleted = new Set(quizAttempts?.map(q => q.course_id)).size
     let badges = rewards?.flatMap(r => r.badges || []).filter((v, i, a) => a.indexOf(v) === i) || []
 
@@ -444,9 +461,9 @@ class LMSService {
     if (progress && progress.length > 0) {
       const completedDates = new Set<string>()
       progress
-        .filter((p: any) => p.is_completed && p.completed_at)
-        .forEach((p: any) => {
-          const d = new Date(p.completed_at as string)
+        .filter((p) => p.is_completed && p.completed_at)
+        .forEach((p) => {
+          const d = new Date(p.completed_at)
           // Normaliser à la date locale YYYY-MM-DD
           const key = d.toISOString().slice(0, 10)
           completedDates.add(key)
@@ -497,6 +514,7 @@ class LMSService {
    * Récupère les récompenses d'un cours
    */
   async getCourseRewards(courseId: string): Promise<CourseReward | null> {
+    const supabase = requireSupabaseClient()
     const { data, error } = await supabase
       .from('course_rewards')
       .select('*')
@@ -517,6 +535,7 @@ class LMSService {
     userId: string,
     limit: number = 10
   ): Promise<{ course_id: string; title: string; xp: number; completed_at: string }[]> {
+    const supabase = requireSupabaseClient()
     const { data: progress, error: progressError } = await supabase
       .from('user_progress')
       .select('course_id, completed_at')
@@ -546,11 +565,15 @@ class LMSService {
     const titleById = new Map<string, string>()
     const xpByCourse = new Map<string, number>()
 
-    courses?.forEach((c: any) => {
-      titleById.set(c.id, c.title)
+    courses?.forEach((c) => {
+      if (c && c.id && c.title) {
+        titleById.set(c.id, c.title)
+      }
     })
-    rewards?.forEach((r: any) => {
-      xpByCourse.set(r.course_id, r.xp || 0)
+    rewards?.forEach((r) => {
+      if (r && r.course_id) {
+        xpByCourse.set(r.course_id, r.xp || 0)
+      }
     })
 
     return progress.map((p) => ({
@@ -569,6 +592,7 @@ class LMSService {
       return new Map()
     }
 
+    const supabase = requireSupabaseClient()
     const { data, error } = await supabase
       .from('course_rewards')
       .select('*')
@@ -592,12 +616,13 @@ class LMSService {
   /**
    * Récupère une tablature par ID ou slug
    */
-  async getTablature(tablatureId: string): Promise<any | null> {
+  async getTablature(tablatureId: string): Promise<Tablature | null> {
+    const supabase = requireSupabaseClient()
     // Détecter si c'est un UUID (format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)
     const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(tablatureId)
     
-    let data: any = null
-    let error: any = null
+    let data: Tablature | null = null
+    let error: Error | null = null
 
     if (isUUID) {
       // Chercher par ID (UUID)
@@ -606,8 +631,8 @@ class LMSService {
         .select('*')
         .eq('id', tablatureId)
         .maybeSingle()
-      data = result.data
-      error = result.error
+      data = result.data as Tablature | null
+      error = result.error ? new Error(result.error.message) : null
     } else {
       // Chercher directement par slug (évite l'erreur 400 avec un UUID invalide)
       const result = await supabase
@@ -615,8 +640,8 @@ class LMSService {
         .select('*')
         .eq('slug', tablatureId)
         .maybeSingle()
-      data = result.data
-      error = result.error
+      data = result.data as Tablature | null
+      error = result.error ? new Error(result.error.message) : null
       
       // Si pas trouvé par slug, essayer par ID au cas où
       if (!data && !error) {
@@ -626,12 +651,13 @@ class LMSService {
           .eq('id', tablatureId)
           .maybeSingle()
         if (idResult.data) {
-          data = idResult.data
+          data = idResult.data as Tablature
         }
       }
     }
 
-    if (error && error.code !== 'PGRST116') {
+    if (error) {
+      logger.error('Erreur lors de la récupération de la tablature', error, { tablatureId })
       return null
     }
 
@@ -648,7 +674,8 @@ class LMSService {
     tablatureId: string,
     page: number = 0,
     pageSize: number = 16
-  ): Promise<{ measures: any[]; total: number; hasMore: boolean }> {
+  ): Promise<{ measures: unknown[]; total: number; hasMore: boolean }> {
+    const supabase = requireSupabaseClient()
     const { data, error } = await supabase
       .from('tablatures')
       .select('measures')
@@ -678,7 +705,8 @@ class LMSService {
    * @param courseId ID du cours
    * @param lessonId ID de la leçon (optionnel)
    */
-  async getCourseTablatures(courseId: string, lessonId?: string): Promise<any[]> {
+  async getCourseTablatures(courseId: string, lessonId?: string): Promise<Tablature[]> {
+    const supabase = requireSupabaseClient()
     let query = supabase
       .from('course_tablatures')
       .select(`
@@ -697,7 +725,10 @@ class LMSService {
       return []
     }
 
-    return (data || []).map((item: any) => item.tablatures).filter(Boolean)
+    return (data || []).map((item: { tablatures: unknown }) => {
+      const tablature = item.tablatures as unknown
+      return tablature as Tablature
+    }).filter((t): t is Tablature => Boolean(t))
   }
 
   /**
@@ -723,11 +754,12 @@ class LMSService {
     time_signature?: string
     key?: string
     preset_id?: string
-    measures?: any[]
+    measures?: unknown[]
     songsterrUrl?: string
     songsterrId?: number
-  }): Promise<{ success: boolean; error?: any }> {
+  }): Promise<{ success: boolean; error?: Error }> {
     try {
+      const supabase = requireSupabaseClient()
       // Extraire l'ID Songsterr depuis l'URL si disponible
       let songsterrId = tablatureData.songsterrId
       if (!songsterrId && tablatureData.songsterrUrl) {
@@ -740,7 +772,7 @@ class LMSService {
       // Générer l'ID de la tablature (utiliser le slug fourni ou générer un UUID)
       const tablatureId = this.generateTablatureId(tablatureData.id)
 
-      const insertData: any = {
+      const insertData: Partial<Tablature> = {
         id: tablatureId,
         title: tablatureData.title,
         artist: tablatureData.artist || null,
@@ -762,6 +794,7 @@ class LMSService {
         })
 
       if (error) {
+        logger.error('Erreur lors de la sauvegarde de la tablature', error, { tablatureId })
         // Si l'erreur est due au type UUID, essayer avec slug comme ID alternatif
         if (error.code === '22P02' || error.message?.includes('invalid input syntax for type uuid')) {
           // Essayer de trouver par slug d'abord
@@ -782,17 +815,18 @@ class LMSService {
               .eq('id', existing.id)
             
             if (updateError) {
-              return { success: false, error: updateError }
+              return { success: false, error: new Error(updateError.message) }
             }
             return { success: true }
           }
         }
-        return { success: false, error }
+        return { success: false, error: new Error(error.message) }
       }
 
       return { success: true }
     } catch (error) {
-      return { success: false, error }
+      logger.error('Erreur lors de la sauvegarde de la tablature', error, { tablatureData: tablatureData.id })
+      return { success: false, error: error instanceof Error ? error : new Error(String(error)) }
     }
   }
 
@@ -806,8 +840,9 @@ class LMSService {
     courseId: string,
     tablatureId: string,
     lessonId?: string
-  ): Promise<{ success: boolean; error?: any }> {
+  ): Promise<{ success: boolean; error?: Error }> {
     try {
+      const supabase = requireSupabaseClient()
       const { error } = await supabase
         .from('course_tablatures')
         .upsert({
@@ -819,12 +854,13 @@ class LMSService {
         })
 
       if (error) {
-        return { success: false, error }
+        return { success: false, error: new Error(error.message) }
       }
 
       return { success: true }
     } catch (error) {
-      return { success: false, error }
+      logger.error('Erreur lors de l\'association de la tablature au cours', error, { courseId, tablatureId, lessonId })
+      return { success: false, error: error instanceof Error ? error : new Error(String(error)) }
     }
   }
 }

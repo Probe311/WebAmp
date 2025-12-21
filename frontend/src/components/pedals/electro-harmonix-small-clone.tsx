@@ -27,50 +27,49 @@ export function ElectroHarmonixSmallClonePedal({
   // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
   const pedalAccentColor = accentColor || model.accentColor
 
-  const controls = useMemo(() => {
-    const switchSelectors: JSX.Element[] = []
-    const knobs: JSX.Element[] = []
-    
-    Object.entries(model.parameters).forEach(([name, def]) => {
-      const controlType = def.controlType || 'knob'
-      const value = values[name] ?? def.default ?? 0
+  const rate = values.rate ?? model.parameters.rate.default
+  const depth = values.depth ?? model.parameters.depth.default
+  const mode = values.mode ?? model.parameters.mode.default
 
-      if (controlType === 'switch-selector' && def.labels) {
-        switchSelectors.push(
-          <SwitchSelector
-            key={name}
-            value={value}
-            min={def.min}
-            max={def.max}
-            labels={def.labels}
-            icons={def.icons}
-            color={pedalAccentColor}
-            onChange={(v) => onChange?.(name, v)}
-            className="switch-selector-full-width"
-          />
-        )
-      } else {
-        knobs.push(
-          <Potentiometer
-            key={name}
-            label={def.label}
-            value={value}
-            min={def.min}
-            max={def.max}
-            color={pedalAccentColor}
-            onChange={(v) => onChange?.(name, v)}
-          />
-        )
-      }
-    })
-    
-    return [...switchSelectors, ...knobs]
-  }, [model, values, onChange])
+  const controls = useMemo(() => (
+    <div className="flex flex-col gap-3 w-full">
+      <div className="w-full">
+        <SwitchSelector
+          value={mode}
+          min={model.parameters.mode.min}
+          max={model.parameters.mode.max}
+          labels={model.parameters.mode.labels || []}
+          icons={model.parameters.mode.icons}
+          color={pedalAccentColor}
+          onChange={(v) => onChange?.('mode', v)}
+          className="switch-selector-full-width"
+        />
+      </div>
+      <div className="grid grid-cols-2 gap-3 w-full justify-items-center">
+        <Potentiometer
+          label="RATE"
+          value={rate}
+          min={model.parameters.rate.min}
+          max={model.parameters.rate.max}
+          color={pedalAccentColor}
+          onChange={(v) => onChange?.('rate', v)}
+        />
+        <Potentiometer
+          label="DEPTH"
+          value={depth}
+          min={model.parameters.depth.min}
+          max={model.parameters.depth.max}
+          color={pedalAccentColor}
+          onChange={(v) => onChange?.('depth', v)}
+        />
+      </div>
+    </div>
+  ), [rate, depth, mode, model, onChange, pedalAccentColor])
 
   return (
     <PedalFrame
       model={model}
-      layout="switch-selector-with-knobs"
+      layout="flex"
       bypassed={bypassed}
       onBypassToggle={onBypassToggle}
       showFootswitch={false}
@@ -93,55 +92,43 @@ export const ElectroHarmonixSmallCloneControls = ({
   // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
   const pedalAccentColor = accentColor || model.accentColor
   
+  const rate = values.rate ?? model.parameters.rate.default
+  const depth = values.depth ?? model.parameters.depth.default
+  const mode = values.mode ?? model.parameters.mode.default
+
   return (
-    <>
-      {Object.entries(model.parameters).map(([name, def]) => {
-        const controlType = def.controlType || 'knob'
-        const value = values[name] ?? def.default ?? 0
-
-        if (controlType === 'slider') {
-          return (
-            <Slider
-              key={name}
-              label={def.label}
-              value={value}
-              min={def.min}
-              max={def.max}
-              orientation={def.orientation || 'vertical'}
-              onChange={(v) => onChange?.(name, v)}
-              color={pedalAccentColor}
-            />
-          )
-        }
-
-        if (controlType === 'switch-selector' && def.labels) {
-          return (
-            <SwitchSelector
-              key={name}
-              value={value}
-              min={def.min}
-              max={def.max}
-              labels={def.labels}
-              icons={def.icons}
-              color={pedalAccentColor}
-              onChange={(v) => onChange?.(name, v)}
-            />
-          )
-        }
-
-        return (
-          <Potentiometer
-            key={name}
-            label={def.label}
-            value={value}
-            min={def.min}
-            max={def.max}
-            color={pedalAccentColor}
-            onChange={(v) => onChange?.(name, v)}
-          />
-        )
-      })}
-    </>
+    <div className="flex flex-col gap-3 w-full">
+      <div className="w-full">
+        <SwitchSelector
+          value={mode}
+          min={model.parameters.mode.min}
+          max={model.parameters.mode.max}
+          labels={model.parameters.mode.labels || []}
+          icons={model.parameters.mode.icons}
+          color={pedalAccentColor}
+          onChange={(v) => onChange?.('mode', v)}
+          className="switch-selector-full-width"
+        />
+      </div>
+      <div className="grid grid-cols-2 gap-3 w-full justify-items-center">
+        <Potentiometer
+          label="RATE"
+          value={rate}
+          min={model.parameters.rate.min}
+          max={model.parameters.rate.max}
+          color={pedalAccentColor}
+          onChange={(v) => onChange?.('rate', v)}
+        />
+        <Potentiometer
+          label="DEPTH"
+          value={depth}
+          min={model.parameters.depth.min}
+          max={model.parameters.depth.max}
+          color={pedalAccentColor}
+          onChange={(v) => onChange?.('depth', v)}
+        />
+      </div>
+    </div>
   )
 }
 

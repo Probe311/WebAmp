@@ -36,5 +36,7 @@ SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... `
 - Catalogue (pedals/amplifiers) : lecture publique, write service/admin.
 - Presets / IR / favoris : owner-only, `is_public` pour partage.
 - Storage `ir` : owner par préfixe de chemin, service_role full access.
+- LMS : Cours publiés en lecture publique, progression privée par utilisateur.
 
+Pour plus de détails sur la sécurité RLS, voir [docs/RLS_SECURITY_GUIDE.md](../docs/RLS_SECURITY_GUIDE.md).
 

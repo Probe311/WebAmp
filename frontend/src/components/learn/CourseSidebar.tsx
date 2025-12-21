@@ -73,8 +73,9 @@ export function CourseSidebar({
           <div className="space-y-2">
             {steps.map((step, index) => {
               const isCurrent = index === currentStepIndex
-              const isCompleted = completedSteps.has(index)
-              const isAccessible = index <= currentStepIndex || isCompleted
+              const isStepCompleted = completedSteps.has(index)
+              // Si le cours est complété, toutes les sections sont accessibles
+              const isAccessible = isCompleted || index <= currentStepIndex || isStepCompleted
 
               return (
                 <button
@@ -85,7 +86,7 @@ export function CourseSidebar({
                     w-full flex items-start gap-3 p-3 rounded-lg transition-all duration-200 text-left
                     ${isCurrent
                       ? 'bg-orange-500/10 dark:bg-orange-500/20 border-2 border-orange-500 shadow-sm'
-                      : isCompleted
+                      : isStepCompleted
                       ? 'bg-green-500/10 dark:bg-green-500/20 border border-green-500/30'
                       : 'bg-gray-100 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600'
                     }
@@ -97,14 +98,14 @@ export function CourseSidebar({
                 >
                   <div className={`
                     flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium
-                    ${isCompleted
+                    ${isStepCompleted
                       ? 'bg-green-500 text-white'
                       : isCurrent
                       ? 'bg-orange-500 text-white'
                       : 'bg-gray-300 dark:bg-gray-600 text-black/50 dark:text-white/50'
                     }
                   `}>
-                    {isCompleted ? (
+                    {isStepCompleted ? (
                       <CheckCircle2 size={16} />
                     ) : (
                       index + 1
@@ -115,7 +116,7 @@ export function CourseSidebar({
                       text-sm font-medium truncate
                       ${isCurrent
                         ? 'text-orange-600 dark:text-orange-400'
-                        : isCompleted
+                        : isStepCompleted
                         ? 'text-green-600 dark:text-green-400'
                         : 'text-black/70 dark:text-white/70'
                       }
@@ -136,30 +137,28 @@ export function CourseSidebar({
               onClick={onPrevious}
               disabled={!canGoPrevious}
               className={`
-                flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium transition-all duration-200
+                flex-1 flex items-center justify-center px-3 py-3 rounded-xl font-medium transition-all duration-200
                 ${!canGoPrevious
                   ? 'bg-gray-200 dark:bg-gray-700 text-black/30 dark:text-white/30 cursor-not-allowed'
                   : 'bg-white dark:bg-gray-700 text-black/70 dark:text-white/70 hover:bg-gray-100 dark:hover:bg-gray-600 shadow-lg'
                 }
               `}
             >
-              <ChevronLeft size={18} />
-              <span>Précédent</span>
+              <ChevronLeft size={20} />
             </button>
 
             <button
               onClick={onNext}
               disabled={!canGoNext}
               className={`
-                flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium transition-all duration-200
+                flex-1 flex items-center justify-center px-3 py-3 rounded-xl font-medium transition-all duration-200
                 ${!canGoNext
                   ? 'bg-gray-200 dark:bg-gray-700 text-black/30 dark:text-white/30 cursor-not-allowed'
                   : 'bg-orange-500 text-white hover:bg-orange-600 shadow-lg hover:shadow-xl'
                 }
               `}
             >
-              <span>{currentStepIndex === steps.length - 1 ? 'Terminer' : 'Suivant'}</span>
-              <ChevronRight size={18} />
+              <ChevronRight size={20} />
             </button>
           </div>
         </div>

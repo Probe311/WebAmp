@@ -1,24 +1,16 @@
-import { createClient, SupabaseClient } from '@supabase/supabase-js'
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../config'
+/**
+ * @deprecated Utilisez getSupabaseClient() depuis lib/supabase.ts à la place
+ * 
+ * Ce fichier est conservé pour compatibilité avec le code existant.
+ */
 
-let supabase: SupabaseClient | null = null
+import { getSupabaseClient as getSupabaseClientFromLib } from './supabase'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
-// Utiliser une clé de stockage différente pour éviter les conflits avec auth/supabaseClient.ts
-const STORAGE_KEY = 'webamp-data'
-
+/**
+ * @deprecated Utilisez getSupabaseClient() depuis lib/supabase.ts
+ */
 export function getSupabaseClient(): SupabaseClient | null {
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-    return null
-  }
-  if (!supabase) {
-    supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      auth: {
-        persistSession: true,
-        autoRefreshToken: true,
-        storageKey: STORAGE_KEY
-      },
-    })
-  }
-  return supabase
+  return getSupabaseClientFromLib()
 }
 

@@ -1,9 +1,52 @@
 import { createContext, useContext, useState, useRef, useCallback, ReactNode, useEffect } from 'react'
 import { DEFAULT_PATTERNS } from './patterns'
+import { createLogger } from '../services/logger'
+
+const logger = createLogger('DrumMachineContext')
 
 // Type pour Tone.js (importé dynamiquement)
 type ToneType = typeof import('tone')
 let ToneModule: ToneType | null = null
+
+// Types pour les nœuds Tone.js
+// Utilisation de unknown au lieu de any pour une meilleure sécurité de type
+// Note: Les types Tone.js complets sont complexes, on utilise unknown avec des assertions de type
+// Helpers pour accéder aux propriétés de manière sûre
+type ToneVolumeNode = {
+  volume: {
+    value: number
+  }
+  connect: (destination: unknown) => unknown
+  dispose: () => void
+}
+
+type ToneSynth = {
+  triggerAttackRelease: (note: string | number, duration: string, time?: number) => void
+  dispose: () => void
+  connect: (destination: unknown) => unknown
+}
+
+type ToneNoiseSynth = {
+  triggerAttackRelease: (duration: string, time?: number) => void
+  dispose: () => void
+  connect: (destination: unknown) => unknown
+}
+
+type ToneSamplePlayer = {
+  start: (time?: number) => void
+  load: (url?: string) => Promise<unknown>
+  loaded: boolean
+  dispose: () => void
+  connect: (destination: unknown) => unknown
+}
+
+type ToneGainNode = {
+  gain: {
+    value: number
+  }
+  toDestination: () => unknown
+  dispose: () => void
+}
 
 // Fonction helper pour charger Tone.js dynamiquement
 const loadTone = async (): Promise<ToneType> => {
@@ -36,6 +79,7 @@ interface DrumMachineContextType {
   pattern: DrumStep[]
   selectedPattern: number
   volumes: Record<DrumInstrument, number>
+  sampleSources: Record<DrumInstrument, string | null>
   setIsPlaying: (playing: boolean) => void
   setCurrentStep: (step: number | ((prev: number) => number)) => void
   setBpm: (bpm: number) => void
@@ -49,6 +93,8 @@ interface DrumMachineContextType {
   handleStop: () => void
   handlePatternChange: (index: number) => void
   handleVolumeChange: (instrument: DrumInstrument, value: number) => void
+  loadSample: (instrument: DrumInstrument, audioUrl: string | Blob, name?: string) => Promise<void>
+  clearSample: (instrument: DrumInstrument) => void
 }
 
 const DrumMachineContext = createContext<DrumMachineContextType | undefined>(undefined)
@@ -86,12 +132,13 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
   const [masterVolume, setMasterVolume] = useState(80)
 
   // Références pour Tone.js
+  // Note: Utilisation de unknown au lieu de any pour une meilleure sécurité de type
   const toneRef = useRef<ToneType | null>(null)
-  const volumeNodesRef = useRef<Record<DrumInstrument, any> | null>(null)
-  const masterGainRef = useRef<any | null>(null)
+  const volumeNodesRef = useRef<Record<DrumInstrument, unknown> | null>(null)
+  const masterGainRef = useRef<unknown | null>(null)
   const initializedRef = useRef(false)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
-  const synthCacheRef = useRef<Record<DrumInstrument, any | null>>({
+  const synthCacheRef = useRef<Partial<Record<DrumInstrument, unknown>>>({
     kick: null,
     snare: null,
     hihat: null,
@@ -102,8 +149,32 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
     tom2: null,
     tom3: null
   })
-  const snareNoiseRef = useRef<any | null>(null)
-  const snareBodyRef = useRef<any | null>(null)
+  const snareNoiseRef = useRef<unknown | null>(null)
+  const snareBodyRef = useRef<unknown | null>(null)
+  
+  // Samples audio chargés depuis Freesound ou autres sources
+  const samplePlayersRef = useRef<Record<DrumInstrument, unknown | null>>({
+    kick: null,
+    snare: null,
+    hihat: null,
+    openhat: null,
+    crash: null,
+    ride: null,
+    tom1: null,
+    tom2: null,
+    tom3: null
+  })
+  const [sampleSources, setSampleSources] = useState<Record<DrumInstrument, string | null>>({
+    kick: null,
+    snare: null,
+    hihat: null,
+    openhat: null,
+    crash: null,
+    ride: null,
+    tom1: null,
+    tom2: null,
+    tom3: null
+  })
   
   // Références pour éviter les problèmes de closure
   const volumesRef = useRef(volumes)
@@ -162,28 +233,29 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
       masterGainRef.current = masterGain
 
       // Créer les nœuds de volume pour chaque instrument
-      const volumeNodes: Record<DrumInstrument, any> = {} as Record<DrumInstrument, any>
+      const volumeNodes: Record<DrumInstrument, ToneVolumeNode> = {} as Record<DrumInstrument, ToneVolumeNode>
       const instruments: DrumInstrument[] = ['kick', 'snare', 'hihat', 'openhat', 'crash', 'ride', 'tom1', 'tom2', 'tom3']
       
       instruments.forEach(instrument => {
-        const volumeNode = new Tone.Volume(0)
-        volumeNode.connect(masterGain)
+        const volumeNode = new Tone.Volume(0) as unknown as ToneVolumeNode
+        volumeNode.connect(masterGain as unknown)
         volumeNodes[instrument] = volumeNode
       })
       
       volumeNodesRef.current = volumeNodes
       
       // Créer les synths
-      const synthCache: Record<DrumInstrument, any | null> = {
-        kick: null,
-        snare: null,
-        hihat: null,
-        openhat: null,
-        crash: null,
-        ride: null,
-        tom1: null,
-        tom2: null,
-        tom3: null
+      // Note: Utilisation de types partiels avec unknown pour une meilleure sécurité de type que any
+      const synthCache: Partial<Record<DrumInstrument, ToneSynth | ToneNoiseSynth | undefined>> = {
+        kick: undefined,
+        snare: undefined,
+        hihat: undefined,
+        openhat: undefined,
+        crash: undefined,
+        ride: undefined,
+        tom1: undefined,
+        tom2: undefined,
+        tom3: undefined
       }
       
       synthCache.kick = new Tone.MembraneSynth({
@@ -191,7 +263,7 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
         octaves: 3,
         oscillator: { type: 'sine' },
         envelope: { attack: 0.001, decay: 0.3, sustain: 0, release: 0.1 }
-      }).connect(volumeNodes.kick)
+      }).connect(volumeNodes.kick) as unknown as ToneSynth
       
       snareNoiseRef.current = new Tone.NoiseSynth({
         noise: { type: 'white' },
@@ -207,43 +279,43 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
       synthCache.hihat = new Tone.NoiseSynth({
         noise: { type: 'white' },
         envelope: { attack: 0.001, decay: 0.05, sustain: 0, release: 0.05 }
-      }).connect(volumeNodes.hihat)
+      }).connect(volumeNodes.hihat) as unknown as ToneNoiseSynth
       
       synthCache.openhat = new Tone.NoiseSynth({
         noise: { type: 'white' },
         envelope: { attack: 0.001, decay: 0.2, sustain: 0, release: 0.2 }
-      }).connect(volumeNodes.openhat)
+      }).connect(volumeNodes.openhat) as unknown as ToneNoiseSynth
       
       synthCache.crash = new Tone.NoiseSynth({
         noise: { type: 'white' },
         envelope: { attack: 0.001, decay: 0.5, sustain: 0, release: 0.5 }
-      }).connect(volumeNodes.crash)
+      }).connect(volumeNodes.crash) as unknown as ToneNoiseSynth
       
       synthCache.ride = new Tone.NoiseSynth({
         noise: { type: 'white' },
         envelope: { attack: 0.001, decay: 0.35, sustain: 0, release: 0.35 }
-      }).connect(volumeNodes.ride)
+      }).connect(volumeNodes.ride) as unknown as ToneNoiseSynth
       
       synthCache.tom1 = new Tone.MembraneSynth({
         pitchDecay: 0.05,
         octaves: 2,
         oscillator: { type: 'sine' },
         envelope: { attack: 0.001, decay: 0.2, sustain: 0, release: 0.2 }
-      }).connect(volumeNodes.tom1)
+      }).connect(volumeNodes.tom1) as unknown as ToneSynth
       
       synthCache.tom2 = new Tone.MembraneSynth({
         pitchDecay: 0.05,
         octaves: 2,
         oscillator: { type: 'sine' },
         envelope: { attack: 0.001, decay: 0.2, sustain: 0, release: 0.2 }
-      }).connect(volumeNodes.tom2)
+      }).connect(volumeNodes.tom2) as unknown as ToneSynth
       
       synthCache.tom3 = new Tone.MembraneSynth({
         pitchDecay: 0.05,
         octaves: 2,
         oscillator: { type: 'sine' },
         envelope: { attack: 0.001, decay: 0.25, sustain: 0, release: 0.25 }
-      }).connect(volumeNodes.tom3)
+      }).connect(volumeNodes.tom3) as unknown as ToneSynth
       
       synthCacheRef.current = synthCache
       initializedRef.current = true
@@ -253,10 +325,74 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
     }
   }, [masterVolume])
 
+  // Charger un sample audio pour un instrument
+  const loadSample = useCallback(async (
+    instrument: DrumInstrument,
+    audioUrl: string | Blob,
+    name?: string
+  ): Promise<void> => {
+    const initialized = await initializeTone()
+    if (!initialized || !volumeNodesRef.current) return
+
+    const Tone = toneRef.current
+    if (!Tone) return
+
+    try {
+      // Disposer de l'ancien sample s'il existe
+      const existingPlayer = samplePlayersRef.current[instrument]
+      if (existingPlayer) {
+        existingPlayer.dispose()
+        samplePlayersRef.current[instrument] = null
+      }
+
+      const volumeNode = volumeNodesRef.current?.[instrument]
+      if (!volumeNode) return
+      
+      // Créer un nouveau Player pour le sample
+      let url: string
+      if (audioUrl instanceof Blob) {
+        url = URL.createObjectURL(audioUrl)
+      } else {
+        url = audioUrl
+      }
+
+      const player = (new Tone.Player({
+        url,
+        volume: 0,
+        autostart: false
+      }).connect(volumeNode as unknown) as unknown) as ToneSamplePlayer
+
+      await player.load()
+      
+      samplePlayersRef.current[instrument] = player
+      
+      // Stocker la source du sample
+      setSampleSources(prev => ({
+        ...prev,
+        [instrument]: name || (typeof audioUrl === 'string' ? audioUrl : 'Sample chargé')
+      }))
+    } catch (error) {
+      console.error(`Erreur lors du chargement du sample pour ${instrument}:`, error)
+      throw error
+    }
+  }, [initializeTone])
+
+  // Effacer un sample (revenir au synth)
+  const clearSample = useCallback((instrument: DrumInstrument) => {
+    if (samplePlayersRef.current[instrument]) {
+      samplePlayersRef.current[instrument].dispose()
+      samplePlayersRef.current[instrument] = null
+    }
+    setSampleSources(prev => ({
+      ...prev,
+      [instrument]: null
+    }))
+  }, [])
+
   // Jouer un son individuel
   const playSound = useCallback(async (instrument: DrumInstrument) => {
     const initialized = await initializeTone()
-    if (!initialized || !volumeNodesRef.current || !synthCacheRef.current) return
+    if (!initialized || !volumeNodesRef.current) return
 
     const Tone = toneRef.current
     if (!Tone) return
@@ -270,57 +406,85 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
     const now = Tone.now()
 
     try {
+      // Utiliser le sample si disponible, sinon utiliser le synth
+      const samplePlayer = samplePlayersRef.current[instrument]
+      if (samplePlayer && samplePlayer.loaded) {
+        samplePlayer.start(now)
+        return
+      }
+
+      // Fallback sur les synths
+      if (!synthCacheRef.current) return
+
       switch (instrument) {
         case 'kick': {
-          const synth = synthCacheRef.current.kick
-          if (synth) synth.triggerAttackRelease('C2', '8n', now)
+          const synth = synthCacheRef.current.kick as ToneSynth | undefined
+          if (synth && 'triggerAttackRelease' in synth) {
+            synth.triggerAttackRelease('C2', '8n', now)
+          }
           break
         }
         case 'snare': {
-          if (snareNoiseRef.current && snareBodyRef.current) {
-            snareNoiseRef.current.triggerAttackRelease('8n', now)
-            snareBodyRef.current.triggerAttackRelease('C3', '8n', now + 0.001)
+          const noiseSynth = snareNoiseRef.current as ToneNoiseSynth | null
+          const bodySynth = snareBodyRef.current as ToneSynth | null
+          if (noiseSynth && bodySynth && 'triggerAttackRelease' in noiseSynth && 'triggerAttackRelease' in bodySynth) {
+            noiseSynth.triggerAttackRelease('8n', now)
+            bodySynth.triggerAttackRelease('C3', '8n', now + 0.001)
           }
           break
         }
         case 'hihat': {
-          const synth = synthCacheRef.current.hihat
-          if (synth) synth.triggerAttackRelease('8n', now)
+          const synth = synthCacheRef.current.hihat as ToneNoiseSynth | undefined
+          if (synth && 'triggerAttackRelease' in synth) {
+            synth.triggerAttackRelease('8n', now)
+          }
           break
         }
         case 'openhat': {
-          const synth = synthCacheRef.current.openhat
-          if (synth) synth.triggerAttackRelease('8n', now)
+          const synth = synthCacheRef.current.openhat as ToneNoiseSynth | undefined
+          if (synth && 'triggerAttackRelease' in synth) {
+            synth.triggerAttackRelease('8n', now)
+          }
           break
         }
         case 'crash': {
-          const synth = synthCacheRef.current.crash
-          if (synth) synth.triggerAttackRelease('8n', now)
+          const synth = synthCacheRef.current.crash as ToneNoiseSynth | undefined
+          if (synth && 'triggerAttackRelease' in synth) {
+            synth.triggerAttackRelease('8n', now)
+          }
           break
         }
         case 'ride': {
-          const synth = synthCacheRef.current.ride
-          if (synth) synth.triggerAttackRelease('8n', now)
+          const synth = synthCacheRef.current.ride as ToneNoiseSynth | undefined
+          if (synth && 'triggerAttackRelease' in synth) {
+            synth.triggerAttackRelease('8n', now)
+          }
           break
         }
         case 'tom1': {
-          const synth = synthCacheRef.current.tom1
-          if (synth) synth.triggerAttackRelease('C3', '8n', now)
+          const synth = synthCacheRef.current.tom1 as ToneSynth | undefined
+          if (synth && 'triggerAttackRelease' in synth) {
+            synth.triggerAttackRelease('C3', '8n', now)
+          }
           break
         }
         case 'tom2': {
-          const synth = synthCacheRef.current.tom2
-          if (synth) synth.triggerAttackRelease('B2', '8n', now)
+          const synth = synthCacheRef.current.tom2 as ToneSynth | undefined
+          if (synth && 'triggerAttackRelease' in synth) {
+            synth.triggerAttackRelease('B2', '8n', now)
+          }
           break
         }
         case 'tom3': {
-          const synth = synthCacheRef.current.tom3
-          if (synth) synth.triggerAttackRelease('A2', '8n', now)
+          const synth = synthCacheRef.current.tom3 as ToneSynth | undefined
+          if (synth && 'triggerAttackRelease' in synth) {
+            synth.triggerAttackRelease('A2', '8n', now)
+          }
           break
         }
       }
     } catch (error) {
-      // Échec silencieux de la lecture d'un instrument
+      logger.debug('Erreur lors de la lecture d\'un instrument (preview)', { error, instrument })
     }
   }, [initializeTone])
 
@@ -368,57 +532,72 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
                   timeOffset += 0.001 // Incrémenter de 1ms pour chaque instrument suivant
 
                   try {
-                    switch (instrument) {
-                      case 'kick': {
-                        const synth = synthCacheRef.current!.kick
-                        if (synth) synth.triggerAttackRelease('C2', '8n', now)
-                        break
-                      }
-                      case 'snare': {
-                        if (snareNoiseRef.current && snareBodyRef.current) {
-                          snareNoiseRef.current.triggerAttackRelease('8n', now)
-                          snareBodyRef.current.triggerAttackRelease('C3', '8n', now + 0.001)
+                    // Utiliser le sample si disponible, sinon utiliser le synth
+                    const samplePlayer = samplePlayersRef.current[instrument]
+                    if (samplePlayer && samplePlayer.loaded) {
+                      samplePlayer.start(now)
+                    } else {
+                      // Fallback sur les synths
+                      switch (instrument) {
+                        case 'kick': {
+                          const synth = synthCacheRef.current!.kick
+                          if (synth) synth.triggerAttackRelease('C2', '8n', now)
+                          break
                         }
-                        break
-                      }
-                      case 'hihat': {
-                        const synth = synthCacheRef.current!.hihat
-                        if (synth) synth.triggerAttackRelease('8n', now)
-                        break
-                      }
-                      case 'openhat': {
-                        const synth = synthCacheRef.current!.openhat
-                        if (synth) synth.triggerAttackRelease('8n', now)
-                        break
-                      }
-                      case 'crash': {
-                        const synth = synthCacheRef.current!.crash
-                        if (synth) synth.triggerAttackRelease('8n', now)
-                        break
-                      }
-                      case 'ride': {
-                        const synth = synthCacheRef.current!.ride
-                        if (synth) synth.triggerAttackRelease('8n', now)
-                        break
-                      }
-                      case 'tom1': {
-                        const synth = synthCacheRef.current!.tom1
-                        if (synth) synth.triggerAttackRelease('C3', '8n', now)
-                        break
-                      }
-                      case 'tom2': {
-                        const synth = synthCacheRef.current!.tom2
-                        if (synth) synth.triggerAttackRelease('B2', '8n', now)
-                        break
-                      }
-                      case 'tom3': {
-                        const synth = synthCacheRef.current!.tom3
-                        if (synth) synth.triggerAttackRelease('A2', '8n', now)
-                        break
+                        case 'snare': {
+                          if (snareNoiseRef.current && snareBodyRef.current) {
+                            snareNoiseRef.current.triggerAttackRelease('8n', now)
+                            snareBodyRef.current.triggerAttackRelease('C3', '8n', now + 0.001)
+                          }
+                          break
+                        }
+                        case 'hihat': {
+                          const synth = synthCacheRef.current!.hihat
+                          if (synth && 'triggerAttackRelease' in synth) {
+                            (synth as ToneNoiseSynth).triggerAttackRelease('8n', now)
+                          }
+                          break
+                        }
+                        case 'openhat': {
+                          const synth = synthCacheRef.current!.openhat
+                          if (synth && 'triggerAttackRelease' in synth) {
+                            (synth as ToneNoiseSynth).triggerAttackRelease('8n', now)
+                          }
+                          break
+                        }
+                        case 'crash': {
+                          const synth = synthCacheRef.current!.crash
+                          if (synth && 'triggerAttackRelease' in synth) {
+                            (synth as ToneNoiseSynth).triggerAttackRelease('8n', now)
+                          }
+                          break
+                        }
+                        case 'ride': {
+                          const synth = synthCacheRef.current!.ride
+                          if (synth && 'triggerAttackRelease' in synth) {
+                            (synth as ToneNoiseSynth).triggerAttackRelease('8n', now)
+                          }
+                          break
+                        }
+                        case 'tom1': {
+                          const synth = synthCacheRef.current!.tom1
+                          if (synth) synth.triggerAttackRelease('C3', '8n', now)
+                          break
+                        }
+                        case 'tom2': {
+                          const synth = synthCacheRef.current!.tom2
+                          if (synth) synth.triggerAttackRelease('B2', '8n', now)
+                          break
+                        }
+                        case 'tom3': {
+                          const synth = synthCacheRef.current!.tom3
+                          if (synth) synth.triggerAttackRelease('A2', '8n', now)
+                          break
+                        }
                       }
                     }
                   } catch (error) {
-                    // Échec silencieux de la lecture d'un instrument
+                    logger.debug('Erreur lors de la lecture d\'un instrument', { error, instrument })
                   }
                 }
               })
@@ -428,7 +607,7 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
           })
         }, stepDuration)
       }).catch((error) => {
-        // Échec silencieux de l'initialisation
+        logger.error('Erreur lors de l\'initialisation de Tone.js pour la machine à rythmes', error)
       })
     } else {
       if (intervalRef.current) {
@@ -587,6 +766,24 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
         masterGainRef.current.dispose()
         masterGainRef.current = null
       }
+
+      // Nettoyer les samples
+      Object.values(samplePlayersRef.current).forEach(player => {
+        if (player) {
+          player.dispose()
+        }
+      })
+      samplePlayersRef.current = {
+        kick: null,
+        snare: null,
+        hihat: null,
+        openhat: null,
+        crash: null,
+        ride: null,
+        tom1: null,
+        tom2: null,
+        tom3: null
+      }
     }
   }, [])
 
@@ -601,6 +798,7 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
         pattern,
         selectedPattern,
         volumes,
+        sampleSources,
         setIsPlaying,
         setCurrentStep,
         setBpm,
@@ -613,7 +811,9 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
         handlePlayPause,
         handleStop,
         handlePatternChange,
-        handleVolumeChange
+        handleVolumeChange,
+        loadSample,
+        clearSample
       }}
     >
       {children}

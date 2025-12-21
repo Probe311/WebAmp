@@ -3,7 +3,7 @@ import { ReactNode, ButtonHTMLAttributes } from 'react'
 interface CTAProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children?: ReactNode
   icon?: ReactNode
-  variant?: 'primary' | 'icon-only' | 'secondary' | 'danger' | 'important'
+  variant?: 'primary' | 'icon-only' | 'secondary' | 'danger' | 'important' | 'ai-tone' | 'ai-beat'
   active?: boolean
 }
 
@@ -20,7 +20,7 @@ export function CTA({
 }: CTAProps) {
   const isIconOnly = variant === 'icon-only'
   
-  const isColoredVariant = variant === 'danger' || variant === 'important'
+  const isColoredVariant = variant === 'danger' || variant === 'important' || variant === 'ai-tone' || variant === 'ai-beat'
   
   const baseClasses = `
     flex items-center justify-center gap-2 px-4 py-2 rounded-lg
@@ -59,6 +59,8 @@ export function CTA({
     ? 'bg-red-500 dark:bg-red-600 text-white border-2 border-red-600 dark:border-red-700 hover:bg-red-600 dark:hover:bg-red-700'
     : variant === 'important'
     ? 'bg-orange-500 dark:bg-orange-600 text-white border-2 border-orange-600 dark:border-orange-700 hover:bg-orange-600 dark:hover:bg-orange-700'
+    : variant === 'ai-tone' || variant === 'ai-beat'
+    ? 'bg-gradient-to-r from-[#d23cfb] to-[#fb923c] text-white border-2 border-[#d23cfb]/50 hover:from-[#c02ae8] hover:to-[#f07a2a] hover:border-[#c02ae8]/50'
     : ''
   
   const combinedClasses = `${baseClasses} ${iconOnlyClasses} ${activeClasses} ${variantClasses} ${className}`.trim().replace(/\s+/g, ' ')

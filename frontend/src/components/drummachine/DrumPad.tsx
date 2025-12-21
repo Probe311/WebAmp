@@ -1,13 +1,15 @@
 import { memo } from 'react'
 import { DrumInstrument } from '../../contexts/DrumMachineContext'
 
+export type { DrumInstrument }
+
 export const INSTRUMENTS_COMPACT: DrumInstrument[] = ['kick', 'snare', 'hihat', 'openhat', 'crash', 'ride', 'tom1', 'tom2', 'tom3']
 
 export const INSTRUMENT_LABELS: Record<DrumInstrument, string> = {
-  kick: 'Kick',
-  snare: 'Snare',
-  hihat: 'Hi-Hat',
-  openhat: 'Open Hat',
+  kick: 'Grosse caisse',
+  snare: 'Caisse claire',
+  hihat: 'Charleston',
+  openhat: 'Charleston ouverte',
   crash: 'Crash',
   ride: 'Ride',
   tom1: 'Tom 1',

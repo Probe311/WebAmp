@@ -6,6 +6,10 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 import { PedalboardEngine } from '../audio/PedalboardEngine'
 import { pedalLibrary } from '../data/pedals'
 import { Effect } from '../components/Pedalboard'
+import { createLogger } from '../services/logger'
+import { DEFAULT_SAMPLE_RATE, DEFAULT_AUDIO_ROUTING } from '../config/constants'
+
+const logger = createLogger('usePedalboardEngine')
 
 export interface UsePedalboardEngineOptions {
   autoStart?: boolean
@@ -24,8 +28,8 @@ export function usePedalboardEngine(options: UsePedalboardEngineOptions = {}) {
   useEffect(() => {
     if (!engineRef.current) {
       engineRef.current = new PedalboardEngine({
-        sampleRate: 44100,
-        routing: 'serial'
+        sampleRate: DEFAULT_SAMPLE_RATE,
+        routing: DEFAULT_AUDIO_ROUTING
       })
       setIsInitialized(true)
     }
@@ -35,11 +39,17 @@ export function usePedalboardEngine(options: UsePedalboardEngineOptions = {}) {
         engineRef.current.dispose()
         engineRef.current = null
       }
+    }
+  }, [])
+
+  // Nettoyer le stream audio séparément
+  useEffect(() => {
+    return () => {
       if (audioStream) {
         audioStream.getTracks().forEach(track => track.stop())
       }
     }
-  }, [])
+  }, [audioStream])
 
   // Démarrer/arrêter le moteur
   const start = useCallback(async () => {
@@ -61,7 +71,7 @@ export function usePedalboardEngine(options: UsePedalboardEngineOptions = {}) {
         source.connect(engineRef.current.getInput())
       }
     } catch (error) {
-      // démarrage silencieux du moteur audio
+      logger.error('Échec du démarrage du moteur audio', error, { enableAudioInput })
     }
   }, [enableAudioInput])
 
@@ -96,7 +106,7 @@ export function usePedalboardEngine(options: UsePedalboardEngineOptions = {}) {
       // Utiliser l'effect.id comme clé dans le moteur (pas le pedalId)
       await engineRef.current.addEffect(pedalModel, effect.parameters, effect.id)
     } catch (error) {
-      // échec silencieux d'ajout d'effet
+      logger.error('Échec d\'ajout d\'effet', error, { effectId: effect.id, pedalId: effect.pedalId })
     }
   }, [])
 
@@ -119,7 +129,7 @@ export function usePedalboardEngine(options: UsePedalboardEngineOptions = {}) {
     try {
       await engineRef.current.updateEffectParameters(effectId, parameters)
     } catch (error) {
-      // échec silencieux de mise à jour des paramètres
+      logger.error('Échec de mise à jour des paramètres d\'effet', error, { effectId, parameters })
     }
   }, [])
 

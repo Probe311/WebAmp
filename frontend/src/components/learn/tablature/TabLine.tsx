@@ -7,7 +7,16 @@ interface TabLineProps {
 
 export const TabLine: React.FC<TabLineProps> = ({ line, isActive }) => {
   return (
-    <div className="font-mono text-gray-600 dark:text-gray-500 whitespace-pre relative leading-[1.8em] tracking-wide">
+    <div 
+      className="font-mono text-gray-600 dark:text-gray-500 whitespace-pre relative leading-[1.8em] tracking-wide"
+      style={{ 
+        fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace',
+        whiteSpace: 'pre',
+        overflow: 'visible',
+        width: '100%',
+        minWidth: '100%'
+      }}
+    >
       {line.split('').map((char, charIdx) => {
         const isNote = /[0-9]/.test(char);
         const isTech = /[hbp\/~]/.test(char);
@@ -18,13 +27,13 @@ export const TabLine: React.FC<TabLineProps> = ({ line, isActive }) => {
           className = `font-bold opacity-100 ${
             isActive 
               ? 'text-black dark:text-white drop-shadow-[0_0_5px_rgba(0,0,0,0.3)]' 
-              : 'text-gray-700 dark:text-gray-300'
+              : 'text-gray-800 dark:text-gray-200'
           }`;
         }
         if (isTech) className = "text-cyan-500 dark:text-cyan-400 opacity-100 font-bold italic";
         if (isStruct) className = "text-gray-500 dark:text-gray-400 opacity-100";
 
-        return <span key={charIdx} className={className}>{char}</span>
+        return <span key={charIdx} className={className} style={{ display: 'inline' }}>{char}</span>
       })}
     </div>
   );

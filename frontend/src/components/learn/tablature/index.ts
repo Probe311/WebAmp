@@ -9,4 +9,8 @@ export { Measure } from './Measure';
 export type { Measure as MeasureType } from './Measure';
 export { TablatureCanvas } from './TablatureCanvas';
 export { SongHeader } from './SongHeader';
+export { Countdown } from './Countdown';
+export { TablatureBackground } from './TablatureBackground';
+export type { TablatureNote } from './TablatureBackground';
+export { TablatureNotes } from './TablatureNotes';
 

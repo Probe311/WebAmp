@@ -8,8 +8,15 @@ type ToneType = typeof import('tone')
 let ToneModule: ToneType | null = null
 import { getPedalPreviewConfig } from '../audio/pedalPreviewConfig'
 import { useCatalog } from '../hooks/useCatalog'
-import { getBrandLogo } from '../utils/brandLogos'
-import walrusLogo from '../assets/logos/walrus_small.svg'
+// import { getBrandLogo } from '../utils/brandLogos' // Non utilisé actuellement
+import { 
+  hasCertificationStatus, 
+  getCertifiedBrandSmallLogo, 
+  getCertificationStatus 
+} from '../utils/certificationStatus'
+import { createLogger } from '../services/logger'
+
+const logger = createLogger('PedalLibraryModal')
 
 // Standard Tuning Frequencies (Hz)
 // 0: Low E (E2), 1: A (A2), 2: D (D3), 3: G (G3), 4: B (B3), 5: High e (E4)
@@ -343,7 +350,7 @@ export function PedalLibraryModal({ isOpen, onClose, onSelectPedal, searchQuery 
         }
         node.disconnect()
       } catch (err) {
-        // Ignorer les erreurs de nettoyage
+        logger.debug('Erreur lors du nettoyage des nœuds audio', { error: err })
       }
     })
     audioNodesRef.current = []
@@ -355,7 +362,7 @@ export function PedalLibraryModal({ isOpen, onClose, onSelectPedal, searchQuery 
         previewSynthRef.current.releaseAll()
         previewSynthRef.current.dispose()
       } catch (err) {
-        // échec silencieux à l'arrêt du synthé
+        logger.debug('Erreur lors de l\'arrêt du synthé', { error: err })
       }
       previewSynthRef.current = null
     }
@@ -365,7 +372,7 @@ export function PedalLibraryModal({ isOpen, onClose, onSelectPedal, searchQuery 
       try {
         node.dispose()
       } catch (err) {
-        // Ignorer les erreurs de nettoyage
+        logger.debug('Erreur lors du nettoyage des nœuds audio', { error: err })
       }
     })
     previewNodesRef.current = []
@@ -374,7 +381,7 @@ export function PedalLibraryModal({ isOpen, onClose, onSelectPedal, searchQuery 
       try {
         previewEffectRef.current.dispose()
       } catch (err) {
-        // Ignorer les erreurs de nettoyage
+        logger.debug('Erreur lors du nettoyage des nœuds audio', { error: err })
       }
       previewEffectRef.current = null
     }
@@ -856,24 +863,35 @@ export function PedalLibraryModal({ isOpen, onClose, onSelectPedal, searchQuery 
                         const ctaBg = isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.15)'
                         const ctaHover = isLight ? 'rgba(0,0,0,0.12)' : 'rgba(255,255,255,0.25)'
 
-                        const isWalrusAudio = pedal.brand === 'Walrus Audio'
-                        const brandLogo = isWalrusAudio ? walrusLogo : getBrandLogo(pedal.brand)
+                        const hasCertification = hasCertificationStatus(pedal.brand)
+                        const certificationStatus = hasCertification ? getCertificationStatus(pedal.brand) : null
+                        const certifiedLogo = hasCertification ? getCertifiedBrandSmallLogo(pedal.brand) : null
+                        // brandLogo calculé mais non utilisé directement (utilisé via certifiedLogo)
+                        // const brandLogo = certifiedLogo || getBrandLogo(pedal.brand)
 
                         return (
                           <div className="p-4 border-b border-black/10 dark:border-white/10 relative" style={{ backgroundColor: pedal.color, color: textColor }}>
                             <div className="flex items-center gap-2 mb-1">
-                              {isWalrusAudio && brandLogo ? (
+                              {hasCertification && certifiedLogo ? (
                                 <div className="flex items-center gap-2">
                                   <img
-                                    src={brandLogo}
+                                    src={certifiedLogo}
                                     alt={pedal.brand}
                                     className="h-4 object-contain"
                                     style={{ filter: isLight ? 'none' : 'brightness(0) invert(1)' }}
                                   />
                                   <BadgeCheck 
-                                    className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 flex-shrink-0"
+                                    className={`w-3.5 h-3.5 flex-shrink-0 ${
+                                      certificationStatus === 'certified'
+                                        ? 'text-emerald-600 dark:text-emerald-400'
+                                        : certificationStatus === 'pending'
+                                        ? 'text-yellow-600 dark:text-yellow-400'
+                                        : ''
+                                    }`}
                                   />
-                                  <span className="sr-only">Matériel certifié</span>
+                                  <span className="sr-only">
+                                    {certificationStatus === 'certified' ? 'Matériel certifié' : 'En cours de certification'}
+                                  </span>
                                 </div>
                               ) : (
                                 <div className="text-xs uppercase tracking-[1px] font-medium" style={{ color: subTextColor }}>{pedal.brand}</div>

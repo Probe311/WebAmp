@@ -2,15 +2,13 @@ import { useMemo } from 'react'
 import { pedalLibrary } from '../../data/pedals'
 import { PedalFrame } from './PedalFrame'
 import { Potentiometer } from '../Potentiometer'
-import { Slider } from '../Slider'
-import { SwitchSelector } from '../SwitchSelector'
 import type { PedalComponentProps } from './types'
 
 const pedalId = 'boss-ch1'
 
 /**
  * Composant complet de la pédale BOSS CH-1
- * Layout simple : 3 knobs en ligne
+ * Layout : 4 knobs en grille 2x2
  */
 export function BossCh1Pedal({ 
   values = {}, 
@@ -27,54 +25,47 @@ export function BossCh1Pedal({
   // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
   const pedalAccentColor = accentColor || model.accentColor
 
-  const controls = useMemo(() => {
-    return Object.entries(model.parameters).map(([name, def]) => {
-      const controlType = def.controlType || 'knob'
-      const value = values[name] ?? def.default ?? 0
+  const rate = values.rate ?? model.parameters.rate.default
+  const depth = values.depth ?? model.parameters.depth.default
+  const equalizer = values.equalizer ?? model.parameters.equalizer.default
+  const level = values.level ?? model.parameters.level.default
 
-      if (controlType === 'slider') {
-        return (
-          <Slider
-            key={name}
-            label={def.label}
-            value={value}
-            min={def.min}
-            max={def.max}
-            orientation={def.orientation || 'vertical'}
-            onChange={(v) => onChange?.(name, v)}
-            color={pedalAccentColor}
-          />
-        )
-      }
-
-      if (controlType === 'switch-selector' && def.labels) {
-        return (
-          <SwitchSelector
-            key={name}
-            value={value}
-            min={def.min}
-            max={def.max}
-            labels={def.labels}
-            icons={def.icons}
-            color={pedalAccentColor}
-            onChange={(v) => onChange?.(name, v)}
-          />
-        )
-      }
-
-      return (
-        <Potentiometer
-          key={name}
-          label={def.label}
-          value={value}
-          min={def.min}
-          max={def.max}
-          color={pedalAccentColor}
-          onChange={(v) => onChange?.(name, v)}
-        />
-      )
-    })
-  }, [model, values, onChange])
+  const controls = useMemo(() => (
+    <>
+      <Potentiometer
+        label="RATE"
+        value={rate}
+        min={model.parameters.rate.min}
+        max={model.parameters.rate.max}
+        color={pedalAccentColor}
+        onChange={(v) => onChange?.('rate', v)}
+      />
+      <Potentiometer
+        label="DEPTH"
+        value={depth}
+        min={model.parameters.depth.min}
+        max={model.parameters.depth.max}
+        color={pedalAccentColor}
+        onChange={(v) => onChange?.('depth', v)}
+      />
+      <Potentiometer
+        label="EQUALIZER"
+        value={equalizer}
+        min={model.parameters.equalizer.min}
+        max={model.parameters.equalizer.max}
+        color={pedalAccentColor}
+        onChange={(v) => onChange?.('equalizer', v)}
+      />
+      <Potentiometer
+        label="LEVEL"
+        value={level}
+        min={model.parameters.level.min}
+        max={model.parameters.level.max}
+        color={pedalAccentColor}
+        onChange={(v) => onChange?.('level', v)}
+      />
+    </>
+  ), [rate, depth, equalizer, level, model, onChange, pedalAccentColor])
 
   return (
     <PedalFrame
@@ -102,54 +93,45 @@ export const BossCh1Controls = ({
   // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
   const pedalAccentColor = accentColor || model.accentColor
   
+  const rate = values.rate ?? model.parameters.rate.default
+  const depth = values.depth ?? model.parameters.depth.default
+  const equalizer = values.equalizer ?? model.parameters.equalizer.default
+  const level = values.level ?? model.parameters.level.default
+
   return (
     <>
-      {Object.entries(model.parameters).map(([name, def]) => {
-        const controlType = def.controlType || 'knob'
-        const value = values[name] ?? def.default ?? 0
-
-        if (controlType === 'slider') {
-          return (
-            <Slider
-              key={name}
-              label={def.label}
-              value={value}
-              min={def.min}
-              max={def.max}
-              orientation={def.orientation || 'vertical'}
-              onChange={(v) => onChange?.(name, v)}
-              color={pedalAccentColor}
-            />
-          )
-        }
-
-        if (controlType === 'switch-selector' && def.labels) {
-          return (
-            <SwitchSelector
-              key={name}
-              value={value}
-              min={def.min}
-              max={def.max}
-              labels={def.labels}
-              icons={def.icons}
-              color={pedalAccentColor}
-              onChange={(v) => onChange?.(name, v)}
-            />
-          )
-        }
-
-        return (
-          <Potentiometer
-            key={name}
-            label={def.label}
-            value={value}
-            min={def.min}
-            max={def.max}
-            color={pedalAccentColor}
-            onChange={(v) => onChange?.(name, v)}
-          />
-        )
-      })}
+      <Potentiometer
+        label="RATE"
+        value={rate}
+        min={model.parameters.rate.min}
+        max={model.parameters.rate.max}
+        color={pedalAccentColor}
+        onChange={(v) => onChange?.('rate', v)}
+      />
+      <Potentiometer
+        label="DEPTH"
+        value={depth}
+        min={model.parameters.depth.min}
+        max={model.parameters.depth.max}
+        color={pedalAccentColor}
+        onChange={(v) => onChange?.('depth', v)}
+      />
+      <Potentiometer
+        label="EQUALIZER"
+        value={equalizer}
+        min={model.parameters.equalizer.min}
+        max={model.parameters.equalizer.max}
+        color={pedalAccentColor}
+        onChange={(v) => onChange?.('equalizer', v)}
+      />
+      <Potentiometer
+        label="LEVEL"
+        value={level}
+        min={model.parameters.level.min}
+        max={model.parameters.level.max}
+        color={pedalAccentColor}
+        onChange={(v) => onChange?.('level', v)}
+      />
     </>
   )
 }

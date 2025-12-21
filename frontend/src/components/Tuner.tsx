@@ -166,9 +166,9 @@ export function TunerComponent() {
 
           {/* Labels de la barre de LEDs */}
           <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 px-1">
-            <span>FLAT</span>
+            <span>BÉMOL</span>
             <span>0</span>
-            <span>SHARP</span>
+            <span>DIÈSE</span>
           </div>
         </div>
 
@@ -188,7 +188,7 @@ export function TunerComponent() {
                   className="text-sm font-semibold uppercase tracking-wider"
                   style={{ color: '#00ff00' }}
                 >
-                  In Tune
+                  Accordé
                 </span>
               </div>
             ) : (
@@ -206,7 +206,7 @@ export function TunerComponent() {
                   className="text-sm font-semibold uppercase tracking-wider"
                   style={{ color: state.cents > 0 ? '#ff0000' : '#ff6600' }}
                 >
-                  {state.cents > 0 ? 'Too Sharp' : 'Too Flat'}
+                  {state.cents > 0 ? 'Trop dièse' : 'Trop bémol'}
                 </span>
               </div>
             )}
@@ -215,7 +215,7 @@ export function TunerComponent() {
 
         {!state.note && (
           <div className="text-center text-sm text-black/50 dark:text-white/50">
-            Waiting for signal...
+            En attente du signal...
           </div>
         )}
       </div>

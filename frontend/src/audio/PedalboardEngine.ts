@@ -10,6 +10,9 @@
 // AudioContext est global dans le navigateur
 import { PedalModel, pedalLibrary } from '../data/pedals'
 import { PedalAudioConfig, createPedalAudioConfig } from './config'
+import { createLogger } from '../services/logger'
+
+const logger = createLogger('PedalboardEngine')
 import {
   makeOverdrive,
   makeDistortion,
@@ -453,7 +456,7 @@ export class PedalboardEngine {
         try {
           oldEffect.cleanup()
         } catch (error) {
-          // échec silencieux du cleanup d'un ancien effet
+          logger.error('Échec du cleanup d\'un ancien effet', error, { effectId: finalEffectId })
         }
       }
       
@@ -488,7 +491,7 @@ export class PedalboardEngine {
         try {
           effect.cleanup()
         } catch (error) {
-          // échec silencieux du cleanup d'effet
+          logger.error('Échec du cleanup d\'effet', error, { effectId })
         }
       }
       

@@ -1,11 +1,22 @@
-// Service Supabase pour le LMS
-import { createClient } from '@supabase/supabase-js'
+/**
+ * Service Supabase pour le LMS
+ * 
+ * @deprecated Utilisez getSupabaseClient() depuis lib/supabase.ts à la place
+ * Ce fichier est conservé pour compatibilité avec le code existant
+ */
 
-// Configuration Supabase (à remplacer par vos vraies valeurs)
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://your-project.supabase.co'
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'your-anon-key'
+import { getSupabaseClient, requireSupabaseClient } from '../lib/supabase'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+// Ré-exporter le client centralisé
+export const supabase = getSupabaseClient()
+
+/**
+ * @deprecated Utilisez requireSupabaseClient() depuis lib/supabase.ts
+ */
+export function getSupabaseClientOrThrow(): SupabaseClient {
+  return requireSupabaseClient()
+}
 
 // Types pour les tables Supabase
 export interface Course {
@@ -20,6 +31,9 @@ export interface Course {
   tags: string[] | null
   order_index: number
   is_published: boolean
+  is_premium?: boolean
+  price?: number
+  pack_id?: string | null // Référence au pack DLC si le cours fait partie d'un pack
   created_at: string
   updated_at: string
 }
@@ -48,7 +62,7 @@ export interface Lesson {
   order_index: number
   action_type: string | null
   action_target: string | null
-  action_value: any
+  action_value: unknown
   created_at: string
   updated_at: string
 }
@@ -118,7 +132,7 @@ export interface Tablature {
   time_signature: string | null
   key: string | null
   preset_id: string | null
-  measures: any[]
+  measures: unknown[]
   songsterr_id: number | null
   songsterr_url: string | null
   slug: string | null

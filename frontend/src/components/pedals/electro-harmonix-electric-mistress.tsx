@@ -27,54 +27,38 @@ export function ElectroHarmonixElectricMistressPedal({
   // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
   const pedalAccentColor = accentColor || model.accentColor
 
-  const controls = useMemo(() => {
-    return Object.entries(model.parameters).map(([name, def]) => {
-      const controlType = def.controlType || 'knob'
-      const value = values[name] ?? def.default ?? 0
+  const rate = values.rate ?? model.parameters.rate.default
+  const range = values.range ?? model.parameters.range.default
+  const color = values.color ?? model.parameters.color.default
 
-      if (controlType === 'slider') {
-        return (
-          <Slider
-            key={name}
-            label={def.label}
-            value={value}
-            min={def.min}
-            max={def.max}
-            orientation={def.orientation || 'vertical'}
-            onChange={(v) => onChange?.(name, v)}
-            color={pedalAccentColor}
-          />
-        )
-      }
-
-      if (controlType === 'switch-selector' && def.labels) {
-        return (
-          <SwitchSelector
-            key={name}
-            value={value}
-            min={def.min}
-            max={def.max}
-            labels={def.labels}
-            icons={def.icons}
-            color={pedalAccentColor}
-            onChange={(v) => onChange?.(name, v)}
-          />
-        )
-      }
-
-      return (
-        <Potentiometer
-          key={name}
-          label={def.label}
-          value={value}
-          min={def.min}
-          max={def.max}
-          color={pedalAccentColor}
-          onChange={(v) => onChange?.(name, v)}
-        />
-      )
-    })
-  }, [model, values, onChange])
+  const controls = useMemo(() => (
+    <>
+      <Potentiometer
+        label="RATE"
+        value={rate}
+        min={model.parameters.rate.min}
+        max={model.parameters.rate.max}
+        color={pedalAccentColor}
+        onChange={(v) => onChange?.('rate', v)}
+      />
+      <Potentiometer
+        label="RANGE"
+        value={range}
+        min={model.parameters.range.min}
+        max={model.parameters.range.max}
+        color={pedalAccentColor}
+        onChange={(v) => onChange?.('range', v)}
+      />
+      <Potentiometer
+        label="COLOR"
+        value={color}
+        min={model.parameters.color.min}
+        max={model.parameters.color.max}
+        color={pedalAccentColor}
+        onChange={(v) => onChange?.('color', v)}
+      />
+    </>
+  ), [rate, range, color, model, onChange, pedalAccentColor])
 
   return (
     <PedalFrame
@@ -102,54 +86,36 @@ export const ElectroHarmonixElectricMistressControls = ({
   // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
   const pedalAccentColor = accentColor || model.accentColor
   
+  const rate = values.rate ?? model.parameters.rate.default
+  const range = values.range ?? model.parameters.range.default
+  const color = values.color ?? model.parameters.color.default
+
   return (
     <>
-      {Object.entries(model.parameters).map(([name, def]) => {
-        const controlType = def.controlType || 'knob'
-        const value = values[name] ?? def.default ?? 0
-
-        if (controlType === 'slider') {
-          return (
-            <Slider
-              key={name}
-              label={def.label}
-              value={value}
-              min={def.min}
-              max={def.max}
-              orientation={def.orientation || 'vertical'}
-              onChange={(v) => onChange?.(name, v)}
-              color={pedalAccentColor}
-            />
-          )
-        }
-
-        if (controlType === 'switch-selector' && def.labels) {
-          return (
-            <SwitchSelector
-              key={name}
-              value={value}
-              min={def.min}
-              max={def.max}
-              labels={def.labels}
-              icons={def.icons}
-              color={pedalAccentColor}
-              onChange={(v) => onChange?.(name, v)}
-            />
-          )
-        }
-
-        return (
-          <Potentiometer
-            key={name}
-            label={def.label}
-            value={value}
-            min={def.min}
-            max={def.max}
-            color={pedalAccentColor}
-            onChange={(v) => onChange?.(name, v)}
-          />
-        )
-      })}
+      <Potentiometer
+        label="RATE"
+        value={rate}
+        min={model.parameters.rate.min}
+        max={model.parameters.rate.max}
+        color={pedalAccentColor}
+        onChange={(v) => onChange?.('rate', v)}
+      />
+      <Potentiometer
+        label="RANGE"
+        value={range}
+        min={model.parameters.range.min}
+        max={model.parameters.range.max}
+        color={pedalAccentColor}
+        onChange={(v) => onChange?.('range', v)}
+      />
+      <Potentiometer
+        label="COLOR"
+        value={color}
+        min={model.parameters.color.min}
+        max={model.parameters.color.max}
+        color={pedalAccentColor}
+        onChange={(v) => onChange?.('color', v)}
+      />
     </>
   )
 }

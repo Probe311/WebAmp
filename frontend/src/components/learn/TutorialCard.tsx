@@ -1,4 +1,4 @@
-import { LucideIcon, Clock, Award, CheckCircle2, PlayCircle } from 'lucide-react'
+import { LucideIcon, Clock, Award, CheckCircle2, PlayCircle, Lock } from 'lucide-react'
 import { Tutorial, TutorialDifficulty, difficultyLabels, difficultyColors, categoryIcons } from '../../data/tutorials'
 import { Block } from '../Block'
 import * as LucideIcons from 'lucide-react'
@@ -12,6 +12,8 @@ interface TutorialCardProps {
   lessonsCompleted?: number
   lessonsTotal?: number
   lastLessonTitle?: string | null
+  isLocked?: boolean // Si le cours est premium et non acheté
+  isPremium?: boolean // Si le cours est premium
 }
 
 export function TutorialCard({
@@ -22,7 +24,9 @@ export function TutorialCard({
   onStart,
   lessonsCompleted,
   lessonsTotal,
-  lastLessonTitle
+  lastLessonTitle,
+  isLocked = false,
+  isPremium = false
 }: TutorialCardProps) {
   // Récupérer l'icône de catégorie ou utiliser l'icône du tutoriel
   const categoryIconName = categoryIcons[tutorial.category] || tutorial.icon
@@ -64,16 +68,34 @@ export function TutorialCard({
     return labels[type] || type
   }
 
+  const handleClick = () => {
+    if (isLocked) {
+      return // Ne pas ouvrir si verrouillé
+    }
+    onStart(tutorial.id)
+  }
+
   return (
-    <Block className="p-6 hover:shadow-lg transition-all duration-300 cursor-pointer group" onClick={() => onStart(tutorial.id)}>
+    <Block className={`p-6 hover:shadow-lg transition-all duration-300 group relative ${isLocked ? 'opacity-75 cursor-not-allowed' : 'cursor-pointer'}`} onClick={handleClick}>
+      {/* Overlay de lock si premium non acheté */}
+      {isLocked && (
+        <div className="absolute inset-0 bg-black/40 backdrop-blur-sm rounded-xl flex items-center justify-center z-10">
+          <div className="text-center">
+            <Lock size={32} className="text-white mx-auto mb-2" />
+            <p className="text-white font-bold text-sm">Cours Premium</p>
+            <p className="text-white/80 text-xs">Achetez le pack pour débloquer</p>
+          </div>
+        </div>
+      )}
+
       <div className="flex items-start gap-4">
         {/* Icône */}
         <div className={`
           p-4 rounded-xl 
-          ${completed ? 'bg-green-500/10' : getDifficultyBgColor(tutorial.difficulty)}
+          ${progress === 100 ? 'bg-green-500/10' : getDifficultyBgColor(tutorial.difficulty)}
           group-hover:scale-110 transition-transform duration-300
         `}>
-          {completed ? (
+          {progress === 100 ? (
             <CheckCircle2 
               size={32} 
               className="text-green-500"
@@ -114,6 +136,13 @@ export function TutorialCard({
               {getTypeLabel(tutorial.type)}
             </span>
 
+            {/* Badge Premium */}
+            {isPremium && (
+              <span className="px-2 py-1 rounded-full text-xs font-medium bg-amber-500 text-white">
+                Premium
+              </span>
+            )}
+
             {/* Durée */}
             <div className="flex items-center gap-1 text-xs text-black/60 dark:text-white/60">
               <Clock size={14} />
@@ -141,12 +170,9 @@ export function TutorialCard({
                 Leçons : {lessonsCompleted ?? 0}/{lessonsTotal}
               </span>
               {lastLessonTitle && (
-                <>
-                  <span className="mx-1">•</span>
-                  <span className="italic line-clamp-1" title={lastLessonTitle}>
-                    Dernière : {lastLessonTitle}
-                  </span>
-                </>
+                <span className="italic line-clamp-1" title={lastLessonTitle}>
+                  Dernière : {lastLessonTitle}
+                </span>
               )}
             </div>
           )}
@@ -161,7 +187,7 @@ export function TutorialCard({
               <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                 <div 
                   className={`h-full transition-all duration-300 ${
-                    completed ? 'bg-green-500' : 'bg-orange-500'
+                    progress === 100 ? 'bg-green-500' : 'bg-orange-500'
                   }`}
                   style={{ width: `${progress}%` }}
                 />
@@ -171,37 +197,50 @@ export function TutorialCard({
 
           {/* Bouton d'action */}
           <div className="mt-4 flex items-center justify-end">
-            <button
-              onClick={(e) => {
-                e.stopPropagation()
-                onStart(tutorial.id)
-              }}
-              className={`
-                flex items-center gap-2 px-4 py-2 rounded-xl font-medium text-sm
-                transition-all duration-200
-                ${completed
-                  ? 'bg-green-500/10 text-green-600 dark:text-green-400 hover:bg-green-500/20'
-                  : 'bg-orange-500 text-white hover:bg-orange-600 shadow-lg hover:shadow-xl'
-                }
-              `}
-            >
-              {completed ? (
-                <>
-                  <CheckCircle2 size={16} />
-                  Revoir
-                </>
-              ) : progress > 0 ? (
-                <>
-                  <PlayCircle size={16} />
-                  Continuer
-                </>
-              ) : (
-                <>
-                  <PlayCircle size={16} />
-                  Commencer
-                </>
-              )}
-            </button>
+            {isLocked ? (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  // TODO: Ouvrir modal d'achat du pack
+                }}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl font-medium text-sm bg-amber-500 text-white hover:bg-amber-600 shadow-lg hover:shadow-xl transition-all duration-200"
+              >
+                <Lock size={16} />
+                Débloquer
+              </button>
+            ) : (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onStart(tutorial.id)
+                }}
+                className={`
+                  flex items-center gap-2 px-4 py-2 rounded-xl font-medium text-sm
+                  transition-all duration-200
+                  ${progress === 100
+                    ? 'bg-green-500/10 text-green-600 dark:text-green-400 hover:bg-green-500/20'
+                    : 'bg-orange-500 text-white hover:bg-orange-600 shadow-lg hover:shadow-xl'
+                  }
+                `}
+              >
+                {progress === 100 ? (
+                  <>
+                    <CheckCircle2 size={16} />
+                    Revoir
+                  </>
+                ) : progress > 0 ? (
+                  <>
+                    <PlayCircle size={16} />
+                    Continuer
+                  </>
+                ) : (
+                  <>
+                    <PlayCircle size={16} />
+                    Commencer
+                  </>
+                )}
+              </button>
+            )}
           </div>
         </div>
       </div>

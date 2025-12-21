@@ -22,6 +22,15 @@ export interface HtmlTabBlock {
 }
 
 /**
+ * Lien YouTube extrait d'une description
+ */
+export interface YouTubeLink {
+  videoId: string
+  title?: string
+  url: string
+}
+
+/**
  * Contenu parsé d'une description de leçon
  */
 export interface ParsedLessonContent {
@@ -37,6 +46,8 @@ export interface ParsedLessonContent {
   blockIds?: string[]
   /** Liste des blocs HTML/SVG de tablatures */
   htmlBlocks?: HtmlTabBlock[]
+  /** Liste des liens YouTube détectés */
+  youtubeLinks?: YouTubeLink[]
 }
 
 /**
@@ -122,6 +133,53 @@ export function parseLessonContent(description: string): ParsedLessonContent {
     content.htmlBlocks = htmlBlocks
   }
 
+  // Détecter les liens YouTube
+  // Formats supportés :
+  // - [Titre](https://youtube.com/watch?v=VIDEO_ID) ou [Titre](https://youtu.be/VIDEO_ID)
+  // - https://youtube.com/watch?v=VIDEO_ID
+  // - https://youtu.be/VIDEO_ID
+  // - https://www.youtube.com/embed/VIDEO_ID
+  const youtubeLinks: YouTubeLink[] = []
+  const processedVideoIds = new Set<string>()
+  
+  // Détecter les liens Markdown [Titre](URL)
+  const markdownLinkRegex = /\[([^\]]+)\]\((https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})(?:[^\s\)]*)?)\)/g
+  let markdownMatch
+  while ((markdownMatch = markdownLinkRegex.exec(description)) !== null) {
+    const title = markdownMatch[1]
+    const url = markdownMatch[2]
+    const videoId = markdownMatch[3]
+    if (!processedVideoIds.has(videoId)) {
+      youtubeLinks.push({
+        videoId,
+        title: title !== url ? title : undefined, // Ne garder le titre que s'il est différent de l'URL
+        url
+      })
+      processedVideoIds.add(videoId)
+    }
+  }
+  
+  // Détecter les URLs YouTube directes (en évitant celles déjà dans des liens Markdown)
+  // On remplace temporairement les liens Markdown pour éviter les doublons
+  const tempDescription = description.replace(/\[([^\]]+)\]\(https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})(?:[^\s\)]*)?\)/g, '')
+  const directUrlRegex = /https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})(?:[^\s\)]*)?/g
+  let directMatch
+  while ((directMatch = directUrlRegex.exec(tempDescription)) !== null) {
+    const videoId = directMatch[1]
+    const url = directMatch[0]
+    if (!processedVideoIds.has(videoId)) {
+      youtubeLinks.push({
+        videoId,
+        url
+      })
+      processedVideoIds.add(videoId)
+    }
+  }
+  
+  if (youtubeLinks.length > 0) {
+    content.youtubeLinks = youtubeLinks
+  }
+
   return content
 }
 
@@ -147,5 +205,9 @@ export function cleanLessonDescription(description: string): string {
     .replace(/\[block:[^\]]+\]/g, '')
     // Retirer les blocs HTML/SVG complets
     .replace(/\[html[^\]]*\][\s\S]*?\[\/html\]/g, '')
+    // Retirer les liens YouTube Markdown [Titre](URL)
+    .replace(/\[([^\]]+)\]\((https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)[a-zA-Z0-9_-]{11}(?:[^\s\)]*)?)\)/g, '')
+    // Retirer les URLs YouTube directes (mais garder le texte autour)
+    .replace(/https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})(?:[^\s\)]*)?/g, '')
 }
 

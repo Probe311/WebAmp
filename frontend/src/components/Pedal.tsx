@@ -1,8 +1,18 @@
 import { ReactNode, useMemo } from 'react'
 import { BadgeCheck } from 'lucide-react'
 import { getBrandLogo } from '../utils/brandLogos'
-import walrusLogo from '../assets/logos/walrus_small.svg'
+import { 
+  hasCertificationStatus, 
+  getCertifiedBrandSmallLogo, 
+  getCertificationStatus 
+} from '../utils/certificationStatus'
 import { FOOTSWITCH_COLORS } from '../utils/pedalColors'
+
+// Type pour les enfants React avec vérification de type
+type ReactChildWithProps = {
+  type?: { displayName?: string }
+  props?: { className?: string }
+} & ReactNode
 
 export type PedalSize = 'S' | 'M' | 'L' | 'XL' | 'XXL'
 
@@ -91,10 +101,14 @@ export function Pedal({
     // Sinon, vérifier les enfants rendus
     if (!children) return false
     const childArray = Array.isArray(children) ? children : [children]
-    return childArray.filter((child: any) => 
-      child?.type?.displayName === 'Potentiometer' || 
-      child?.props?.className?.includes('potentiometer-container')
-    ).length === 3
+    return childArray.filter((child: unknown) => {
+      if (typeof child === 'object' && child !== null) {
+        const childObj = child as ReactChildWithProps
+        return childObj?.type?.displayName === 'Potentiometer' || 
+               childObj?.props?.className?.includes('potentiometer-container')
+      }
+      return false
+    }).length === 3
   }, [children, className])
 
   const hasFourKnobs = useMemo(() => {
@@ -103,10 +117,14 @@ export function Pedal({
     // Sinon, vérifier les enfants rendus
     if (!children) return false
     const childArray = Array.isArray(children) ? children : [children]
-    return childArray.filter((child: any) => 
-      child?.type?.displayName === 'Potentiometer' || 
-      child?.props?.className?.includes('potentiometer-container')
-    ).length === 4
+    return childArray.filter((child: unknown) => {
+      if (typeof child === 'object' && child !== null) {
+        const childObj = child as ReactChildWithProps
+        return childObj?.type?.displayName === 'Potentiometer' || 
+               childObj?.props?.className?.includes('potentiometer-container')
+      }
+      return false
+    }).length === 4
   }, [children, className])
 
   return (
@@ -126,23 +144,40 @@ export function Pedal({
         <div className="flex flex-row justify-between pb-1.5 border-b border-black/10 dark:border-white/10 shrink-0 relative">
           <div className="flex-1 flex flex-col items-center select-none">
             {brand && (() => {
-              const isWalrusAudio = brand === 'Walrus Audio'
-              const brandLogo = isWalrusAudio ? walrusLogo : getBrandLogo(brand)
+              const hasCertification = hasCertificationStatus(brand)
+              const certificationStatus = hasCertification ? getCertificationStatus(brand) : null
+              const certifiedLogo = hasCertification ? getCertifiedBrandSmallLogo(brand) : null
+              const brandLogo = certifiedLogo || getBrandLogo(brand)
               
-              return isWalrusAudio && brandLogo ? (
-                <div className="flex items-center justify-center gap-1 mb-0.5">
-                  <img
-                    src={brandLogo}
-                    alt={brand}
-                    className="h-3 object-contain dark:brightness-0 dark:invert"
-                    style={{ maxWidth: '60px' }}
-                  />
-                  <BadgeCheck 
-                    className="w-2.5 h-2.5 text-emerald-600 dark:text-emerald-400 flex-shrink-0"
-                  />
-                  <span className="sr-only">Matériel certifié</span>
-                </div>
-              ) : (
+              if (hasCertification && certifiedLogo) {
+                const isCertified = certificationStatus === 'certified'
+                const isPending = certificationStatus === 'pending'
+                
+                return (
+                  <div className="flex items-center justify-center gap-1 mb-0.5">
+                    <img
+                      src={certifiedLogo}
+                      alt={brand}
+                      className="h-3 object-contain dark:brightness-0 dark:invert"
+                      style={{ maxWidth: '60px' }}
+                    />
+                    <BadgeCheck 
+                      className={`w-2.5 h-2.5 flex-shrink-0 ${
+                        isCertified 
+                          ? 'text-emerald-600 dark:text-emerald-400' 
+                          : isPending
+                          ? 'text-yellow-600 dark:text-yellow-400'
+                          : ''
+                      }`}
+                    />
+                    <span className="sr-only">
+                      {isCertified ? 'Matériel certifié' : 'En cours de certification'}
+                    </span>
+                  </div>
+                )
+              }
+              
+              return (
                 <div 
                   className="text-black/75 dark:text-white/75 uppercase tracking-[0.5px] mb-0.5 font-bold"
                   style={{ fontSize: config.fontSize.brand }}
@@ -185,17 +220,25 @@ export function Pedal({
             Array.isArray(children) ? (
               <>
                 {/* Knobs en premier */}
-                {children.filter((child: any) => 
-                  !child?.props?.className?.includes('switch-selector-full-width')
-                ).map((knob: any, index: number) => (
+                {children.filter((child: unknown) => {
+                  if (typeof child === 'object' && child !== null) {
+                    const childObj = child as ReactChildWithProps
+                    return !childObj?.props?.className?.includes('switch-selector-full-width')
+                  }
+                  return false
+                }).map((knob: ReactNode, index: number) => (
                   <div key={`knob-${index}`} className="col-span-full w-full max-w-full overflow-hidden flex justify-center items-center mb-2">
                     {knob}
                   </div>
                 ))}
                 {/* Switch-selector en dessous */}
-                {children.filter((child: any) => 
-                  child?.props?.className?.includes('switch-selector-full-width')
-                ).map((switchSelector: any, index: number) => (
+                {children.filter((child: unknown) => {
+                  if (typeof child === 'object' && child !== null) {
+                    const childObj = child as ReactChildWithProps
+                    return childObj?.props?.className?.includes('switch-selector-full-width')
+                  }
+                  return false
+                }).map((switchSelector: ReactNode, index: number) => (
                   <div key={`switch-selector-${index}`} className="col-span-full w-full max-w-full overflow-hidden">
                     {switchSelector}
                   </div>
@@ -206,23 +249,31 @@ export function Pedal({
             Array.isArray(children) ? (
               <>
                 {/* Switch-selectors pleine largeur */}
-                {children.filter((child: any) => 
-                  child?.props?.className?.includes('switch-selector-full-width')
-                ).map((switchSelector: any, index: number) => (
+                {children.filter((child: unknown) => {
+                  if (typeof child === 'object' && child !== null) {
+                    const childObj = child as ReactChildWithProps
+                    return childObj?.props?.className?.includes('switch-selector-full-width')
+                  }
+                  return false
+                }).map((switchSelector: ReactNode, index: number) => (
                   <div key={`switch-selector-${index}`} className="col-span-full w-full max-w-full overflow-hidden mb-2">
                     {switchSelector}
                   </div>
                 ))}
                 {/* Knobs en grille sur la ligne suivante */}
                 {(() => {
-                  const knobs = children.filter((child: any) => 
-                    !child?.props?.className?.includes('switch-selector-full-width')
-                  )
+                  const knobs = children.filter((child: unknown) => {
+                    if (typeof child === 'object' && child !== null) {
+                      const childObj = child as ReactChildWithProps
+                      return !childObj?.props?.className?.includes('switch-selector-full-width')
+                    }
+                    return false
+                  })
                   if (knobs.length === 0) return null
                   // Pour has-l-grid-3x2, les knobs sont directement dans la grille parente (pas de sous-grille)
                   if (className.includes('has-l-grid-3x2')) {
                     // Les knobs sont directement dans la grille parente qui a déjà grid-cols-3
-                    return knobs.map((knob: any, knobIndex: number) => (
+                    return knobs.map((knob: ReactNode, knobIndex: number) => (
                       <div key={knobIndex} className="overflow-hidden flex justify-center items-center">
                         {knob}
                       </div>
@@ -239,7 +290,7 @@ export function Pedal({
                         knobs.length >= 5 ? 'grid-cols-5' : 'grid-cols-2'
                       }`}
                     >
-                      {knobs.map((knob: any, knobIndex: number) => (
+                      {knobs.map((knob: ReactNode, knobIndex: number) => (
                         <div key={knobIndex} className="max-w-full overflow-hidden flex justify-center items-center">
                           {knob}
                         </div>
@@ -253,7 +304,7 @@ export function Pedal({
             Array.isArray(children) ? (
               // Pour has-l-grid-3x2, même logique que has-three-knobs mais en 3x2
               // Chaque enfant prend 1 colonne, répartition horizontale ligne par ligne
-              children.map((child: any, index: number) => (
+              children.map((child: ReactNode, index: number) => (
                 <div key={index} className="overflow-hidden flex justify-center items-center">
                   {child}
                 </div>
@@ -264,7 +315,7 @@ export function Pedal({
               {Array.isArray(children) ? (
                 <>
                   {/* Ligne 1 : 2 premiers knobs */}
-                  {children.slice(0, 2).map((child: any, index: number) => (
+                  {children.slice(0, 2).map((child: ReactNode, index: number) => (
                     <div
                       key={index}
                       className="max-w-full overflow-hidden flex justify-center items-center"
@@ -273,7 +324,7 @@ export function Pedal({
                     </div>
                   ))}
                   {/* Ligne 2 : 3ème knob centré */}
-                  {children.slice(2, 3).map((child: any, index: number) => (
+                  {children.slice(2, 3).map((child: ReactNode, index: number) => (
                     <div
                       key={index + 2}
                       className="col-span-2 max-w-full overflow-hidden flex justify-center items-center"
@@ -289,7 +340,7 @@ export function Pedal({
               {Array.isArray(children) ? (
                 <>
                   {/* Ligne 1 : 2 premiers knobs */}
-                  {children.slice(0, 2).map((child: any, index: number) => (
+                  {children.slice(0, 2).map((child: ReactNode, index: number) => (
                     <div
                       key={index}
                       className="max-w-full overflow-hidden flex justify-center items-center"
@@ -298,7 +349,7 @@ export function Pedal({
                     </div>
                   ))}
                   {/* Ligne 2 : 2 derniers knobs */}
-                  {children.slice(2, 4).map((child: any, index: number) => (
+                  {children.slice(2, 4).map((child: ReactNode, index: number) => (
                     <div
                       key={index + 2}
                       className="max-w-full overflow-hidden flex justify-center items-center"
@@ -320,7 +371,7 @@ export function Pedal({
                   children.length >= 5 ? 'grid-cols-5' : 'grid-cols-2'
                 }`}
               >
-                {children.map((child: any, index: number) => (
+                {children.map((child: ReactNode, index: number) => (
                   <div key={index} className="max-w-full overflow-hidden flex justify-center items-center">
                     {child}
                   </div>

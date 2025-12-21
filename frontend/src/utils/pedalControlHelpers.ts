@@ -14,9 +14,17 @@ export interface ControlTypeAnalysis {
 /**
  * Analyse les paramètres d'une pédale pour déterminer les types de contrôles
  */
+export interface PedalModelForAnalysis {
+  type: string
+  parameters: Record<string, {
+    controlType?: string
+    [key: string]: unknown
+  }>
+}
+
 export function analyzeControlTypes(
   parameters: Record<string, number>,
-  pedalModel: { type: string; parameters: Record<string, any> }
+  pedalModel: PedalModelForAnalysis
 ): ControlTypeAnalysis {
   const params = Object.entries(parameters)
   const isEQ = pedalModel.type === 'eq'
@@ -64,7 +72,7 @@ export function analyzeControlTypes(
  * Analyse les paramètres d'une pédale depuis le modèle (pas seulement les valeurs initialisées)
  */
 export function analyzeControlTypesFromModel(
-  pedalModel: { type: string; parameters: Record<string, any> }
+  pedalModel: PedalModelForAnalysis
 ): Omit<ControlTypeAnalysis, 'sliders' | 'switchSelectors' | 'others' | 'potentiometers'> & {
   potentiometers: number
   hasFourKnobs: boolean

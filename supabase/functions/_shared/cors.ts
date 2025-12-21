@@ -105,7 +105,7 @@ export function addCorsHeaders(response: Response, options: CorsOptions = {}): R
  * Crée une réponse JSON avec en-têtes CORS
  */
 export function createCorsJsonResponse(
-  data: any,
+  data: unknown,
   status: number = 200,
   options: CorsOptions = {}
 ): Response {

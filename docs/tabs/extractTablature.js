@@ -22,13 +22,34 @@ const GUITAR_STRING_POSITIONS = {
   6: 61   // E grave
 };
 
+// Positions Y des cordes de basse (4 cordes)
+const BASS_STRING_POSITIONS = {
+  1: 1,   // G
+  2: 13,  // D
+  3: 25,  // A
+  4: 37   // E
+};
+
+// Positions Y des éléments de batterie (basées sur le SVG)
+// Les positions Y varient selon la notation de batterie
+const DRUM_POSITIONS = {
+  1: -5,   // Crash/Ride (ligne du haut)
+  2: 5,    // Hi-hat ouvert/fermé
+  3: 15,   // Snare
+  4: 25,   // Tom
+  5: 35,   // Tom
+  6: 45    // Kick/Bass drum
+};
+
 // Fonction pour trouver la corde la plus proche d'une position Y
-function findClosestString(y) {
+function findClosestString(y, stringPositions = GUITAR_STRING_POSITIONS) {
   let closestString = 1;
-  let minDistance = Math.abs(y - GUITAR_STRING_POSITIONS[1]);
+  let minDistance = Math.abs(y - stringPositions[1]);
   
-  for (let str = 2; str <= 6; str++) {
-    const distance = Math.abs(y - GUITAR_STRING_POSITIONS[str]);
+  const maxString = Math.max(...Object.keys(stringPositions).map(Number));
+  
+  for (let str = 2; str <= maxString; str++) {
+    const distance = Math.abs(y - stringPositions[str]);
     if (distance < minDistance) {
       minDistance = distance;
       closestString = str;
@@ -130,13 +151,14 @@ function extractNoteFromPath(pathElement, measureNumber, measureStartX = 0) {
 }
 
 // Fonction pour extraire toutes les notes d'une section HTML
-function extractAllNotes(html, instrumentName, measureMap = new Map()) {
+function extractAllNotes(html, instrumentName, measureMap = new Map(), stringPositions = GUITAR_STRING_POSITIONS) {
   const notes = [];
   const measuresMap = new Map();
   
   // Chercher tous les paths avec data-notes-measure
   // Le regex doit gérer les attributs dans n'importe quel ordre et sur plusieurs lignes
-  const pathRegex = /<path[^>]*data-notes-measure="(\d+)"[^>]*>/gs;
+  // Gérer aussi les cas avec "o" à la fin (ex: "4o", "5o")
+  const pathRegex = /<path[^>]*data-notes-measure="(\d+)(?:o)?"[^>]*>/gs;
   let match;
   
   while ((match = pathRegex.exec(html)) !== null) {
@@ -156,7 +178,7 @@ function extractAllNotes(html, instrumentName, measureMap = new Map()) {
     const coords = extractCoordinates(pathData);
     if (coords.length > 0) {
       const firstCoord = coords[0];
-      const string = findClosestString(firstCoord.y);
+      const string = findClosestString(firstCoord.y, stringPositions);
       const fret = estimateFret(firstCoord.x, measureMap);
       
       measuresMap.get(measureNumber).push({
@@ -269,11 +291,11 @@ function extractMeasures(html) {
 }
 
 // Extraire la section guitare électrique
-const guitarSectionMatch = htmlContent.match(/Electric guitar[^]*?(?=Piano|$)/);
+const guitarSectionMatch = htmlContent.match(/Guitare electric[^]*?(?=Piano|$)/i);
 if (guitarSectionMatch) {
   const guitarHtml = guitarSectionMatch[0];
   const measuresData = extractMeasures(guitarHtml);
-  const notes = extractAllNotes(guitarHtml, 'electricGuitar', measuresData.map);
+  const notes = extractAllNotes(guitarHtml, 'electricGuitar', measuresData.map, GUITAR_STRING_POSITIONS);
   const chords = extractChords(notes);
   
   // Créer un Set pour dédupliquer les numéros de mesures
@@ -283,6 +305,59 @@ if (guitarSectionMatch) {
     name: "Electric Guitar",
     instrument: "electricGuitar",
     tuning: ["E", "A", "D", "G", "B", "E"],
+    tempo: tempo,
+    timeSignature: timeSignature,
+    measures: uniqueMeasureNumbers.map(m => ({
+      number: m,
+      notes: notes.filter(n => n.measure === m),
+      chords: chords.filter(c => c.measure === m)
+    })),
+    allNotes: notes,
+    allChords: chords
+  });
+}
+
+// Extraire la section basse
+const bassSectionMatch = htmlContent.match(/Basse[^]*?(?=Piano|$)/i);
+if (bassSectionMatch) {
+  const bassHtml = bassSectionMatch[0];
+  const measuresData = extractMeasures(bassHtml);
+  const notes = extractAllNotes(bassHtml, 'electricBass', measuresData.map, BASS_STRING_POSITIONS);
+  const chords = extractChords(notes);
+  
+  // Créer un Set pour dédupliquer les numéros de mesures
+  const uniqueMeasureNumbers = [...new Set(measuresData.numbers)].sort((a, b) => a - b);
+  
+  result.tracks.push({
+    name: "Electric Bass",
+    instrument: "electricBass",
+    tuning: ["E", "A", "D", "G"],
+    tempo: tempo,
+    timeSignature: timeSignature,
+    measures: uniqueMeasureNumbers.map(m => ({
+      number: m,
+      notes: notes.filter(n => n.measure === m),
+      chords: chords.filter(c => c.measure === m)
+    })),
+    allNotes: notes,
+    allChords: chords
+  });
+}
+
+// Extraire la section batterie
+const drumsSectionMatch = htmlContent.match(/Batterie[^]*?(?=Piano|$)/i);
+if (drumsSectionMatch) {
+  const drumsHtml = drumsSectionMatch[0];
+  const measuresData = extractMeasures(drumsHtml);
+  const notes = extractAllNotes(drumsHtml, 'drums', measuresData.map, DRUM_POSITIONS);
+  const chords = extractChords(notes);
+  
+  // Créer un Set pour dédupliquer les numéros de mesures
+  const uniqueMeasureNumbers = [...new Set(measuresData.numbers)].sort((a, b) => a - b);
+  
+  result.tracks.push({
+    name: "Drums",
+    instrument: "drums",
     tempo: tempo,
     timeSignature: timeSignature,
     measures: uniqueMeasureNumbers.map(m => ({

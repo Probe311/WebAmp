@@ -1,7 +1,8 @@
 // Edge Function: ai-rank-presets
-// Classement intelligent de presets en fonction du contexte utilisateur via LLM.
+// Classement intelligent de presets en fonction du contexte utilisateur via Gemini API.
 
 import { handleCors, createCorsJsonResponse, createCorsErrorResponse } from '../_shared/cors.ts'
+import { callGemini } from '../_shared/gemini.ts'
 
 interface RankPreset {
   id: string
@@ -33,13 +34,7 @@ interface RankResponse {
 }
 
 async function callLLMForRanking(prompt: string): Promise<RankResponse> {
-  const apiKey = Deno.env.get('OPENROUTER_API_KEY') || Deno.env.get('OPENAI_API_KEY')
-  const baseUrl = Deno.env.get('OPENROUTER_BASE_URL') || 'https://openrouter.ai/api/v1'
-  const model = Deno.env.get('WEBAMP_RANKING_MODEL') || 'gpt-4.1'
-
-  if (!apiKey) {
-    throw new Error('Missing OPENROUTER_API_KEY / OPENAI_API_KEY')
-  }
+  // Utilise Gemini API via le helper partagé
 
   const systemPrompt = `
 Tu es un moteur de recommandation de presets pour WebAmp.
@@ -98,7 +93,7 @@ Contraintes :
   }
 }
 
-async function handler(req: Request): Promise<Response> {
+async function handlePresetRankingRequest(req: Request): Promise<Response> {
   if (req.method === 'OPTIONS') {
     return createCorsJsonResponse({ ok: true })
   }
@@ -168,6 +163,6 @@ Retourne UNIQUEMENT le JSON RankResponse.`
   }
 }
 
-serve((req) => handleCors(req, handler))
+serve((req) => handleCors(req, handlePresetRankingRequest))
 
 
