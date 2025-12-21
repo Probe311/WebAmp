@@ -5,6 +5,13 @@ Tous les changements notables de ce projet seront documentés dans ce fichier.
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/),
 et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 
+## [1.1.6] - 2025-01-XX
+
+### ✅ Maintenance
+- Build de production réussi (11.35s)
+- Aucune erreur TypeScript
+- Code prêt pour le déploiement
+
 ## [1.1.5] - 2025-01-XX
 
 ### 🐛 Corrigé

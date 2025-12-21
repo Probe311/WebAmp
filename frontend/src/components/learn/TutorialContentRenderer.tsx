@@ -73,13 +73,12 @@ export function TutorialContentRenderer({
       {/* Contenu principal de l'étape */}
       <div className="prose prose-sm dark:prose-invert max-w-none prose-p:my-1 prose-li:my-1">
         <div 
-          className="text-black/70 dark:text-white/70 text-base whitespace-pre-wrap"
+          className="text-black/70 dark:text-white/70 text-base"
           style={{ 
             lineHeight: '1.3',
           }}
-        >
-          {cleanLessonDescription(step.description)}
-        </div>
+          dangerouslySetInnerHTML={{ __html: cleanLessonDescription(step.description) }}
+        />
       </div>
 
       {/* Afficher la tablature simple si référencée explicitement */}
