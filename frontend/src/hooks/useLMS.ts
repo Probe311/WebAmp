@@ -130,6 +130,11 @@ export function useCurrentCourse(userId: string | undefined) {
 
       setLoading(true)
       
+      if (!supabase) {
+        setLoading(false)
+        return
+      }
+      
       // Récupérer toutes les progressions de l'utilisateur
       const { data: progressData, error: progressError } = await supabase
         .from('user_progress')
@@ -151,6 +156,11 @@ export function useCurrentCourse(userId: string | undefined) {
       }
 
       // Récupérer les détails du cours
+      if (!supabase) {
+        setLoading(false)
+        return
+      }
+      
       const { data: courseData, error: courseError } = await supabase
         .from('courses')
         .select('*')
@@ -193,6 +203,11 @@ export function useAllCoursesProgress(userId: string | undefined, refreshKey: nu
       }
 
       setLoading(true)
+      
+      if (!supabase) {
+        setLoading(false)
+        return
+      }
       
       // Récupérer toutes les progressions de l'utilisateur, groupées par course_id
       // On prend la progression la plus récente pour chaque cours

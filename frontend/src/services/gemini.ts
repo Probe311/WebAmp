@@ -34,7 +34,7 @@ export interface OptimizationResult {
   estimatedNewScore: number
   changes: string[]
   validation?: ValidationResult
-  biasAnalysis?: import('../utils/courseQualityScore').BiasAnalysis
+  biasAnalysis?: any // BiasAnalysis n'est pas encore implémenté
 }
 
 export interface ValidationResult {
@@ -114,9 +114,9 @@ export async function optimizeCourseWithAI(
     // Validation multi-critères
     const validation = await validateOptimizedContent(optimized, course, lessons, quizQuestions)
 
-    // Détection de biais et suggestions
-    const { detectBiasesAndSuggestions } = await import('../utils/courseQualityScore')
-    const biasAnalysis = detectBiasesAndSuggestions(course, lessons, currentScore)
+    // Détection de biais et suggestions (désactivé temporairement)
+    // const { detectBiasesAndSuggestions } = await import('../utils/courseQualityScore')
+    const biasAnalysis = undefined // detectBiasesAndSuggestions(course, lessons, currentScore)
 
     // Pour les quiz, on ne calcule pas de score estimé avec les leçons
     const isQuiz = course.type === 'quiz'
@@ -240,7 +240,7 @@ async function enrichCourseContext(
       ...(course.description || '').matchAll(/\[artist:([^\]]+)\]/g),
       ...lessons.flatMap(l => (l.description || '').matchAll(/\[artist:([^\]]+)\]/g))
     ]
-    const artistNames = [...new Set(Array.from(artistMatches, m => m[1]))]
+    const artistNames = [...new Set(Array.from(artistMatches).map(m => (m as RegExpMatchArray)[1]))]
 
     if (artistNames.length > 0) {
       // Rechercher les artistes dans MusicBrainz
@@ -272,18 +272,16 @@ async function enrichCourseContext(
     if (courseKeywords.length > 0) {
       try {
         // Rechercher des IRs (impulse responses)
-        const irResults = await freesoundService.searchSounds({
-          query: `impulse response ${courseKeywords[0]}`,
-          filter: 'tag:impulse-response OR tag:ir',
-          page_size: 3
-        }).catch(() => ({ results: [] }))
+        const irResults = await freesoundService.searchSounds(
+          `impulse response ${courseKeywords[0]}`,
+          { pageSize: 3 }
+        ).catch(() => ({ results: [] }))
 
         // Rechercher des samples musicaux
-        const sampleResults = await freesoundService.searchSounds({
-          query: courseKeywords.join(' '),
-          filter: 'license:"Attribution" OR license:"Creative Commons 0"',
-          page_size: 3
-        }).catch(() => ({ results: [] }))
+        const sampleResults = await freesoundService.searchSounds(
+          courseKeywords.join(' '),
+          { pageSize: 3 }
+        ).catch(() => ({ results: [] }))
 
         context.freesound = {
           irs: irResults.results.slice(0, 2).map(s => ({

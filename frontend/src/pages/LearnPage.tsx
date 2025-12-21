@@ -125,7 +125,7 @@ export function LearnPage() {
     if (!course) return
 
     // Vérifier si le cours est premium et verrouillé
-    const isPremium = course.is_premium && course.price && course.price > 0
+    const isPremium = !!(course.is_premium && course.price && course.price > 0)
     const isLocked = isPremium && !unlockedCourses.has(courseId)
     
     if (isLocked) {
@@ -261,7 +261,7 @@ export function LearnPage() {
                 const lastLessonTitle = lessonSummary?.lastLessonTitle ?? null
                 
                 // Vérifier si le cours est premium et verrouillé
-                const isPremium = course.is_premium && course.price && course.price > 0
+                const isPremium = !!(course.is_premium && course.price && course.price > 0)
                 const isLocked = isPremium && !unlockedCourses.has(course.id)
                 
                 return (

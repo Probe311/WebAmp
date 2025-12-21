@@ -24,8 +24,8 @@ export interface ImageServiceConfig {
 }
 
 class ImageService {
-  private apiKey: string
-  private provider: 'unsplash' | 'pexels' | 'pixabay'
+  private apiKey: string = ''
+  private provider: 'unsplash' | 'pexels' | 'pixabay' = 'pexels'
 
   constructor(config: ImageServiceConfig = {}) {
     // Détecter automatiquement le meilleur provider disponible
@@ -36,6 +36,7 @@ class ImageService {
     // Priorité : Pexels > Pixabay > Unsplash
     if (config.provider) {
       this.provider = config.provider
+      this.apiKey = config.apiKey || ''
     } else if (pexelsKey) {
       this.provider = 'pexels'
       this.apiKey = pexelsKey

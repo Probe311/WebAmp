@@ -23,9 +23,11 @@ function findPedalIdFromEffect(effect: TonePackEffect): string | null {
   )
   if (byName) return byName.id
 
-  // Essayer de trouver par type
-  const byType = pedalLibrary.find(p => p.type === effect.type)
-  if (byType) return byType.id
+  // Essayer de trouver par type (si le type de l'effet correspond à un type de pédale)
+  if (effect.type === 'pedal') {
+    // Pour les effets de type "pedal", on ne peut pas faire de correspondance directe
+    return null
+  }
 
   return null
 }

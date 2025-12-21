@@ -156,7 +156,6 @@ export function GalleryPage({ onNavigateToWebAmp }: GalleryPageProps) {
             filter={filter}
             onSearchChange={handleSearchChange}
             onFilterChange={handleFilterChange}
-            onReset={handleResetFilters}
           />
         </div>
 

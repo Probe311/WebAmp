@@ -5,7 +5,7 @@ import { createLogger } from '../services/logger'
 
 const logger = createLogger('AdminPage')
 import { adminService, Brand, Preset, DLCPack, FeatureFlag, BrandFromProducts } from '../services/admin'
-import { Course, Lesson } from '../services/supabase'
+import { Course, Lesson, QuizQuestion } from '../services/supabase'
 import { SupabasePedal, SupabaseAmplifier } from '../services/supabase/catalog'
 import { analyticsService } from '../services/analytics'
 import { CTA } from '../components/CTA'
@@ -804,7 +804,7 @@ function CoursesSection({ courses, onRefresh }: { courses: Course[]; onRefresh: 
       }
 
       // 2. Trier les leçons optimisées par order_index
-      const sortedLessons = [...result.optimized.lessons].sort((a, b) => 
+      const sortedLessons = (result.optimized.lessons || []).slice().sort((a, b) => 
         (a.order_index || 0) - (b.order_index || 0)
       )
 
@@ -1133,7 +1133,7 @@ function CoursesSection({ courses, onRefresh }: { courses: Course[]; onRefresh: 
       }
 
       // 2. Trier les leçons optimisées par order_index
-      const sortedLessons = [...result.optimized.lessons].sort((a, b) => 
+      const sortedLessons = (result.optimized.lessons || []).slice().sort((a, b) => 
         (a.order_index || 0) - (b.order_index || 0)
       )
 
