@@ -2,15 +2,13 @@ import { useMemo } from 'react'
 import { pedalLibrary } from '../../data/pedals'
 import { PedalFrame } from './PedalFrame'
 import { Potentiometer } from '../Potentiometer'
-import { Slider } from '../Slider'
-import { SwitchSelector } from '../SwitchSelector'
 import type { PedalComponentProps } from './types'
 
 const pedalId = 'boss-ds1'
 
 /**
  * Composant complet de la pédale BOSS DS-1
- * Utilise PedalFrame comme composant de trame et les composants d'interface standard
+ * Layout : 3 knobs en ligne
  */
 export function BossDs1Pedal({ 
   values = {}, 
@@ -27,55 +25,38 @@ export function BossDs1Pedal({
   // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
   const pedalAccentColor = accentColor || model.accentColor
 
-  const controls = useMemo(() => {
-    return Object.entries(model.parameters).map(([name, def]) => {
-      const controlType = def.controlType || 'knob'
-      const value = values[name] ?? def.default ?? 0
+  const distortion = values.distortion ?? model.parameters.distortion.default
+  const tone = values.tone ?? model.parameters.tone.default
+  const level = values.level ?? model.parameters.level.default
 
-    if (controlType === 'slider') {
-        const orientation = def.orientation || 'vertical'
-      return (
-        <Slider
-          key={name}
-            label={def.label}
-          value={value}
-            min={def.min}
-            max={def.max}
-          orientation={orientation}
-          onChange={(v) => onChange?.(name, v)}
-            color={pedalAccentColor}
-        />
-      )
-    }
-
-      if (controlType === 'switch-selector' && def.labels) {
-      return (
-        <SwitchSelector
-          key={name}
-          value={value}
-            min={def.min}
-            max={def.max}
-            labels={def.labels}
-            icons={def.icons}
-            color={pedalAccentColor}
-          onChange={(v) => onChange?.(name, v)}
-        />
-      )
-    }
-
-    return (
+  const controls = useMemo(() => (
+    <>
       <Potentiometer
-        key={name}
-          label={def.label}
-        value={value}
-          min={def.min}
-          max={def.max}
-          color={pedalAccentColor}
-        onChange={(v) => onChange?.(name, v)}
+        label="DISTORTION"
+        value={distortion}
+        min={model.parameters.distortion.min}
+        max={model.parameters.distortion.max}
+        color={pedalAccentColor}
+        onChange={(v) => onChange?.('distortion', v)}
       />
-    )
-  })
-  }, [model, values, onChange, pedalAccentColor])
+      <Potentiometer
+        label="TONE"
+        value={tone}
+        min={model.parameters.tone.min}
+        max={model.parameters.tone.max}
+        color={pedalAccentColor}
+        onChange={(v) => onChange?.('tone', v)}
+      />
+      <Potentiometer
+        label="LEVEL"
+        value={level}
+        min={model.parameters.level.min}
+        max={model.parameters.level.max}
+        color={pedalAccentColor}
+        onChange={(v) => onChange?.('level', v)}
+      />
+    </>
+  ), [distortion, tone, level, model, onChange, pedalAccentColor])
 
   return (
     <PedalFrame
@@ -103,54 +84,36 @@ export const BossDs1Controls = ({
   // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
   const pedalAccentColor = accentColor || model.accentColor
 
+  const distortion = values.distortion ?? model.parameters.distortion.default
+  const tone = values.tone ?? model.parameters.tone.default
+  const level = values.level ?? model.parameters.level.default
+
   return (
     <>
-      {Object.entries(model.parameters).map(([name, def]) => {
-        const controlType = def.controlType || 'knob'
-        const value = values[name] ?? def.default ?? 0
-
-        if (controlType === 'slider') {
-          return (
-            <Slider
-              key={name}
-              label={def.label}
-              value={value}
-              min={def.min}
-              max={def.max}
-              orientation={def.orientation || 'vertical'}
-              onChange={(v) => onChange?.(name, v)}
-              color={pedalAccentColor}
-            />
-          )
-        }
-
-        if (controlType === 'switch-selector' && def.labels) {
-          return (
-            <SwitchSelector
-              key={name}
-              value={value}
-              min={def.min}
-              max={def.max}
-              labels={def.labels}
-              icons={def.icons}
-              color={pedalAccentColor}
-              onChange={(v) => onChange?.(name, v)}
-            />
-          )
-        }
-
-        return (
-          <Potentiometer
-            key={name}
-            label={def.label}
-            value={value}
-            min={def.min}
-            max={def.max}
-            color={pedalAccentColor}
-            onChange={(v) => onChange?.(name, v)}
-          />
-        )
-      })}
+      <Potentiometer
+        label="DISTORTION"
+        value={distortion}
+        min={model.parameters.distortion.min}
+        max={model.parameters.distortion.max}
+        color={pedalAccentColor}
+        onChange={(v) => onChange?.('distortion', v)}
+      />
+      <Potentiometer
+        label="TONE"
+        value={tone}
+        min={model.parameters.tone.min}
+        max={model.parameters.tone.max}
+        color={pedalAccentColor}
+        onChange={(v) => onChange?.('tone', v)}
+      />
+      <Potentiometer
+        label="LEVEL"
+        value={level}
+        min={model.parameters.level.min}
+        max={model.parameters.level.max}
+        color={pedalAccentColor}
+        onChange={(v) => onChange?.('level', v)}
+      />
     </>
   )
 }

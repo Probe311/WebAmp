@@ -1,10 +1,13 @@
-import { useMemo, useCallback } from 'react'
-import { Play, Pause, Square, RotateCcw, Volume2 } from 'lucide-react'
+import { useMemo, useCallback, useState } from 'react'
+import { Play, Pause, Square, RotateCcw, Volume2, Music, X } from 'lucide-react'
 import { CTA } from '../CTA'
 import { Slider } from '../Slider'
-import { useDrumMachine, DrumInstrument } from '../../contexts/DrumMachineContext'
+import { useDrumMachine, DrumInstrument, DrumStep } from '../../contexts/DrumMachineContext'
 import { DEFAULT_PATTERNS } from '../../contexts/patterns'
 import { DrumPad, INSTRUMENT_LABELS, INSTRUMENT_COLORS } from './DrumPad'
+import { AIBeatArchitect } from '../ai/AIBeatArchitect'
+import { BeatPattern } from '../../services/ai'
+import { DrumSampleSelector } from './DrumSampleSelector'
 
 const INSTRUMENTS: DrumInstrument[] = ['kick', 'snare', 'hihat', 'openhat', 'crash', 'ride', 'tom1', 'tom2', 'tom3']
 
@@ -19,6 +22,7 @@ export function DrumMachinePanel() {
     pattern,
     selectedPattern,
     volumes,
+    sampleSources,
     setBpm,
     setPattern,
     setSelectedPattern,
@@ -27,8 +31,12 @@ export function DrumMachinePanel() {
     handleStop,
     handlePatternChange,
     handleVolumeChange,
-    setMasterVolume
+    setMasterVolume,
+    loadSample,
+    clearSample
   } = useDrumMachine()
+
+  const [selectedInstrument, setSelectedInstrument] = useState<DrumInstrument | null>(null)
 
   // La boucle de lecture est maintenant gérée dans le contexte global
   // pour continuer même si la modale est fermée
@@ -43,6 +51,29 @@ export function DrumMachinePanel() {
     setPattern([...DEFAULT_PATTERNS[index].steps])
   }, [handlePatternChange, setPattern])
 
+  // Fonction pour appliquer un pattern généré par l'IA
+  const handleApplyAIPattern = useCallback((aiPattern: BeatPattern) => {
+    // Convertir le format BeatPattern en format DrumStep[]
+    const convertedSteps: DrumStep[] = Array.from({ length: 16 }, () => ({}))
+    
+    aiPattern.steps.forEach((step) => {
+      const stepIndex = step.step
+      if (stepIndex >= 0 && stepIndex < 16) {
+        step.instruments.forEach((instrument) => {
+          convertedSteps[stepIndex][instrument] = true
+        })
+      }
+    })
+
+    // Appliquer le pattern
+    setPattern(convertedSteps)
+    
+    // Mettre à jour le BPM si fourni
+    if (aiPattern.tempo) {
+      setBpm(aiPattern.tempo)
+    }
+  }, [setPattern, setBpm])
+
   // Mémoriser les callbacks pour chaque step/instrument pour éviter les re-renders
   const stepCallbacks = useMemo(() => {
     const callbacks: Record<string, () => void> = {}
@@ -55,36 +86,50 @@ export function DrumMachinePanel() {
     return callbacks
   }, [toggleStep])
 
+  // Gérer la sélection d'un sample
+  const handleSampleSelected = useCallback(async (audioBlob: Blob, name: string) => {
+    if (!selectedInstrument) return
+    await loadSample(selectedInstrument, audioBlob, name)
+  }, [selectedInstrument, loadSample])
+
+  // Gérer la suppression d'un sample
+  const handleClearSample = useCallback((instrument: DrumInstrument) => {
+    clearSample(instrument)
+  }, [clearSample])
+
   return (
     <div className="space-y-6 text-black/85 dark:text-white/90">
       {/* Contrôles principaux */}
       <div className="flex items-center justify-between gap-4 p-4 bg-white dark:bg-gray-700 rounded-xl border border-black/10 dark:border-white/10">
         <div className="flex items-center gap-3">
           <CTA
-            variant="important"
+            variant="icon-only"
             icon={isPlaying ? <Pause size={18} /> : <Play size={18} />}
             onClick={(e) => {
               e.stopPropagation()
               handlePlayPause()
             }}
             active={isPlaying}
-          >
-            {isPlaying ? 'Pause' : 'Play'}
-          </CTA>
+            title={isPlaying ? 'Pause' : 'Play'}
+            className={isPlaying ? 'bg-green-500/20 border-green-500/60 text-green-600 dark:text-green-400' : ''}
+          />
           <CTA
-            variant="secondary"
+            variant="icon-only"
             icon={<Square size={18} />}
             onClick={handleStop}
-          >
-            Stop
-          </CTA>
+            title="Stop"
+          />
           <CTA
-            variant="secondary"
+            variant="icon-only"
             icon={<RotateCcw size={18} />}
             onClick={handleReset}
-          >
-            Reset
-          </CTA>
+            title="Reset"
+          />
+          <AIBeatArchitect
+            onApplyPattern={handleApplyAIPattern}
+            currentTempo={bpm}
+            renderAsButton={true}
+          />
         </div>
 
         <div className="flex items-center gap-4">
@@ -155,8 +200,13 @@ export function DrumMachinePanel() {
         <div className="bg-white dark:bg-gray-700 rounded-xl border border-black/10 dark:border-white/10 p-4 overflow-x-auto custom-scrollbar">
           <div className="min-w-max">
             {/* En-tête avec numéros de steps */}
-            <div className="grid grid-cols-[96px_repeat(16,40px)_160px] gap-1.5 mb-2 items-center">
-              <div />
+            <div className="grid grid-cols-[160px_60px_repeat(16,40px)_200px] gap-1.5 mb-2 items-center">
+              <div className="text-xs font-semibold text-black/60 dark:text-white/60 px-2">
+                Instrument
+              </div>
+              <div className="text-xs font-semibold text-black/60 dark:text-white/60 px-2 text-center">
+                Sample
+              </div>
               {Array.from({ length: NUM_STEPS }).map((_, stepIndex) => (
                 <div
                   key={stepIndex}
@@ -169,19 +219,40 @@ export function DrumMachinePanel() {
                   {stepIndex + 1}
                 </div>
               ))}
-              <div />
+              <div className="text-xs font-semibold text-black/60 dark:text-white/60 px-2">
+                Volume
+              </div>
             </div>
 
             {/* Lignes d'instruments */}
             {INSTRUMENTS.map((instrument) => {
+              const hasSample = !!sampleSources[instrument]
               return (
-                <div key={instrument} className="grid grid-cols-[96px_repeat(16,40px)_160px] gap-1.5 mb-1.5 items-center">
-                  <div className="flex items-center gap-2">
+                <div key={instrument} className="grid grid-cols-[160px_60px_repeat(16,40px)_200px] gap-1.5 mb-1.5 items-center">
+                  <div className="flex items-center gap-2 min-w-0">
                     <div
-                      className="w-3 h-3 rounded-full"
+                      className="w-3 h-3 rounded-full flex-shrink-0"
                       style={{ backgroundColor: INSTRUMENT_COLORS[instrument] }}
                     />
-                    <span className="text-sm font-medium">{INSTRUMENT_LABELS[instrument]}</span>
+                    <span className="text-sm font-medium truncate">{INSTRUMENT_LABELS[instrument]}</span>
+                  </div>
+                  <div className="flex items-center justify-center gap-1">
+                    <CTA
+                      variant="icon-only"
+                      icon={<Music size={14} />}
+                      onClick={() => setSelectedInstrument(instrument)}
+                      title={hasSample ? `Sample: ${sampleSources[instrument]}` : 'Charger un sample depuis Freesound'}
+                      className={hasSample ? 'text-blue-600 dark:text-blue-400' : ''}
+                    />
+                    {hasSample && (
+                      <CTA
+                        variant="icon-only"
+                        icon={<X size={14} />}
+                        onClick={() => handleClearSample(instrument)}
+                        title="Supprimer le sample (revenir au synth)"
+                        className="text-red-600 dark:text-red-400"
+                      />
+                    )}
                   </div>
                   {Array.from({ length: NUM_STEPS }).map((_, stepIndex) => {
                     const isStepActive = pattern[stepIndex]?.[instrument] || false
@@ -220,6 +291,17 @@ export function DrumMachinePanel() {
           </div>
         </div>
       </div>
+
+      {/* Sélecteur de samples */}
+      {selectedInstrument && (
+        <DrumSampleSelector
+          isOpen={!!selectedInstrument}
+          onClose={() => setSelectedInstrument(null)}
+          instrument={selectedInstrument}
+          onSampleSelected={handleSampleSelected}
+          currentSampleName={sampleSources[selectedInstrument]}
+        />
+      )}
     </div>
   )
 }

@@ -75,9 +75,9 @@ export function FullTablatureViewer({
           if (initialMeasures && initialMeasures.length > 0) {
             setMeasures(initialMeasures.slice(0, PAGE_SIZE))
             setHasMore(initialMeasures.length > PAGE_SIZE)
-          } else if (info.measures && info.measures.length > 0) {
+          } else if (info.measures && Array.isArray(info.measures) && info.measures.length > 0) {
             // Sinon, utiliser les mesures de la tablature
-            setMeasures(info.measures.slice(0, PAGE_SIZE))
+            setMeasures(info.measures.slice(0, PAGE_SIZE) as TablatureMeasure[])
             setHasMore(info.measures.length > PAGE_SIZE)
           } else if ((info as any).songsterr_url || (info as any).songsterrUrl) {
             // Si on a un lien Songsterr mais pas de mesures, afficher uniquement le lien
@@ -121,7 +121,7 @@ export function FullTablatureViewer({
           PAGE_SIZE
         )
         if (result.measures.length > 0) {
-          setMeasures(prev => [...prev, ...result.measures])
+          setMeasures(prev => [...prev, ...result.measures] as TablatureMeasure[])
           setCurrentPage(prev => prev + 1)
           setHasMore(result.hasMore)
         } else {

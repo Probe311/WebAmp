@@ -86,55 +86,34 @@ export const ElectroHarmonixSmallStoneControls = ({
   // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
   const pedalAccentColor = accentColor || model.accentColor
   
+  const rate = values.rate ?? model.parameters.rate.default
+  const color = values.color ?? model.parameters.color.default
+
   return (
-    <>
-      {Object.entries(model.parameters).map(([name, def]) => {
-        const controlType = def.controlType || 'knob'
-        const value = values[name] ?? def.default ?? 0
-
-        if (controlType === 'slider') {
-          return (
-            <Slider
-              key={name}
-              label={def.label}
-              value={value}
-              min={def.min}
-              max={def.max}
-              orientation={def.orientation || 'vertical'}
-              onChange={(v) => onChange?.(name, v)}
-              color={pedalAccentColor}
-            />
-          )
-        }
-
-        if (controlType === 'switch-selector' && def.labels) {
-          return (
-            <SwitchSelector
-              key={name}
-              value={value}
-              min={def.min}
-              max={def.max}
-              labels={def.labels}
-              icons={def.icons}
-              color={pedalAccentColor}
-              onChange={(v) => onChange?.(name, v)}
-            />
-          )
-        }
-
-        return (
-          <Potentiometer
-            key={name}
-            label={def.label}
-            value={value}
-            min={def.min}
-            max={def.max}
-            color={pedalAccentColor}
-            onChange={(v) => onChange?.(name, v)}
-          />
-        )
-      })}
-    </>
+    <div className="flex flex-col gap-3 w-full">
+      <div className="w-full">
+        <SwitchSelector
+          value={color}
+          min={model.parameters.color.min}
+          max={model.parameters.color.max}
+          labels={model.parameters.color.labels || []}
+          icons={model.parameters.color.icons}
+          color={pedalAccentColor}
+          onChange={(v) => onChange?.('color', v)}
+          className="switch-selector-full-width"
+        />
+      </div>
+      <div className="w-full flex justify-center">
+        <Potentiometer
+          label="RATE"
+          value={rate}
+          min={model.parameters.rate.min}
+          max={model.parameters.rate.max}
+          color={pedalAccentColor}
+          onChange={(v) => onChange?.('rate', v)}
+        />
+      </div>
+    </div>
   )
 }
 

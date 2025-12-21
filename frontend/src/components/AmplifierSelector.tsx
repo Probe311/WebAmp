@@ -253,7 +253,7 @@ export function AmplifierSelector({ selectedAmplifier, onAmplifierChange, onPara
                         type: 'setAmplifierPower',
                         amplifierId: selected,
                         powered: !isPowered
-                      }).catch((error) => {
+                      }).catch(() => {
                         // échec silencieux côté WebSocket
                       })
                     }
@@ -418,7 +418,7 @@ export function AmplifierSelector({ selectedAmplifier, onAmplifierChange, onPara
       >
         {namLibraryLoading && (
           <div className="flex items-center justify-center py-8">
-            <Loader label="Chargement de la bibliothèque NAM..." />
+            <Loader text="Chargement de la bibliothèque NAM..." />
           </div>
         )}
 

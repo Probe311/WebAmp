@@ -95,55 +95,43 @@ export const BossTr2Controls = ({
   // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
   const pedalAccentColor = accentColor || model.accentColor
   
+  const rate = values.rate ?? model.parameters.rate.default
+  const depth = values.depth ?? model.parameters.depth.default
+  const wave = values.wave ?? model.parameters.wave.default
+
   return (
-    <>
-      {Object.entries(model.parameters).map(([name, def]) => {
-        const controlType = def.controlType || 'knob'
-        const value = values[name] ?? def.default ?? 0
-
-        if (controlType === 'slider') {
-          return (
-            <Slider
-              key={name}
-              label={def.label}
-              value={value}
-              min={def.min}
-              max={def.max}
-              orientation={def.orientation || 'vertical'}
-              onChange={(v) => onChange?.(name, v)}
-              color={pedalAccentColor}
-            />
-          )
-        }
-
-        if (controlType === 'switch-selector' && def.labels) {
-          return (
-            <SwitchSelector
-              key={name}
-              value={value}
-              min={def.min}
-              max={def.max}
-              labels={def.labels}
-              icons={def.icons}
-              color={pedalAccentColor}
-              onChange={(v) => onChange?.(name, v)}
-            />
-          )
-        }
-
-        return (
-          <Potentiometer
-            key={name}
-            label={def.label}
-            value={value}
-            min={def.min}
-            max={def.max}
-            color={pedalAccentColor}
-            onChange={(v) => onChange?.(name, v)}
-          />
-        )
-      })}
-    </>
+    <div className="flex flex-col gap-3 w-full">
+      <div className="w-full">
+        <SwitchSelector
+          value={wave}
+          min={model.parameters.wave.min}
+          max={model.parameters.wave.max}
+          labels={model.parameters.wave.labels || []}
+          icons={model.parameters.wave.icons}
+          color={pedalAccentColor}
+          onChange={(v) => onChange?.('wave', v)}
+          className="switch-selector-full-width"
+        />
+      </div>
+      <div className="grid grid-cols-2 gap-3 w-full justify-items-center">
+        <Potentiometer
+          label="RATE"
+          value={rate}
+          min={model.parameters.rate.min}
+          max={model.parameters.rate.max}
+          color={pedalAccentColor}
+          onChange={(v) => onChange?.('rate', v)}
+        />
+        <Potentiometer
+          label="DEPTH"
+          value={depth}
+          min={model.parameters.depth.min}
+          max={model.parameters.depth.max}
+          color={pedalAccentColor}
+          onChange={(v) => onChange?.('depth', v)}
+        />
+      </div>
+    </div>
   )
 }
 

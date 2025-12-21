@@ -7,6 +7,8 @@ import { PartnerThankYouModal } from './components/PartnerThankYouModal'
 import { Modal } from './components/Modal'
 import { Loader } from './components/Loader'
 import { loadProfile, loadProfileSequentially } from './utils/profileLoader'
+import { loadTonePackSequentially } from './utils/tonePackLoader'
+import { TonePack } from './types/gallery'
 import { useToast } from './components/notifications/ToastProvider'
 import { PedalboardEngine } from './audio/PedalboardEngine'
 import { useAuth } from './auth/AuthProvider'
@@ -17,13 +19,24 @@ import { PracticePage } from './pages/PracticePage'
 import { LearnPage } from './pages/LearnPage'
 import { MixingConsolePage } from './pages/MixingConsolePage'
 import { DrumMachinePage } from './pages/DrumMachinePage'
+import { GalleryPage } from './pages/GalleryPage'
 import { SettingsPage } from './pages/SettingsPage'
 import { AccountPage } from './pages/AccountPage'
+import { AdminPage } from './pages/AdminPage'
+import { useFeatureFlags } from './hooks/useFeatureFlags'
+import { useAnalytics } from './hooks/useAnalytics'
+import { createLogger } from './services/logger'
+import { ADMIN_UUID } from './config/constants'
+
+const logger = createLogger('App')
 
 function App() {
   const { showToast } = useToast()
   const { user } = useAuth()
+  const isAdmin = user?.id === ADMIN_UUID
   const [isLoading, setIsLoading] = useState(true)
+  const { isEnabled } = useFeatureFlags()
+  const { pageView } = useAnalytics()
   const [currentPage, setCurrentPage] = useState<PageId>('home')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedAmplifier, setSelectedAmplifier] = useState<string | null>(null)
@@ -97,6 +110,46 @@ function App() {
     return () => clearTimeout(timer)
   }, [])
 
+  // Charger un TonePack en attente depuis localStorage
+  useEffect(() => {
+    if (currentPage === 'webamp' && clearEffectsRef.current && addEffectRef.current) {
+      const pendingPackJson = localStorage.getItem('pendingTonePack')
+      if (pendingPackJson) {
+        try {
+          const pack: TonePack = JSON.parse(pendingPackJson)
+          localStorage.removeItem('pendingTonePack')
+
+          // Charger le pack de manière asynchrone
+          loadTonePackSequentially(
+            pack,
+            clearEffectsRef.current,
+            setSelectedAmplifier,
+            setAmplifierParameters,
+            addEffectRef.current
+          ).then(() => {
+            showToast({
+              variant: 'success',
+              title: 'Pack chargé',
+              message: `Le pack "${pack.name}" a été chargé avec succès sur le pedalboard.`
+            })
+          }).catch((error) => {
+            logger.error('Erreur lors du chargement du TonePack', error)
+            showToast({
+              variant: 'error',
+              title: 'Erreur',
+              message: 'Impossible de charger le pack de tones'
+            })
+          })
+        } catch (error) {
+          logger.error('Erreur lors du parsing du TonePack', error)
+          localStorage.removeItem('pendingTonePack')
+        }
+      }
+    }
+    // Note: clearEffectsRef et addEffectRef sont des refs stables, pas besoin de les inclure
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage, showToast, setSelectedAmplifier, setAmplifierParameters])
+
   // Détecter une nouvelle connexion et afficher la popup de remerciement partenaire
   useEffect(() => {
     const currentUserId = user?.id || null
@@ -125,9 +178,10 @@ function App() {
       try {
         // Créer une instance temporaire du moteur pour accéder à l'AudioContext
         if (!engineRef.current) {
+          const { DEFAULT_SAMPLE_RATE, DEFAULT_AUDIO_ROUTING } = await import('./config/constants')
           engineRef.current = new PedalboardEngine({
-            sampleRate: 44100,
-            routing: 'serial'
+            sampleRate: DEFAULT_SAMPLE_RATE,
+            routing: DEFAULT_AUDIO_ROUTING
           })
         }
         
@@ -141,18 +195,18 @@ function App() {
           if (Tone.context && Tone.context.state === 'suspended') {
             try {
               await Tone.start()
-            } catch {
-              // Ignorer silencieusement - l'utilisateur devra interagir
-            }
-          } else if (Tone.context && Tone.context.state === 'running') {
-            // AudioContext déjà actif, rien à faire
-          }
-        } catch {
-          // Tone.js n'est peut-être pas encore chargé, ce n'est pas grave
+        } catch (error) {
+          logger.debug('Impossible de démarrer Tone.js, interaction utilisateur requise', { error })
         }
-      } catch (error) {
-        // Ignorer les erreurs silencieusement - l'AudioContext sera résumé lors de la prochaine interaction
+      } else if (Tone.context && Tone.context.state === 'running') {
+        // AudioContext déjà actif, rien à faire
       }
+    } catch (error) {
+      logger.debug('Tone.js n\'est pas encore chargé', { error })
+    }
+  } catch (error) {
+    logger.debug('Erreur lors de la résolution de l\'AudioContext', { error })
+  }
     }
     
     // Écouter les événements utilisateur pour résumer l'AudioContext
@@ -197,6 +251,21 @@ function App() {
     clearEffectsRef.current = fn
   }, [])
 
+  // Mapping des pages vers leurs feature flags
+  const pageFeatureFlags: Record<PageId, string | null> = {
+    'home': null,
+    'webamp': null,
+    'looper': 'page_looper',
+    'practice': 'page_practice',
+    'learn': 'page_learn',
+    'mixing': 'page_mixing',
+    'drummachine': 'page_drummachine',
+    'gallery': 'page_gallery',
+    'settings': null,
+    'account': null,
+    'admin': null
+  }
+
   // Gérer le changement de page avec redirection pour les pages nécessitant une authentification
   const handlePageChange = useCallback((page: PageId) => {
     // Si la page nécessite une authentification et que l'utilisateur n'est pas connecté, rediriger vers home
@@ -204,8 +273,38 @@ function App() {
       setCurrentPage('home')
       return
     }
+    // Si la page admin est demandée et que l'utilisateur n'est pas admin, rediriger vers home
+    if (page === 'admin' && !isAdmin) {
+      setCurrentPage('home')
+      showToast({
+        variant: 'error',
+        title: 'Accès refusé',
+        message: 'Vous n\'avez pas les droits d\'administration.'
+      })
+      return
+    }
+    // Vérifier le feature flag pour cette page
+    const featureFlagKey = pageFeatureFlags[page]
+    if (featureFlagKey && !isEnabled(featureFlagKey)) {
+      setCurrentPage('home')
+      showToast({
+        variant: 'info',
+        title: 'Page désactivée',
+        message: 'Cette page est actuellement désactivée.'
+      })
+      return
+    }
     setCurrentPage(page)
-  }, [user])
+    // Tracker la vue de page
+    pageView(`/${page}`)
+  }, [user, isAdmin, showToast, isEnabled, pageView])
+
+  // Tracker la page initiale
+  useEffect(() => {
+    if (!isLoading) {
+      pageView(`/${currentPage}`)
+    }
+  }, [isLoading, currentPage, pageView])
 
   // Afficher le loader pendant le chargement initial
   if (isLoading) {
@@ -214,6 +313,12 @@ function App() {
 
   // Rendre la page appropriée
   const renderPage = () => {
+    // Vérifier le feature flag pour la page actuelle
+    const featureFlagKey = pageFeatureFlags[currentPage]
+    if (featureFlagKey && !isEnabled(featureFlagKey)) {
+      return <HomePage onNavigateToLearn={() => setCurrentPage('learn')} />
+    }
+
     switch (currentPage) {
       case 'home':
         return <HomePage onNavigateToLearn={() => setCurrentPage('learn')} />
@@ -243,10 +348,14 @@ function App() {
         return <MixingConsolePage stats={stats} />
       case 'drummachine':
         return <DrumMachinePage />
+      case 'gallery':
+        return <GalleryPage onNavigateToWebAmp={() => setCurrentPage('webamp')} />
       case 'settings':
         return <SettingsPage />
       case 'account':
         return <AccountPage />
+      case 'admin':
+        return isAdmin ? <AdminPage /> : <HomePage />
       default:
         return <HomePage />
     }
@@ -269,6 +378,7 @@ function App() {
         currentPage={currentPage}
         onPageChange={handlePageChange}
         isAuthenticated={!!user}
+        isAdmin={isAdmin}
       />
 
       {/* Modal boîte à rythmes plein écran */}

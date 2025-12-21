@@ -46,130 +46,23 @@ VITE_WEBSOCKET_URL=ws://localhost:8765  # Local uniquement
 
 ---
 
-### 🥈 Option 2 : Netlify
+### Alternative : Netlify
 
-**Avantages :**
-- ✅ Gratuit pour les projets personnels
-- ✅ Déploiement automatique depuis Git
-- ✅ CDN global
-- ✅ SSL automatique
-- ✅ Formulaires et fonctions serverless
-- ✅ Bon support React/Vite
+Si vous préférez Netlify :
 
-**Limitations :**
-- ❌ Pas de support WebSocket (mais le Native Helper tourne en local)
-- ❌ 100 GB de bande passante/mois (gratuit)
-
-**Configuration :**
 ```bash
 # Installation
 npm i -g netlify-cli
 
 # Déploiement
 cd frontend
+netlify init
 netlify deploy --prod
 
 # Variables d'environnement (via dashboard Netlify)
 ```
 
 **Prix :** Gratuit (Starter) → $19/mois (Pro)
-
----
-
-### 🥉 Option 3 : Cloudflare Pages
-
-**Avantages :**
-- ✅ Gratuit illimité (bande passante)
-- ✅ CDN global ultra-rapide
-- ✅ SSL automatique
-- ✅ Déploiement automatique
-- ✅ Workers pour fonctions serverless (si besoin)
-
-**Limitations :**
-- ❌ Pas de support WebSocket (mais le Native Helper tourne en local)
-- ❌ Interface moins intuitive que Vercel/Netlify
-
-**Configuration :**
-```bash
-# Via dashboard Cloudflare Pages
-# Connecter le repo Git
-# Build command: npm run build
-# Build output: dist
-```
-
-**Prix :** Gratuit (illimité)
-
----
-
-### 🏆 Option 4 : Railway (Si besoin d'un backend)
-
-**Avantages :**
-- ✅ Support WebSocket natif
-- ✅ Déploiement automatique
-- ✅ Support Docker
-- ✅ Base de données intégrée (PostgreSQL)
-- ✅ Variables d'environnement
-- ✅ Excellent pour full-stack
-
-**Cas d'usage :**
-- Si vous voulez un backend Node.js pour gérer les presets
-- Si vous voulez un serveur WebSocket centralisé (non recommandé pour l'audio temps réel)
-
-**Limitations :**
-- ❌ Payant ($5/mois minimum)
-- ❌ Latence réseau pour l'audio (non recommandé)
-
-**Prix :** $5/mois (Starter) → $20/mois (Pro)
-
----
-
-### 🚀 Option 5 : Fly.io (Pour WebSocket si nécessaire)
-
-**Avantages :**
-- ✅ Support WebSocket natif
-- ✅ Déploiement global (edge computing)
-- ✅ Support Docker
-- ✅ Latence optimisée
-
-**Cas d'usage :**
-- Si vous voulez un serveur WebSocket centralisé (non recommandé pour l'audio temps réel)
-
-**Limitations :**
-- ❌ Configuration plus complexe
-- ❌ Latence réseau pour l'audio (non recommandé)
-
-**Prix :** Gratuit (3 VMs) → Payant selon usage
-
----
-
-### 💼 Option 6 : O2switch (Hébergement mutualisé)
-
-**Avantages :**
-- ✅ Déjà utilisé pour votre crawler
-- ✅ Support PHP/Node.js
-- ✅ Base de données MySQL/PostgreSQL
-- ✅ Contrôle total
-
-**Limitations :**
-- ❌ Pas de CDN intégré
-- ❌ Configuration manuelle
-- ❌ Pas de déploiement automatique Git
-- ❌ Support WebSocket limité
-
-**Prix :** ~5-10€/mois
-
----
-
-## Recommandation finale
-
-### Pour WebAmp : **Vercel** 🥇
-
-**Pourquoi :**
-1. **Gratuit** pour commencer
-2. **Performance optimale** (CDN global)
-3. **Intégration Supabase** native
-4. **Déploiement automatique** depuis Git
-5. **Le Native Helper tourne en local** (pas besoin de WebSocket distant)
 
 ### Architecture recommandée
 

@@ -10,17 +10,6 @@ import { KeyboardShortcutsProvider } from './contexts/KeyboardShortcutsContext'
 import { AppWithAuth } from './auth/AppWithAuth'
 import { Loader } from './components/Loader'
 
-// Importer les helpers de migration pour les exposer globalement
-import './utils/migrationHelper'
-// Importer le script principal d'import des cours
-import './scripts/importCourses'
-// Importer le script de nettoyage des doublons
-import './scripts/cleanDuplicateCourses'
-// Importer le script de mise à jour des tablatures Shake It Off
-import './scripts/updateShakeItOffTablatures'
-// Importer le script d'import des tablatures depuis HTML
-import './scripts/importShakeItOffTabs'
-
 // Lazy loading pour temps de chargement < 1s
 const App = lazy(() => import('./App').then(module => ({ default: module.default })))
 

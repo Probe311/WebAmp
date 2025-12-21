@@ -1,8 +1,9 @@
-import { Zap } from 'lucide-react'
 import { Block } from '../components/Block'
 import { PartnerLogosCarousel } from '../components/PartnerLogosCarousel'
 import { LearningProgress } from '../components/learn/LearningProgress'
 import { ContinueLearning } from '../components/learn/ContinueLearning'
+import { DailyJam } from '../components/home/DailyJam'
+import { WeeklyPractice } from '../components/home/WeeklyPractice'
 import { useAuth } from '../auth/AuthProvider'
 
 function getGreeting() {
@@ -60,27 +61,10 @@ export function HomePage({ onNavigateToLearn }: HomePageProps) {
           <LearningProgress />
 
           {/* Carte 4 - Daily Jam */}
-          <div className="bg-orange-500 dark:bg-orange-600 rounded-2xl p-6 shadow-[8px_8px_16px_rgba(0,0,0,0.2),-8px_-8px_16px_rgba(255,255,255,0.1)] dark:shadow-[8px_8px_16px_rgba(0,0,0,0.6),-8px_-8px_16px_rgba(60,60,60,0.6)] min-h-[280px] flex flex-col justify-between">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-white">Daily Jam</h3>
-              <span className="px-2 py-1 bg-yellow-400 text-black text-xs font-bold rounded-full">
-                ACTIVE
-              </span>
-            </div>
-            <p className="text-sm text-white/90 mb-2">Clean Reverb Preset</p>
-            <Zap className="text-yellow-300 opacity-50" size={32} />
-          </div>
+          <DailyJam />
 
           {/* Carte 5 - Weekly Practice */}
-          <Block className="min-h-[280px] flex flex-col justify-center">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-black/70 dark:text-white/70 mb-4">
-              Weekly Practice
-            </h3>
-            <div className="flex items-baseline gap-2">
-              <span className="text-5xl font-bold text-black/85 dark:text-white/90">4.2</span>
-              <span className="text-lg text-black/70 dark:text-white/70">hours</span>
-            </div>
-          </Block>
+          <WeeklyPractice />
         </div>
       </div>
     </div>

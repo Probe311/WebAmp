@@ -103,7 +103,7 @@ export function Modal({
           </div>
         )}
 
-        <div className={bodyClassName}>
+        <div className={bodyClassName || 'p-6'}>
           {children}
         </div>
       </div>

@@ -13,13 +13,16 @@ Bienvenue dans la documentation complète de WebAmp, une application de simulati
 - **[Composants](COMPONENTS.md)** - Documentation des composants React
 - **[API WebSocket](API.md)** - Protocole de communication front/back
 - **[Optimisations](OPTIMIZATION.md)** - Guide des optimisations du code
-- **[Build & Déploiement](BUILD.md)** - Instructions de build détaillées
-- **[Déploiement Vercel](VERCEL_SETUP.md)** - Guide de déploiement sur Vercel
-- **[Déploiement général](DEPLOYMENT.md)** - Options d'hébergement
+- **[Déploiement](DEPLOYMENT.md)** - Guide de déploiement et options d'hébergement
+- **[Sécurité RLS](RLS_SECURITY_GUIDE.md)** - Guide des politiques de sécurité Supabase
 
 ### 📖 Référence
 - **[Pédales](REFERENCE_PEDALES.md)** - Liste complète des pédales disponibles
 - **[Amplificateurs](REFERENCE_AMPLIS.md)** - Liste complète des amplificateurs disponibles
+- **[Cours](REFERENCE_COURS.md)** - Référentiel complet des cours
+
+### 🔧 Administration
+- **[Administration des Cours](ADMIN_COURS.md)** - Gestion des cours et packs DLC
 
 ### 🗺️ Roadmap
 - **[Roadmap](ROADMAP.md)** - Prochaines étapes et fonctionnalités prévues
@@ -102,10 +105,6 @@ cmake --build . --config Release
 ### Lancement
 
 ```bash
-# Option 1: Scripts PowerShell (Windows)
-.\scripts\start-all.ps1
-
-# Option 2: Manuel
 # Terminal 1: Native Helper
 .\native\build\Release\webamp_native.exe
 

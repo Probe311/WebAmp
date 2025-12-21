@@ -87,19 +87,6 @@ L'exécutable sera dans `native/build/webamp_native`
 
 ## 🚀 Lancement
 
-### Option 1 : Scripts PowerShell (Windows - Recommandé)
-
-```powershell
-# Démarrer tous les services
-.\scripts\start-all.ps1
-
-# Ou séparément:
-.\scripts\start-native.ps1    # Native Helper uniquement
-.\scripts\start-frontend.ps1  # Frontend uniquement
-```
-
-### Option 2 : Manuel
-
 #### Terminal 1 : Native Helper
 
 ```bash
@@ -237,12 +224,57 @@ cmake --build . --config Release
 
 ---
 
+## 🔧 Options de Build Avancées
+
+### Options CMake
+
+- `BUILD_ASIO` : Activer le support ASIO (Windows, défaut: ON)
+- `BUILD_WASAPI` : Activer le support WASAPI (Windows, défaut: ON)
+- `BUILD_COREAUDIO` : Activer le support CoreAudio (macOS, défaut: ON si Apple)
+- `BUILD_PIPEWIRE` : Activer le support PipeWire (Linux, défaut: ON si disponible)
+- `USE_ASIO_SDK` : Utiliser l'ASIO SDK (nécessite SDK dans `native/third_party/asio/`)
+
+### Drivers Audio
+
+**Windows :**
+- **WASAPI** : Toujours disponible, mode exclusif pour latence minimale
+- **ASIO** : Nécessite ASIO SDK et un driver ASIO installé (ex: ASIO4ALL)
+
+**macOS :**
+- **CoreAudio** : Natif, utilise AudioUnit HAL pour latence minimale
+
+**Linux :**
+- **PipeWire** : Support natif avec émulation JACK automatique si configuré
+
+**Détection automatique :**
+- Windows : ASIO → WASAPI (fallback)
+- macOS : CoreAudio
+- Linux : PipeWire
+
+### Troubleshooting Build
+
+**ASIO ne fonctionne pas :**
+- Vérifier que l'ASIO SDK est dans `native/third_party/asio/`
+- Vérifier que `USE_ASIO_SDK=ON` est défini
+- Vérifier qu'un driver ASIO est installé (ex: ASIO4ALL)
+
+**PipeWire non détecté :**
+- Installer libpipewire-dev
+- Vérifier que PipeWire est en cours d'exécution : `systemctl --user status pipewire`
+
+**CoreAudio erreurs :**
+- Vérifier les permissions microphone dans les Préférences Système
+- Vérifier qu'aucune autre application n'utilise exclusivement l'audio
+
+---
+
 ## 📚 Prochaines étapes
 
 - Consultez [Architecture](ARCHITECTURE.md) pour comprendre la structure
 - Lisez [Design System](DESIGN_SYSTEM.md) pour les conventions UI
 - Explorez [Composants](COMPONENTS.md) pour les composants disponibles
 - Consultez [API WebSocket](API.md) pour le protocole de communication
+- Voir [Déploiement](DEPLOYMENT.md) pour déployer l'application
 
 ---
 

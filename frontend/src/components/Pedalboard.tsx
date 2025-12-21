@@ -1,4 +1,9 @@
 import { useState, useEffect, useMemo, memo, useCallback } from 'react'
+import { createLogger } from '../services/logger'
+
+const logger = createLogger('Pedalboard')
+import { useDebouncedCallback } from '../hooks/useDebounce'
+import { PARAMETER_UPDATE_DEBOUNCE_DELAY } from '../config/constants'
 import { Plus, GripVertical, X, Trash2, Save, Power, Plug, PlugZap, Users } from 'lucide-react'
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, horizontalListSortingStrategy } from '@dnd-kit/sortable'
@@ -21,6 +26,10 @@ import { analyzeControlTypes, analyzeControlTypesFromModel, determineKnobSize } 
 import { syncEffectToAudio, syncEffectToWebSocket, removeEffectFromAudio, updateEffectParametersInAudio, setEffectEnabledInAudio } from '../utils/pedalboardSync'
 import { PEDAL_BUTTON_COLORS, getContrastTextColor } from '../utils/pedalColors'
 import { formatDateFrench } from '../utils/dateFormatter'
+import { AIToneAssistant } from './ai/AIToneAssistant'
+import { EffectModule } from '../services/ai'
+import { Sparkles } from 'lucide-react'
+import { useAIPreferences } from '../hooks/useAIPreferences'
 
 export interface Effect {
   id: string
@@ -328,7 +337,7 @@ interface PedalboardProps {
   onOpenProfiles?: () => void
 }
 
-export function Pedalboard({ 
+export const Pedalboard = memo(function Pedalboard({ 
   searchQuery: externalSearchQuery = '',
   onAddEffectRef,
   onClearEffectsRef,
@@ -341,6 +350,9 @@ export function Pedalboard({
   const { pedals: pedalLibrary, amplifiers: amplifierLibrary } = useCatalog()
   const { showToast } = useToast()
   const [effects, setEffects] = useState<Effect[]>([])
+  
+  // Tracking des préférences utilisateur
+  const { trackPedalUsage } = useAIPreferences()
   const [showPedalLibrary, setShowPedalLibrary] = useState(false)
   const [showSaveProfileModal, setShowSaveProfileModal] = useState(false)
   const [showClearConfirmModal, setShowClearConfirmModal] = useState(false)
@@ -426,7 +438,7 @@ export function Pedalboard({
     
       // Synchroniser avec le moteur audio
       syncEffectToAudio(newEffect, isInitialized, engine, addAudioEffect)
-    
+      
       // Synchroniser avec WebSocket
       syncEffectToWebSocket({
         type: 'addEffect',
@@ -436,9 +448,12 @@ export function Pedalboard({
         effectId: newEffect.id
       })
       
+      // Tracking des préférences utilisateur
+      trackPedalUsage(pedalModel.id)
+      
       return updatedEffects
     })
-  }, [isInitialized, engine, addAudioEffect])
+  }, [isInitialized, engine, addAudioEffect, trackPedalUsage])
 
   const clearEffects = useCallback(() => {
     setEffects(prevEffects => {
@@ -510,7 +525,43 @@ export function Pedalboard({
     })
   }, [isInitialized, engine, setEffectEnabled])
 
-  const updateParameter = useCallback(async (id: string, paramName: string, value: number) => {
+  // Fonction pour mettre à jour l'audio et WebSocket (debounced)
+  const updateParameterAudio = useCallback(async (id: string, paramName: string, value: number) => {
+    const effect = effects.find(e => e.id === id)
+    if (!effect) return
+    
+    const pedalModel = pedalLibrary.find(p => p.id === effect.pedalId)
+    if (!pedalModel) return
+    
+    const paramDef = pedalModel.parameters[paramName]
+    if (!paramDef) return
+    
+    // Clamp la valeur entre min et max
+    const clampedValue = Math.max(paramDef.min, Math.min(paramDef.max, value))
+    
+    // Mettre à jour les paramètres dans le moteur audio
+    const updatedParams = { ...effect.parameters, [paramName]: clampedValue }
+    await updateEffectParametersInAudio(id, updatedParams, isInitialized, engine, updateAudioParameters)
+    
+    // Synchroniser avec WebSocket
+    await syncEffectToWebSocket({
+      type: 'setParameter',
+      effectId: id,
+      parameter: paramName,
+      value: clampedValue
+    })
+  }, [effects, isInitialized, engine, updateAudioParameters, pedalLibrary])
+
+  // Version debounced pour l'audio/WebSocket
+  const debouncedUpdateParameterAudio = useDebouncedCallback(
+    ((id: string, paramName: string, value: number) => {
+      updateParameterAudio(id, paramName, value).catch(console.error)
+    }) as (...args: unknown[]) => void,
+    PARAMETER_UPDATE_DEBOUNCE_DELAY
+  )
+
+  // Fonction de mise à jour complète (UI immédiate + audio/WebSocket debounced)
+  const updateParameter = useCallback((id: string, paramName: string, value: number) => {
     setEffects(prevEffects => {
       // Trouver l'effet et valider la valeur
       const effect = prevEffects.find(e => e.id === id)
@@ -525,17 +576,11 @@ export function Pedalboard({
       // Clamp la valeur entre min et max
       const clampedValue = Math.max(paramDef.min, Math.min(paramDef.max, value))
     
-      // Mettre à jour les paramètres dans le moteur audio
+      // Mettre à jour l'UI immédiatement
       const updatedParams = { ...effect.parameters, [paramName]: clampedValue }
-      updateEffectParametersInAudio(id, updatedParams, isInitialized, engine, updateAudioParameters)
-    
-      // Synchroniser avec WebSocket
-      syncEffectToWebSocket({
-        type: 'setParameter',
-        effectId: id,
-        parameter: paramName,
-        value: clampedValue
-      })
+      
+      // Mettre à jour l'audio et WebSocket de manière debounced
+      debouncedUpdateParameterAudio(id, paramName, clampedValue)
       
       return prevEffects.map(e => {
         if (e.id === id) {
@@ -547,7 +592,66 @@ export function Pedalboard({
         return e
       })
     })
-  }, [isInitialized, engine, updateAudioParameters, pedalLibrary])
+  }, [pedalLibrary, debouncedUpdateParameterAudio])
+
+  // Fonction pour appliquer les effets générés par l'IA
+  const handleApplyAIEffects = useCallback((aiEffects: EffectModule[]) => {
+    // Vider d'abord les effets existants
+    clearEffects()
+    
+    // Attendre un peu pour que le clear soit effectif
+    setTimeout(() => {
+      // Ajouter chaque effet généré par l'IA
+      aiEffects.forEach((aiEffect, index) => {
+        const pedalModel = pedalLibrary.find(p => p.id === aiEffect.id)
+        if (!pedalModel) {
+          logger.warn(`Pédale non trouvée: ${aiEffect.id}`)
+          return
+        }
+
+        // Utiliser les paramètres de l'IA ou les valeurs par défaut
+        const parameters: Record<string, number> = {}
+        Object.entries(pedalModel.parameters).forEach(([name, def]) => {
+          if (aiEffect.parameters && aiEffect.parameters[name] !== undefined) {
+            // Convertir en nombre et valider
+            const value = typeof aiEffect.parameters[name] === 'number' 
+              ? aiEffect.parameters[name] as number
+              : Number(aiEffect.parameters[name])
+            parameters[name] = Math.max(def.min, Math.min(def.max, value))
+          } else {
+            parameters[name] = def.default
+          }
+        })
+
+        const newEffect: Effect = {
+          id: `effect-${Date.now()}-${Math.random()}-${index}`,
+          type: pedalModel.type,
+          pedalId: pedalModel.id,
+          name: `${pedalModel.brand} ${pedalModel.model}`,
+          bypassed: !aiEffect.enabled,
+          parameters
+        }
+
+        setEffects(prevEffects => {
+          const updatedEffects = [...prevEffects, newEffect]
+          
+          // Synchroniser avec le moteur audio
+          syncEffectToAudio(newEffect, isInitialized, engine, addAudioEffect)
+          
+          // Synchroniser avec WebSocket
+          syncEffectToWebSocket({
+            type: 'addEffect',
+            effectType: pedalModel.type,
+            pedalId: pedalModel.id,
+            position: prevEffects.length,
+            effectId: newEffect.id
+          })
+          
+          return updatedEffects
+        })
+      })
+    }, 100)
+  }, [clearEffects, pedalLibrary, isInitialized, engine, addAudioEffect])
 
   useEffect(() => {
     if (onAddEffectRef) {
@@ -701,6 +805,16 @@ export function Pedalboard({
             Ajouter une pédale
           </CTA>
           <div className="flex items-center gap-2">
+            <AIToneAssistant
+              onApplyEffects={handleApplyAIEffects}
+              currentEffects={effects.map(e => ({
+                id: e.pedalId,
+                type: e.type,
+                enabled: !e.bypassed,
+              }))}
+              instrument="guitar"
+              renderAsButton={true}
+            />
             <CTA
               onClick={() => setShowSaveProfileModal(true)}
               icon={<Save size={20} />}
@@ -895,6 +1009,7 @@ export function Pedalboard({
           </div>
         </div>
       </Modal>
+
     </>
   )
-}
+})

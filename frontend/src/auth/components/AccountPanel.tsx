@@ -29,6 +29,40 @@ import { formatDateTimeFrench } from '../../utils/dateFormatter'
 import { Modal } from '../../components/Modal'
 import { useUserStats } from '../../hooks/useLMS'
 
+// Fonction pour obtenir une couleur unique basée sur le nom du badge
+function getBadgeColor(badgeName: string): string {
+  // Palette de couleurs variées
+  const colors = [
+    'text-orange-500 dark:text-orange-400',
+    'text-amber-500 dark:text-amber-400',
+    'text-blue-500 dark:text-blue-400',
+    'text-emerald-500 dark:text-emerald-400',
+    'text-purple-500 dark:text-purple-400',
+    'text-rose-500 dark:text-rose-400',
+    'text-pink-500 dark:text-pink-400',
+    'text-indigo-500 dark:text-indigo-400',
+    'text-cyan-500 dark:text-cyan-400',
+    'text-teal-500 dark:text-teal-400',
+    'text-lime-500 dark:text-lime-400',
+    'text-yellow-500 dark:text-yellow-400',
+    'text-red-500 dark:text-red-400',
+    'text-violet-500 dark:text-violet-400',
+    'text-fuchsia-500 dark:text-fuchsia-400',
+  ]
+
+  // Hash simple basé sur le nom du badge pour obtenir un index déterministe
+  let hash = 0
+  for (let i = 0; i < badgeName.length; i++) {
+    const char = badgeName.charCodeAt(i)
+    hash = ((hash << 5) - hash) + char
+    hash = hash & hash // Convertir en entier 32 bits
+  }
+
+  // Utiliser la valeur absolue du hash pour obtenir un index positif
+  const index = Math.abs(hash) % colors.length
+  return colors[index]
+}
+
 export function AccountPanel() {
   const { user, updatePassword, updateUserMetadata, loading } = useAuth()
   const [newPassword, setNewPassword] = useState('')
@@ -693,7 +727,7 @@ export function AccountPanel() {
             )}
             {!statsLoading && stats && stats.badges && stats.badges.length > 0 && (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                {stats.badges.map((badge: string, index: number) => (
+                {stats.badges.map((badge: string) => (
                   <div
                     key={badge}
                     className="flex flex-col items-center gap-2 p-4 rounded-xl bg-[#f5f5f5] dark:bg-gray-700/60 border border-black/10 dark:border-white/10 hover:border-orange-500/50 dark:hover:border-orange-500/50 transition"
@@ -701,13 +735,7 @@ export function AccountPanel() {
                     <div className="relative">
                       <Medal
                         size={32}
-                        className={`${
-                          index % 3 === 0
-                            ? 'text-orange-500 dark:text-orange-400'
-                            : index % 3 === 1
-                            ? 'text-amber-500 dark:text-amber-400'
-                            : 'text-blue-500 dark:text-blue-400'
-                        }`}
+                        className={getBadgeColor(badge)}
                       />
                     </div>
                     <p className="text-xs font-medium text-center text-black/85 dark:text-white/85">

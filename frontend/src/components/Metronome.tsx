@@ -198,13 +198,13 @@ export function Metronome() {
           onClick={handleStop}
           disabled={!state.isPlaying}
         >
-          Stop
+          Arrêter
         </CTA>
       </div>
 
       {/* Informations */}
       <div className="text-sm text-black/70 dark:text-white/70 text-center">
-        {config.timeSignature[0]}/{config.timeSignature[1]} - Beat {state.currentBeat + 1}
+        {config.timeSignature[0]}/{config.timeSignature[1]} - Temps {state.currentBeat + 1}
       </div>
     </div>
   )

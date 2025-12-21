@@ -27,59 +27,34 @@ export function BossOd1Pedal({
   // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
   const pedalAccentColor = accentColor || model.accentColor
 
-  const controls = useMemo(() => {
-    return Object.entries(model.parameters).map(([name, def]) => {
-      const controlType = def.controlType || 'knob'
-      const value = values[name] ?? def.default ?? 0
+  const level = values.level ?? model.parameters.level.default
+  const overdrive = values.overdrive ?? model.parameters.overdrive.default
 
-      if (controlType === 'slider') {
-        return (
-          <Slider
-            key={name}
-            label={def.label}
-            value={value}
-            min={def.min}
-            max={def.max}
-            orientation={def.orientation || 'vertical'}
-            onChange={(v) => onChange?.(name, v)}
-            color={pedalAccentColor}
-          />
-        )
-      }
-
-      if (controlType === 'switch-selector' && def.labels) {
-        return (
-          <SwitchSelector
-            key={name}
-            value={value}
-            min={def.min}
-            max={def.max}
-            labels={def.labels}
-            icons={def.icons}
-            color={pedalAccentColor}
-            onChange={(v) => onChange?.(name, v)}
-          />
-        )
-      }
-
-      return (
-        <Potentiometer
-          key={name}
-          label={def.label}
-          value={value}
-          min={def.min}
-          max={def.max}
-          color={pedalAccentColor}
-          onChange={(v) => onChange?.(name, v)}
-        />
-      )
-    })
-  }, [model, values, onChange])
+  const controls = useMemo(() => (
+    <>
+      <Potentiometer
+        label="LEVEL"
+        value={level}
+        min={model.parameters.level.min}
+        max={model.parameters.level.max}
+        color={pedalAccentColor}
+        onChange={(v) => onChange?.('level', v)}
+      />
+      <Potentiometer
+        label="OVERDRIVE"
+        value={overdrive}
+        min={model.parameters.overdrive.min}
+        max={model.parameters.overdrive.max}
+        color={pedalAccentColor}
+        onChange={(v) => onChange?.('overdrive', v)}
+      />
+    </>
+  ), [level, overdrive, model, onChange, pedalAccentColor])
 
   return (
     <PedalFrame
       model={model}
-      layout="three-knobs"
+      layout="default"
       bypassed={bypassed}
       onBypassToggle={onBypassToggle}
       showFootswitch={false}
@@ -102,54 +77,27 @@ export const BossOd1Controls = ({
   // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
   const pedalAccentColor = accentColor || model.accentColor
   
+  const level = values.level ?? model.parameters.level.default
+  const overdrive = values.overdrive ?? model.parameters.overdrive.default
+
   return (
     <>
-      {Object.entries(model.parameters).map(([name, def]) => {
-        const controlType = def.controlType || 'knob'
-        const value = values[name] ?? def.default ?? 0
-
-        if (controlType === 'slider') {
-          return (
-            <Slider
-              key={name}
-              label={def.label}
-              value={value}
-              min={def.min}
-              max={def.max}
-              orientation={def.orientation || 'vertical'}
-              onChange={(v) => onChange?.(name, v)}
-              color={pedalAccentColor}
-            />
-          )
-        }
-
-        if (controlType === 'switch-selector' && def.labels) {
-          return (
-            <SwitchSelector
-              key={name}
-              value={value}
-              min={def.min}
-              max={def.max}
-              labels={def.labels}
-              icons={def.icons}
-              color={pedalAccentColor}
-              onChange={(v) => onChange?.(name, v)}
-            />
-          )
-        }
-
-        return (
-          <Potentiometer
-            key={name}
-            label={def.label}
-            value={value}
-            min={def.min}
-            max={def.max}
-            color={pedalAccentColor}
-            onChange={(v) => onChange?.(name, v)}
-          />
-        )
-      })}
+      <Potentiometer
+        label="LEVEL"
+        value={level}
+        min={model.parameters.level.min}
+        max={model.parameters.level.max}
+        color={pedalAccentColor}
+        onChange={(v) => onChange?.('level', v)}
+      />
+      <Potentiometer
+        label="OVERDRIVE"
+        value={overdrive}
+        min={model.parameters.overdrive.min}
+        max={model.parameters.overdrive.max}
+        color={pedalAccentColor}
+        onChange={(v) => onChange?.('overdrive', v)}
+      />
     </>
   )
 }

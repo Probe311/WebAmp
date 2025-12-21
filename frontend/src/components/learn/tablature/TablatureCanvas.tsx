@@ -1,5 +1,4 @@
 import React, { useRef, useEffect } from 'react';
-import { LayoutTemplate } from 'lucide-react';
 import { Block } from '../../Block';
 import { Measure } from './Measure';
 import type { Measure as MeasureType } from './Measure';
@@ -16,6 +15,7 @@ interface TablatureCanvasProps {
   showChords: boolean;
   isPlaying: boolean;
   onMeasureClick: (index: number) => void;
+  scrollToTop?: boolean;
 }
 
 export const TablatureCanvas: React.FC<TablatureCanvasProps> = ({
@@ -27,9 +27,20 @@ export const TablatureCanvas: React.FC<TablatureCanvasProps> = ({
   zoom,
   showChords,
   isPlaying,
-  onMeasureClick
+  onMeasureClick,
+  scrollToTop = false
 }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // Scroll vers le haut quand scrollToTop est true
+  useEffect(() => {
+    if (scrollContainerRef.current && scrollToTop) {
+      scrollContainerRef.current.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+  }, [scrollToTop]);
 
   // Auto-Scroll
   useEffect(() => {
@@ -45,32 +56,31 @@ export const TablatureCanvas: React.FC<TablatureCanvasProps> = ({
   }, [Math.floor(currentMeasureIndex), isPlaying, zoom]);
 
   return (
-    <Block className="flex-1 p-0 overflow-hidden">
+    <Block className="flex-1 p-0 overflow-visible">
       <div 
         ref={scrollContainerRef}
-        className="h-full overflow-y-auto custom-scrollbar scroll-smooth bg-white dark:bg-gray-800"
-        style={{ maxHeight: '60vh' }}
+        className="h-full overflow-y-auto overflow-x-visible custom-scrollbar scroll-smooth bg-white dark:bg-gray-800"
+        style={{ maxHeight: '60vh', overflowX: 'visible' }}
       >
-        <div className="max-w-4xl mx-auto py-10 min-h-full">
+        <div className="w-full py-10 min-h-full" style={{ overflowX: 'hidden' }}>
+          <div className="w-full max-w-[720px] mx-auto px-6" style={{ minWidth: 0, overflowX: 'hidden', width: '100%' }}>
           
-          <div className="flex items-center justify-between px-6 mb-8 opacity-50">
-            <div className="flex items-center gap-2">
-              <LayoutTemplate size={14} />
-              <span className="text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400">Vue Standard</span>
+            <div className="flex items-center justify-end mb-8">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400">Tuning:</span>
+                <span className="font-mono text-sm bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded text-black dark:text-white">
+                  {currentTrack.tuning}
+                </span>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400">Tuning:</span>
-              <span className="font-mono text-sm bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded text-black dark:text-white">
-                {currentTrack.tuning}
-              </span>
-            </div>
-          </div>
 
-          <div className="flex flex-col gap-0 pb-32">
+            <div className="flex flex-col gap-0 pb-32 w-full">
             {measures.map((measure, index) => {
-              const isActive = index === Math.floor(currentMeasureIndex);
-              const isLoopActive = isLooping && loopRange && index >= loopRange[0] && index <= loopRange[1];
-              const playheadPercent = isActive ? (currentMeasureIndex - Math.floor(currentMeasureIndex)) * 100 : 0;
+              const measureFloor = Math.floor(currentMeasureIndex);
+              const isActive = index === measureFloor && index < measures.length;
+              const isLoopActive = !!(isLooping && loopRange && index >= loopRange[0] && index <= loopRange[1]);
+              const positionInMeasure = currentMeasureIndex - measureFloor;
+              const playheadPercent = isActive ? Math.min(100, Math.max(0, positionInMeasure * 100)) : 0;
 
               return (
                 <Measure
@@ -86,10 +96,11 @@ export const TablatureCanvas: React.FC<TablatureCanvasProps> = ({
                 />
               );
             })}
-          </div>
-          
-          <div className="h-48 flex items-center justify-center text-gray-400 dark:text-gray-600 font-medium tracking-widest text-sm uppercase">
-            Fin de la piste
+            </div>
+            
+            <div className="h-48 flex items-center justify-center text-gray-400 dark:text-gray-600 font-medium tracking-widest text-sm uppercase">
+              Fin de la piste
+            </div>
           </div>
         </div>
       </div>

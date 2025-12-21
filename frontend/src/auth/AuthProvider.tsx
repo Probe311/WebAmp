@@ -3,6 +3,9 @@ import { Session, User } from '@supabase/supabase-js'
 import { useToast } from '../components/notifications/ToastProvider'
 import { supabase, isSupabaseEnabled, requireSupabase } from './supabaseClient'
 import { AuthContextValue } from './types'
+import { createLogger } from '../services/logger'
+
+const logger = createLogger('AuthProvider')
 
 const AuthContext = createContext<AuthContextValue | null>(null)
 
@@ -12,7 +15,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [initializing, setInitializing] = useState(true)
   const [loading, setLoading] = useState(false)
-  const authEnabled = useMemo(() => isSupabaseEnabled && Boolean(supabase), [])
+  const authEnabled = useMemo(() => isSupabaseEnabled(), [])
 
   useEffect(() => {
     if (!supabase) {
@@ -20,24 +23,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return
     }
 
+    let isMounted = true
+
     supabase.auth.getSession()
       .then(({ data, error }) => {
+        if (!isMounted) return
         if (error) {
+          logger.error('Erreur lors de la récupération de la session', error)
           return
         }
         setSession(data.session)
         setUser(data.session?.user ?? null)
       })
-      .finally(() => setInitializing(false))
+      .catch((error) => {
+        if (!isMounted) return
+        logger.error('Erreur lors de la récupération de la session', error)
+      })
+      .finally(() => {
+        if (isMounted) {
+          setInitializing(false)
+        }
+      })
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      setSession(nextSession)
-      setUser(nextSession?.user ?? null)
+      if (isMounted) {
+        setSession(nextSession)
+        setUser(nextSession?.user ?? null)
+      }
     })
 
     return () => {
+      isMounted = false
       listener?.subscription.unsubscribe()
     }
+    // supabase est une constante stable, pas besoin de la mettre dans les dépendances
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const ensureClient = useCallback(() => {
@@ -205,7 +225,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [ensureClient, showToast])
 
-  const updateUserMetadata = useCallback(async (metadata: Record<string, any>) => {
+  const updateUserMetadata = useCallback(async (metadata: Record<string, unknown>) => {
     setLoading(true)
     try {
       const client = ensureClient()

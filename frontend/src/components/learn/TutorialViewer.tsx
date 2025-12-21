@@ -43,22 +43,32 @@ export function TutorialViewer({
         
         if (courseProgress?.is_completed) {
           setIsCompleted(true)
-          setShowCelebration(true)
-        }
-        
-        // Trouver la dernière leçon complétée
-        const completedLessons = progress.filter(p => p.is_completed && p.lesson_id)
-        if (completedLessons.length > 0) {
-          const lastCompleted = completedLessons[completedLessons.length - 1]
-          const lessonIndex = tutorial.content?.steps?.findIndex(s => s.id === lastCompleted.lesson_id) || 0
-          setCurrentStepIndex(Math.max(0, lessonIndex))
-          
-          const completed = new Set<number>()
-          completedLessons.forEach(p => {
-            const idx = tutorial.content?.steps?.findIndex(s => s.id === p.lesson_id) ?? -1
-            if (idx >= 0) completed.add(idx)
+          // Ne pas afficher l'écran de célébration au chargement, seulement lors de la complétion
+          // setShowCelebration(true)
+          // Si le cours est complété, marquer toutes les sections comme complétées pour navigation libre
+          const steps = tutorial.content?.steps || []
+          const allCompleted = new Set<number>()
+          steps.forEach((_step, index) => {
+            allCompleted.add(index)
           })
-          setCompletedSteps(completed)
+          setCompletedSteps(allCompleted)
+          // Par défaut, commencer à la première section
+          setCurrentStepIndex(0)
+        } else {
+          // Trouver la dernière leçon complétée
+          const completedLessons = progress.filter(p => p.is_completed && p.lesson_id)
+          if (completedLessons.length > 0) {
+            const lastCompleted = completedLessons[completedLessons.length - 1]
+            const lessonIndex = tutorial.content?.steps?.findIndex(s => s.id === lastCompleted.lesson_id) || 0
+            setCurrentStepIndex(Math.max(0, lessonIndex))
+            
+            const completed = new Set<number>()
+            completedLessons.forEach(p => {
+              const idx = tutorial.content?.steps?.findIndex(s => s.id === p.lesson_id) ?? -1
+              if (idx >= 0) completed.add(idx)
+            })
+            setCompletedSteps(completed)
+          }
         }
       } else {
         // Fallback sur localStorage
@@ -67,9 +77,16 @@ export function TutorialViewer({
         
         if (savedCompleted === 'true') {
           setIsCompleted(true)
-        }
-        
-        if (savedStep) {
+          // Si le cours est complété, marquer toutes les sections comme complétées pour navigation libre
+          const steps = tutorial.content?.steps || []
+          const allCompleted = new Set<number>()
+          steps.forEach((_step, index) => {
+            allCompleted.add(index)
+          })
+          setCompletedSteps(allCompleted)
+          // Par défaut, commencer à la première section
+          setCurrentStepIndex(0)
+        } else if (savedStep) {
           const step = parseInt(savedStep, 10)
           setCurrentStepIndex(step)
           
@@ -268,7 +285,8 @@ export function TutorialViewer({
             completedSteps={completedSteps}
             totalXP={tutorial.rewards.xp}
             onStepClick={(index) => {
-              if (index <= currentStepIndex) {
+              // Si le cours est complété, permettre la navigation libre vers toutes les sections
+              if (isCompleted || index <= currentStepIndex) {
                 setCurrentStepIndex(index)
               }
             }}
@@ -304,11 +322,9 @@ export function TutorialViewer({
                     mode="boom"
                     shapeSize={10}
                     particleCount={120}
-                    spreadAngle={90}
-                    boomOptions={{
-                      x: 0.5,
-                      y: 0.2,
-                    }}
+                    spreadDeg={90}
+                    x={0.5}
+                    y={0.2}
                     colors={['#22c55e', '#f97316', '#eab308', '#38bdf8', '#6366f1']}
                   />
                 </div>

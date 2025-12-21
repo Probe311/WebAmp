@@ -1,7 +1,9 @@
 // Edge Function: ai-voice-intent
 // Interprétation des commandes vocales (déjà transcrites en texte) en actions structurées pour WebAmp.
+// Utilise Gemini API (Google AI)
 
 import { handleCors, createCorsJsonResponse, createCorsErrorResponse } from '../_shared/cors.ts'
+import { callGemini } from '../_shared/gemini.ts'
 
 interface VoiceIntentRequest {
   text: string
@@ -34,14 +36,6 @@ interface VoiceIntentResponse {
 }
 
 async function callLLMForIntent(prompt: string): Promise<VoiceIntentResponse> {
-  const apiKey = Deno.env.get('OPENROUTER_API_KEY') || Deno.env.get('OPENAI_API_KEY')
-  const baseUrl = Deno.env.get('OPENROUTER_BASE_URL') || 'https://openrouter.ai/api/v1'
-  const model = Deno.env.get('WEBAMP_VOICE_MODEL') || 'gpt-4.1'
-
-  if (!apiKey) {
-    throw new Error('Missing OPENROUTER_API_KEY / OPENAI_API_KEY')
-  }
-
   const systemPrompt = `
 Tu es l'assistant vocal de WebAmp (simulateur d'amplis/pédales).
 On te donne UNE commande utilisateur déjà transcrite en texte.
@@ -62,48 +56,16 @@ Exemples de mapping :
 Contraintes :
 - Si la commande est ambiguë ou non pertinente, renvoie "type": "noOp".
 - Ne renvoie AUCUN texte hors du JSON.
+- Retourne un objet JSON valide avec la structure exacte : { "command": { "type": "...", "payload": {...}, "naturalLanguageSummary": "..." } }
 `
 
-  const body = {
-    model,
-    messages: [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: prompt },
-    ],
-    response_format: { type: 'json_object' },
-  }
-
-  const resp = await fetch(`${baseUrl}/chat/completions`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify(body),
+  return await callGemini<VoiceIntentResponse>(systemPrompt, prompt, {
+    temperature: 0.3, // Plus déterministe pour les commandes
+    maxOutputTokens: 512
   })
-
-  if (!resp.ok) {
-    const text = await resp.text()
-    console.error('LLM API error (ai-voice-intent)', resp.status, text)
-    throw new Error(`LLM API error: ${resp.status}`)
-  }
-
-  const data = await resp.json()
-  const content = data.choices?.[0]?.message?.content
-  if (!content) {
-    throw new Error('Empty LLM response')
-  }
-
-  try {
-    const parsed = JSON.parse(content) as VoiceIntentResponse
-    return parsed
-  } catch (err) {
-    console.error('Failed to parse LLM JSON content (ai-voice-intent)', content, err)
-    throw new Error('Invalid JSON from LLM')
-  }
 }
 
-async function handler(req: Request): Promise<Response> {
+async function handleVoiceIntentRequest(req: Request): Promise<Response> {
   if (req.method === 'OPTIONS') {
     return createCorsJsonResponse({ ok: true })
   }
@@ -153,6 +115,6 @@ Interprète cette commande en WebAmpCommand. Retourne UNIQUEMENT le JSON.
   }
 }
 
-serve((req) => handleCors(req, handler))
+serve((req) => handleCors(req, handleVoiceIntentRequest))
 
 

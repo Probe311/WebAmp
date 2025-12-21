@@ -1,12 +1,14 @@
-import { LayoutDashboard, Repeat, Music, BookOpen, Settings, User, Drum, Sliders, BoomBox } from 'lucide-react'
+import { LayoutDashboard, Repeat, Music, BookOpen, Settings, User, Drum, Sliders, BoomBox, Store, Shield } from 'lucide-react'
 import { useDrumMachine } from '../contexts/DrumMachineContext'
+import { useFeatureFlags } from '../hooks/useFeatureFlags'
 
-export type PageId = 'home' | 'webamp' | 'looper' | 'practice' | 'learn' | 'mixing' | 'drummachine' | 'settings' | 'account'
+export type PageId = 'home' | 'webamp' | 'looper' | 'practice' | 'learn' | 'mixing' | 'drummachine' | 'gallery' | 'settings' | 'account' | 'admin'
 
 interface BottomNavigationProps {
   currentPage: PageId
   onPageChange: (page: PageId) => void
   isAuthenticated?: boolean
+  isAdmin?: boolean
 }
 
 interface NavItem {
@@ -17,19 +19,36 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { id: 'home', icon: LayoutDashboard, label: 'Home' },
+  { id: 'home', icon: LayoutDashboard, label: 'Accueil' },
   { id: 'webamp', icon: BoomBox, label: 'WebAmp' },
   { id: 'looper', icon: Repeat, label: 'Looper' },
-  { id: 'practice', icon: Music, label: 'Practice' },
-  { id: 'learn', icon: BookOpen, label: 'Learn' },
-  { id: 'mixing', icon: Sliders, label: 'Mix' },
-  { id: 'drummachine', icon: Drum, label: 'Drums' },
-  { id: 'settings', icon: Settings, label: 'Settings' },
-  { id: 'account', icon: User, label: 'Account', requiresAuth: true }
+  { id: 'practice', icon: Music, label: 'Pratique' },
+  { id: 'learn', icon: BookOpen, label: 'Apprendre' },
+  { id: 'mixing', icon: Sliders, label: 'Mixage' },
+  { id: 'drummachine', icon: Drum, label: 'Batterie' },
+  { id: 'gallery', icon: Store, label: 'Gallery' },
+  { id: 'settings', icon: Settings, label: 'Paramètres' },
+  { id: 'account', icon: User, label: 'Compte', requiresAuth: true }
 ]
 
-export function BottomNavigation({ currentPage, onPageChange, isAuthenticated = false }: BottomNavigationProps) {
+export function BottomNavigation({ currentPage, onPageChange, isAuthenticated = false, isAdmin = false }: BottomNavigationProps) {
   const { isActive: isDrumMachineActive } = useDrumMachine()
+  const { isEnabled } = useFeatureFlags()
+
+  // Mapping des pages vers leurs feature flags
+  const pageFeatureFlags: Record<PageId, string | null> = {
+    'home': null, // Toujours visible
+    'webamp': null, // Toujours visible
+    'looper': 'page_looper',
+    'practice': 'page_practice',
+    'learn': 'page_learn',
+    'mixing': 'page_mixing',
+    'drummachine': 'page_drummachine',
+    'gallery': 'page_gallery',
+    'settings': null, // Toujours visible
+    'account': null, // Géré par requiresAuth
+    'admin': null // Géré par isAdmin
+  }
 
   return (
     <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
@@ -37,6 +56,12 @@ export function BottomNavigation({ currentPage, onPageChange, isAuthenticated = 
         {navItems.map((item) => {
           // Masquer les éléments nécessitant une authentification si l'utilisateur n'est pas connecté
           if (item.requiresAuth && !isAuthenticated) {
+            return null
+          }
+
+          // Vérifier le feature flag pour cette page
+          const featureFlagKey = pageFeatureFlags[item.id]
+          if (featureFlagKey && !isEnabled(featureFlagKey)) {
             return null
           }
 
@@ -84,6 +109,42 @@ export function BottomNavigation({ currentPage, onPageChange, isAuthenticated = 
             </button>
           )
         })}
+        
+        {/* Bouton Admin - tout à droite, visible uniquement pour l'admin */}
+        {isAdmin && (
+          <button
+            onClick={() => onPageChange('admin')}
+            className="group flex flex-col items-center gap-1 relative touch-manipulation transition-all duration-300 ml-4 pl-4 border-l border-black/10 dark:border-white/10"
+            aria-label="Administration"
+            aria-current={currentPage === 'admin' ? 'page' : undefined}
+          >
+            <div
+              className={`
+                p-3 rounded-2xl transition-all duration-300
+                ${currentPage === 'admin'
+                  ? 'bg-red-500 text-white shadow-[0_0_20px_rgba(239,68,68,0.5)] translate-y-[-4px]'
+                  : 'text-black/70 dark:text-white/70 hover:bg-white/5 dark:hover:bg-white/5'
+                }
+              `}
+            >
+              <Shield 
+                size={24} 
+                strokeWidth={currentPage === 'admin' ? 2.5 : 2}
+              />
+            </div>
+            <span
+              className={`
+                text-[10px] font-medium absolute -bottom-4 transition-opacity duration-300
+                ${currentPage === 'admin'
+                  ? 'opacity-100 text-red-500 dark:text-red-400'
+                  : 'opacity-0 text-black/70 dark:text-white/70 group-hover:opacity-100'
+                }
+              `}
+            >
+              Admin
+            </span>
+          </button>
+        )}
       </div>
     </nav>
   )

@@ -254,7 +254,7 @@ export function Looper() {
       <div className="flex justify-between items-end mb-6">
         <div className="flex-1">
           <div className="text-neutral-500 dark:text-neutral-400 text-sm mb-1">
-            Project:
+            Projet :
           </div>
           {isEditingProjectName ? (
             <div className="flex items-center gap-2">
@@ -395,7 +395,7 @@ export function Looper() {
           onClick={handleAddTrack}
           className="h-24 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-2xl flex items-center justify-center text-gray-400 dark:text-gray-600 hover:text-black dark:hover:text-white hover:border-black/20 dark:hover:border-white/20 transition-colors cursor-pointer"
         >
-          <span className="font-medium flex items-center gap-2">Add new track</span>
+          <span className="font-medium flex items-center gap-2">Ajouter une piste</span>
         </div>
       </div>
 
@@ -441,14 +441,14 @@ export function Looper() {
         <div className="flex items-center gap-4">
           <button className="flex flex-col items-center gap-1 text-neutral-400 dark:text-neutral-500 hover:text-black dark:hover:text-white transition-colors">
             <Headphones size={20} />
-            <span className="text-[10px]">Monitor</span>
+            <span className="text-[10px]">Moniteur</span>
           </button>
           <CTA
             variant="important"
             className="flex flex-col items-center gap-1"
             icon={<Save size={20} />}
           >
-            <span className="text-[10px]">Save</span>
+            <span className="text-[10px]">Enregistrer</span>
           </CTA>
         </div>
       </div>

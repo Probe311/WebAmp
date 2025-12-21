@@ -1,7 +1,11 @@
 // Fonctions utilitaires pour synchroniser les effets avec le moteur audio
 
 import { Effect } from '../components/Pedalboard'
-import { WebSocketClient } from '../services/websocket'
+import { WebSocketClient, WebSocketMessage } from '../services/websocket'
+import { PedalboardEngine } from '../audio/PedalboardEngine'
+import { createLogger } from '../services/logger'
+
+const logger = createLogger('pedalboardSync')
 
 /**
  * Synchronise un effet avec le moteur audio
@@ -9,14 +13,17 @@ import { WebSocketClient } from '../services/websocket'
 export async function syncEffectToAudio(
   effect: Effect,
   isInitialized: boolean,
-  engine: any,
+  engine: PedalboardEngine | null,
   addAudioEffect: (effect: Effect) => Promise<void>
 ): Promise<void> {
   if (isInitialized && engine) {
     try {
       await addAudioEffect(effect)
     } catch (error) {
-      // échec silencieux d'ajout d'effet audio
+      logger.error('Échec de synchronisation d\'effet avec le moteur audio', error, { 
+        effectId: effect.id, 
+        pedalId: effect.pedalId 
+      })
     }
   }
 }
@@ -25,16 +32,17 @@ export async function syncEffectToAudio(
  * Synchronise un effet avec WebSocket
  */
 export function syncEffectToWebSocket(
-  message: any,
+  message: WebSocketMessage,
   requireAck: boolean = false
-): Promise<any> {
+): Promise<WebSocketMessage> {
   const ws = WebSocketClient.getInstance()
   if (ws.isConnected()) {
     return ws.send(message, requireAck).catch((error) => {
+      logger.error('Échec d\'envoi de message WebSocket', error, { messageType: message.type })
       throw error
     })
   }
-  return Promise.resolve()
+  return Promise.resolve(message)
 }
 
 /**
@@ -43,14 +51,14 @@ export function syncEffectToWebSocket(
 export function removeEffectFromAudio(
   id: string,
   isInitialized: boolean,
-  engine: any,
+  engine: PedalboardEngine | null,
   removeAudioEffect: (id: string) => void
 ): void {
   if (isInitialized && engine) {
     try {
       removeAudioEffect(id)
     } catch (error) {
-      // échec silencieux de suppression
+      logger.error('Échec de suppression d\'effet du moteur audio', error, { effectId: id })
     }
   }
 }
@@ -62,14 +70,14 @@ export async function updateEffectParametersInAudio(
   id: string,
   parameters: Record<string, number>,
   isInitialized: boolean,
-  engine: any,
+  engine: PedalboardEngine | null,
   updateAudioParameters: (id: string, params: Record<string, number>) => Promise<void>
 ): Promise<void> {
   if (isInitialized && engine) {
     try {
       await updateAudioParameters(id, parameters)
     } catch (error) {
-      // échec silencieux de mise à jour
+      logger.error('Échec de mise à jour des paramètres d\'effet', error, { effectId: id, parameters })
     }
   }
 }
@@ -81,14 +89,14 @@ export function setEffectEnabledInAudio(
   id: string,
   enabled: boolean,
   isInitialized: boolean,
-  engine: any,
+  engine: PedalboardEngine | null,
   setEffectEnabled: (id: string, enabled: boolean) => void
 ): void {
   if (isInitialized && engine) {
     try {
       setEffectEnabled(id, enabled)
     } catch (error) {
-      // échec silencieux du toggle bypass
+      logger.error('Échec de toggle bypass d\'effet', error, { effectId: id, enabled })
     }
   }
 }

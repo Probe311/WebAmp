@@ -4,6 +4,7 @@ export { LooperPage } from './LooperPage'
 export { PracticePage } from './PracticePage'
 export { LearnPage } from './LearnPage'
 export { MixingConsolePage } from './MixingConsolePage'
+export { GalleryPage } from './GalleryPage'
 export { SettingsPage } from './SettingsPage'
 export { AccountPage } from './AccountPage'
 

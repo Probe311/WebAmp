@@ -6,7 +6,7 @@ import { ArtistProfile } from './ArtistProfile'
 import { tablatureService } from '../../services/tablatures'
 import { lmsService } from '../../services/lms'
 import { customLessonBlocks } from './customLessonBlocks'
-import { parseLessonContent, cleanLessonDescription, type HtmlTabBlock } from '../../utils/lessonContentParser'
+import { parseLessonContent, cleanLessonDescription, type HtmlTabBlock, type YouTubeLink } from '../../utils/lessonContentParser'
 import { Dropdown, type DropdownOption } from '../Dropdown'
 import { Block } from '../Block'
 import { Guitar, Piano, Music, Loader2 } from 'lucide-react'
@@ -128,6 +128,15 @@ export function TutorialContentRenderer({
               </div>
             )
           })}
+        </div>
+      )}
+
+      {/* Afficher les vidéos YouTube si référencées */}
+      {detectedContent.youtubeLinks && detectedContent.youtubeLinks.length > 0 && (
+        <div className="mt-4 space-y-4">
+          {detectedContent.youtubeLinks.map((youtubeLink, index) => (
+            <YouTubeEmbed key={index} link={youtubeLink} />
+          ))}
         </div>
       )}
     </div>
@@ -292,6 +301,36 @@ function TablatureFromAPI({ tablatureId }: { tablatureId: string }) {
   return (
     <div className="mt-4">
       <TabViewer tablature={convertedTablature} />
+    </div>
+  )
+}
+
+/**
+ * Composant pour afficher une vidéo YouTube en iframe
+ */
+function YouTubeEmbed({ link }: { link: YouTubeLink }) {
+  // Construire l'URL embed YouTube
+  const embedUrl = `https://www.youtube.com/embed/${link.videoId}`
+  
+  return (
+    <div className="mt-4">
+      <Block className="p-4">
+        {link.title && (
+          <h4 className="text-sm font-bold text-black/70 dark:text-white/70 mb-4">
+            {link.title}
+          </h4>
+        )}
+        <div className="relative w-full" style={{ paddingBottom: '56.25%' }}> {/* 16:9 aspect ratio */}
+          <iframe
+            className="absolute top-0 left-0 w-full h-full rounded-lg"
+            src={embedUrl}
+            title={link.title || 'Vidéo YouTube'}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            loading="lazy"
+          />
+        </div>
+      </Block>
     </div>
   )
 }

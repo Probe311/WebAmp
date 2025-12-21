@@ -1,39 +1,25 @@
-import { createClient, SupabaseClient } from '@supabase/supabase-js'
+/**
+ * @deprecated Utilisez getSupabaseClient() depuis lib/supabase.ts à la place
+ * 
+ * Ce fichier est conservé pour compatibilité avec le code existant.
+ * Tous les nouveaux imports doivent utiliser lib/supabase.ts
+ */
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL?.trim()
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim()
+import { 
+  requireSupabaseClient, 
+  isSupabaseEnabled,
+  getSupabaseConfig,
+  supabase
+} from '../lib/supabase'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
-const hasConfig = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY && 
-  SUPABASE_URL.length > 0 && SUPABASE_ANON_KEY.length > 0)
+// Ré-exporter pour compatibilité
+export { supabase, isSupabaseEnabled, getSupabaseConfig }
 
-// Utiliser une clé de stockage unique pour éviter les conflits avec d'autres instances
-const STORAGE_KEY = 'webamp-auth'
-
-const client: SupabaseClient | null = hasConfig
-  ? createClient(SUPABASE_URL as string, SUPABASE_ANON_KEY as string, {
-      auth: {
-        persistSession: true,
-        autoRefreshToken: true,
-        detectSessionInUrl: true,
-        storageKey: STORAGE_KEY
-      }
-    })
-  : null
-
-export const supabase = client
-export const isSupabaseEnabled = hasConfig
-
+/**
+ * @deprecated Utilisez requireSupabaseClient() depuis lib/supabase.ts
+ */
 export function requireSupabase(): SupabaseClient {
-  if (!client) {
-    throw new Error('Authentification non configurée. Vérifie les variables d\'environnement.')
-  }
-  return client
-}
-
-export function getSupabaseConfig() {
-  return {
-    url: SUPABASE_URL ?? '',
-    anonKey: SUPABASE_ANON_KEY ?? ''
-  }
+  return requireSupabaseClient()
 }
 

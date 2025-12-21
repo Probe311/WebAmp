@@ -1,16 +1,63 @@
 // Client WebSocket pour communication avec le Native Helper
 
-const DEFAULT_WS_URL = import.meta.env.VITE_WEBSOCKET_URL || 'ws://localhost:8765'
+import { createLogger } from './logger'
+import { 
+  WEBSOCKET_DEFAULT_URL, 
+  WEBSOCKET_MAX_RECONNECT_ATTEMPTS, 
+  WEBSOCKET_RECONNECT_DELAY,
+  WEBSOCKET_ACK_TIMEOUT 
+} from '../config/constants'
 
-interface WebSocketMessage {
-  type: string
-  [key: string]: any
+const logger = createLogger('WebSocket')
+
+// Types stricts pour les messages WebSocket
+export type WebSocketMessageType = 
+  | 'start' 
+  | 'stop' 
+  | 'addEffect' 
+  | 'removeEffect' 
+  | 'setParameter' 
+  | 'getStats'
+  | 'ack'
+  | 'error'
+  | 'stateSync'
+  | 'status'
+  | 'clearEffects'
+  | 'toggleBypass'
+  | 'moveEffect'
+  | 'setAmplifierPower'
+  | 'setEqualizerParameter'
+  | 'saveEqualizerConfig'
+
+export interface BaseWebSocketMessage {
+  type: WebSocketMessageType
+  messageId?: string
+}
+
+export interface WebSocketMessage extends BaseWebSocketMessage {
+  [key: string]: unknown
+}
+
+export interface WebSocketAckMessage extends BaseWebSocketMessage {
+  type: 'ack'
+  messageId: string
+}
+
+export interface WebSocketErrorMessage extends BaseWebSocketMessage {
+  type: 'error'
+  messageId: string
+  message?: string
+}
+
+export interface WebSocketStateSyncMessage extends BaseWebSocketMessage {
+  type: 'stateSync'
+  [key: string]: unknown
 }
 
 interface PendingAck {
-  resolve: (value: any) => void
+  resolve: (value: WebSocketMessage) => void
   reject: (error: Error) => void
-  timeout: NodeJS.Timeout
+  timeout: ReturnType<typeof setTimeout>
 }
 
 export class WebSocketClient {
@@ -18,13 +65,13 @@ export class WebSocketClient {
   private ws: WebSocket | null = null
   private url: string
   private reconnectAttempts = 0
-  private maxReconnectAttempts = 5
-  private reconnectDelay = 1000
+  private maxReconnectAttempts = WEBSOCKET_MAX_RECONNECT_ATTEMPTS
+  private reconnectDelay = WEBSOCKET_RECONNECT_DELAY
   private pendingAcks: Map<string, PendingAck> = new Map()
   private messageIdCounter = 0
   private isConnecting = false
 
-  private constructor(url: string = DEFAULT_WS_URL) {
+  private constructor(url: string = WEBSOCKET_DEFAULT_URL) {
     this.url = url
   }
 
@@ -67,14 +114,14 @@ export class WebSocketClient {
 
         this.ws.onmessage = (event) => {
           try {
-            const message = JSON.parse(event.data)
+            const message = JSON.parse(event.data) as WebSocketMessage
             this.handleMessage(message)
           } catch (error) {
-            // erreur de parsing silencieuse
+            logger.error('Erreur de parsing du message WebSocket', error, { data: event.data })
           }
         }
 
-        this.ws.onerror = (error) => {
+        this.ws.onerror = (_error) => {
           this.isConnecting = false
           if (this.reconnectAttempts === 0) {
             reject(new Error('Impossible de se connecter au Native Helper'))
@@ -103,8 +150,8 @@ export class WebSocketClient {
     // tentative de reconnexion silencieuse
     setTimeout(() => {
       if (this.ws?.readyState !== WebSocket.OPEN) {
-        this.connect().catch(() => {
-          // Erreur déjà gérée dans connect()
+        this.connect().catch((error) => {
+          logger.debug('Tentative de reconnexion WebSocket échouée', { error })
         })
       }
     }, delay)
@@ -113,10 +160,11 @@ export class WebSocketClient {
   private handleMessage(message: WebSocketMessage): void {
     // Gérer les ACK
     if (message.type === 'ack' && message.messageId) {
-      const pending = this.pendingAcks.get(message.messageId)
+      const ackMessage = message as WebSocketAckMessage
+      const pending = this.pendingAcks.get(ackMessage.messageId)
       if (pending) {
         clearTimeout(pending.timeout)
-        this.pendingAcks.delete(message.messageId)
+        this.pendingAcks.delete(ackMessage.messageId)
         pending.resolve(message)
       }
       return
@@ -124,23 +172,27 @@ export class WebSocketClient {
 
     // Gérer les erreurs
     if (message.type === 'error' && message.messageId) {
-      const pending = this.pendingAcks.get(message.messageId)
+      const errorMessage = message as WebSocketErrorMessage
+      const pending = this.pendingAcks.get(errorMessage.messageId)
       if (pending) {
         clearTimeout(pending.timeout)
-        this.pendingAcks.delete(message.messageId)
-        pending.reject(new Error(message.message || 'Erreur WebSocket'))
+        this.pendingAcks.delete(errorMessage.messageId)
+        pending.reject(new Error(errorMessage.message || 'Erreur WebSocket'))
       }
       return
     }
 
     // Gérer la synchronisation d'état
     if (message.type === 'stateSync' && this.onStateSync) {
-      this.onStateSync(message)
+      this.onStateSync(message as WebSocketStateSyncMessage)
       return
     }
+
+    // Message non géré
+    logger.debug('Message WebSocket non géré', { messageType: message.type })
   }
 
-  public send(message: WebSocketMessage, requireAck: boolean = false): Promise<any> {
+  public send(message: WebSocketMessage, requireAck: boolean = false): Promise<WebSocketMessage> {
     if (!this.isConnected()) {
       // Tentative de connexion automatique
       return this.connect().then(() => this.send(message, requireAck))
@@ -154,7 +206,7 @@ export class WebSocketClient {
         const timeout = setTimeout(() => {
           this.pendingAcks.delete(messageId)
           reject(new Error('Timeout WebSocket'))
-        }, 5000)
+        }, WEBSOCKET_ACK_TIMEOUT)
 
         this.pendingAcks.set(messageId, {
           resolve,
@@ -173,7 +225,7 @@ export class WebSocketClient {
     } else {
       try {
         this.ws!.send(JSON.stringify(message))
-        return Promise.resolve()
+        return Promise.resolve(message)
       } catch (error) {
         return Promise.reject(error)
       }
@@ -197,16 +249,16 @@ export class WebSocketClient {
     if (this.ws) {
       this.ws.onmessage = (event) => {
         try {
-          const message = JSON.parse(event.data)
+          const message = JSON.parse(event.data) as WebSocketMessage
           handler(message)
         } catch (error) {
-          // erreur de parsing silencieuse
+          logger.error('Erreur de parsing du message WebSocket (handler personnalisé)', error, { data: event.data })
         }
       }
     }
   }
 
   // Callback pour la synchronisation d'état
-  public onStateSync: ((message: WebSocketMessage) => void) | null = null
+  public onStateSync: ((message: WebSocketStateSyncMessage) => void) | null = null
 }
 

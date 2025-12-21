@@ -61,17 +61,10 @@ WebAmp/
   - `cd native && mkdir -p build && cd build`
   - `cmake ..` puis `cmake --build . --config Release`
 - WebSocket natif par défaut : `ws://localhost:8765`
-- Scripts Windows pratiques : `scripts/start-all.ps1`, `start-native.ps1`, `start-frontend.ps1`
 
 ### Packaging du Native Helper
 
-Pour créer les packages distribuables :
-
-- **Windows** : `.\scripts\package-windows.ps1`
-- **macOS** : `./scripts/package-macos.sh`
-- **Linux** : `./scripts/package-linux.sh`
-
-Voir [native/README_PACKAGING.md](native/README_PACKAGING.md) pour plus de détails.
+Voir [native/README_PACKAGING.md](native/README_PACKAGING.md) pour les instructions de packaging.
 
 ## Fonctionnalités
 
@@ -95,7 +88,7 @@ Le frontend est déployé automatiquement sur Vercel à chaque push sur `main`.
   - `VITE_SUPABASE_ANON_KEY`
   - `VITE_WEBSOCKET_URL` (pour dev local)
 
-Voir [docs/VERCEL_SETUP.md](docs/VERCEL_SETUP.md) pour le guide complet.
+Voir [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) pour le guide de déploiement.
 
 ### Base de données (Supabase)
 
@@ -128,7 +121,7 @@ Voir [docs/README.md](docs/README.md) pour la documentation complète.
 
 - **[Démarrage rapide](docs/GETTING_STARTED.md)** - Installation et premier lancement
 - **[Architecture](docs/ARCHITECTURE.md)** - Vue d'ensemble technique
-- **[Déploiement Vercel](docs/VERCEL_SETUP.md)** - Guide de déploiement
+- **[Déploiement](docs/DEPLOYMENT.md)** - Guide de déploiement
 - **[Design System](docs/DESIGN_SYSTEM.md)** - Conventions UI neumorphic
 - **[API WebSocket](docs/API.md)** - Protocole de communication
 

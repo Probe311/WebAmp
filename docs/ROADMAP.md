@@ -326,18 +326,47 @@ Plan de développement et fonctionnalités prévues pour WebAmp.
   - [ ] Sauvegarde automatique
   - [ ] Synchronisation multi-appareils
   - [ ] Historique des versions
-- [ ] Bibliothèque de presets communautaire
-  - [ ] Marketplace de presets
-  - [ ] Système de recommandations
-  - [ ] Presets certifiés par des artistes
-  - [ ] **Intégration MusicBrainz API** : Métadonnées enrichies (artiste, album, genre)
-    - [ ] Auto-complétion des tags depuis MusicBrainz
-    - [ ] Recherche de presets par métadonnées musicales
-    - [ ] Association presets ↔ artistes/albums
-  - [ ] **Intégration Freesound API** : Samples et IRs sous licence CC
-    - [ ] Bibliothèque de samples pour machine à rythmes
-    - [ ] IRs communautaires depuis Freesound
-    - [ ] Recherche et import de contenus audio
+
+
+- [ ] **The Gallery - Marketplace de Tones** (Levier business principal - Modèle freemium/marketplace)
+  **Priorité** : HAUTE (Business Model)
+  **Status** : 📋 Planifié
+  
+  **Description** : Écosystème social où les utilisateurs peuvent découvrir, tester et télécharger des presets ("Tones") créés par des artistes ou la communauté. C'est le levier business principal pour financer l'application via des transactions (modèle freemium/marketplace).
+  
+  **Fonctionnalités principales** :
+  - [ ] **Grille de "Tone Packs"** : Affichage en grille avec prévisualisation visuelle de la chaîne d'effets
+    - [ ] Cartes visuelles avec thumbnails, métadonnées (auteur, tags, description)
+    - [ ] Prévisualisation de la chaîne d'effets (liste des pédales utilisées)
+    - [ ] Statistiques sociales (téléchargements, likes, notes)
+    - [ ] Badges "PRO PACK" pour les contenus premium
+  - [ ] **Système de "Cloud Sync" simulé** : Chargement instantané de presets dans le module Effects
+    - [ ] Bouton "INSTANT LOAD" pour appliquer un preset directement sur la pédaleboard
+    - [ ] Synchronisation transparente entre Gallery et Effects Page
+    - [ ] Prévisualisation avant chargement (optionnel)
+  - [ ] **Recherche et filtres avancés** :
+    - [ ] Recherche par style, artiste, tags
+    - [ ] Filtres par catégories (Popular, New, Artist Picks, Clean, High Gain, etc.)
+    - [ ] Tri par popularité, date, notes, téléchargements
+  - [ ] **Système de notation et recommandations** :
+    - [ ] Système de likes/favoris
+    - [ ] Notes et avis utilisateurs
+    - [ ] Recommandations basées sur l'historique et les préférences
+    - [ ] Presets certifiés par des artistes (badge "Artist Verified")
+  
+  **Fichiers** :
+  - `frontend/src/pages/GalleryPage.tsx` : Page principale The Gallery
+  - `frontend/src/components/gallery/TonePackCard.tsx` : Composant carte de Tone Pack
+  - `frontend/src/components/gallery/GalleryFilters.tsx` : Composant filtres et recherche
+  - `frontend/src/services/gallery.ts` : Service API pour la marketplace
+  - `frontend/src/types/gallery.ts` : Types TypeScript (TonePack, etc.)
+  - `supabase/functions/gallery-sync/` : Edge Function pour synchronisation Cloud Sync
+  
+  **Stack technique** :
+  - Supabase pour stockage des presets et métadonnées
+  - Stripe/PayPal pour paiements (marketplace)
+  - CDN pour thumbnails et assets
+  - Cache Redis pour performances de recherche
 - [ ] IR Library en ligne
   - [ ] Bibliothèque d'IR gratuites
   - [ ] IR premium
@@ -375,26 +404,48 @@ Plan de développement et fonctionnalités prévues pour WebAmp.
   - [ ] Mixage de sources
 
 ### 5. Intelligence Artificielle et Modélisation
-**Status** : 🚧 En cours
+**Status** : ✅ Implémenté (Janvier 2025)
+
+- ✅ **Architecture IA basée sur Gemini**
+  - ✅ Helper partagé Gemini (`supabase/functions/_shared/gemini.ts`) pour toutes les Edge Functions
+  - ✅ Utilisation de l'API Gemini gratuite (60 req/min, 1000/jour jusqu'en 2026)
+  - ✅ Support JSON mode avec `responseMimeType: 'application/json'`
+  - ✅ Gestion d'erreurs robuste et fallback
 
 - ✅ **Génération automatique de presets**
-  - ✅ Presets basés sur un style musical (Edge Function `ai-presets`, service `generatePresetFromDescription`)
-  - ✅ Suggestions intelligentes (ranking IA via Edge Function `ai-rank-presets`, service `rankPresetsForUser`)
-  - [ ] Apprentissage des préférences utilisateur
+  - ✅ Presets basés sur un style musical (Edge Function `ai-presets` avec Gemini, service `generatePresetFromDescription`)
+  - ✅ Suggestions intelligentes (ranking IA via Edge Function `ai-rank-presets` avec Gemini, service `rankPresetsForUser`)
+  - ✅ Apprentissage des préférences utilisateur (Edge Function `ai-learn-preferences` avec Gemini, hook `useAIPreferences`, tracking automatique)
+
 - ✅ **Analyse audio intelligente (niveau métadonnées)**
   - [ ] Détection automatique de genre (à partir de l'audio brut)
-  - ✅ Suggestions d'effets adaptés (Edge Function `ai-analyze`, service `analyzeContext`)
+  - ✅ Suggestions d'effets adaptés (Edge Function `ai-analyze` avec Gemini, service `analyzeContext`)
   - [ ] Correction automatique de tonalité
+
 - [ ] **Transposition automatique en tablature**
   - [ ] Détection de la tonalité, du tempo et de la grille d'accords à partir de l'audio (ou de sources externes comme Songsterr)
   - [ ] Génération de tablatures adaptées au niveau de l'utilisateur (simplification des positions, filtres de difficulté)
   - [ ] Prise en compte des accordages spécifiques (standard, drop, open tunings) et du nombre de cordes
   - [ ] Synchronisation avec le LMS (leçons, exercices) et le moteur de playback (boucles, ralenti, métronome)
   - [ ] Export des tablatures en formats ouverts (MusicXML, ABC, MIDI) et affichage via VexFlow/TabViewer
-- [ ] **Assistant vocal**
-  - ✅ Contrôle vocal des effets (intent parser via Edge Function `ai-voice-intent`, service `interpretVoiceCommand`)
+
+- ✅ **Assistant vocal**
+  - ✅ Contrôle vocal des effets (intent parser via Edge Function `ai-voice-intent` avec Gemini, service `interpretVoiceCommand`)
   - [ ] Commandes naturelles (flux complet voix → texte → action + feedback UI)
-  - [ ] Aide contextuelle
+
+- ✅ **AI Tone Assistant (Effects Page)**
+  - ✅ UI : Bouton flottant "AI" avec dégradé ambre lumineux et icône "Sparkle" (`AIToneAssistant.tsx`)
+  - ✅ Comportement : Clic ouvre une modale minimaliste pour saisir le ton désiré
+  - ✅ Logique IA : Utilise `gemini-1.5-flash` avec réponse JSON schema pour retourner un `EffectModule[]` entièrement configuré (Edge Function `ai-tone-assistant`)
+  - ✅ Feedback : Affiche une animation "Generating Tone..." pendant le traitement IA
+  - ✅ Intégration : Application automatique des effets générés sur la pédaleboard (fonction `handleApplyAIEffects` dans `Pedalboard.tsx`)
+
+- ✅ **AI Beat Architect (Drum Machine)**
+  - ✅ Générateur de rythmes de batterie intelligent basé sur des descriptions de style
+  - ✅ Interface : Saisie de description de style (ex: "Groove funk à la James Brown") dans `AIBeatArchitect.tsx`
+  - ✅ Logique IA : Utilise Gemini pour générer une grille de séquençage sur 16 pas (Edge Function `ai-beat-architect`)
+  - ✅ Sortie : Grille prête à être jouée avec Kick, Snare, Hi-Hat et autres éléments de batterie
+  - ✅ Intégration : Génération automatique dans le Drum Machine avec séquence prête à l'emploi (fonction `handleApplyAIPattern` dans `DrumMachinePanel.tsx`)
 - [ ] **Neural Amp Modeler (NAM) - Intégration IA**
   - ✅ Support des modèles NAM pour modélisation d'amplis/pédales par IA (`nam_loader`, `DSPPipeline`)
   - ✅ Import de fichiers NAM (.nam) (`NAMModel::loadFromFile`, `namLoader.ts`)
@@ -629,7 +680,26 @@ Les contributions sont les bienvenues ! Consultez :
 
 ---
 
-**Dernière mise à jour** : Décembre 2024
+**Dernière mise à jour** : Janvier 2025
+
+### Nouvelles fonctionnalités IA (Janvier 2025)
+- **Architecture IA complète basée sur Gemini** : Migration de toutes les Edge Functions vers Gemini API
+  - Helper partagé `gemini.ts` pour appels API standardisés
+  - Support JSON mode natif avec validation
+  - Utilisation de l'API gratuite Gemini (60 req/min, 1000/jour)
+- **AI Tone Assistant** : Génération de chaînes d'effets complètes via description textuelle
+  - Bouton flottant avec dégradé ambre et icône Sparkle
+  - Modale intuitive pour saisie de description
+  - Application automatique des effets générés sur le pedalboard
+- **AI Beat Architect** : Génération de patterns de batterie intelligents
+  - Interface intégrée dans Drum Machine Panel
+  - Génération de grilles 16 pas basées sur descriptions de style
+  - Conversion automatique vers format interne du Drum Machine
+- **Apprentissage des préférences utilisateur** : Système d'apprentissage automatique des préférences
+  - Edge Function `ai-learn-preferences` pour analyser l'historique d'utilisation
+  - Hook `useAIPreferences` pour tracking automatique (presets, pédales, amplis)
+  - Stockage localStorage de l'historique et des préférences apprises
+  - Recommandations personnalisées via Edge Function `ai-recommendations`
 
 ### Nouvelles fonctionnalités (Audit Décembre 2024)
 - **Export/Import de presets** : Format JSON standardisé avec métadonnées (auteur, tags, genre, style)
@@ -711,4 +781,236 @@ Les contributions sont les bienvenues ! Consultez :
 - [ ] Analytics avancés avec graphiques
 - [ ] Fonctionnalités sociales (partage, classements)
 - [ ] Contenu enrichi (vidéos, exercices interactifs)
+
+---
+
+## 7. Système de Création de Cours IA (AI Course Creator)
+
+**Status** : ✅ Implémenté (Janvier 2025)
+
+### Fonctionnalités actuelles
+- ✅ **Optimisation IA des cours** : Enrichissement automatique avec Gemini 3 Pro Preview
+  - ✅ Enrichissement de contenu (500+ mots par leçon)
+  - ✅ Création/suppression/réorganisation intelligente de leçons
+  - ✅ Optimisation des tags (5-8 tags pertinents)
+  - ✅ Détection et utilisation d'expression clé principale
+  - ✅ Intégration de médias (YouTube, accords, tablatures, HTML)
+- ✅ **Système de scoring de qualité** : Barème complet (0-100%)
+  - ✅ Qualité (25%) : Description, titre, richesse du contenu
+  - ✅ Longueur (18%) : Nombre de leçons, durée, contenu total
+  - ✅ Pertinence (22%) : Tags, catégorie, difficulté
+  - ✅ Structure (13%) : Ordre logique, types de contenu
+  - ✅ Engagement (10%) : Leçons interactives, contenu riche
+  - ✅ Expression clé (7%) : Détection et utilisation d'une expression clé
+  - ✅ Médias (5%) : Vidéos YouTube, visuels, diagrammes
+- ✅ **Support multi-types de cours** :
+  - ✅ Quiz : 5-20 questions selon difficulté
+  - ✅ Tutoriels/Guides : Structure avec leçons (8+ recommandées)
+  - ✅ Presets : Explication d'utilisation de presets
+  - ✅ Cours "Apprendre [chanson]" : Structure spécifique (analyse, tablature, passages difficiles)
+- ✅ **Génération de visuels IA** : Gemini 2.5 Flash Image
+  - ✅ Infographies de cours (16:9, style journalistique)
+  - ✅ Illustrations de leçons (éléments visuels contextuels)
+- ✅ **Interface admin complète** :
+  - ✅ Badges de score colorés (rouge <70%, orange 71-89%, vert ≥90%)
+  - ✅ Optimisation individuelle et en masse
+  - ✅ Modale de suivi avec barre de progression
+  - ✅ Mise à jour AJAX des scores après optimisation
+  - ✅ Statistiques globales (compteurs par catégorie de score)
+
+### Enrichissements et optimisations prévus (Priorité HAUTE)
+
+#### 1. Amélioration du prompt IA
+**Priorité** : HAUTE  
+**Status** : 📋 Planifié
+
+- ✅ **Personnalisation par catégorie** : Prompts spécialisés selon la catégorie du cours
+  - ✅ Prompts spécifiques pour "effects", "amps", "basics", "techniques"
+  - ✅ Adaptation du vocabulaire et des références selon la catégorie
+  - ✅ Exemples de contenu adaptés à chaque catégorie
+- ✅ **Contexte enrichi** : Intégration de données externes dans le prompt
+  - ✅ Métadonnées MusicBrainz (artistes, albums, genres) pour enrichir les références
+  - ✅ Données Freesound (samples, IRs) pour suggérer des ressources audio
+  - [ ] Historique des cours similaires pour éviter la redondance (à implémenter avec recherche Supabase)
+- ✅ **Validation multi-critères** : Vérification automatique de la qualité
+  - ✅ Vérification de la cohérence pédagogique (progression logique, order_index)
+  - ✅ Détection de plagiat/contenu dupliqué (comparaison description originale)
+  - ✅ Validation des liens YouTube (format et structure)
+  - ✅ Vérification de la pertinence des tags générés (doublons, longueur, quantité)
+
+#### 2. Génération de contenu multimédia avancée
+**Priorité** : HAUTE  
+**Status** : 📋 Planifié
+
+- [ ] **Génération de diagrammes interactifs** : Création de visuels pédagogiques
+  - [ ] Diagrammes de signal flow (chaîne d'effets)
+  - [ ] Graphiques de fréquences (EQ, spectres)
+  - [ ] Schémas de connexion (pédales, amplis)
+  - [ ] Timeline d'évolution (histoire des effets, techniques)
+- [ ] **Génération de vidéos courtes** : Création de micro-tutoriels
+  - [ ] Génération de scripts pour vidéos YouTube
+  - [ ] Suggestions de timestamps pour chapitres
+  - [ ] Recommandations de visuels à inclure
+  - [ ] Transcription automatique de vidéos existantes
+- [ ] **Création d'exercices interactifs** : Génération d'activités pratiques
+  - [ ] Exercices de reconnaissance (identifier un effet, un style)
+  - [ ] Quiz auto-générés à partir du contenu
+  - [ ] Exercices de paramétrage (trouver le bon réglage)
+  - [ ] Challenges progressifs (du débutant à l'expert)
+- [ ] **Bibliothèque de templates visuels** : Réutilisation de designs
+  - [ ] Templates d'infographies par type de cours
+  - [ ] Bibliothèque d'icônes et illustrations musicales
+  - [ ] Styles visuels cohérents (branding)
+  - [ ] Export en différents formats (PNG, SVG, PDF)
+
+#### 3. Optimisation du système de scoring
+**Priorité** : MOYENNE  
+**Status** : 📋 Planifié
+
+- ✅ **Scoring adaptatif** : Ajustement des critères selon le type de cours
+  - ✅ Poids différents pour quiz vs tutoriels (quiz: pertinence 30%, longueur 10% | tutoriels: standard)
+  - ✅ Critères spécifiques pour cours "apprendre chanson" (structure 20%, médias 10%)
+  - [ ] Scoring progressif (objectifs intermédiaires) - à implémenter avec seuils progressifs
+- ✅ **Détection de biais** : Identification des faiblesses
+  - ✅ Détection automatique des critères non respectés (fonction `detectBiasesAndSuggestions`)
+  - ✅ Suggestions ciblées d'amélioration (par critère avec impact/effort)
+  - ✅ Priorisation des optimisations (impact/effort calculé automatiquement)
+- [ ] **Benchmarking** : Comparaison avec les meilleurs cours
+  - [ ] Analyse des cours avec score >90%
+  - [ ] Identification des patterns de succès
+  - [ ] Recommandations basées sur les meilleures pratiques
+- [ ] **Scoring prédictif** : Estimation avant optimisation
+  - [ ] Calcul du score potentiel avant génération
+  - [ ] Simulation d'impact des modifications proposées
+  - [ ] A/B testing virtuel (comparaison de stratégies)
+
+#### 4. Automatisation avancée
+**Priorité** : MOYENNE  
+**Status** : 📋 Planifié
+
+- [ ] **Optimisation programmée** : Traitement automatique
+  - [ ] Planification d'optimisations récurrentes
+  - [ ] Optimisation automatique des cours <70%
+  - [ ] Mise à jour automatique des contenus obsolètes
+  - [ ] Détection et correction automatique des erreurs
+- [ ] **Génération de cours complets** : Création from scratch
+  - [ ] Génération complète d'un cours depuis un titre
+  - [ ] Création automatique de la structure (leçons, quiz)
+  - [ ] Génération du contenu pour chaque leçon
+  - [ ] Création automatique des métadonnées (tags, catégorie, difficulté)
+- [ ] **Traduction automatique** : Multilingue
+  - [ ] Traduction des cours vers plusieurs langues
+  - [ ] Adaptation culturelle (références locales)
+  - [ ] Vérification de qualité post-traduction
+  - [ ] Gestion des versions multilingues
+- [ ] **Synchronisation avec sources externes** : Mise à jour automatique
+  - [ ] Synchronisation avec MusicBrainz (métadonnées artistes)
+  - [ ] Mise à jour des liens YouTube (vérification de disponibilité)
+  - [ ] Actualisation des références (nouvelles techniques, matériel)
+  - [ ] Détection de contenu obsolète
+
+#### 5. Analytics et insights
+**Priorité** : BASSE  
+**Status** : 📋 Planifié
+
+- [ ] **Dashboard d'analytics** : Métriques de performance
+  - [ ] Évolution des scores dans le temps
+  - [ ] Taux de complétion par cours
+  - [ ] Temps moyen par leçon
+  - [ ] Taux de réussite aux quiz
+- [ ] **Recommandations basées sur les données** : Insights actionnables
+  - [ ] Identification des cours populaires vs impopulaires
+  - [ ] Analyse des points d'abandon (leçons difficiles)
+  - [ ] Suggestions d'amélioration basées sur les retours utilisateurs
+  - [ ] Prédiction de succès des nouveaux cours
+- [ ] **A/B testing** : Tests de variantes
+  - [ ] Comparaison de différentes versions de contenu
+  - [ ] Tests de différents styles d'écriture
+  - [ ] Optimisation des titres et descriptions
+  - [ ] Mesure de l'impact des visuels
+
+#### 6. Collaboration et workflow
+**Priorité** : BASSE  
+**Status** : 📋 Planifié
+
+- [ ] **Workflow de révision** : Processus de validation
+  - [ ] Système de brouillons et versions
+  - [ ] Workflow d'approbation (auteur → relecteur → publication)
+  - [ ] Commentaires et annotations collaboratives
+  - [ ] Historique des modifications (git-like)
+- [ ] **Rôles et permissions** : Gestion d'équipe
+  - [ ] Rôles (auteur, éditeur, administrateur)
+  - [ ] Permissions granulaires (création, modification, publication)
+  - [ ] Attribution de cours à des auteurs
+  - [ ] Suivi des contributions par auteur
+- [ ] **Templates et bibliothèques** : Réutilisation de contenu
+  - [ ] Bibliothèque de templates de cours
+  - [ ] Réutilisation de leçons entre cours
+  - [ ] Bibliothèque de quiz réutilisables
+  - [ ] Partage de ressources (visuels, diagrammes)
+
+### Optimisations techniques prévues (Priorité MOYENNE)
+
+#### 1. Performance et coûts
+- [ ] **Cache intelligent** : Réduction des appels API
+  - [ ] Cache des réponses Gemini pour contenus similaires
+  - [ ] Cache des scores calculés
+  - [ ] Cache des visuels générés
+  - [ ] Invalidation intelligente du cache
+- [ ] **Traitement par lots** : Optimisation des optimisations en masse
+  - [ ] Regroupement des optimisations similaires
+  - [ ] Traitement parallèle (workers)
+  - [ ] Gestion de la file d'attente (priorités)
+  - [ ] Limitation du taux d'appels API (rate limiting)
+- [ ] **Streaming de réponses** : Feedback en temps réel
+  - [ ] Affichage progressif du contenu généré
+  - [ ] Mise à jour en temps réel de la barre de progression
+  - [ ] Annulation possible pendant la génération
+  - [ ] Sauvegarde incrémentale (auto-save)
+
+#### 2. Qualité et fiabilité
+- [ ] **Validation robuste** : Vérification avant application
+  - [ ] Validation du JSON généré (schema validation)
+  - [ ] Vérification de la cohérence des données
+  - [ ] Tests de non-régression (regression tests)
+  - [ ] Rollback automatique en cas d'erreur
+- [ ] **Gestion d'erreurs avancée** : Récupération intelligente
+  - [ ] Retry avec backoff exponentiel
+  - [ ] Fallback vers version précédente en cas d'échec
+  - [ ] Détection et correction automatique des erreurs courantes
+  - [ ] Logging détaillé pour debugging
+- [ ] **Tests automatisés** : Assurance qualité
+  - [ ] Tests unitaires pour le scoring
+  - [ ] Tests d'intégration pour l'optimisation IA
+  - [ ] Tests de performance (latence, coûts)
+  - [ ] Tests de régression visuelle (screenshots)
+
+#### 3. Expérience utilisateur
+- [ ] **Prévisualisation avant application** : Aperçu des changements
+  - [ ] Diff visuel des modifications proposées
+  - [ ] Prévisualisation du nouveau score
+  - [ ] Comparaison avant/après
+  - [ ] Sélection partielle (appliquer seulement certaines modifications)
+- [ ] **Historique et versioning** : Suivi des modifications
+  - [ ] Historique complet des optimisations
+  - [ ] Comparaison entre versions
+  - [ ] Restauration de versions précédentes
+  - [ ] Export de versions spécifiques
+- [ ] **Notifications intelligentes** : Feedback contextuel
+  - [ ] Notifications de fin d'optimisation
+  - [ ] Alertes pour cours nécessitant attention
+  - [ ] Suggestions proactives d'amélioration
+  - [ ] Rappels pour optimisations programmées
+
+### Fichiers principaux
+- `frontend/src/services/gemini.ts` : Service d'optimisation IA avec Gemini
+- `frontend/src/utils/courseQualityScore.ts` : Système de scoring de qualité
+- `frontend/src/pages/AdminPage.tsx` : Interface admin avec optimisation IA
+- `frontend/src/utils/lessonContentParser.ts` : Parser de contenu de leçons
+- `frontend/src/components/learn/TutorialContentRenderer.tsx` : Rendu du contenu enrichi
+
+### Documentation
+- `docs/AI_COURSE_CREATOR.md` : Guide complet du système de création IA (à créer)
+- `docs/SCORING_SYSTEM.md` : Documentation du système de scoring (à créer)
+- `docs/AI_PROMPTS.md` : Bibliothèque de prompts IA (à créer)
 

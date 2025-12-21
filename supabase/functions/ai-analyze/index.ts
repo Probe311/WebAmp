@@ -1,8 +1,10 @@
 // Edge Function: ai-analyze
 // Analyse intelligente à partir de métadonnées (genre, artiste, contexte)
-// et suggestions d'effets/presets adaptés via LLM.
+// et suggestions d'effets/presets adaptés via Gemini API.
 
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { handleCors, createCorsJsonResponse, createCorsErrorResponse } from '../_shared/cors.ts'
+import { callGemini } from '../_shared/gemini.ts'
 
 interface AnalyzeRequest {
   genre?: string
@@ -29,14 +31,7 @@ interface AnalysisResult {
 }
 
 async function callLLMForAnalysis(prompt: string): Promise<AnalysisResult> {
-  const apiKey = Deno.env.get('OPENROUTER_API_KEY') || Deno.env.get('OPENAI_API_KEY')
-  const baseUrl = Deno.env.get('OPENROUTER_BASE_URL') || 'https://openrouter.ai/api/v1'
-  const model = Deno.env.get('WEBAMP_ANALYSIS_MODEL') || 'gpt-4.1'
-
-  if (!apiKey) {
-    throw new Error('Missing OPENROUTER_API_KEY / OPENAI_API_KEY')
-  }
-
+  // Utilise Gemini API via le helper partagé
   const systemPrompt = `
 Tu es un assistant WebAmp qui recommande des chaînes d'effets pour guitare/basse.
 Tu dois analyser le contexte (genre, artiste, morceau, humeur) et proposer
@@ -71,46 +66,13 @@ Contraintes :
 - Ne renvoie AUCUN autre texte que le JSON.
 `
 
-  const body = {
-    model,
-    messages: [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: prompt },
-    ],
-    response_format: { type: 'json_object' },
-  }
-
-  const resp = await fetch(`${baseUrl}/chat/completions`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify(body),
+  return await callGemini<AnalysisResult>(systemPrompt, prompt, {
+    temperature: 0.7,
+    maxOutputTokens: 4096
   })
-
-  if (!resp.ok) {
-    const text = await resp.text()
-    console.error('LLM API error (ai-analyze)', resp.status, text)
-    throw new Error(`LLM API error: ${resp.status}`)
-  }
-
-  const data = await resp.json()
-  const content = data.choices?.[0]?.message?.content
-  if (!content) {
-    throw new Error('Empty LLM response')
-  }
-
-  try {
-    const parsed = JSON.parse(content) as AnalysisResult
-    return parsed
-  } catch (err) {
-    console.error('Failed to parse LLM JSON content (ai-analyze)', content, err)
-    throw new Error('Invalid JSON from LLM')
-  }
 }
 
-async function handler(req: Request): Promise<Response> {
+async function handleAnalysisRequest(req: Request): Promise<Response> {
   if (req.method === 'OPTIONS') {
     return createCorsJsonResponse({ ok: true })
   }
@@ -120,9 +82,28 @@ async function handler(req: Request): Promise<Response> {
   }
 
   try {
-    const body = (await req.json()) as AnalyzeRequest
+    let body: AnalyzeRequest
+    try {
+      body = await req.json() as AnalyzeRequest
+    } catch {
+      return createCorsErrorResponse('Invalid JSON body', 400)
+    }
 
-    if (!body.genre && !body.artist && !body.songTitle && !body.mood) {
+    // Validation des entrées
+    if (!body || typeof body !== 'object') {
+      return createCorsErrorResponse('Invalid request body', 400)
+    }
+
+    // Validation et sanitisation des champs
+    const sanitizedBody: AnalyzeRequest = {
+      genre: body.genre && typeof body.genre === 'string' ? body.genre.trim().slice(0, 100) : undefined,
+      artist: body.artist && typeof body.artist === 'string' ? body.artist.trim().slice(0, 100) : undefined,
+      songTitle: body.songTitle && typeof body.songTitle === 'string' ? body.songTitle.trim().slice(0, 200) : undefined,
+      mood: body.mood && typeof body.mood === 'string' ? body.mood.trim().slice(0, 50) : undefined,
+      instrument: body.instrument && ['guitar', 'bass', 'other'].includes(body.instrument) ? body.instrument : undefined
+    }
+
+    if (!sanitizedBody.genre && !sanitizedBody.artist && !sanitizedBody.songTitle && !sanitizedBody.mood) {
       return createCorsErrorResponse(
         'Au moins un champ parmi genre, artist, songTitle ou mood est requis',
         400,
@@ -130,11 +111,11 @@ async function handler(req: Request): Promise<Response> {
     }
 
     const parts: string[] = []
-    if (body.genre) parts.push(`Genre: ${body.genre}`)
-    if (body.artist) parts.push(`Artiste: ${body.artist}`)
-    if (body.songTitle) parts.push(`Morceau: ${body.songTitle}`)
-    if (body.mood) parts.push(`Ambiance: ${body.mood}`)
-    if (body.instrument) parts.push(`Instrument: ${body.instrument}`)
+    if (sanitizedBody.genre) parts.push(`Genre: ${sanitizedBody.genre}`)
+    if (sanitizedBody.artist) parts.push(`Artiste: ${sanitizedBody.artist}`)
+    if (sanitizedBody.songTitle) parts.push(`Morceau: ${sanitizedBody.songTitle}`)
+    if (sanitizedBody.mood) parts.push(`Ambiance: ${sanitizedBody.mood}`)
+    if (sanitizedBody.instrument) parts.push(`Instrument: ${sanitizedBody.instrument}`)
 
     const prompt = `Analyse ce contexte pour WebAmp et propose une chaîne d'effets appropriée.\n${parts.join(
       '\n',
@@ -158,6 +139,6 @@ async function handler(req: Request): Promise<Response> {
   }
 }
 
-serve((req) => handleCors(req, handler))
+serve((req) => handleCors(req, handleAnalysisRequest))
 
 

@@ -23,6 +23,13 @@ Le design système neumorphic de WebAmp utilise un style "soft UI" où les élé
 - **Texte secondaire** : `dark:text-white/70`
 - **Texte atténué** : `dark:text-white/50`
 
+#### Couleurs d'accent IA
+- **Couleur secondaire IA** : `#d23cfb` (magenta/violet)
+- **Couleur complémentaire IA** : `#fb923c` (orange)
+- **Dégradé IA standard** : `from-[#d23cfb] to-[#fb923c]` (magenta vers orange)
+- **Dégradé IA hover** : `from-[#c02ae8] to-[#f07a2a]` (versions plus foncées)
+- **Usage** : Boutons et éléments IA (AI Tone Assistant, AI Beat Architect)
+
 ### Ombres Neumorphic
 
 Le style neumorphic utilise des ombres doubles (light et dark) pour créer l'effet 3D :
@@ -178,6 +185,12 @@ Implémentation : `frontend/src/components/CTA.tsx`
 - `variant="secondary"` : Bouton secondaire avec fond `#f5f5f5` / `dark:bg-gray-600`
 - `variant="icon-only"` : Bouton avec icône uniquement (min 44x44px)
 - `active={true}` : État actif avec ombres inset
+
+#### Couleur secondaire IA
+- **Couleur** : `#d23cfb` (magenta/violet)
+- **Usage** : Boutons et éléments liés aux fonctionnalités IA
+- **Dégradé standard** : `from-[#d23cfb] to-[#fb923c]` (magenta vers orange)
+- **Dégradé hover** : `from-[#c02ae8] to-[#f07a2a]` (versions plus foncées)
 
 #### Styles
 

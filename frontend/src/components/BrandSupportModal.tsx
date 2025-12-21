@@ -1,16 +1,18 @@
 import { Modal } from './Modal'
 import { BadgeCheck } from 'lucide-react'
-import walrusLogo from '../assets/logos/walrus.svg'
+import { brandCertifications, getCertifiedBrandFullLogo } from '../utils/certificationStatus'
 
 interface BrandSupportModalProps {
   isOpen: boolean
   onClose: () => void
 }
 
-const supportingBrands = [
-  { name: 'Walrus', logo: walrusLogo }
-  // Ajouter d'autres marques ici au fur et à mesure
-]
+// Récupérer toutes les marques avec certification depuis la configuration
+const supportingBrands = Object.keys(brandCertifications).map(brandName => ({
+  name: brandName,
+  logo: getCertifiedBrandFullLogo(brandName)!,
+  status: brandCertifications[brandName].status
+}))
 
 export function BrandSupportModal({ isOpen, onClose }: BrandSupportModalProps) {
   const handleClose = () => {
@@ -37,22 +39,42 @@ export function BrandSupportModal({ isOpen, onClose }: BrandSupportModalProps) {
           </p>
         </div>
 
-        {/* Explication sur l'icône de certification */}
-        <div className="flex items-start gap-3 p-4 bg-[#f5f5f5] dark:bg-gray-700/50 rounded-lg border border-black/10 dark:border-white/10">
-          <BadgeCheck className="w-6 h-6 text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5" />
-          <div className="flex-1">
-            <p className="text-sm font-medium text-black/85 dark:text-white/85 mb-1">
-              Matériel certifié
-            </p>
-            <p className="text-sm text-black/70 dark:text-white/70">
-              Le matériel certifié par les marques partenaires est identifiable par l'icône suivante :{' '}
-              <span className="inline-flex items-center">
-                <BadgeCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 mx-1" />
-              </span>
-            </p>
-            <p className="text-sm text-black/70 dark:text-white/70">
-              Ces équipements ont été validés et approuvés par les fabricants pour garantir une reproduction fidèle de leurs caractéristiques sonores.
-            </p>
+        {/* Explication sur les icônes de certification */}
+        <div className="space-y-4">
+          <div className="flex items-start gap-3 p-4 bg-[#f5f5f5] dark:bg-gray-700/50 rounded-lg border border-black/10 dark:border-white/10">
+            <BadgeCheck className="w-6 h-6 text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm font-medium text-black/85 dark:text-white/85 mb-1">
+                Matériel certifié
+              </p>
+              <p className="text-sm text-black/70 dark:text-white/70">
+                Le matériel certifié par les marques partenaires est identifiable par l'icône suivante :{' '}
+                <span className="inline-flex items-center">
+                  <BadgeCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 mx-1" />
+                </span>
+              </p>
+              <p className="text-sm text-black/70 dark:text-white/70">
+                Ces équipements ont été validés et approuvés par les fabricants pour garantir une reproduction fidèle de leurs caractéristiques sonores.
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex items-start gap-3 p-4 bg-[#f5f5f5] dark:bg-gray-700/50 rounded-lg border border-black/10 dark:border-white/10">
+            <BadgeCheck className="w-6 h-6 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm font-medium text-black/85 dark:text-white/85 mb-1">
+                En cours de certification
+              </p>
+              <p className="text-sm text-black/70 dark:text-white/70">
+                Le matériel en cours de certification est identifiable par l'icône suivante :{' '}
+                <span className="inline-flex items-center">
+                  <BadgeCheck className="w-4 h-4 text-yellow-600 dark:text-yellow-400 mx-1" />
+                </span>
+              </p>
+              <p className="text-sm text-black/70 dark:text-white/70">
+                Ces équipements sont actuellement en cours de validation par les fabricants.
+              </p>
+            </div>
           </div>
         </div>
 
@@ -65,13 +87,22 @@ export function BrandSupportModal({ isOpen, onClose }: BrandSupportModalProps) {
             {supportingBrands.map((brand) => (
               <div
                 key={brand.name}
-                className="flex flex-col items-center justify-center p-4 bg-white dark:bg-gray-800 rounded-lg border border-black/10 dark:border-white/10 hover:shadow-lg transition-shadow duration-200"
+                className="flex flex-col items-center justify-center p-4 bg-white dark:bg-gray-800 rounded-lg border border-black/10 dark:border-white/10 hover:shadow-lg transition-shadow duration-200 relative"
               >
                 <img
                   src={brand.logo}
                   alt={`Logo ${brand.name}`}
                   className="max-h-16 max-w-full object-contain dark:brightness-0 dark:invert"
                 />
+                <div className="absolute top-2 right-2">
+                  <BadgeCheck 
+                    className={`w-4 h-4 ${
+                      brand.status === 'certified'
+                        ? 'text-emerald-600 dark:text-emerald-400'
+                        : 'text-yellow-600 dark:text-yellow-400'
+                    }`}
+                  />
+                </div>
               </div>
             ))}
           </div>

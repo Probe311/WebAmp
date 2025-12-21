@@ -31,6 +31,24 @@ export const InstrumentSelector: React.FC<InstrumentSelectorProps> = ({ tracks, 
     }
   };
 
+  const getBorderColor = (color: string) => {
+    // Extraire la couleur de la classe Tailwind (ex: "text-red-500" -> "red-500")
+    if (color.includes('red')) return 'border-red-500';
+    if (color.includes('orange')) return 'border-orange-500';
+    if (color.includes('cyan')) return 'border-cyan-400';
+    if (color.includes('purple')) return 'border-purple-400';
+    return 'border-orange-500'; // Par défaut
+  };
+
+  const getBackgroundColor = (color: string) => {
+    // Extraire la couleur de la classe Tailwind pour le background
+    if (color.includes('red')) return 'bg-red-50 dark:bg-red-900/20';
+    if (color.includes('orange')) return 'bg-orange-50 dark:bg-orange-900/20';
+    if (color.includes('cyan')) return 'bg-cyan-50 dark:bg-cyan-900/20';
+    if (color.includes('purple')) return 'bg-purple-50 dark:bg-purple-900/20';
+    return 'bg-orange-50 dark:bg-orange-900/20'; // Par défaut
+  };
+
   return (
     <div className="relative">
       <button 
@@ -60,7 +78,7 @@ export const InstrumentSelector: React.FC<InstrumentSelectorProps> = ({ tracks, 
                 onClick={() => { onChange(track.id); setIsOpen(false); }}
                 className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border-l-2 ${
                   activeId === track.id 
-                    ? `border-orange-500 bg-orange-50 dark:bg-orange-900/20` 
+                    ? `${getBorderColor(track.color)} ${getBackgroundColor(track.color)}` 
                     : 'border-transparent'
                 }`}
               >

@@ -43,6 +43,8 @@ export function LearnPage() {
   const [lessonsSummaryMap, setLessonsSummaryMap] = useState<
     Map<string, { completed: number; lastLessonTitle: string | null }>
   >(new Map())
+  // État des cours verrouillés/débloqués
+  const [unlockedCourses, setUnlockedCourses] = useState<Set<string>>(new Set())
   
   useEffect(() => {
     const loadRewards = async () => {
@@ -120,9 +122,18 @@ export function LearnPage() {
 
   const handleStartCourse = async (courseId: string) => {
     const course = courses.find(c => c.id === courseId)
-    if (course) {
-      setSelectedCourse(course)
+    if (!course) return
+
+    // Vérifier si le cours est premium et verrouillé
+    const isPremium = course.is_premium && course.price && course.price > 0
+    const isLocked = isPremium && !unlockedCourses.has(courseId)
+    
+    if (isLocked) {
+      // Ne pas ouvrir si verrouillé
+      return
     }
+    
+    setSelectedCourse(course)
   }
 
   const handleBack = () => {
@@ -153,9 +164,12 @@ export function LearnPage() {
   return (
     <div className="h-full overflow-y-auto p-6 pb-32">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold text-black/85 dark:text-white/90 mb-6">
+        <h1 className="text-3xl font-bold text-black/85 dark:text-white/90 mb-2">
           Apprendre
         </h1>
+        <p className="text-sm text-black/70 dark:text-white/70 mb-6">
+          Cours interactifs, tutoriels et guides pour maîtriser la guitare et les effets
+        </p>
         
         <Block className="p-6">
           {/* Barre de recherche */}
@@ -246,6 +260,10 @@ export function LearnPage() {
                 const lessonsCompleted = lessonSummary?.completed ?? 0
                 const lastLessonTitle = lessonSummary?.lastLessonTitle ?? null
                 
+                // Vérifier si le cours est premium et verrouillé
+                const isPremium = course.is_premium && course.price && course.price > 0
+                const isLocked = isPremium && !unlockedCourses.has(course.id)
+                
                 return (
                   <TutorialCard
                     key={course.id}
@@ -256,7 +274,22 @@ export function LearnPage() {
                     lessonsCompleted={lessonsCompleted}
                     lessonsTotal={lessonsTotal}
                     lastLessonTitle={lastLessonTitle}
-                    onStart={handleStartCourse}
+                    onStart={(courseId) => {
+                      const course = courses.find(c => c.id === courseId)
+                      if (course) {
+                        // Vérifier si le cours est verrouillé
+                        const courseIsPremium = course.is_premium && course.price && course.price > 0
+                        const courseIsLocked = courseIsPremium && !unlockedCourses.has(courseId)
+                        
+                        if (courseIsLocked) {
+                          // Ne pas ouvrir si verrouillé
+                          return
+                        }
+                        setSelectedCourse(course)
+                      }
+                    }}
+                    isLocked={isLocked}
+                    isPremium={isPremium}
                   />
                 )
               })}

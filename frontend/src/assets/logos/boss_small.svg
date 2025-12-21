@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Calque_1" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 500 500">
+  <!-- Generator: Adobe Illustrator 30.0.0, SVG Export Plug-In . SVG Version: 2.1.1 Build 123)  -->
+  <defs>
+    <style>
+      .st0 {
+        fill: none;
+      }
+
+      .st1 {
+        fill: #010101;
+      }
+    </style>
+    <clipPath id="clippath">
+      <rect class="st0" x="81.43" y="46.83" width="1227.07" height="406.34"/>
+    </clipPath>
+    <clipPath id="clippath-1">
+      <rect class="st0" x="-8345.22" y="-88.65" width="9748.42" height="6307.8"/>
+    </clipPath>
+  </defs>
+  <g id="g5887">
+    <path id="path5893" class="st1" d="M22.12,22.12v455.76h455.76V22.12H154.6v94.31h95.4c70.65,0,129.2,60.99,129.2,128.66,0,67.64-54.17,130.29-129.2,130.29s-129.2-58.92-129.2-131.93V22.12H22.12ZM57.56,57.56h31.62v189.17c0,76.37,59.75,158.1,157.55,158.1,97.78,0,161.37-77.35,161.37-159.73s-67.95-158.64-159.73-158.64h-62.15v-28.89h255.68v384.89H57.56V57.56Z"/>
+  </g>
+</svg>
+

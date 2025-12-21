@@ -111,55 +111,57 @@ export const BossDd3Controls = ({
   // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
   const pedalAccentColor = accentColor || model.accentColor
   
+  const time = values.time ?? model.parameters.time.default
+  const feedback = values.feedback ?? model.parameters.feedback.default
+  const level = values.level ?? model.parameters.level.default
+  const memory = values.memory ?? model.parameters.memory.default
+
   return (
-    <>
-      {Object.entries(model.parameters).map(([name, def]) => {
-        const controlType = def.controlType || 'knob'
-        const value = values[name] ?? def.default ?? 0
-
-        if (controlType === 'slider') {
-          return (
-            <Slider
-              key={name}
-              label={def.label}
-              value={value}
-              min={def.min}
-              max={def.max}
-              orientation={def.orientation || 'vertical'}
-              onChange={(v) => onChange?.(name, v)}
-              color={pedalAccentColor}
-            />
-          )
-        }
-
-        if (controlType === 'switch-selector' && def.labels) {
-          return (
-            <SwitchSelector
-              key={name}
-              value={value}
-              min={def.min}
-              max={def.max}
-              labels={def.labels}
-              icons={def.icons}
-              color={pedalAccentColor}
-              onChange={(v) => onChange?.(name, v)}
-            />
-          )
-        }
-
-        return (
-          <Potentiometer
-            key={name}
-            label={def.label}
-            value={value}
-            min={def.min}
-            max={def.max}
-            color={pedalAccentColor}
-            onChange={(v) => onChange?.(name, v)}
-          />
-        )
-      })}
-    </>
+    <div className="flex flex-col gap-2 w-full py-1">
+      <div className="w-full -mb-1">
+        <SwitchSelector
+          value={memory}
+          min={model.parameters.memory.min}
+          max={model.parameters.memory.max}
+          labels={model.parameters.memory.labels || []}
+          icons={model.parameters.memory.icons}
+          color={pedalAccentColor}
+          onChange={(v) => onChange?.('memory', v)}
+          className="switch-selector-full-width"
+        />
+      </div>
+      <div className="grid grid-cols-2 gap-2 w-full justify-items-center">
+        <Potentiometer
+          label="TIME"
+          value={time}
+          min={model.parameters.time.min}
+          max={model.parameters.time.max}
+          color={pedalAccentColor}
+          onChange={(v) => onChange?.('time', v)}
+          size="small"
+        />
+        <Potentiometer
+          label="FEEDBACK"
+          value={feedback}
+          min={model.parameters.feedback.min}
+          max={model.parameters.feedback.max}
+          color={pedalAccentColor}
+          onChange={(v) => onChange?.('feedback', v)}
+          size="small"
+        />
+      </div>
+      <div className="w-full flex justify-center -mt-1">
+        <Potentiometer
+          label="LEVEL"
+          value={level}
+          min={model.parameters.level.min}
+          max={model.parameters.level.max}
+          color={pedalAccentColor}
+          onChange={(v) => onChange?.('level', v)}
+          size="small"
+        />
+      </div>
+    </div>
   )
 }
 

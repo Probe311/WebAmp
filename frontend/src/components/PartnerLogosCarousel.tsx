@@ -1,13 +1,12 @@
 import { useState, useEffect, useRef } from 'react'
 import { Block } from './Block'
+import { brandCertifications, getCertifiedBrandFullLogo } from '../utils/certificationStatus'
 
-// Import du logo partenaire
-import walrusLogo from '../assets/logos/walrus.svg'
-
-// Pour l'instant, seulement le logo Walrus
-const LOGOS = [
-  { name: 'Walrus', src: walrusLogo },
-]
+// Récupérer tous les logos depuis la configuration de certification
+const LOGOS = Object.keys(brandCertifications).map(brandName => ({
+  name: brandName,
+  src: getCertifiedBrandFullLogo(brandName)!
+}))
 
 const DISPLAY_DURATION = 1500 // 1.5 secondes
 

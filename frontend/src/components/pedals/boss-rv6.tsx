@@ -26,53 +26,56 @@ export function BossRv6Pedal({
   // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
   const pedalAccentColor = accentColor || model.accentColor
 
-  const { switchSelectors, knobs } = useMemo(() => {
-    const entries = Object.entries(model.parameters)
-    const switchSelectors = entries.filter(([, def]) => def.controlType === 'switch-selector')
-    const knobs = entries.filter(([, def]) => def.controlType !== 'switch-selector')
-    return { switchSelectors, knobs }
-  }, [model])
+  const decay = values.decay ?? model.parameters.decay.default
+  const tone = values.tone ?? model.parameters.tone.default
+  const level = values.level ?? model.parameters.level.default
+  const mode = values.mode ?? model.parameters.mode.default
 
   const controls = useMemo(() => (
     <div className="flex flex-col gap-3 w-full">
       {/* Switch-selector en haut, pleine largeur */}
-      {switchSelectors.map(([name, def]) => {
-        const value = values[name] ?? def.default ?? 0
-        return (
-          <div key={name} className="w-full">
-            <SwitchSelector
-              value={value}
-              min={def.min}
-              max={def.max}
-              labels={def.labels || []}
-              icons={def.icons}
-              color={pedalAccentColor}
-              onChange={(v) => onChange?.(name, v)}
-              className="switch-selector-full-width"
-            />
-          </div>
-        )
-      })}
+      <div className="w-full">
+        <SwitchSelector
+          value={mode}
+          min={model.parameters.mode.min}
+          max={model.parameters.mode.max}
+          labels={model.parameters.mode.labels || []}
+          icons={model.parameters.mode.icons}
+          color={pedalAccentColor}
+          onChange={(v) => onChange?.('mode', v)}
+          className="switch-selector-full-width"
+        />
+      </div>
 
       {/* 3 knobs en ligne horizontale */}
       <div className="flex flex-row justify-center items-center gap-3 w-full">
-        {knobs.map(([name, def]) => {
-          const value = values[name] ?? def.default ?? 0
-          return (
-            <Potentiometer
-              key={name}
-              label={def.label}
-              value={value}
-              min={def.min}
-              max={def.max}
-              color={pedalAccentColor}
-              onChange={(v) => onChange?.(name, v)}
-            />
-          )
-        })}
+        <Potentiometer
+          label="DECAY"
+          value={decay}
+          min={model.parameters.decay.min}
+          max={model.parameters.decay.max}
+          color={pedalAccentColor}
+          onChange={(v) => onChange?.('decay', v)}
+        />
+        <Potentiometer
+          label="TONE"
+          value={tone}
+          min={model.parameters.tone.min}
+          max={model.parameters.tone.max}
+          color={pedalAccentColor}
+          onChange={(v) => onChange?.('tone', v)}
+        />
+        <Potentiometer
+          label="LEVEL"
+          value={level}
+          min={model.parameters.level.min}
+          max={model.parameters.level.max}
+          color={pedalAccentColor}
+          onChange={(v) => onChange?.('level', v)}
+        />
       </div>
     </div>
-  ), [switchSelectors, knobs, values, onChange, model])
+  ), [decay, tone, level, mode, model, onChange, pedalAccentColor])
 
   return (
     <PedalFrame
@@ -100,44 +103,50 @@ export const BossRv6Controls = ({
   // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
   const pedalAccentColor = accentColor || model.accentColor
   
-  const entries = Object.entries(model.parameters)
-  const switchSelectors = entries.filter(([, def]) => def.controlType === 'switch-selector')
-  const knobs = entries.filter(([, def]) => def.controlType !== 'switch-selector')
+  const decay = values.decay ?? model.parameters.decay.default
+  const tone = values.tone ?? model.parameters.tone.default
+  const level = values.level ?? model.parameters.level.default
+  const mode = values.mode ?? model.parameters.mode.default
 
   return (
     <div className="flex flex-col gap-3 w-full">
-      {switchSelectors.map(([name, def]) => {
-        const value = values[name] ?? def.default ?? 0
-        return (
-          <div key={name} className="w-full">
-            <SwitchSelector
-              value={value}
-              min={def.min}
-              max={def.max}
-              labels={def.labels || []}
-              icons={def.icons}
-              color={pedalAccentColor}
-              onChange={(v) => onChange?.(name, v)}
-              className="switch-selector-full-width"
-            />
-          </div>
-        )
-      })}
+      <div className="w-full">
+        <SwitchSelector
+          value={mode}
+          min={model.parameters.mode.min}
+          max={model.parameters.mode.max}
+          labels={model.parameters.mode.labels || []}
+          icons={model.parameters.mode.icons}
+          color={pedalAccentColor}
+          onChange={(v) => onChange?.('mode', v)}
+          className="switch-selector-full-width"
+        />
+      </div>
       <div className="flex flex-row justify-center items-center gap-3 w-full">
-        {knobs.map(([name, def]) => {
-          const value = values[name] ?? def.default ?? 0
-          return (
-            <Potentiometer
-              key={name}
-              label={def.label}
-              value={value}
-              min={def.min}
-              max={def.max}
-              color={pedalAccentColor}
-              onChange={(v) => onChange?.(name, v)}
-            />
-          )
-        })}
+        <Potentiometer
+          label="DECAY"
+          value={decay}
+          min={model.parameters.decay.min}
+          max={model.parameters.decay.max}
+          color={pedalAccentColor}
+          onChange={(v) => onChange?.('decay', v)}
+        />
+        <Potentiometer
+          label="TONE"
+          value={tone}
+          min={model.parameters.tone.min}
+          max={model.parameters.tone.max}
+          color={pedalAccentColor}
+          onChange={(v) => onChange?.('tone', v)}
+        />
+        <Potentiometer
+          label="LEVEL"
+          value={level}
+          min={model.parameters.level.min}
+          max={model.parameters.level.max}
+          color={pedalAccentColor}
+          onChange={(v) => onChange?.('level', v)}
+        />
       </div>
     </div>
   )
