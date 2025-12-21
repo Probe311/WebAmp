@@ -13,7 +13,6 @@ export async function testImageService() {
   console.log(`Provider actuel: ${(imageService as any).provider}`)
   console.log(`Clé API Pexels: ${import.meta.env.VITE_PEXELS_API_KEY ? '✅' : '❌'}`)
   console.log(`Clé API Pixabay: ${import.meta.env.VITE_PIXABAY_API_KEY ? '✅' : '❌'}`)
-  console.log(`Clé API Unsplash: ${import.meta.env.VITE_UNSPLASH_ACCESS_KEY ? '✅' : '❌'}`)
 
   // Test 1 : Recherche générique
   console.log('\n📸 Test 1: Recherche "guitar pedal"')
