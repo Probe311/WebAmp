@@ -1,8 +1,9 @@
 import { useState, useMemo, useRef, useCallback, useEffect } from 'react'
-import { Search, Tag, Building2, Volume1, Volume2, BadgeCheck } from 'lucide-react'
+import { Tag, Building2, Volume1, Volume2, BadgeCheck } from 'lucide-react'
 import { Modal } from './Modal'
 import { Dropdown, DropdownOption } from './Dropdown'
 import { CTA } from './CTA'
+import { SearchBar } from './SearchBar'
 // Tone.js sera importé dynamiquement pour éviter la création automatique du contexte
 type ToneType = typeof import('tone')
 let ToneModule: ToneType | null = null
@@ -141,7 +142,15 @@ export function PedalLibraryModal({ isOpen, onClose, onSelectPedal, searchQuery 
   const previewNodesRef = useRef<any[]>([])
   const audioNodesRef = useRef<AudioNode[]>([])
   
-  const activeSearchQuery = searchQuery || internalSearchQuery
+  // Préremplir l'input de recherche avec searchQuery quand la modale s'ouvre
+  useEffect(() => {
+    if (isOpen && searchQuery) {
+      setInternalSearchQuery(searchQuery)
+    }
+  }, [isOpen, searchQuery])
+  
+  // Utiliser uniquement internalSearchQuery pour filtrer (pas searchQuery directement)
+  const activeSearchQuery = internalSearchQuery
 
   const filteredPedals = useMemo(() => {
     return pedalLibrary.filter(pedal => {
@@ -740,44 +749,39 @@ export function PedalLibraryModal({ isOpen, onClose, onSelectPedal, searchQuery 
       className="flex flex-col"
         bodyClassName="overflow-y-auto custom-scrollbar flex-1 p-4 min-h-0"
     >
-      {!searchQuery && (
-        <div className="p-4 border-b border-black/10 dark:border-white/10 shrink-0">
-          <div className="relative flex items-center mb-4">
-            <Search size={18} className="absolute left-4 text-black/40 dark:text-white/40 pointer-events-none" />
-            <input
-              type="text"
-              placeholder="Rechercher par marque, modèle ou type..."
-              value={internalSearchQuery}
-              onChange={(e) => setInternalSearchQuery(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 bg-[#f5f5f5] dark:bg-gray-700 border-2 border-black/10 dark:border-white/10 rounded-lg text-black/85 dark:text-white/85 text-sm transition-all duration-200 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.05),inset_-2px_-2px_4px_rgba(255,255,255,0.8)] dark:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.5),inset_-2px_-2px_4px_rgba(60,60,60,0.5)] focus:outline-none focus:border-black/20 dark:focus:border-white/20 focus:bg-white dark:focus:bg-gray-600 focus:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.08),inset_-2px_-2px_4px_rgba(255,255,255,1),0_0_0_2px_rgba(0,0,0,0.05)] dark:focus:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.6),inset_-2px_-2px_4px_rgba(70,70,70,0.6),0_0_0_2px_rgba(255,255,255,0.1)] placeholder:text-black/40 dark:placeholder:text-white/40"
+      <div className="p-4 border-b border-black/10 dark:border-white/10 shrink-0">
+        <div className="mb-4">
+          <SearchBar
+            value={internalSearchQuery}
+            onChange={setInternalSearchQuery}
+            placeholder="Rechercher par marque, modèle ou type..."
+          />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-black/70 dark:text-white/70 mb-2">
+              Type
+            </label>
+            <Dropdown
+              options={typeOptions}
+              value={selectedType || ''}
+              placeholder="Tous les types"
+              onChange={(value) => setSelectedType(value === '' ? undefined : value)}
             />
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-black/70 dark:text-white/70 mb-2">
-                Type
-              </label>
-              <Dropdown
-                options={typeOptions}
-                value={selectedType || ''}
-                placeholder="Tous les types"
-                onChange={(value) => setSelectedType(value === '' ? undefined : value)}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-black/70 dark:text-white/70 mb-2">
-                Marque
-              </label>
-              <Dropdown
-                options={brandOptions}
-                value={selectedBrand || ''}
-                placeholder="Toutes les marques"
-                onChange={(value) => setSelectedBrand(value === '' ? undefined : value)}
-              />
-            </div>
+          <div>
+            <label className="block text-sm font-medium text-black/70 dark:text-white/70 mb-2">
+              Marque
+            </label>
+            <Dropdown
+              options={brandOptions}
+              value={selectedBrand || ''}
+              placeholder="Toutes les marques"
+              onChange={(value) => setSelectedBrand(value === '' ? undefined : value)}
+            />
           </div>
         </div>
-      )}
+      </div>
 
       <div className="overflow-y-auto custom-scrollbar flex-1 p-4 min-h-0">
         {Object.keys(pedalsByType).length === 0 ? (
@@ -881,13 +885,7 @@ export function PedalLibraryModal({ isOpen, onClose, onSelectPedal, searchQuery 
                                     style={{ filter: isLight ? 'none' : 'brightness(0) invert(1)' }}
                                   />
                                   <BadgeCheck 
-                                    className={`w-3.5 h-3.5 flex-shrink-0 ${
-                                      certificationStatus === 'certified'
-                                        ? 'text-emerald-600 dark:text-emerald-400'
-                                        : certificationStatus === 'pending'
-                                        ? 'text-yellow-600 dark:text-yellow-400'
-                                        : ''
-                                    }`}
+                                    className="w-3.5 h-3.5 flex-shrink-0 text-emerald-600 dark:text-emerald-400"
                                   />
                                   <span className="sr-only">
                                     {certificationStatus === 'certified' ? 'Matériel certifié' : 'En cours de certification'}

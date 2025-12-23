@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useRef, useCallback, ReactNode, useEffect } from 'react'
 import { DEFAULT_PATTERNS } from './patterns'
 import { createLogger } from '../services/logger'
+import type { FreesoundSound } from '../services/freesound'
 
 const logger = createLogger('DrumMachineContext')
 
@@ -364,6 +365,18 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
 
       await player.load()
       
+      // Vérifier que le sample est bien chargé
+      if (!player.loaded) {
+        logger.debug(`Le sample pour ${instrument} n'est pas chargé après load()`, { url, name })
+        // Essayer de recharger après un court délai
+        await new Promise(resolve => setTimeout(resolve, 100))
+        if (!player.loaded) {
+          logger.debug(`Le sample pour ${instrument} n'est toujours pas chargé`, { url, name })
+          player.dispose()
+          return
+        }
+      }
+      
       samplePlayersRef.current[instrument] = player
       
       // Stocker la source du sample
@@ -371,9 +384,12 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
         ...prev,
         [instrument]: name || (typeof audioUrl === 'string' ? audioUrl : 'Sample chargé')
       }))
+      
+      logger.debug(`Sample chargé avec succès pour ${instrument}`, { name, loaded: player.loaded })
     } catch (error) {
-      console.error(`Erreur lors du chargement du sample pour ${instrument}:`, error)
-      throw error
+      logger.debug(`Erreur lors du chargement du sample pour ${instrument}`, { error, name })
+      // Ne pas relancer l'erreur : on restera sur les sons synthétisés par défaut
+      return
     }
   }, [initializeTone])
 
@@ -389,6 +405,120 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
       [instrument]: null
     }))
   }, [])
+
+  // Charger les samples par défaut depuis Freesound
+  const loadDefaultSamples = useCallback(async () => {
+    try {
+      // Importer dynamiquement le service Freesound pour éviter les erreurs au chargement
+      const freesoundModule = await import('../services/freesound')
+      const { freesoundService } = freesoundModule
+      
+      // Vérifier si Freesound est configuré
+      if (!import.meta.env.VITE_FREESOUND_API_KEY && !import.meta.env.VITE_FREESOUND_CLIENT_ID) {
+        logger.debug('Freesound non configuré, utilisation des sons synthétisés par défaut')
+        return
+      }
+
+      const initialized = await initializeTone()
+      if (!initialized || !volumeNodesRef.current) return
+
+      // Charger un sample par défaut pour chaque instrument
+      const loadPromises: Promise<void>[] = []
+      
+      for (const instrument of ['kick', 'snare', 'hihat', 'openhat', 'crash', 'ride', 'tom1', 'tom2', 'tom3'] as DrumInstrument[]) {
+        // Vérifier si un sample est déjà chargé
+        if (samplePlayersRef.current[instrument]) {
+          continue
+        }
+
+        const loadPromise = (async () => {
+          try {
+            let samples: FreesoundSound[] = []
+            
+            // Recherche spécifique selon l'instrument
+            if (instrument === 'kick') {
+              samples = await freesoundService.searchDrumSamples('kick', 5)
+            } else if (instrument === 'snare') {
+              samples = await freesoundService.searchDrumSamples('snare', 5)
+            } else if (instrument === 'hihat') {
+              samples = await freesoundService.searchDrumSamples('hihat', 5)
+            } else if (instrument === 'openhat') {
+              // Recherche spécifique pour hihat ouvert
+              const searchResult = await freesoundService.searchSounds('drum hihat open', {
+                filter: '(license:"Attribution" OR license:"Creative Commons 0") duration:[0 TO 2]',
+                sort: 'downloads_desc',
+                pageSize: 5,
+                fields: 'id,name,tags,description,license,previews,username,duration,samplerate,download'
+              })
+              samples = searchResult.results.filter(sound => {
+                const name = sound.name.toLowerCase()
+                const tags = sound.tags.join(' ').toLowerCase()
+                return !name.includes('loop') && !tags.includes('loop') && sound.duration <= 2.5
+              })
+            } else if (instrument === 'crash') {
+              samples = await freesoundService.searchDrumSamples('crash', 5)
+            } else if (instrument === 'ride') {
+              samples = await freesoundService.searchDrumSamples('ride', 5)
+            } else if (instrument === 'tom1' || instrument === 'tom2' || instrument === 'tom3') {
+              samples = await freesoundService.searchDrumSamples('tom', 5)
+            }
+            
+            if (samples.length > 0) {
+              // Chercher un sample avec un preview (priorité OGG, puis MP3)
+              let sample: FreesoundSound | null = null
+              let previewUrl: string | undefined
+              
+              for (const s of samples) {
+                const url = s.previews?.['preview-hq-ogg']
+                  || s.previews?.['preview-lq-ogg']
+                  || s.previews?.['preview-hq-mp3']
+                  || s.previews?.['preview-lq-mp3']
+                if (url) {
+                  sample = s
+                  previewUrl = url
+                  break
+                }
+              }
+              
+              if (sample && previewUrl) {
+                try {
+                  // Télécharger le preview en blob d'abord (comme dans DrumSampleSelector)
+                  const response = await fetch(previewUrl)
+                  if (response.ok) {
+                    const blob = await response.blob()
+                    // Charger le sample depuis le blob
+                    await loadSample(instrument, blob, sample.name)
+                    logger.debug(`Sample Freesound chargé pour ${instrument}: ${sample.name} (preview)`)
+                  } else {
+                    logger.debug(`Impossible de télécharger le preview pour ${instrument}`, { 
+                      status: response.status,
+                      previewUrl 
+                    })
+                  }
+                } catch (loadError) {
+                  // Si le chargement échoue, on log et on garde le synth par défaut
+                  logger.debug(`Impossible de charger le preview pour ${instrument}, utilisation du synth par défaut`, { loadError })
+                }
+              }
+            }
+          } catch (error) {
+            // En cas d'erreur, on continue avec les autres instruments
+            logger.debug(`Erreur lors du chargement du sample par défaut pour ${instrument}`, { error })
+          }
+        })()
+
+        loadPromises.push(loadPromise)
+      }
+
+      // Attendre que tous les samples soient chargés (ou échouent)
+      await Promise.allSettled(loadPromises)
+      logger.debug('Chargement des samples par défaut terminé')
+    } catch (error) {
+      // Capturer toutes les erreurs pour éviter qu'elles remontent à React
+      logger.debug('Erreur globale lors du chargement des samples par défaut', { error })
+      // Ne pas relancer l'erreur pour éviter de faire planter le composant
+    }
+  }, [initializeTone, loadSample])
 
   // Jouer un son individuel
   const playSound = useCallback(async (instrument: DrumInstrument) => {
@@ -409,9 +539,16 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
     try {
       // Utiliser le sample si disponible, sinon utiliser le synth
       const samplePlayer = samplePlayersRef.current[instrument] as ToneSamplePlayer | null
-      if (samplePlayer && samplePlayer.loaded) {
-        samplePlayer.start(now)
-        return
+      if (samplePlayer) {
+        if (samplePlayer.loaded) {
+          samplePlayer.start(now)
+          return
+        } else {
+          logger.debug(`Sample pour ${instrument} pas encore chargé lors de la lecture`, { 
+            hasPlayer: !!samplePlayer,
+            loaded: samplePlayer.loaded 
+          })
+        }
       }
 
       // Fallback sur les synths
@@ -535,8 +672,18 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
                   try {
                     // Utiliser le sample si disponible, sinon utiliser le synth
                     const samplePlayer = samplePlayersRef.current[instrument] as ToneSamplePlayer | null
-                    if (samplePlayer && samplePlayer.loaded) {
-                      samplePlayer.start(now)
+                    if (samplePlayer) {
+                      // Vérifier si le sample est chargé
+                      if (samplePlayer.loaded) {
+                        samplePlayer.start(now)
+                      } else {
+                        // Le sample n'est pas encore chargé, utiliser le synth en attendant
+                        logger.debug(`Sample pour ${instrument} pas encore chargé, utilisation du synth`, { 
+                          hasPlayer: !!samplePlayer,
+                          loaded: samplePlayer.loaded 
+                        })
+                        // Fallback sur les synths
+                      }
                     } else {
                       // Fallback sur les synths
                       switch (instrument) {
@@ -734,6 +881,37 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
       [instrument]: value
     })
   }, [updateVolumes])
+
+  // Charger les samples par défaut depuis Freesound après la première interaction utilisateur
+  const [samplesLoaded, setSamplesLoaded] = useState(false)
+  
+  useEffect(() => {
+    // Ne charger les samples qu'après une interaction utilisateur (pour respecter la politique d'auto-play)
+    const handleUserInteraction = () => {
+      if (!samplesLoaded) {
+        setSamplesLoaded(true)
+        // Charger les samples de manière asynchrone après l'interaction
+        Promise.resolve()
+          .then(() => loadDefaultSamples())
+          .catch(error => {
+            // Capturer toutes les erreurs pour éviter qu'elles remontent à React
+            logger.debug('Erreur lors du chargement des samples par défaut', { error })
+            // Ne pas relancer l'erreur pour éviter de faire planter le composant
+          })
+      }
+    }
+
+    // Écouter les interactions utilisateur
+    document.addEventListener('click', handleUserInteraction, { once: true })
+    document.addEventListener('keydown', handleUserInteraction, { once: true })
+    document.addEventListener('touchstart', handleUserInteraction, { once: true })
+
+    return () => {
+      document.removeEventListener('click', handleUserInteraction)
+      document.removeEventListener('keydown', handleUserInteraction)
+      document.removeEventListener('touchstart', handleUserInteraction)
+    }
+  }, [loadDefaultSamples, samplesLoaded])
 
   // Nettoyer les ressources au démontage
   useEffect(() => {

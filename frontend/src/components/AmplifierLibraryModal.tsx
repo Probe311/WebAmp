@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react'
-import { Search, Building2, Radio } from 'lucide-react'
+import { Building2, Radio } from 'lucide-react'
 import { Modal } from './Modal'
 import { Dropdown, DropdownOption } from './Dropdown'
 import { useCatalog } from '../hooks/useCatalog'
+import { SearchBar } from './SearchBar'
 
 interface AmplifierLibraryModalProps {
   isOpen: boolean
@@ -68,14 +69,11 @@ export function AmplifierLibraryModal({ isOpen, onClose, onSelectAmplifier, sele
     >
       {!searchQuery && (
         <div className="p-4 border-b border-black/10 dark:border-white/10 shrink-0">
-          <div className="relative flex items-center mb-4">
-            <Search size={18} className="absolute left-4 text-black/40 dark:text-white/40 pointer-events-none" />
-            <input
-              type="text"
-              placeholder="Rechercher par marque, modèle ou type..."
+          <div className="mb-4">
+            <SearchBar
               value={internalSearchQuery}
-              onChange={(e) => setInternalSearchQuery(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 bg-[#f5f5f5] dark:bg-gray-700 border-2 border-black/10 dark:border-white/10 rounded-lg text-black/85 dark:text-white/85 text-sm transition-all duration-200 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.05),inset_-2px_-2px_4px_rgba(255,255,255,0.8)] dark:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.5),inset_-2px_-2px_4px_rgba(60,60,60,0.5)] focus:outline-none focus:border-black/20 dark:focus:border-white/20 focus:bg-white dark:focus:bg-gray-600 focus:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.08),inset_-2px_-2px_4px_rgba(255,255,255,1),0_0_0_2px_rgba(0,0,0,0.05)] dark:focus:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.6),inset_-2px_-2px_4px_rgba(70,70,70,0.6),0_0_0_2px_rgba(255,255,255,0.1)] placeholder:text-black/40 dark:placeholder:text-white/40"
+              onChange={setInternalSearchQuery}
+              placeholder="Rechercher par marque, modèle ou type..."
             />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

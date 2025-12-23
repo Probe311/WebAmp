@@ -150,9 +150,6 @@ export function Pedal({
               const brandLogo = certifiedLogo || getBrandLogo(brand)
               
               if (hasCertification && certifiedLogo) {
-                const isCertified = certificationStatus === 'certified'
-                const isPending = certificationStatus === 'pending'
-                
                 return (
                   <div className="flex items-center justify-center gap-1 mb-0.5">
                     <img
@@ -162,16 +159,10 @@ export function Pedal({
                       style={{ maxWidth: '60px' }}
                     />
                     <BadgeCheck 
-                      className={`w-2.5 h-2.5 flex-shrink-0 ${
-                        isCertified 
-                          ? 'text-emerald-600 dark:text-emerald-400' 
-                          : isPending
-                          ? 'text-yellow-600 dark:text-yellow-400'
-                          : ''
-                      }`}
+                      className="w-2.5 h-2.5 flex-shrink-0 text-emerald-600 dark:text-emerald-400"
                     />
                     <span className="sr-only">
-                      {isCertified ? 'Matériel certifié' : 'En cours de certification'}
+                      Matériel certifié
                     </span>
                   </div>
                 )

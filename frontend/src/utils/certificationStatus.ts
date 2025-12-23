@@ -8,8 +8,9 @@ import electroHarmonixLogo from '../assets/logos/electro-harmonix.svg'
 
 /**
  * Statuts de certification matériel
+ * Seule la certification verte (certified) est disponible
  */
-export type CertificationStatus = 'certified' | 'pending'
+export type CertificationStatus = 'certified'
 
 /**
  * Configuration des certifications par marque
@@ -22,22 +23,13 @@ export interface BrandCertification {
 
 /**
  * Mapping des certifications par nom de marque
+ * Seules les marques certifiées (vert) sont incluses
  */
 export const brandCertifications: Record<string, BrandCertification> = {
   'Walrus Audio': {
     status: 'certified',
     smallLogo: walrusSmallLogo,
     fullLogo: walrusLogo
-  },
-  'BOSS': {
-    status: 'pending',
-    smallLogo: bossSmallLogo,
-    fullLogo: bossLogo
-  },
-  'Electro-Harmonix': {
-    status: 'pending',
-    smallLogo: electroHarmonixSmallLogo,
-    fullLogo: electroHarmonixLogo
   }
 }
 
@@ -51,10 +43,10 @@ export function isBrandCertified(brand: string): boolean {
 
 /**
  * Vérifie si une marque est en cours de certification
+ * @deprecated Le statut 'pending' n'existe plus. Utiliser isBrandCertified à la place.
  */
 export function isBrandPending(brand: string): boolean {
-  const certification = brandCertifications[brand]
-  return certification?.status === 'pending'
+  return false
 }
 
 /**
@@ -85,5 +77,27 @@ export function getCertifiedBrandFullLogo(brand: string): string | null {
  */
 export function hasCertificationStatus(brand: string): boolean {
   return brand in brandCertifications
+}
+
+/**
+ * Ajoute ou met à jour la certification d'une marque
+ * @param brand Nom de la marque
+ * @param smallLogo URL ou chemin du logo small
+ * @param fullLogo URL ou chemin du logo complet
+ */
+export function setBrandCertification(brand: string, smallLogo: string, fullLogo: string): void {
+  brandCertifications[brand] = {
+    status: 'certified',
+    smallLogo,
+    fullLogo
+  }
+}
+
+/**
+ * Supprime la certification d'une marque
+ * @param brand Nom de la marque
+ */
+export function removeBrandCertification(brand: string): void {
+  delete brandCertifications[brand]
 }
 

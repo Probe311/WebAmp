@@ -10,6 +10,7 @@ interface SliderProps {
   orientation?: 'vertical' | 'horizontal'
   color?: string
   className?: string
+  labelPosition?: 'side' | 'top'
 }
 
 export const Slider: React.FC<SliderProps> = ({
@@ -20,7 +21,8 @@ export const Slider: React.FC<SliderProps> = ({
   max = 100,
   orientation = 'vertical',
   color = '#f97316',
-  className = ''
+  className = '',
+  labelPosition = 'side'
 }) => {
   const { theme } = useTheme()
   const [isDragging, setIsDragging] = useState(false)
@@ -31,6 +33,7 @@ export const Slider: React.FC<SliderProps> = ({
 
   const percent = Math.min(100, Math.max(0, ((value - min) / (max - min)) * 100))
   const isVertical = orientation === 'vertical'
+  const isLabelOnTop = labelPosition === 'top' && !isVertical
 
   const addAlpha = (hexColor: string, alpha: number) => {
     if (!hexColor.startsWith('#') || (hexColor.length !== 7 && hexColor.length !== 4)) {
@@ -63,6 +66,19 @@ export const Slider: React.FC<SliderProps> = ({
     const touch = e.touches[0]
     startDrag(isVertical ? touch.clientY : touch.clientX)
   }
+
+  const handleTrackClick = useCallback((e: React.MouseEvent) => {
+    if (!trackRef.current || isDragging) return
+    e.preventDefault()
+    const rect = trackRef.current.getBoundingClientRect()
+    const trackSize = isVertical ? rect.height : rect.width
+    const clickPos = isVertical ? rect.bottom - e.clientY : e.clientX - rect.left
+    const clickPercent = (clickPos / trackSize) * 100
+    const valueRange = max - min
+    const newValue = min + (clickPercent / 100) * valueRange
+    const clampedValue = Math.max(min, Math.min(max, newValue))
+    onChange(Math.round(clampedValue))
+  }, [isDragging, isVertical, min, max, onChange])
 
   const handleDrag = useCallback(
     (clientPos: number) => {
@@ -115,32 +131,35 @@ export const Slider: React.FC<SliderProps> = ({
     }
   }, [isDragging, handleDrag, isVertical])
 
+  // Déterminer la classe de largeur : utiliser className si fournie, sinon w-full par défaut
+  const widthClass = className.includes('w-') ? '' : (!isVertical && !isLabelOnTop ? 'w-full' : '')
+  const finalClassName = `${isVertical ? 'flex-col items-center gap-2 h-48 slider-vertical' : isLabelOnTop ? 'flex-col items-start gap-1.5 w-full slider-horizontal' : `flex-row items-center gap-2 ${widthClass} slider-horizontal`} ${className}`.trim()
+
   return (
-    <div
-      className={`flex ${isVertical ? 'flex-col items-center gap-2 h-48 slider-vertical' : 'flex-col gap-2 w-full slider-horizontal'} px-1 py-1 ${className}`.trim()}
-    >
+    <div className={finalClassName}>
       {label && (
-        <span className="text-[10px] uppercase tracking-widest font-bold text-gray-500 dark:text-gray-400 select-none text-center">
+        <span className={`text-[10px] uppercase tracking-widest font-bold text-gray-500 dark:text-gray-400 select-none ${isLabelOnTop ? 'text-left w-full' : 'text-center'}`}>
           {label}
         </span>
       )}
 
       <div 
         ref={trackRef}
-        className={`relative ${isVertical ? 'flex-1 w-2 min-h-[120px]' : 'h-3 w-full min-w-[140px]'} rounded-full`}
+        className={`relative ${isVertical ? 'flex-1 w-2 min-h-[120px]' : 'h-3 w-full'} rounded-full cursor-pointer`}
         style={{
           background: isDark ? '#1f2937' : 'var(--neumorphic-bg-track, #EBECF0)',
           boxShadow: isDark
             ? 'inset 3px 3px 6px rgba(0,0,0,0.55), inset -3px -3px 6px rgba(60,60,60,0.45)'
             : 'inset 3px 3px 6px rgba(0,0,0,0.08), inset -3px -3px 6px rgba(255,255,255,0.9)'
         }}
+        onClick={handleTrackClick}
       >
         <div
-          className={`absolute ${isVertical ? 'left-1/2' : 'top-1/2'} -translate-x-1/2 w-8 h-5 rounded-[6px] cursor-${isVertical ? 'ns' : 'ew'}-resize flex items-center justify-center after:content-[''] after:w-4 after:h-[2px] after:rounded-full transition-colors`}
+          className={`absolute ${isVertical ? 'left-1/2 cursor-ns-resize' : 'top-1/2 cursor-ew-resize'} w-8 h-5 rounded-[6px] flex items-center justify-center after:content-[''] after:w-4 after:h-[2px] after:rounded-full transition-colors z-10`}
                 style={{ 
             ...(isVertical
               ? { bottom: `${percent}%`, transform: 'translate(-50%, 50%)' }
-              : { left: `${percent}%`, top: '50%', transform: 'translate(-50%, -50%)' }),
+              : { left: `${percent}%`, transform: 'translate(-50%, -50%)' }),
             borderColor: color,
             borderWidth: '1px',
             color,
@@ -150,12 +169,18 @@ export const Slider: React.FC<SliderProps> = ({
               : '3px 3px 6px rgba(0,0,0,0.08), -3px -3px 6px rgba(255,255,255,0.9)',
             backdropFilter: 'blur(2px)'
           }}
-          onMouseDown={handleMouseDown}
-          onTouchStart={handleTouchStart}
+          onMouseDown={(e) => {
+            e.stopPropagation()
+            handleMouseDown(e)
+          }}
+          onTouchStart={(e) => {
+            e.stopPropagation()
+            handleTouchStart(e)
+          }}
         />
 
         <div 
-          className={`absolute ${isVertical ? 'bottom-0 left-0 w-full rounded-b-full' : 'left-0 top-0 h-full rounded-l-full'} pointer-events-none`}
+          className={`absolute ${isVertical ? 'bottom-0 left-0 w-full rounded-b-full' : 'left-0 top-0 h-full rounded-l-full'} pointer-events-none z-0`}
           style={{ 
             height: isVertical ? `${percent}%` : '100%',
             width: isVertical ? '100%' : `${percent}%`,

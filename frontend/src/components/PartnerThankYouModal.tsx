@@ -27,7 +27,7 @@ export function PartnerThankYouModal({ isOpen, onClose }: PartnerThankYouModalPr
           Merci à Walrus Audio
         </h3>
         <p className="text-sm text-black/70 dark:text-white/70">
-          Nous remercions nos partenaires pour leur soutien et leur contribution à WebAmp.
+          Nous remercions les marques pour leur soutien à WebAmp.
         </p>
         <button
           onClick={onClose}

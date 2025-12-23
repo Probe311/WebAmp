@@ -1,5 +1,6 @@
 import React from 'react'
 import { Chord } from '../../services/tablatures'
+import { useTheme } from '../../contexts/ThemeContext'
 
 interface ChordDiagramProps {
   chord: Chord
@@ -7,6 +8,9 @@ interface ChordDiagramProps {
 }
 
 export const ChordDiagram: React.FC<ChordDiagramProps> = ({ chord, scale = 1 }) => {
+  const { theme } = useTheme()
+  const isDark = theme === 'dark'
+
   if (!chord) return <div className="text-neutral-500 text-xs">Aucun diagramme</div>
 
   // Variables de taille
@@ -34,7 +38,7 @@ export const ChordDiagram: React.FC<ChordDiagramProps> = ({ chord, scale = 1 }) 
   const STRING_STROKE_WIDTH = 1
   
   // Couleurs
-  const FRET_COLOR = '#444'
+  const FRET_COLOR = isDark ? '#cbd5e1' : '#444'
   const DOT_COLOR = '#f59e0b'
   const MUTE_COLOR = '#ef4444'
   
@@ -54,9 +58,9 @@ export const ChordDiagram: React.FC<ChordDiagramProps> = ({ chord, scale = 1 }) 
   const numFretsToShow = Math.max(NUM_FRETS, displayFrets)
 
   return (
-    <div className="bg-gray-800 dark:bg-gray-800 p-8 rounded-3xl border border-white/5 shadow-inner">
+    <div className="p-8 rounded-3xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 shadow-[6px_6px_14px_rgba(0,0,0,0.08),-6px_-6px_14px_rgba(255,255,255,0.75)] dark:shadow-[6px_6px_14px_rgba(0,0,0,0.6),-6px_-6px_14px_rgba(60,60,60,0.4)]">
       {/* Titre de l'accord centré */}
-      <h3 className="text-3xl font-bold mb-6 text-white tracking-tight text-center">
+      <h3 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white tracking-tight text-center">
         {chord.name}
       </h3>
       

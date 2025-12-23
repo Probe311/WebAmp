@@ -328,6 +328,9 @@ const SortableEffect = memo(function SortableEffect({ effect, onRemove, onToggle
 
 interface PedalboardProps {
   searchQuery?: string
+  librarySearchQuery?: string
+  autoOpenLibrary?: boolean
+  onLibraryOpened?: () => void
   onAddEffectRef?: (fn: (pedalId: string) => void) => void
   onClearEffectsRef?: (fn: () => void) => void
   onEffectsChange?: (pedalIds: string[]) => void
@@ -339,6 +342,9 @@ interface PedalboardProps {
 
 export const Pedalboard = memo(function Pedalboard({ 
   searchQuery: externalSearchQuery = '',
+  librarySearchQuery = '',
+  autoOpenLibrary = false,
+  onLibraryOpened,
   onAddEffectRef,
   onClearEffectsRef,
   onEffectsChange,
@@ -379,6 +385,16 @@ export const Pedalboard = memo(function Pedalboard({
       onEffectsChange(pedalIds)
     }
   }, [effects, onEffectsChange])
+
+  // Ouvrir automatiquement la bibliothèque si demandé
+  useEffect(() => {
+    if (autoOpenLibrary && librarySearchQuery) {
+      setShowPedalLibrary(true)
+      if (onLibraryOpened) {
+        onLibraryOpened()
+      }
+    }
+  }, [autoOpenLibrary, librarySearchQuery, onLibraryOpened])
   
   // Gestion des raccourcis clavier
   useKeyboardShortcuts((action: ShortcutAction) => {
@@ -401,7 +417,8 @@ export const Pedalboard = memo(function Pedalboard({
     }
   })
   
-  const searchQuery = externalSearchQuery
+  // Utiliser librarySearchQuery si fourni, sinon utiliser externalSearchQuery
+  const searchQuery = librarySearchQuery || externalSearchQuery
 
   const sensors = useSensors(
     useSensor(PointerSensor, {

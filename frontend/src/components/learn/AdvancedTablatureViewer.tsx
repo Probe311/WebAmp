@@ -241,7 +241,7 @@ export const AdvancedTablatureViewer: React.FC = () => {
   };
 
   return (
-    <div className="h-full flex flex-col p-6 max-w-7xl mx-auto gap-6 font-sans">
+    <div className="h-full flex flex-col p-6  gap-6 font-sans">
       
       {/* 1. Header & Controls Card */}
       <div className="flex flex-col gap-6 shrink-0">
@@ -265,7 +265,7 @@ export const AdvancedTablatureViewer: React.FC = () => {
                   <button 
                      onClick={() => setCurrentMeasureIndex(0)}
                      className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors"
-                     title="Reset"
+                     title="Réinitialiser"
                   >
                      <SkipBack size={20} />
                   </button>

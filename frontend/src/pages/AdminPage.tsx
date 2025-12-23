@@ -13,7 +13,15 @@ import { Modal } from '../components/Modal'
 import { Loader } from '../components/Loader'
 import { Toggle } from '../components/Toggle'
 import { getBrandLogos, getBrandLogoSmall } from '../utils/brandLogos'
+import { 
+  hasCertificationStatus, 
+  setBrandCertification, 
+  removeBrandCertification,
+  getCertifiedBrandSmallLogo,
+  getCertifiedBrandFullLogo
+} from '../utils/certificationStatus'
 import { CreateBrandModal, CreateFeatureFlagModal, CreateCourseModal, CreateLessonModal, CreateDLCPackModal } from './admin/CreateModals'
+import { EditAmplifierModal, EditPedalModal, EditPresetModal, EditDLCPackModal, EditFeatureFlagModal } from './admin/EditModals'
 import { SessionsWorldMap, CountriesBarChart, EvolutionLineChart, DevicesPieChart, BrowsersPieChart, OSPieChart } from '../components/admin/AnalyticsCharts'
 import { calculateCourseQualityScore, getScoreColor, CourseScore, calculateLessonQualityScore, LessonScore } from '../utils/courseQualityScore'
 import { optimizeCourseWithAI, OptimizationResult } from '../services/gemini'
@@ -52,6 +60,7 @@ export function AdminPage() {
   const [courses, setCourses] = useState<Course[]>([])
   const [lessons, setLessons] = useState<Lesson[]>([])
   const [packs, setPacks] = useState<DLCPack[]>([])
+  const [editingPack, setEditingPack] = useState<DLCPack | null>(null)
   const [featureFlags, setFeatureFlags] = useState<FeatureFlag[]>([])
 
   // Charger les données selon la section active
@@ -173,7 +182,7 @@ export function AdminPage() {
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6 pb-32">
+        <div className="flex-1 overflow-y-auto p-6 pb-24">
           {loading ? (
             <div className="flex items-center justify-center h-64">
               <Loader size="md" variant="light" showText={false} />
@@ -192,6 +201,7 @@ function BrandsSection({ brandsFromProducts, onRefresh }: { brandsFromProducts: 
   const { showToast } = useToast()
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [editingBrand, setEditingBrand] = useState<BrandFromProducts | null>(null)
+  const [refreshKey, setRefreshKey] = useState(0)
 
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`Êtes-vous sûr de vouloir supprimer la marque "${name}" ?`)) {
@@ -249,6 +259,7 @@ function BrandsSection({ brandsFromProducts, onRefresh }: { brandsFromProducts: 
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Nom</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Amplis</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Pédales</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Certification</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Actions</th>
                 </tr>
               </thead>
@@ -333,6 +344,56 @@ function BrandsSection({ brandsFromProducts, onRefresh }: { brandsFromProducts: 
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        {(() => {
+                          const isCertified = hasCertificationStatus(brandProduct.name)
+                          const brandLogosData = getBrandLogos(brandProduct.name)
+                          const smallLogo = getBrandLogoSmall(brandProduct.name) || brandLogosData.small
+                          const fullLogo = brandLogosData.normal
+                          
+                          const handleToggleChange = (checked: boolean) => {
+                            if (checked) {
+                              // Activer la certification
+                              if (smallLogo && fullLogo) {
+                                setBrandCertification(brandProduct.name, smallLogo, fullLogo)
+                                showToast({
+                                  variant: 'success',
+                                  title: 'Certification activée',
+                                  message: `La marque "${brandProduct.name}" est maintenant certifiée.`
+                                })
+                                // Forcer le re-render
+                                setRefreshKey(prev => prev + 1)
+                              } else {
+                                showToast({
+                                  variant: 'error',
+                                  title: 'Erreur',
+                                  message: `Les logos pour "${brandProduct.name}" ne sont pas disponibles.`
+                                })
+                              }
+                            } else {
+                              // Désactiver la certification
+                              removeBrandCertification(brandProduct.name)
+                              showToast({
+                                variant: 'success',
+                                title: 'Certification désactivée',
+                                message: `La certification de "${brandProduct.name}" a été retirée.`
+                              })
+                              // Forcer le re-render
+                              setRefreshKey(prev => prev + 1)
+                            }
+                          }
+                          
+                          return (
+                            <Toggle
+                              checked={isCertified}
+                              onChange={handleToggleChange}
+                              labelLeft="Non"
+                              labelRight="Oui"
+                            mode="onoff"
+                            />
+                          )
+                        })()}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
                         <div className="flex items-center gap-2">
                           <CTA
                             variant="icon-only"
@@ -375,6 +436,7 @@ function BrandsSection({ brandsFromProducts, onRefresh }: { brandsFromProducts: 
 function AmplifiersSection({ amplifiers, onRefresh }: { amplifiers: SupabaseAmplifier[]; onRefresh: () => void }) {
   const { showToast } = useToast()
   const [showCreateModal, setShowCreateModal] = useState(false)
+  const [editingAmplifier, setEditingAmplifier] = useState<SupabaseAmplifier | null>(null)
 
   const handleDelete = async (id: string, brand: string, model: string) => {
     if (!confirm(`Êtes-vous sûr de vouloir supprimer l'ampli "${brand} ${model}" ?`)) {
@@ -461,6 +523,15 @@ function AmplifiersSection({ amplifiers, onRefresh }: { amplifiers: SupabaseAmpl
           Utilisez le script de seed pour ajouter des amplis depuis les fichiers de données.
         </div>
       </Modal>
+      <EditAmplifierModal
+        isOpen={editingAmplifier !== null}
+        onClose={() => setEditingAmplifier(null)}
+        onSuccess={() => {
+          onRefresh()
+          setEditingAmplifier(null)
+        }}
+        amplifier={editingAmplifier}
+      />
     </>
   )
 }
@@ -468,6 +539,7 @@ function AmplifiersSection({ amplifiers, onRefresh }: { amplifiers: SupabaseAmpl
 function PedalsSection({ pedals, onRefresh }: { pedals: SupabasePedal[]; onRefresh: () => void }) {
   const { showToast } = useToast()
   const [showCreateModal, setShowCreateModal] = useState(false)
+  const [editingPedal, setEditingPedal] = useState<SupabasePedal | null>(null)
 
   const handleDelete = async (id: string, brand: string, model: string) => {
     if (!confirm(`Êtes-vous sûr de vouloir supprimer la pédale "${brand} ${model}" ?`)) {
@@ -529,7 +601,7 @@ function PedalsSection({ pedals, onRefresh }: { pedals: SupabasePedal[]; onRefre
                       <CTA
                         variant="icon-only"
                         icon={<Edit size={18} />}
-                        onClick={() => showToast({ variant: 'info', title: 'À venir', message: 'Formulaire d\'édition à implémenter' })}
+                        onClick={() => setEditingPedal(pedal)}
                         title="Modifier"
                       />
                       <CTA
@@ -562,6 +634,15 @@ function PedalsSection({ pedals, onRefresh }: { pedals: SupabasePedal[]; onRefre
           </button>
         </div>
       </Modal>
+      <EditPedalModal
+        isOpen={editingPedal !== null}
+        onClose={() => setEditingPedal(null)}
+        onSuccess={() => {
+          onRefresh()
+          setEditingPedal(null)
+        }}
+        pedal={editingPedal}
+      />
     </>
   )
 }
@@ -569,6 +650,7 @@ function PedalsSection({ pedals, onRefresh }: { pedals: SupabasePedal[]; onRefre
 function PresetsSection({ presets, onRefresh }: { presets: Preset[]; onRefresh: () => void }) {
   const { showToast } = useToast()
   const [showCreateModal, setShowCreateModal] = useState(false)
+  const [editingPreset, setEditingPreset] = useState<Preset | null>(null)
 
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`Êtes-vous sûr de vouloir supprimer le preset "${name}" ?`)) {
@@ -630,7 +712,7 @@ function PresetsSection({ presets, onRefresh }: { presets: Preset[]; onRefresh: 
                       <CTA
                         variant="icon-only"
                         icon={<Edit size={18} />}
-                        onClick={() => showToast({ variant: 'info', title: 'À venir', message: 'Formulaire d\'édition à implémenter' })}
+                        onClick={() => setEditingPreset(preset)}
                         title="Modifier"
                       />
                       <CTA
@@ -663,6 +745,15 @@ function PresetsSection({ presets, onRefresh }: { presets: Preset[]; onRefresh: 
           </button>
         </div>
       </Modal>
+      <EditPresetModal
+        isOpen={editingPreset !== null}
+        onClose={() => setEditingPreset(null)}
+        onSuccess={() => {
+          onRefresh()
+          setEditingPreset(null)
+        }}
+        preset={editingPreset}
+      />
     </>
   )
 }
@@ -1068,9 +1159,12 @@ function CoursesSection({ courses, onRefresh }: { courses: Course[]; onRefresh: 
           success: finalSuccessCount
         } : null)
         
-        // Attendre un peu entre chaque optimisation pour éviter de surcharger l'API (sauf pour le dernier)
+        // Attendre entre chaque optimisation pour respecter les limites de l'API Gemini
+        // Le rate limiter du service gère déjà les délais, mais on ajoute un délai supplémentaire
+        // pour être sûr de ne pas dépasser les limites (60 req/min pour l'API gratuite)
         if (i < coursesToOptimize.length - 1) {
-          await new Promise(resolve => setTimeout(resolve, 1000))
+          // Délai de 2 secondes pour respecter la limite de 30 req/min maximum
+          await new Promise(resolve => setTimeout(resolve, 2000))
         }
       } catch (error) {
         finalErrorCount++
@@ -1469,7 +1563,7 @@ function CoursesSection({ courses, onRefresh }: { courses: Course[]; onRefresh: 
                         <CTA
                           variant="icon-only"
                           icon={<Edit size={18} />}
-                          onClick={() => showToast({ variant: 'info', title: 'À venir', message: 'Formulaire d\'édition à implémenter' })}
+                          onClick={() => setEditingCourse(course)}
                           title="Modifier"
                         />
                         <CTA
@@ -1671,6 +1765,7 @@ function CoursesSection({ courses, onRefresh }: { courses: Course[]; onRefresh: 
 function LessonsSection({ lessons, onRefresh }: { lessons: Lesson[]; onRefresh: () => void }) {
   const { showToast } = useToast()
   const [showCreateModal, setShowCreateModal] = useState(false)
+  const [editingLesson, setEditingLesson] = useState<Lesson | null>(null)
   const [availableCourses, setAvailableCourses] = useState<Course[]>([])
   const [lessonScores, setLessonScores] = useState<Map<string, LessonScore>>(new Map())
   const [loadingScores, setLoadingScores] = useState<Set<string>>(new Set())
@@ -1842,7 +1937,7 @@ function LessonsSection({ lessons, onRefresh }: { lessons: Lesson[]; onRefresh: 
                         <CTA
                           variant="icon-only"
                           icon={<Edit size={18} />}
-                          onClick={() => showToast({ variant: 'info', title: 'À venir', message: 'Formulaire d\'édition à implémenter' })}
+                          onClick={() => setEditingLesson(lesson)}
                           title="Modifier"
                         />
                         <CTA
@@ -1862,7 +1957,19 @@ function LessonsSection({ lessons, onRefresh }: { lessons: Lesson[]; onRefresh: 
         )}
       </div>
       </div>
-      <CreateLessonModal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} onSuccess={onRefresh} courses={availableCourses} />
+      <CreateLessonModal 
+        isOpen={showCreateModal || editingLesson !== null} 
+        onClose={() => {
+          setShowCreateModal(false)
+          setEditingLesson(null)
+        }} 
+        onSuccess={() => {
+          onRefresh()
+          setEditingLesson(null)
+        }} 
+        courses={availableCourses}
+        editingLesson={editingLesson}
+      />
     </>
   )
 }
@@ -1874,6 +1981,7 @@ function PacksSection({ packs, onRefresh }: { packs: DLCPack[]; onRefresh: () =>
   const [loadingCourses, setLoadingCourses] = useState<Set<string>>(new Set())
   const [showLinkModal, setShowLinkModal] = useState<string | null>(null)
   const [showCreateModal, setShowCreateModal] = useState(false)
+  const [editingPack, setEditingPack] = useState<DLCPack | null>(null)
   const [availableCourses, setAvailableCourses] = useState<Course[]>([])
 
   const loadPackCourses = async (packId: string) => {
@@ -2062,7 +2170,7 @@ function PacksSection({ packs, onRefresh }: { packs: DLCPack[]; onRefresh: () =>
                           <CTA
                             variant="icon-only"
                             icon={<Edit size={18} />}
-                            onClick={() => showToast({ variant: 'info', title: 'À venir', message: 'Formulaire d\'édition à implémenter' })}
+                            onClick={() => setEditingPack(pack)}
                             title="Modifier"
                           />
                           <CTA
@@ -2193,6 +2301,15 @@ function PacksSection({ packs, onRefresh }: { packs: DLCPack[]; onRefresh: () =>
         </div>
       </Modal>
       <CreateDLCPackModal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} onSuccess={onRefresh} />
+      <EditDLCPackModal
+        isOpen={editingPack !== null}
+        onClose={() => setEditingPack(null)}
+        onSuccess={() => {
+          onRefresh()
+          setEditingPack(null)
+        }}
+        pack={editingPack}
+      />
     </div>
   )
 }
@@ -2200,6 +2317,7 @@ function PacksSection({ packs, onRefresh }: { packs: DLCPack[]; onRefresh: () =>
 function FeaturesSection({ flags, onRefresh }: { flags: FeatureFlag[]; onRefresh: () => void }) {
   const { showToast } = useToast()
   const [showCreateModal, setShowCreateModal] = useState(false)
+  const [editingFlag, setEditingFlag] = useState<FeatureFlag | null>(null)
   const [isInitializing, setIsInitializing] = useState(false)
 
   // Mapping des clés de feature flags vers des noms lisibles pour les pages
@@ -2208,7 +2326,9 @@ function FeaturesSection({ flags, onRefresh }: { flags: FeatureFlag[]; onRefresh
     'page_practice': 'Pratique',
     'page_learn': 'Apprendre',
     'page_mixing': 'Mixage',
-    'page_drummachine': 'Boîte à rythmes'
+    'page_drummachine': 'Boîte à rythmes',
+    'page_gallery': 'Gallery',
+    'page_daw': 'Studio (DAW)'
   }
 
   // Pages prédéfinies à initialiser
@@ -2217,7 +2337,9 @@ function FeaturesSection({ flags, onRefresh }: { flags: FeatureFlag[]; onRefresh
     { key: 'page_practice', name: 'Pratique', description: 'Page de pratique' },
     { key: 'page_learn', name: 'Apprendre', description: 'Page d\'apprentissage' },
     { key: 'page_mixing', name: 'Mixage', description: 'Page de mixage' },
-    { key: 'page_drummachine', name: 'Boîte à rythmes', description: 'Page de la boîte à rythmes' }
+    { key: 'page_drummachine', name: 'Boîte à rythmes', description: 'Page de la boîte à rythmes' },
+    { key: 'page_gallery', name: 'Gallery', description: 'Page de la galerie de presets' },
+    { key: 'page_daw', name: 'Studio (DAW)', description: 'Page du Digital Audio Workstation' }
   ]
 
   // Séparer les flags de pages des autres flags
@@ -2227,6 +2349,35 @@ function FeaturesSection({ flags, onRefresh }: { flags: FeatureFlag[]; onRefresh
   // Trouver les pages manquantes
   const existingPageKeys = new Set(pageFlags.map(flag => flag.key))
   const missingPages = predefinedPages.filter(page => !existingPageKeys.has(page.key))
+
+  // Initialiser une page manquante individuelle
+  const initializePage = async (pageKey: string) => {
+    const page = predefinedPages.find(p => p.key === pageKey)
+    if (!page) return
+
+    try {
+      await adminService.createFeatureFlag({
+        key: page.key,
+        name: page.name,
+        description: page.description,
+        enabled: false,
+        value: null
+      })
+      showToast({
+        variant: 'success',
+        title: 'Page initialisée',
+        message: `${page.name} a été créée. Activez-la pour l’afficher.`
+      })
+      onRefresh()
+    } catch (error) {
+      logger.error(`Erreur lors de la création du feature flag ${page.key}`, error)
+      showToast({
+        variant: 'error',
+        title: 'Erreur',
+        message: `Impossible de créer la page ${page.name}.`
+      })
+    }
+  }
 
   // Fonction pour initialiser les pages manquantes
   const initializeMissingPages = async () => {
@@ -2379,6 +2530,7 @@ function FeaturesSection({ flags, onRefresh }: { flags: FeatureFlag[]; onRefresh
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                  {/* Pages existantes */} 
                   {pageFlags.map((flag) => (
                     <tr key={flag.id}>
                       <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
@@ -2399,7 +2551,7 @@ function FeaturesSection({ flags, onRefresh }: { flags: FeatureFlag[]; onRefresh
                           <CTA
                             variant="icon-only"
                             icon={<Edit size={18} />}
-                            onClick={() => showToast({ variant: 'info', title: 'À venir', message: 'Formulaire d\'édition à implémenter' })}
+                            onClick={() => setEditingFlag(flag)}
                             title="Modifier"
                           />
                           <CTA
@@ -2410,6 +2562,28 @@ function FeaturesSection({ flags, onRefresh }: { flags: FeatureFlag[]; onRefresh
                             className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                           />
                         </div>
+                      </td>
+                    </tr>
+                  ))}
+
+                  {/* Pages manquantes (non initialisées) */}
+                  {missingPages.map(page => (
+                    <tr key={page.key} className="bg-yellow-50/40 dark:bg-yellow-900/20">
+                      <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
+                        {page.name}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 font-mono">{page.key}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-yellow-700 dark:text-yellow-300">
+                        À initialiser
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        <CTA
+                          variant="secondary"
+                          onClick={() => initializePage(page.key)}
+                          title="Initialiser cette page"
+                        >
+                          Initialiser
+                        </CTA>
                       </td>
                     </tr>
                   ))}
@@ -2463,7 +2637,7 @@ function FeaturesSection({ flags, onRefresh }: { flags: FeatureFlag[]; onRefresh
                           <CTA
                             variant="icon-only"
                             icon={<Edit size={18} />}
-                            onClick={() => showToast({ variant: 'info', title: 'À venir', message: 'Formulaire d\'édition à implémenter' })}
+                            onClick={() => setEditingFlag(flag)}
                             title="Modifier"
                           />
                           <CTA
@@ -2484,6 +2658,15 @@ function FeaturesSection({ flags, onRefresh }: { flags: FeatureFlag[]; onRefresh
         </div>
       </div>
       <CreateFeatureFlagModal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} onSuccess={onRefresh} />
+      <EditFeatureFlagModal
+        isOpen={editingFlag !== null}
+        onClose={() => setEditingFlag(null)}
+        onSuccess={() => {
+          onRefresh()
+          setEditingFlag(null)
+        }}
+        flag={editingFlag}
+      />
     </>
   )
 }

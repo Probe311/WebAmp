@@ -1014,3 +1014,204 @@ Les contributions sont les bienvenues ! Consultez :
 - `docs/SCORING_SYSTEM.md` : Documentation du système de scoring (à créer)
 - `docs/AI_PROMPTS.md` : Bibliothèque de prompts IA (à créer)
 
+---
+
+## 8. DAW (Digital Audio Workstation) - Studio Virtuel
+
+**Status** : 🚧 En cours de développement (Janvier 2025)
+
+### Vue d'ensemble
+
+Le DAW de WebAmp est un environnement de production audio complet intégré directement dans l'application. Il permet d'enregistrer, éditer, mixer et exporter des projets audio multi-pistes avec support MIDI et audio.
+
+### Architecture
+
+#### Structure modulaire
+- **Timeline** : Vue d'arrangement avec grille temporelle, playhead et zoom
+- **Tracks** : Pistes audio et MIDI avec contrôles individuels (volume, pan, mute, solo, arm)
+- **Transport** : Contrôles de lecture (play, pause, stop, record, loop)
+- **Mixer** : Console de mixage avec faders, VU meters, et contrôles par piste
+- **Editor** : Éditeurs spécialisés (Piano Roll pour MIDI, Waveform Editor pour audio)
+- **Library** : Bibliothèque de samples, plugins et projets
+- **Device Chain** : Chaîne d'effets par piste avec slots de plugins
+
+### Fonctionnalités implémentées (Phase 1)
+
+#### Interface utilisateur
+- ✅ **Header Transport** : Contrôles de transport avec affichage temps (barres:beats:sixteenths), BPM, signature rythmique
+- ✅ **Timeline** : Grille temporelle avec ruler, playhead, zoom (20-100px par barre)
+- ✅ **Tracks View** : Colonne de pistes avec headers (nom, type, contrôles M/S/R, volume slider)
+- ✅ **Regions** : Blocs audio/MIDI déplaçables et redimensionnables sur la timeline
+- ✅ **Tools** : Outils de sélection (pointer, pencil, scissors, hand) avec snap to grid
+- ✅ **Library Sidebar** : Bibliothèque de samples organisée par dossiers (Drums, Bass, Synths, FX)
+- ✅ **Bottom Panel** : Panels interchangeables (Mixer, Editor, Device Chain)
+
+#### Types de pistes
+- ✅ **Audio Tracks** : Pistes audio avec régions et visualisation waveform
+- ✅ **MIDI Tracks** : Pistes MIDI avec régions et éditeur Piano Roll
+- ✅ **Drums Tracks** : Pistes de batterie avec patterns MIDI
+
+#### Contrôles par piste
+- ✅ **Volume** : Slider vertical (0-100) avec affichage numérique
+- ✅ **Pan** : Contrôle panoramique (-50 à +50)
+- ✅ **Mute** : Bouton M pour couper la piste
+- ✅ **Solo** : Bouton S pour isoler la piste
+- ✅ **Arm** : Bouton R pour armer l'enregistrement
+- ✅ **VU Meters** : Indicateurs de niveau en temps réel (15 segments avec code couleur)
+
+#### Éditeurs
+- ✅ **Piano Roll** : Éditeur MIDI avec clavier virtuel (12 notes), grille 16th notes, notes déplaçables
+- ✅ **Waveform Editor** : Visualisation waveform avec outils de découpe et traitement
+
+#### Mixer
+- ✅ **Faders** : Faders verticaux par piste avec VU meters intégrés
+- ✅ **Master Channel** : Canal master avec fader et VU meters stéréo
+- ✅ **Contrôles compacts** : Boutons Mute/Solo par piste dans le mixer
+
+#### Device Chain
+- ✅ **FX Slots** : 4 slots d'effets par piste avec activation/désactivation
+- ✅ **Plugin Cards** : Cartes visuelles pour chaque plugin (EQ, Compressor, Distortion, Reverb)
+- ✅ **Knobs** : Contrôles par plugin (2 knobs par plugin pour les paramètres principaux)
+
+### Fonctionnalités prévues (Phase 2)
+
+#### Enregistrement audio
+- [ ] **Audio Recording** : Enregistrement en temps réel depuis l'entrée audio
+- [ ] **Multi-take** : Système de prises multiples avec sélection
+- [ ] **Punch In/Out** : Enregistrement automatique sur des zones définies
+- [ ] **Monitoring** : Écoute directe avec latence minimale
+
+#### Édition avancée
+- [ ] **Split Regions** : Découpage de régions avec outil scissors
+- [ ] **Copy/Paste** : Copie et collage de régions
+- [ ] **Undo/Redo** : Historique d'actions illimité
+- [ ] **Fade In/Out** : Courbes de fondu automatiques
+- [ ] **Crossfade** : Fondu croisé entre régions adjacentes
+- [ ] **Time Stretch** : Étirement temporel sans changement de pitch
+- [ ] **Pitch Shift** : Changement de pitch sans changement de tempo
+
+#### MIDI avancé
+- [ ] **Velocity Editing** : Édition de la vélocité des notes MIDI
+- [ ] **Quantization** : Quantification automatique (1/4, 1/8, 1/16, 1/32)
+- [ ] **MIDI CC** : Contrôleurs MIDI (modulation, expression, etc.)
+- [ ] **MIDI Export** : Export des pistes MIDI en format .mid
+
+#### Plugins et effets
+- [ ] **Intégration WebAmp Effects** : Utilisation des effets WebAmp dans le DAW
+- [ ] **Plugin Browser** : Navigateur de plugins avec catégories
+- [ ] **Plugin Presets** : Sauvegarde et chargement de presets de plugins
+- [ ] **Automation** : Automatisation des paramètres de plugins
+- [ ] **Sidechain** : Sidechain compression entre pistes
+
+#### Mixage avancé
+- [ ] **Busses** : Groupes de pistes (Drums Bus, Vocals Bus, etc.)
+- [ ] **Sends/Returns** : Envois vers effets auxiliaires (reverb, delay)
+- [ ] **EQ Graphique** : Égaliseur graphique par piste
+- [ ] **Compression** : Compresseur par piste avec visualisation
+- [ ] **Limiter** : Limiteur sur le master avec visualisation
+
+#### Export et partage
+- [ ] **Export Audio** : Export en WAV, MP3, FLAC (16-bit, 24-bit, 32-bit float)
+- [ ] **Export Stems** : Export des pistes individuelles
+- [ ] **Export MIDI** : Export des pistes MIDI
+- [ ] **Sauvegarde Projet** : Format de projet WebAmp (.webamp-project)
+- [ ] **Import Projet** : Chargement de projets sauvegardés
+- [ ] **Partage Cloud** : Synchronisation des projets via Supabase
+
+#### Performance et optimisation
+- [ ] **Audio Engine** : Moteur audio optimisé avec Web Audio API
+- [ ] **Buffer Management** : Gestion intelligente des buffers audio
+- [ ] **Lazy Loading** : Chargement paresseux des régions non visibles
+- [ ] **Web Workers** : Traitement audio en arrière-plan
+- [ ] **Offline Rendering** : Rendu hors ligne pour l'export
+
+### Fonctionnalités futures (Phase 3)
+
+#### Collaboration
+- [ ] **Sessions partagées** : Collaboration en temps réel entre utilisateurs
+- [ ] **Versioning** : Historique des versions de projet
+- [ ] **Commentaires** : Système de commentaires sur les pistes/régions
+
+#### Intelligence Artificielle
+- [ ] **AI Mixing** : Mixage automatique assisté par IA
+- [ ] **AI Mastering** : Mastering automatique avec Gemini
+- [ ] **AI Composition** : Génération de patterns MIDI avec IA
+- [ ] **AI Stem Separation** : Séparation de stems depuis un mix stéréo
+
+#### Intégrations
+- [ ] **Import Audio** : Import depuis fichiers locaux (drag & drop)
+- [ ] **Import MIDI** : Import de fichiers MIDI (.mid)
+- [ ] **VST Support** : Support des plugins VST via WebAssembly (optionnel)
+- [ ] **Cloud Samples** : Intégration avec Freesound pour samples
+- [ ] **MusicBrainz** : Métadonnées enrichies pour les projets
+
+### Fichiers principaux
+
+#### Types et interfaces
+- `frontend/src/types/daw.ts` : Types TypeScript pour le DAW (Track, Region, Note, etc.)
+- `frontend/src/contexts/DawContext.tsx` : Context React pour l'état global du DAW
+
+#### Composants principaux
+- `frontend/src/pages/DawPage.tsx` : Page principale du DAW
+- `frontend/src/components/daw/Transport.tsx` : Contrôles de transport
+- `frontend/src/components/daw/Timeline.tsx` : Timeline avec ruler et playhead
+- `frontend/src/components/daw/TracksView.tsx` : Vue des pistes avec headers
+- `frontend/src/components/daw/RegionsView.tsx` : Affichage et interaction des régions
+- `frontend/src/components/daw/Mixer.tsx` : Console de mixage
+- `frontend/src/components/daw/PianoRoll.tsx` : Éditeur MIDI Piano Roll
+- `frontend/src/components/daw/WaveformEditor.tsx` : Éditeur audio avec waveform
+- `frontend/src/components/daw/Library.tsx` : Bibliothèque de samples
+- `frontend/src/components/daw/DeviceChain.tsx` : Chaîne d'effets par piste
+- `frontend/src/components/daw/Tools.tsx` : Barre d'outils (pointer, pencil, scissors, hand)
+
+#### Services
+- `frontend/src/services/daw.ts` : Service pour la gestion des projets DAW
+- `frontend/src/audio/DawEngine.ts` : Moteur audio pour le DAW (Web Audio API)
+
+### Design System
+
+Le DAW respecte le design system neumorphic de WebAmp :
+- **Fond** : Blanc (`#ffffff`) en mode clair, `gray-700` en mode sombre
+- **Ombres** : Ombres doubles neumorphic (embossed/debossed)
+- **Couleurs d'accent** : Orange (`#f97316`) pour les éléments actifs
+- **Typographie** : Inter, weights 400/600/700
+- **Composants** : Utilisation des composants existants (Slider, Knob, CTA, Modal)
+
+### Métriques de performance
+
+#### Objectifs
+- **Latence d'enregistrement** : < 10ms (buffer size 256 @ 48kHz)
+- **CPU usage** : < 20% avec 10 pistes actives
+- **Mémoire** : < 200MB pour un projet avec 20 pistes
+- **Temps de chargement** : < 2s pour un projet moyen
+
+### Roadmap de développement
+
+#### Q1 2025 (Phase 1 - MVP)
+- ✅ Interface utilisateur complète
+- ✅ Transport et timeline
+- ✅ Pistes audio et MIDI
+- ✅ Éditeurs de base (Piano Roll, Waveform)
+- ✅ Mixer simple
+- ✅ Device Chain
+
+#### Q2 2025 (Phase 2 - Fonctionnalités avancées)
+- [ ] Enregistrement audio
+- [ ] Édition avancée (split, copy, fade)
+- [ ] Export audio (WAV, MP3)
+- [ ] Sauvegarde/chargement de projets
+- [ ] Intégration effets WebAmp
+
+#### Q3 2025 (Phase 3 - Optimisations)
+- [ ] Performance et optimisation
+- [ ] Collaboration
+- [ ] IA (mixing, mastering)
+- [ ] Intégrations externes
+
+### Notes techniques
+
+- **Web Audio API** : Utilisation de l'API native du navigateur pour le traitement audio
+- **Canvas** : Rendu des waveforms et Piano Roll avec Canvas API
+- **State Management** : Context API React pour l'état global
+- **Feature Flag** : `page_daw` pour activer/désactiver la page
+

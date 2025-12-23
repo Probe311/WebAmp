@@ -1,10 +1,13 @@
-import { ReactNode, ButtonHTMLAttributes } from 'react'
+import React, { ReactNode, ButtonHTMLAttributes, isValidElement } from 'react'
+
+type IconType = React.ComponentType<{ size?: number; className?: string }>
 
 interface CTAProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children?: ReactNode
-  icon?: ReactNode
+  icon?: ReactNode | IconType
   variant?: 'primary' | 'icon-only' | 'secondary' | 'danger' | 'important' | 'ai-tone' | 'ai-beat'
   active?: boolean
+  iconSize?: number
 }
 
 export function CTA({ 
@@ -16,6 +19,7 @@ export function CTA({
   active = false,
   className = '',
   type = 'button',
+  iconSize = 16,
   ...rest
 }: CTAProps) {
   const isIconOnly = variant === 'icon-only'
@@ -75,7 +79,7 @@ export function CTA({
     >
       {icon && (
         <span className={isIconOnly ? '' : 'flex-shrink-0'}>
-          {icon}
+          {renderIcon(icon, iconSize)}
         </span>
       )}
       {!isIconOnly && children && (
@@ -83,5 +87,38 @@ export function CTA({
       )}
     </button>
   )
+}
+
+function renderIcon(icon: ReactNode | IconType, size: number): ReactNode {
+  if (!icon) return null
+  
+  // Si c'est déjà un élément React valide, le retourner tel quel
+  if (isValidElement(icon)) {
+    return icon
+  }
+  
+  // Si c'est un composant React (fonction)
+  // Les composants lucide-react sont des fonctions qui retournent des éléments React
+  if (typeof icon === 'function') {
+    const IconComponent = icon as IconType
+    // Créer l'élément React avec le composant
+    return React.createElement(IconComponent, { size })
+  }
+  
+  // Si c'est un objet (peut-être un composant forwardRef ou memo)
+  if (icon && typeof icon === 'object') {
+    // Essayer de l'utiliser comme composant
+    try {
+      const IconComponent = icon as any
+      if ('render' in IconComponent || '$$typeof' in IconComponent) {
+        return React.createElement(IconComponent, { size })
+      }
+    } catch (error) {
+      // Ignorer l'erreur et continuer
+    }
+  }
+  
+  // Sinon, retourner tel quel (string, number, etc.)
+  return icon as ReactNode
 }
 

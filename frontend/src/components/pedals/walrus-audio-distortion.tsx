@@ -33,7 +33,7 @@ export function WalrusAudioDistortionPedal({
   const mode = values.mode ?? model.parameters.mode.default
 
   const controls = useMemo(() => (
-    <div className="flex flex-col gap-4 w-full">
+    <div className="flex flex-col gap-6 w-full mt-2">
       {/* Gain Slider */}
       <div className="w-full">
         <Slider
@@ -44,6 +44,7 @@ export function WalrusAudioDistortionPedal({
           orientation="horizontal"
           onChange={(v) => onChange?.('gain', v)}
           color={pedalAccentColor}
+          labelPosition="top"
         />
       </div>
 
@@ -57,6 +58,7 @@ export function WalrusAudioDistortionPedal({
           orientation="horizontal"
           onChange={(v) => onChange?.('tone', v)}
           color={pedalAccentColor}
+          labelPosition="top"
         />
       </div>
 
@@ -70,6 +72,7 @@ export function WalrusAudioDistortionPedal({
           orientation="horizontal"
           onChange={(v) => onChange?.('volume', v)}
           color={pedalAccentColor}
+          labelPosition="top"
         />
       </div>
 
@@ -122,7 +125,7 @@ export const WalrusAudioDistortionControls = ({
   const mode = values.mode ?? model.parameters.mode.default
 
   return (
-    <div className="flex flex-col gap-4 w-full">
+    <div className="flex flex-col gap-6 w-full mt-2">
       <div className="w-full">
         <Slider
           label="GAIN"
@@ -132,6 +135,7 @@ export const WalrusAudioDistortionControls = ({
           orientation="horizontal"
           onChange={(v) => onChange?.('gain', v)}
           color={pedalAccentColor}
+          labelPosition="top"
         />
       </div>
       <div className="w-full">
@@ -143,6 +147,7 @@ export const WalrusAudioDistortionControls = ({
           orientation="horizontal"
           onChange={(v) => onChange?.('tone', v)}
           color={pedalAccentColor}
+          labelPosition="top"
         />
       </div>
       <div className="w-full">
@@ -154,6 +159,7 @@ export const WalrusAudioDistortionControls = ({
           orientation="horizontal"
           onChange={(v) => onChange?.('volume', v)}
           color={pedalAccentColor}
+          labelPosition="top"
         />
       </div>
       <div className="w-full mt-2">

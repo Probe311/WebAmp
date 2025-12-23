@@ -1,8 +1,8 @@
-import { LayoutDashboard, Repeat, Music, BookOpen, Settings, User, Drum, Sliders, BoomBox, Store, Shield } from 'lucide-react'
+import { LayoutDashboard, Music, BookOpen, Settings, User, Drum, Sliders, Store, Shield, Speaker, KeyboardMusic } from 'lucide-react'
 import { useDrumMachine } from '../contexts/DrumMachineContext'
 import { useFeatureFlags } from '../hooks/useFeatureFlags'
 
-export type PageId = 'home' | 'webamp' | 'looper' | 'practice' | 'learn' | 'mixing' | 'drummachine' | 'gallery' | 'settings' | 'account' | 'admin'
+export type PageId = 'home' | 'webamp' | 'daw' | 'practice' | 'learn' | 'mixing' | 'drummachine' | 'gallery' | 'settings' | 'account' | 'admin'
 
 interface BottomNavigationProps {
   currentPage: PageId
@@ -20,8 +20,8 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { id: 'home', icon: LayoutDashboard, label: 'Accueil' },
-  { id: 'webamp', icon: BoomBox, label: 'WebAmp' },
-  { id: 'looper', icon: Repeat, label: 'Looper' },
+  { id: 'webamp', icon: Speaker, label: 'WebAmp' },
+  { id: 'daw', icon: KeyboardMusic, label: 'Studio' },
   { id: 'practice', icon: Music, label: 'Pratique' },
   { id: 'learn', icon: BookOpen, label: 'Apprendre' },
   { id: 'mixing', icon: Sliders, label: 'Mixage' },
@@ -39,7 +39,7 @@ export function BottomNavigation({ currentPage, onPageChange, isAuthenticated = 
   const pageFeatureFlags: Record<PageId, string | null> = {
     'home': null, // Toujours visible
     'webamp': null, // Toujours visible
-    'looper': 'page_looper',
+    'daw': 'page_daw',
     'practice': 'page_practice',
     'learn': 'page_learn',
     'mixing': 'page_mixing',

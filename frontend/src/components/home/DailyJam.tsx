@@ -26,7 +26,11 @@ const dailyChallenges = [
   'Revisitez un cours que vous avez complété'
 ]
 
-export function DailyJam() {
+interface DailyJamProps {
+  onOpenPedalboard?: () => void
+}
+
+export function DailyJam({ onOpenPedalboard }: DailyJamProps) {
   const { user } = useAuth()
   const { stats } = useUserStats(user?.id)
 
@@ -131,6 +135,15 @@ export function DailyJam() {
             </div>
           </div>
         )}
+      </div>
+
+      <div className="relative z-10">
+        <button
+          onClick={onOpenPedalboard}
+          className="w-full mt-4 px-4 py-2 bg-white text-orange-600 font-semibold rounded-xl text-sm shadow-[2px_2px_4px_rgba(0,0,0,0.2)] hover:shadow-[3px_3px_6px_rgba(0,0,0,0.25)] transition-all duration-150 disabled:opacity-60"
+        >
+          Ouvrir le pedalboard et jammer
+        </button>
       </div>
     </div>
   )
