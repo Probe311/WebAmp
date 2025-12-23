@@ -399,7 +399,7 @@ Toutes les pages utilisent un layout uniforme :
 
 - **Padding** : `p-6` (24px) sur tous les côtés
 - **Padding bas** : `pb-32` (128px) pour laisser de l'espace à la navigation
-- **Largeur maximale** : `max-w-7xl mx-auto` pour tous les conteneurs
+- **Largeur** : `w-full` (100% de la largeur disponible) pour tous les conteneurs
 - **Layout Bento** : Grille flexible avec `grid` et `gap-4` pour l'espacement entre les cartes
 
 ## Composants audio
@@ -461,7 +461,7 @@ Toutes les pages suivent les mêmes règles :
 
 - **Padding de page** : `p-6` (24px)
 - **Padding bas** : `pb-32` (128px) pour laisser de l'espace à la navigation
-- **Largeur maximale** : `max-w-7xl` (1280px) avec `mx-auto` pour centrer
+- **Largeur** : `w-full` (100% de la largeur disponible)
 - **Espacement entre cartes** : `gap-4` (16px) dans les grilles
 
 ### Layout Bento

@@ -132,38 +132,50 @@ export function DrumMachinePanel() {
           />
         </div>
 
-        <div className="flex items-center gap-4">
-          <label className="text-sm font-medium flex items-center gap-2">
-            <span>BPM:</span>
+        <div className="flex items-center gap-6 flex-shrink-0 min-w-0">
+          {/* BPM Control */}
+          <div className="flex items-center gap-3 flex-shrink-0">
+            <span className="text-sm font-medium whitespace-nowrap">BPM:</span>
             <input
               type="number"
               min="60"
               max="200"
               value={bpm}
-              onChange={(e) => setBpm(Math.max(60, Math.min(200, parseInt(e.target.value) || 120)))}
-              className="w-20 px-3 py-1.5 bg-white dark:bg-gray-800 rounded-lg border border-black/20 dark:border-white/20 text-center font-semibold focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20"
+              onChange={(e) => {
+                const val = parseInt(e.target.value)
+                if (!isNaN(val)) {
+                  setBpm(Math.max(60, Math.min(200, val)))
+                }
+              }}
+              className="w-16 px-2 py-1 bg-white dark:bg-gray-800 rounded border border-gray-300 dark:border-gray-600 text-center text-sm font-medium focus:outline-none focus:ring-2 focus:ring-orange-500/50 flex-shrink-0"
             />
-          </label>
-          <Slider
-            value={bpm}
-            min={60}
-            max={200}
-            onChange={(value) => setBpm(value)}
-            label=""
-            orientation="horizontal"
-            className="w-32"
-          />
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium">Master</span>
-            <Slider
-              value={masterVolume}
-              min={0}
-              max={100}
-              onChange={(value) => setMasterVolume(value)}
-              label=""
-              orientation="horizontal"
-              className="w-32"
-            />
+            <div className="flex-shrink-0">
+              <Slider
+                value={bpm}
+                min={60}
+                max={200}
+                onChange={setBpm}
+                orientation="horizontal"
+                className="w-32"
+                color="#f97316"
+              />
+            </div>
+          </div>
+
+          {/* Master Volume Control */}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <span className="text-sm font-medium whitespace-nowrap">Master</span>
+            <div className="flex-shrink-0">
+              <Slider
+                value={masterVolume}
+                min={0}
+                max={100}
+                onChange={setMasterVolume}
+                orientation="horizontal"
+                className="w-32"
+                color="#f97316"
+              />
+            </div>
           </div>
         </div>
       </div>

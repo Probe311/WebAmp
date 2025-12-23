@@ -6,6 +6,9 @@ import { Block } from '../components/Block'
 
 interface WebAmpPageProps {
   searchQuery?: string
+  librarySearchQuery?: string
+  autoOpenLibrary?: boolean
+  onLibraryOpened?: () => void
   selectedAmplifier?: string
   onAmplifierChange?: (ampId: string) => void
   onParametersChange?: (params: Record<string, number>) => void
@@ -20,6 +23,9 @@ interface WebAmpPageProps {
 
 export function WebAmpPage({
   searchQuery = '',
+  librarySearchQuery = '',
+  autoOpenLibrary = false,
+  onLibraryOpened,
   selectedAmplifier,
   onAmplifierChange,
   onParametersChange,
@@ -34,8 +40,8 @@ export function WebAmpPage({
   const { isActive: isDrumMachineActive } = useDrumMachine()
 
   return (
-    <div className="h-full overflow-y-auto custom-scrollbar p-6 pb-32">
-      <div className="max-w-7xl mx-auto">
+    <div className="h-full overflow-y-auto custom-scrollbar p-6 pb-24">
+      <div className="w-full">
         <h1 className="text-3xl font-bold text-black/85 dark:text-white/90 mb-2">
           WebAmp
         </h1>
@@ -60,6 +66,9 @@ export function WebAmpPage({
           >
             <Pedalboard 
               searchQuery={searchQuery}
+              librarySearchQuery={librarySearchQuery}
+              autoOpenLibrary={autoOpenLibrary}
+              onLibraryOpened={onLibraryOpened}
               onAddEffectRef={onAddEffectRef}
               onClearEffectsRef={onClearEffectsRef}
               onEffectsChange={onEffectsChange}

@@ -14,7 +14,7 @@ import { PedalboardEngine } from './audio/PedalboardEngine'
 import { useAuth } from './auth/AuthProvider'
 import { HomePage } from './pages/HomePage'
 import { WebAmpPage } from './pages/WebAmpPage'
-import { LooperPage } from './pages/LooperPage'
+import { DawPage } from './pages/DawPage'
 import { PracticePage } from './pages/PracticePage'
 import { LearnPage } from './pages/LearnPage'
 import { MixingConsolePage } from './pages/MixingConsolePage'
@@ -27,6 +27,7 @@ import { useFeatureFlags } from './hooks/useFeatureFlags'
 import { useAnalytics } from './hooks/useAnalytics'
 import { createLogger } from './services/logger'
 import { ADMIN_UUID } from './config/constants'
+import { pedalLibrary } from './data/pedals'
 
 const logger = createLogger('App')
 
@@ -39,6 +40,8 @@ function App() {
   const { pageView } = useAnalytics()
   const [currentPage, setCurrentPage] = useState<PageId>('home')
   const [searchQuery, setSearchQuery] = useState('')
+  const [librarySearchQuery, setLibrarySearchQuery] = useState('')
+  const [autoOpenLibrary, setAutoOpenLibrary] = useState(false)
   const [selectedAmplifier, setSelectedAmplifier] = useState<string | null>(null)
   const [, setAmplifierParameters] = useState<Record<string, number>>({})
   const [currentPedalIds, setCurrentPedalIds] = useState<string[]>([])
@@ -255,7 +258,7 @@ function App() {
   const pageFeatureFlags: Record<PageId, string | null> = {
     'home': null,
     'webamp': null,
-    'looper': 'page_looper',
+    'daw': 'page_daw',
     'practice': 'page_practice',
     'learn': 'page_learn',
     'mixing': 'page_mixing',
@@ -265,6 +268,23 @@ function App() {
     'account': null,
     'admin': null
   }
+
+  // Gérer la navigation vers le pedalboard avec recherche optionnelle
+  const handleNavigateToPedalboard = useCallback((pedalId?: string) => {
+    if (pedalId) {
+      const pedal = pedalLibrary.find(p => p.id === pedalId)
+      if (pedal) {
+        // Utiliser le nom du modèle pour la recherche
+        setLibrarySearchQuery(pedal.model)
+        setAutoOpenLibrary(true)
+      }
+    } else {
+      setLibrarySearchQuery('')
+      setAutoOpenLibrary(false)
+    }
+    setCurrentPage('webamp')
+    pageView('/webamp')
+  }, [pageView])
 
   // Gérer le changement de page avec redirection pour les pages nécessitant une authentification
   const handlePageChange = useCallback((page: PageId) => {
@@ -316,16 +336,19 @@ function App() {
     // Vérifier le feature flag pour la page actuelle
     const featureFlagKey = pageFeatureFlags[currentPage]
     if (featureFlagKey && !isEnabled(featureFlagKey)) {
-      return <HomePage onNavigateToLearn={() => setCurrentPage('learn')} />
+      return <HomePage onNavigateToLearn={() => setCurrentPage('learn')} onNavigateToPedalboard={handleNavigateToPedalboard} />
     }
 
     switch (currentPage) {
       case 'home':
-        return <HomePage onNavigateToLearn={() => setCurrentPage('learn')} />
+        return <HomePage onNavigateToLearn={() => setCurrentPage('learn')} onNavigateToPedalboard={handleNavigateToPedalboard} />
       case 'webamp':
         return (
           <WebAmpPage
             searchQuery={searchQuery}
+            librarySearchQuery={librarySearchQuery}
+            autoOpenLibrary={autoOpenLibrary}
+            onLibraryOpened={() => setAutoOpenLibrary(false)}
             selectedAmplifier={selectedAmplifier ?? undefined}
             onAmplifierChange={setSelectedAmplifier}
             onParametersChange={setAmplifierParameters}
@@ -338,8 +361,8 @@ function App() {
             onOpenProfiles={() => setShowProfilesModal(true)}
           />
         )
-      case 'looper':
-        return <LooperPage />
+      case 'daw':
+        return <DawPage />
       case 'practice':
         return <PracticePage />
       case 'learn':
@@ -355,9 +378,9 @@ function App() {
       case 'account':
         return <AccountPage />
       case 'admin':
-        return isAdmin ? <AdminPage /> : <HomePage />
+        return isAdmin ? <AdminPage /> : <HomePage onNavigateToLearn={() => setCurrentPage('learn')} onNavigateToPedalboard={handleNavigateToPedalboard} />
       default:
-        return <HomePage />
+        return <HomePage onNavigateToLearn={() => setCurrentPage('learn')} onNavigateToPedalboard={handleNavigateToPedalboard} />
     }
   }
 
@@ -368,6 +391,7 @@ function App() {
         onSearchChange={setSearchQuery}
         stats={stats}
         onProfileSelect={handleProfileSelect}
+        onLogoClick={() => handlePageChange('home')}
       />
 
       <main className="flex-1 overflow-hidden bg-white dark:bg-gray-900 relative transition-colors duration-200">

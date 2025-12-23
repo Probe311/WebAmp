@@ -2,13 +2,14 @@
  * Composant pour rechercher et charger des samples de batterie depuis Freesound
  */
 import { useState, useEffect, useCallback } from 'react'
-import { Search, Download, X, Music, ExternalLink } from 'lucide-react'
+import { Download, X, Music, ExternalLink } from 'lucide-react'
 import { Modal } from '../Modal'
 import { CTA } from '../CTA'
 import { Loader } from '../Loader'
 import { useToast } from '../notifications/ToastProvider'
 import { freesoundService, type FreesoundSound } from '../../services/freesound'
 import { DrumInstrument, INSTRUMENT_LABELS } from './DrumPad'
+import { SearchBar } from '../SearchBar'
 
 interface DrumSampleSelectorProps {
   isOpen: boolean
@@ -120,32 +121,50 @@ export function DrumSampleSelector({
       setDownloading(sound.id)
       showToast({
         variant: 'info',
-        title: 'Téléchargement en cours',
-        message: `Téléchargement de ${sound.name}...`
+        title: 'Chargement en cours',
+        message: `Chargement de ${sound.name}...`
       })
 
-      const blob = await freesoundService.downloadSound(sound.id)
+      // Utiliser les previews publics (pas d’OAuth requis). Priorité OGG, puis MP3.
+      const previewUrl =
+        sound.previews?.['preview-hq-ogg'] ||
+        sound.previews?.['preview-lq-ogg'] ||
+        sound.previews?.['preview-hq-mp3'] ||
+        sound.previews?.['preview-lq-mp3']
+
+      if (!previewUrl) {
+        showToast({
+          variant: 'error',
+          title: 'Aucun preview disponible',
+          message: 'Ce sample ne fournit pas de preview public. Essayez un autre résultat.'
+        })
+        return
+      }
+
+      // Télécharger le preview et le convertir en Blob pour l’injecter dans la machine
+      const response = await fetch(previewUrl)
+      if (!response.ok) {
+        throw new Error(`Préview inaccessible (HTTP ${response.status})`)
+      }
+      const blob = await response.blob()
+
       await onSampleSelected(blob, sound.name)
       
       showToast({
         variant: 'success',
         title: 'Sample chargé',
-        message: `${sound.name} a été chargé avec succès`
+        message: `${sound.name} a été chargé avec succès (preview Freesound)`
       })
 
       onClose()
     } catch (error) {
-      let errorMessage = 'Erreur lors du téléchargement'
+      let errorMessage = 'Erreur lors du chargement du preview'
       if (error instanceof Error) {
         errorMessage = error.message
-        // Message plus clair pour les erreurs d'authentification OAuth2
-        if (error.message.includes('OAuth2 authentication required')) {
-          errorMessage = 'Le téléchargement nécessite une authentification OAuth2. Veuillez configurer VITE_FREESOUND_CLIENT_ID et VITE_FREESOUND_CLIENT_SECRET.'
-        }
       }
       showToast({
         variant: 'error',
-        title: 'Erreur de téléchargement',
+        title: 'Erreur de chargement',
         message: errorMessage
       })
     } finally {
@@ -177,22 +196,17 @@ export function DrumSampleSelector({
 
         {/* Recherche */}
         <div className="flex gap-2">
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && searchSamples()}
-            className="flex-1 px-3 py-2 bg-white dark:bg-gray-800 rounded-lg border border-black/20 dark:border-white/20"
-            placeholder={`Rechercher des samples ${INSTRUMENT_LABELS[instrument]}...`}
-          />
-          <CTA
-            variant="primary"
-            icon={<Search size={18} />}
-            onClick={searchSamples}
-            disabled={searching || !searchQuery.trim()}
-          >
-            Rechercher
-          </CTA>
+          <div className="flex-1">
+            <SearchBar
+              value={searchQuery}
+              onChange={setSearchQuery}
+              placeholder={`Rechercher des samples ${INSTRUMENT_LABELS[instrument]}...`}
+              onEnter={searchSamples}
+              showSearchButton={true}
+              onSearchClick={searchSamples}
+              disabled={searching}
+            />
+          </div>
         </div>
 
         {/* Résultats */}

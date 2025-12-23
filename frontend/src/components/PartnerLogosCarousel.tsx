@@ -2,11 +2,13 @@ import { useState, useEffect, useRef } from 'react'
 import { Block } from './Block'
 import { brandCertifications, getCertifiedBrandFullLogo } from '../utils/certificationStatus'
 
-// Récupérer tous les logos depuis la configuration de certification
-const LOGOS = Object.keys(brandCertifications).map(brandName => ({
-  name: brandName,
-  src: getCertifiedBrandFullLogo(brandName)!
-}))
+// Récupérer tous les logos certifiés depuis la configuration de certification
+const LOGOS = Object.keys(brandCertifications)
+  .filter(brandName => brandCertifications[brandName].status === 'certified')
+  .map(brandName => ({
+    name: brandName,
+    src: getCertifiedBrandFullLogo(brandName)!
+  }))
 
 const DISPLAY_DURATION = 1500 // 1.5 secondes
 

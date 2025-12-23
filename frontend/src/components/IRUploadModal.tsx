@@ -2,7 +2,7 @@
  * Composant pour uploader des Impulse Responses
  */
 import { useState, useRef, useEffect } from 'react'
-import { Upload, FileAudio, Search, Download, ExternalLink, Link as LinkIcon } from 'lucide-react'
+import { Upload, FileAudio, Download, ExternalLink, Link as LinkIcon } from 'lucide-react'
 import { Modal } from './Modal'
 import { CTA } from './CTA'
 import { Loader } from './Loader'
@@ -11,6 +11,7 @@ import { useAuth } from '../auth/AuthProvider'
 import { uploadIR, loadUserIRs, ImpulseResponse } from '../services/supabase/impulseResponses'
 import { freesoundService, type FreesoundSound } from '../services/freesound'
 import { formatDateFrench } from '../utils/dateFormatter'
+import { SearchBar } from './SearchBar'
 
 interface IRUploadModalProps {
   isOpen: boolean
@@ -382,29 +383,24 @@ export function IRUploadModal({ isOpen, onClose, onIRSelected }: IRUploadModalPr
 
         {/* Recherche Freesound */}
         <div className="p-4 bg-white dark:bg-gray-700 rounded-xl border border-black/10 dark:border-white/10">
-          <h3 className="text-lg font-semibold text-black dark:text-white mb-4 flex items-center gap-2">
-            <Search size={20} />
+          <h3 className="text-lg font-semibold text-black dark:text-white mb-4">
             Rechercher des IR sur Freesound
           </h3>
 
           <div className="space-y-4">
             <div className="flex gap-2">
-              <input
-                type="text"
-                value={freesoundQuery}
-                onChange={(e) => setFreesoundQuery(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && searchFreesoundIRs()}
-                className="flex-1 px-3 py-2 bg-white dark:bg-gray-800 rounded-lg border border-black/20 dark:border-white/20"
-                placeholder="Rechercher des IR (ex: guitar cabinet, reverb room...)"
-              />
-              <CTA
-                variant="primary"
-                icon={<Search size={18} />}
-                onClick={searchFreesoundIRs}
-                disabled={searchingFreesound || !freesoundQuery.trim()}
-              >
-                Rechercher
-              </CTA>
+              <div className="flex-1">
+                <SearchBar
+                  value={freesoundQuery}
+                  onChange={setFreesoundQuery}
+                  placeholder="Rechercher des IR (ex: guitar cabinet, reverb room...)"
+                  onEnter={searchFreesoundIRs}
+                  showClearButton={true}
+                  showSearchButton={true}
+                  onSearchClick={searchFreesoundIRs}
+                  disabled={searchingFreesound}
+                />
+              </div>
             </div>
 
             {searchingFreesound && (

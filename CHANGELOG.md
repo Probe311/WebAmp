@@ -5,6 +5,62 @@ Tous les changements notables de ce projet seront documentés dans ce fichier.
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/),
 et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 
+## [1.2.0] - 2025-01-XX
+
+### 🎉 Ajouté
+- **DAW (Digital Audio Workstation) intégré** : Nouvelle page DAW complète
+  - Arrangement avec pistes multiples
+  - Piano Roll pour l'édition MIDI
+  - Mixer avec contrôles de volume et effets par piste
+  - Transport avec contrôle de lecture/arrêt
+  - Bibliothèque d'instruments et d'effets
+  - Outils d'édition (pointeur, crayon, gomme, zoom)
+  - Personnalisation des pistes (nom, couleur, icône)
+  - Support du snap grid et du zoom
+  - Panneau inférieur avec onglets (Mixer, Piano Roll, Device Chain)
+
+- **Nouveaux composants Home** :
+  - `PedalOfTheDay` : Mise en avant d'une pédale du jour
+  - `MusicianSpotlight` : Spotlight sur des musiciens
+  - `EffectSpotlight` : Mise en avant d'effets
+  - `CreationInspiration` : Inspiration pour la création
+
+- **Système de contact et support** :
+  - Nouveau composant `ContactSupportModal` pour contacter le support
+  - Nouvelle fonction Supabase Edge `contact-support` pour l'envoi d'emails
+  - Service `contact.ts` pour gérer les demandes de contact
+  - Intégration dans la HomePage avec bouton flottant
+
+- **Nouveaux composants UI** :
+  - `Checkbox` : Composant checkbox réutilisable
+  - `MainBlock` : Bloc principal avec style neumorphic
+  - `SearchBar` : Barre de recherche réutilisable
+
+- **Nouvelles données** :
+  - `effectsInfo.ts` : Informations sur les effets
+  - `musicians.ts` : Données sur les musiciens
+  - `trackIcons.tsx` : Icônes pour les pistes DAW
+
+### 🔧 Amélioré
+- **HomePage** : Interface améliorée avec grille Bento et nouveaux composants
+- **Navigation** : Ajout de la page DAW dans la navigation
+- **Design System** : Améliorations du design system avec nouveaux composants
+
+### 📚 Documentation
+- Mise à jour de `DESIGN_SYSTEM.md`
+- Mise à jour de `ROADMAP.md`
+
+### ✅ Vérifications
+- Aucune erreur TypeScript
+- Build de production réussi (9.66s)
+- Code prêt pour le déploiement
+
+### 📝 Notes
+- **Déploiement des fonctions Supabase** : La fonction `contact-support` doit être déployée manuellement avec Supabase CLI :
+  ```bash
+  supabase functions deploy contact-support
+  ```
+
 ## [1.1.6] - 2025-01-XX
 
 ### ✅ Maintenance

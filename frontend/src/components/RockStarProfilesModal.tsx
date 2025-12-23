@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { ArrowDownAZ, ArrowUpAZ } from 'lucide-react'
 import { rockStarProfiles } from '../data/rockStarProfiles'
 import { Modal } from './Modal'
+import { SearchBar } from './SearchBar'
 
 interface RockStarProfilesModalProps {
   isOpen: boolean
@@ -95,13 +96,13 @@ export function RockStarProfilesModal({
       bodyClassName="overflow-y-auto custom-scrollbar max-h-[calc(85vh-80px)] p-4"
       headerRight={(
         <div className="flex items-center gap-3">
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Rechercher un artiste, un ampli ou une pédale..."
-            className="min-w-[260px] px-3 py-2 rounded-lg bg-white dark:bg-gray-700 border border-black/10 dark:border-white/10 text-sm text-black/80 dark:text-white/80 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all duration-150"
-          />
+          <div className="min-w-[260px]">
+            <SearchBar
+              value={search}
+              onChange={setSearch}
+              placeholder="Rechercher un artiste, un ampli ou une pédale..."
+            />
+          </div>
           <select
             value={styleFilter}
             onChange={(e) => setStyleFilter(e.target.value)}

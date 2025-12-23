@@ -189,7 +189,7 @@ const defaultShortcuts: Record<string, KeyboardShortcut> = {
     currentKey: 'Ctrl+R',
     category: 'tool',
     enabled: true
-  }
+  },
 }
 
 const STORAGE_KEY = 'webamp_keyboard_shortcuts'

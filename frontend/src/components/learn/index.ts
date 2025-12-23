@@ -1,7 +1,7 @@
 export { TutorialCard } from './TutorialCard'
 export { CategoryTabs } from './CategoryTabs'
 export { DifficultyFilter } from './DifficultyFilter'
-export { SearchBar } from './SearchBar'
+export { SearchBar } from '../SearchBar'
 export { ProgressBadge } from './ProgressBadge'
 export { TutorialViewer } from './TutorialViewer'
 export { QuizViewer } from './QuizViewer'

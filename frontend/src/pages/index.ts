@@ -5,6 +5,7 @@ export { PracticePage } from './PracticePage'
 export { LearnPage } from './LearnPage'
 export { MixingConsolePage } from './MixingConsolePage'
 export { GalleryPage } from './GalleryPage'
+export { DawPage } from './DawPage'
 export { SettingsPage } from './SettingsPage'
 export { AccountPage } from './AccountPage'
 

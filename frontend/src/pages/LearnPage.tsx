@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from 'react'
 import { TutorialCard } from '../components/learn/TutorialCard'
 import { CategoryTabs } from '../components/learn/CategoryTabs'
 import { DifficultyFilter } from '../components/learn/DifficultyFilter'
-import { SearchBar } from '../components/learn/SearchBar'
+import { SearchBar } from '../components/SearchBar'
 import { ProgressBadge } from '../components/learn/ProgressBadge'
 import { CourseViewer } from '../components/learn/CourseViewer'
 import { LMSDashboard } from '../components/learn/LMSDashboard'
@@ -162,8 +162,8 @@ export function LearnPage() {
   const totalXP = computeTotalXPFromProgress(progressMap, rewardsMap)
 
   return (
-    <div className="h-full overflow-y-auto p-6 pb-32">
-      <div className="max-w-7xl mx-auto">
+    <div className="h-full overflow-y-auto p-6 pb-24">
+      <div className="w-full">
         <h1 className="text-3xl font-bold text-black/85 dark:text-white/90 mb-2">
           Apprendre
         </h1>

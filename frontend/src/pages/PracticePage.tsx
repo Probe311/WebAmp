@@ -19,8 +19,8 @@ export function PracticePage() {
   }, [currentChordKey])
 
   return (
-    <div className="h-full overflow-y-auto custom-scrollbar p-6 pb-32">
-      <div className="max-w-7xl mx-auto">
+    <div className="h-full overflow-y-auto custom-scrollbar p-6 pb-24">
+      <div className="w-full">
         <h1 className="text-3xl font-bold text-black/85 dark:text-white/90 mb-2">
           Pratique
         </h1>
@@ -94,14 +94,14 @@ export function PracticePage() {
 
             {/* Content */}
             {activeTab === 'chords' && (
-              <div className="w-full max-w-2xl mx-auto flex flex-col md:flex-row gap-8 items-center justify-center py-8">
-                <div className="flex flex-col gap-4 w-48">
+              <div className="w-full max-w-2xl mx-auto flex flex-col md:flex-row gap-8 items-center justify-center py-8 px-4">
+                <div className="flex flex-col gap-4 w-56 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 shadow-[inset_2px_2px_6px_rgba(0,0,0,0.04),inset_-2px_-2px_6px_rgba(255,255,255,0.6)] dark:shadow-[inset_2px_2px_6px_rgba(0,0,0,0.35),inset_-2px_-2px_6px_rgba(60,60,60,0.35)]">
                   <div className="flex flex-col gap-2">
                     <label className="text-[10px] font-bold text-neutral-500 dark:text-gray-400 uppercase tracking-widest px-2">Fondamentale</label>
                     <select 
                       value={selectedRoot} 
                       onChange={(e) => setSelectedRoot(e.target.value)}
-                      className="bg-gray-800 border border-white/5 rounded-xl p-3 text-white focus:outline-none focus:border-orange-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+                      className="rounded-xl p-3 text-sm font-medium bg-white text-gray-900 border border-gray-200 shadow-inner focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-colors dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700"
                     >
                       {CHORD_ROOTS.map(r => <option key={r} value={r}>{r}</option>)}
                     </select>
@@ -111,16 +111,16 @@ export function PracticePage() {
                     <select 
                       value={selectedQuality} 
                       onChange={(e) => setSelectedQuality(e.target.value)}
-                      className="bg-gray-800 border border-white/5 rounded-xl p-3 text-white focus:outline-none focus:border-orange-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+                      className="rounded-xl p-3 text-sm font-medium bg-white text-gray-900 border border-gray-200 shadow-inner focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-colors dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700"
                     >
                       {CHORD_QUALITIES.map(q => <option key={q} value={q}>{q}</option>)}
                     </select>
                   </div>
                 </div>
 
-                <div className="flex flex-col items-center justify-center min-h-[300px]">
+                <div className="flex flex-col items-center justify-center min-h-[300px] p-4">
                   {currentChord ? (
-                    <div className="overflow-hidden max-w-full">
+                    <div className="max-w-full">
                       <ChordDiagram chord={currentChord} scale={1.2} />
                     </div>
                   ) : (

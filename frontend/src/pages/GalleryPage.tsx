@@ -137,8 +137,8 @@ export function GalleryPage({ onNavigateToWebAmp }: GalleryPageProps) {
   }
 
   return (
-    <div className="h-full overflow-y-auto custom-scrollbar p-6 pb-32">
-      <div className="max-w-7xl mx-auto">
+    <div className="h-full overflow-y-auto custom-scrollbar p-6 pb-24">
+      <div className="w-full">
         {/* En-tête */}
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-black/85 dark:text-white/90 mb-2">

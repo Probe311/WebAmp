@@ -254,7 +254,7 @@ export function TutorialViewer({
 
   return (
     <div className="h-full overflow-y-auto p-6 pb-32">
-      <div className="max-w-7xl mx-auto">
+      <div className="">
         {/* Header en pleine largeur */}
         <div className="mb-6">
           <button

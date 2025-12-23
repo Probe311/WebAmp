@@ -93,19 +93,21 @@ const Toggle: React.FC<ToggleProps> = (props) => {
     ? '2px 2px 4px rgba(0, 0, 0, 0.5), -2px -2px 4px rgba(60, 60, 60, 0.5)'
     : '2px 2px 4px rgba(0, 0, 0, 0.08), -2px -2px 4px rgba(255, 255, 255, 0.9)'
   
-  // Pour le mode on/off : tout le track change de couleur
+  // Couleurs positives/négatives explicites pour le mode on/off
+  const positiveColor = isDark ? '#4ade80' : '#22c55e'
+  const negativeColor = isDark ? '#f87171' : '#ef4444'
+  
+  // Pour le mode on/off : track vert (positif) ou rouge (négatif)
   // Pour le mode choice : background orange avec ombres
   const trackBackground = isOnOffMode
     ? (checked
-        ? (isDark ? 'rgba(249, 115, 22, 0.3)' : 'rgba(249, 115, 22, 0.2)') // Orange pour actif
-        : (isDark ? '#374151' : '#f5f5f5')) // Gris pour désactivé
-    : 'rgba(249, 115, 22, 0.3)' // Orange pour mode choice
+        ? (isDark ? 'rgba(34, 197, 94, 0.35)' : 'rgba(34, 197, 94, 0.25)')
+        : (isDark ? 'rgba(239, 68, 68, 0.35)' : 'rgba(239, 68, 68, 0.22)'))
+    : 'rgba(249, 115, 22, 0.3)'
   
   // Couleur du thumb selon le mode
   const thumbBackground = isOnOffMode
-    ? (checked
-        ? (isDark ? 'rgba(249, 115, 22, 0.9)' : '#f97316') // Orange pour actif en mode on/off
-        : (isDark ? '#6b7280' : '#9ca3af')) // Gris pour désactivé en mode on/off
+    ? (checked ? positiveColor : negativeColor)
     : (isDark ? 'rgba(249, 115, 22, 0.9)' : '#f97316') // Toujours orange en mode choice
   
   // Couleur du label actif (orange pour mode choice)
@@ -126,12 +128,14 @@ const Toggle: React.FC<ToggleProps> = (props) => {
         <label 
           className={`text-xs font-semibold uppercase tracking-wider transition-colors duration-200 cursor-pointer select-none shadow-none ${
             isOnOffMode
-              ? (checked ? 'text-black/50 dark:text-white/50' : 'text-black/70 dark:text-white/70')
+              ? (checked ? 'text-black/50 dark:text-white/50' : '')
               : (checked ? 'text-black/70 dark:text-white/70' : '')
           } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
           style={{ 
             boxShadow: 'none',
-            color: !isOnOffMode && !checked && activeLabelColor ? activeLabelColor : undefined
+            color: isOnOffMode
+              ? (!checked ? negativeColor : undefined)
+              : (!isOnOffMode && !checked && activeLabelColor ? activeLabelColor : undefined)
           }}
           onClick={!disabled ? handleToggle : undefined}
         >
@@ -173,12 +177,14 @@ const Toggle: React.FC<ToggleProps> = (props) => {
         <label 
           className={`text-xs font-semibold uppercase tracking-wider transition-colors duration-200 cursor-pointer select-none shadow-none ${
             isOnOffMode
-              ? (checked ? 'text-black/70 dark:text-white/70' : 'text-black/50 dark:text-white/50')
+              ? (!checked ? 'text-black/50 dark:text-white/50' : '')
               : (checked ? '' : 'text-black/70 dark:text-white/70')
           } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
           style={{ 
             boxShadow: 'none',
-            color: !isOnOffMode && checked && activeLabelColor ? activeLabelColor : undefined
+            color: isOnOffMode
+              ? (checked ? positiveColor : undefined)
+              : (!isOnOffMode && checked && activeLabelColor ? activeLabelColor : undefined)
           }}
           onClick={!disabled ? handleToggle : undefined}
         >

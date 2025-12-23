@@ -6,7 +6,7 @@ import { Modal } from '../../components/Modal'
 import { Loader } from '../../components/Loader'
 import { useToast } from '../../components/notifications/ToastProvider'
 import { adminService, BrandFromProducts } from '../../services/admin'
-import { Course } from '../../services/supabase'
+import { Course, Lesson } from '../../services/supabase'
 import { SupabasePedal, SupabaseAmplifier } from '../../services/supabase/catalog'
 import { getBrandLogos } from '../../utils/brandLogos'
 import { generateLogoFilename, isValidSVG, svgToDataURI } from '../../utils/brandLogoUtils'
@@ -777,7 +777,7 @@ export function CreateCourseModal({
 }
 
 // Modal de création de leçon
-export function CreateLessonModal({ isOpen, onClose, onSuccess, courses }: { isOpen: boolean; onClose: () => void; onSuccess: () => void; courses: Course[] }) {
+export function CreateLessonModal({ isOpen, onClose, onSuccess, courses, editingLesson }: { isOpen: boolean; onClose: () => void; onSuccess: () => void; courses: Course[]; editingLesson?: Lesson | null }) {
   const { showToast } = useToast()
   const [formData, setFormData] = useState({
     course_id: '',
@@ -790,6 +790,34 @@ export function CreateLessonModal({ isOpen, onClose, onSuccess, courses }: { isO
     action_value: ''
   })
   const [loading, setLoading] = useState(false)
+  const isEditing = !!editingLesson
+
+  // Pré-remplir les champs si on est en mode édition
+  React.useEffect(() => {
+    if (editingLesson) {
+      setFormData({
+        course_id: editingLesson.course_id || '',
+        title: editingLesson.title || '',
+        description: editingLesson.description || '',
+        content_type: editingLesson.content_type || 'text',
+        order_index: editingLesson.order_index?.toString() || '0',
+        action_type: editingLesson.action_type || '',
+        action_target: editingLesson.action_target || '',
+        action_value: editingLesson.action_value ? JSON.stringify(editingLesson.action_value) : ''
+      })
+    } else {
+      setFormData({
+        course_id: '',
+        title: '',
+        description: '',
+        content_type: 'text',
+        order_index: '0',
+        action_type: '',
+        action_target: '',
+        action_value: ''
+      })
+    }
+  }, [editingLesson, isOpen])
 
   const handleSubmit = async () => {
     if (!formData.course_id || !formData.title.trim()) {
@@ -799,17 +827,33 @@ export function CreateLessonModal({ isOpen, onClose, onSuccess, courses }: { isO
 
     setLoading(true)
     try {
-      await adminService.createLesson({
-        course_id: formData.course_id,
-        title: formData.title.trim(),
-        description: formData.description.trim(),
-        content_type: formData.content_type,
-        order_index: parseInt(formData.order_index) || 0,
-        action_type: formData.action_type.trim() || null,
-        action_target: formData.action_target.trim() || null,
-        action_value: formData.action_value.trim() ? JSON.parse(formData.action_value.trim()) : null
-      })
-      showToast({ variant: 'success', title: 'Leçon créée', message: `La leçon "${formData.title}" a été créée avec succès.` })
+      if (isEditing && editingLesson) {
+        // Mode édition
+        await adminService.updateLesson(editingLesson.id, {
+          course_id: formData.course_id,
+          title: formData.title.trim(),
+          description: formData.description.trim(),
+          content_type: formData.content_type,
+          order_index: parseInt(formData.order_index) || 0,
+          action_type: formData.action_type.trim() || null,
+          action_target: formData.action_target.trim() || null,
+          action_value: formData.action_value.trim() ? JSON.parse(formData.action_value.trim()) : null
+        })
+        showToast({ variant: 'success', title: 'Leçon modifiée', message: `La leçon "${formData.title}" a été modifiée avec succès.` })
+      } else {
+        // Mode création
+        await adminService.createLesson({
+          course_id: formData.course_id,
+          title: formData.title.trim(),
+          description: formData.description.trim(),
+          content_type: formData.content_type,
+          order_index: parseInt(formData.order_index) || 0,
+          action_type: formData.action_type.trim() || null,
+          action_target: formData.action_target.trim() || null,
+          action_value: formData.action_value.trim() ? JSON.parse(formData.action_value.trim()) : null
+        })
+        showToast({ variant: 'success', title: 'Leçon créée', message: `La leçon "${formData.title}" a été créée avec succès.` })
+      }
       setFormData({
         course_id: '',
         title: '',
@@ -823,14 +867,14 @@ export function CreateLessonModal({ isOpen, onClose, onSuccess, courses }: { isO
       onSuccess()
       onClose()
     } catch (error) {
-      showToast({ variant: 'error', title: 'Erreur', message: `Impossible de créer la leçon : ${error instanceof Error ? error.message : 'Erreur inconnue'}` })
+      showToast({ variant: 'error', title: 'Erreur', message: `Impossible de ${isEditing ? 'modifier' : 'créer'} la leçon : ${error instanceof Error ? error.message : 'Erreur inconnue'}` })
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Créer une leçon" widthClassName="max-w-3xl">
+    <Modal isOpen={isOpen} onClose={onClose} title={isEditing ? "Modifier la leçon" : "Créer une leçon"} widthClassName="max-w-3xl">
       <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -932,10 +976,10 @@ export function CreateLessonModal({ isOpen, onClose, onSuccess, courses }: { isO
             {loading ? (
               <>
                 <Loader size="sm" variant="light" showText={false} className="!flex" />
-                <span>Création...</span>
+                <span>{isEditing ? 'Mise à jour...' : 'Création...'}</span>
               </>
             ) : (
-              'Créer'
+              isEditing ? 'Mettre à jour' : 'Créer'
             )}
           </button>
         </div>
