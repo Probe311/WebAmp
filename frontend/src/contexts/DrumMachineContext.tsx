@@ -58,7 +58,7 @@ const loadTone = async (): Promise<ToneType> => {
 }
 
 // Types d'instruments de batterie
-export type DrumInstrument = 'kick' | 'snare' | 'hihat' | 'openhat' | 'crash' | 'ride' | 'tom1' | 'tom2' | 'tom3'
+export type DrumInstrument = 'kick' | 'snare' | 'hihat' | 'openhat' | 'crash' | 'ride' | 'chinese' | 'tom1' | 'tom2' | 'tom3'
 
 export interface DrumStep {
   [key: string]: boolean // instrument -> activé ou non
@@ -126,6 +126,7 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
     openhat: DEFAULT_PATTERNS[0].volumes?.openhat ?? 100,
     crash: DEFAULT_PATTERNS[0].volumes?.crash ?? 100,
     ride: DEFAULT_PATTERNS[0].volumes?.ride ?? 100,
+    chinese: DEFAULT_PATTERNS[0].volumes?.chinese ?? 100,
     tom1: DEFAULT_PATTERNS[0].volumes?.tom1 ?? 100,
     tom2: DEFAULT_PATTERNS[0].volumes?.tom2 ?? 100,
     tom3: DEFAULT_PATTERNS[0].volumes?.tom3 ?? 100
@@ -146,6 +147,7 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
     openhat: null,
     crash: null,
     ride: null,
+    chinese: null,
     tom1: null,
     tom2: null,
     tom3: null
@@ -161,6 +163,7 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
     openhat: null,
     crash: null,
     ride: null,
+    chinese: null,
     tom1: null,
     tom2: null,
     tom3: null
@@ -172,6 +175,7 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
     openhat: null,
     crash: null,
     ride: null,
+    chinese: null,
     tom1: null,
     tom2: null,
     tom3: null
@@ -235,7 +239,7 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
 
       // Créer les nœuds de volume pour chaque instrument
       const volumeNodes: Record<DrumInstrument, ToneVolumeNode> = {} as Record<DrumInstrument, ToneVolumeNode>
-      const instruments: DrumInstrument[] = ['kick', 'snare', 'hihat', 'openhat', 'crash', 'ride', 'tom1', 'tom2', 'tom3']
+      const instruments: DrumInstrument[] = ['kick', 'snare', 'hihat', 'openhat', 'crash', 'ride', 'chinese', 'tom1', 'tom2', 'tom3']
       
       instruments.forEach(instrument => {
         const volumeNode = new Tone.Volume(0) as unknown as ToneVolumeNode
@@ -254,6 +258,7 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
         openhat: undefined,
         crash: undefined,
         ride: undefined,
+        chinese: undefined,
         tom1: undefined,
         tom2: undefined,
         tom3: undefined
@@ -296,6 +301,11 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
         noise: { type: 'white' },
         envelope: { attack: 0.001, decay: 0.35, sustain: 0, release: 0.35 }
       }) as any).connect(volumeNodes.ride as any) as unknown as ToneNoiseSynth
+      
+      synthCache.chinese = (new Tone.NoiseSynth({
+        noise: { type: 'white' },
+        envelope: { attack: 0.001, decay: 0.4, sustain: 0, release: 0.4 }
+      }) as any).connect(volumeNodes.chinese as any) as unknown as ToneNoiseSynth
       
       synthCache.tom1 = (new Tone.MembraneSynth({
         pitchDecay: 0.05,
@@ -363,18 +373,24 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
         autostart: false
       }) as any).connect(volumeNode as any) as unknown) as ToneSamplePlayer
 
+      // Attendre que le player charge le sample
       await player.load()
       
       // Vérifier que le sample est bien chargé
+      // Tone.js peut mettre un peu de temps, on attend un peu plus si nécessaire
+      let retries = 0
+      while (!player.loaded && retries < 10) {
+        await new Promise(resolve => setTimeout(resolve, 50))
+        retries++
+      }
+      
       if (!player.loaded) {
-        logger.debug(`Le sample pour ${instrument} n'est pas chargé après load()`, { url, name })
-        // Essayer de recharger après un court délai
-        await new Promise(resolve => setTimeout(resolve, 100))
-        if (!player.loaded) {
-          logger.debug(`Le sample pour ${instrument} n'est toujours pas chargé`, { url, name })
-          player.dispose()
-          return
-        }
+        logger.debug(`Le sample pour ${instrument} n'est pas chargé après ${retries} tentatives`, { 
+          url: url.substring(0, 100), // Tronquer l'URL pour le log
+          name 
+        })
+        player.dispose()
+        return
       }
       
       samplePlayersRef.current[instrument] = player
@@ -385,7 +401,11 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
         [instrument]: name || (typeof audioUrl === 'string' ? audioUrl : 'Sample chargé')
       }))
       
-      logger.debug(`Sample chargé avec succès pour ${instrument}`, { name, loaded: player.loaded })
+      logger.debug(`✓ Sample chargé avec succès pour ${instrument}`, { 
+        name, 
+        loaded: player.loaded,
+        url: url.substring(0, 100)
+      })
     } catch (error) {
       logger.debug(`Erreur lors du chargement du sample pour ${instrument}`, { error, name })
       // Ne pas relancer l'erreur : on restera sur les sons synthétisés par défaut
@@ -409,23 +429,64 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
   // Charger les samples par défaut depuis Freesound
   const loadDefaultSamples = useCallback(async () => {
     try {
-      // Importer dynamiquement le service Freesound pour éviter les erreurs au chargement
-      const freesoundModule = await import('../services/freesound')
-      const { freesoundService } = freesoundModule
-      
-      // Vérifier si Freesound est configuré
-      if (!import.meta.env.VITE_FREESOUND_API_KEY && !import.meta.env.VITE_FREESOUND_CLIENT_ID) {
-        logger.debug('Freesound non configuré, utilisation des sons synthétisés par défaut')
-        return
-      }
-
       const initialized = await initializeTone()
       if (!initialized || !volumeNodesRef.current) return
+
+      // Importer dynamiquement le service Freesound pour kick et snare
+      let freesoundService: any = null
+      let freesoundAvailable = false
+      try {
+        const freesoundModule = await import('../services/freesound')
+        freesoundService = freesoundModule.freesoundService
+        // Vérifier si l'API key est configurée
+        if (freesoundService && typeof freesoundService.isAuthenticated === 'function') {
+          freesoundAvailable = freesoundService.isAuthenticated()
+        } else {
+          // Si la méthode n'existe pas, on suppose que le service est disponible
+          freesoundAvailable = true
+        }
+        if (!freesoundAvailable) {
+          logger.debug('Service Freesound non authentifié (pas d\'API key), utilisation des URLs directes')
+        }
+      } catch (e) {
+        // Freesound non disponible, on continue avec les URLs directes
+        logger.debug('Service Freesound non disponible, utilisation des URLs directes', { e })
+      }
+
+      // Configuration des samples par défaut depuis Freesound
+      // URLs directes de preview comme fallback si l'API n'est pas disponible
+      const defaultSamples: Record<DrumInstrument, { 
+        soundId: number; 
+        name: string;
+        fallbackUrl?: string; // URL directe de preview si l'API n'est pas disponible
+      }> = {
+        // Kick: https://freesound.org/people/alphasnk/sounds/175535/
+        // Note: Les URLs directes pour kick et snare peuvent être instables, on utilise l'API ou recherche alternative
+        kick: { soundId: 175535, name: 'Kick Drum' },
+        // Snare: https://freesound.org/people/Logicogonist/sounds/261408/
+        snare: { soundId: 261408, name: 'Snare Drum' },
+        // Hi-Hat: https://freesound.org/people/InspectorJ/sounds/45664/
+        hihat: { soundId: 45664, name: 'Hi-Hat', fallbackUrl: 'https://cdn.freesound.org/previews/45/45664_394391-hq.mp3' },
+        // Open Hat: https://freesound.org/people/InspectorJ/sounds/183105/
+        openhat: { soundId: 183105, name: 'Open Hat', fallbackUrl: 'https://cdn.freesound.org/previews/183/183105_2394245-hq.mp3' },
+        // Crash: https://freesound.org/people/InspectorJ/sounds/9618/
+        crash: { soundId: 9618, name: 'Crash', fallbackUrl: 'https://cdn.freesound.org/previews/9/9618_4948-hq.mp3' },
+        // Ride: https://freesound.org/people/InspectorJ/sounds/41942/
+        ride: { soundId: 41942, name: 'Ride', fallbackUrl: 'https://cdn.freesound.org/previews/41/41942_433684-hq.mp3' },
+        // Chinese: https://freesound.org/people/InspectorJ/sounds/209868/
+        chinese: { soundId: 209868, name: 'Chinese', fallbackUrl: 'https://cdn.freesound.org/previews/209/209868_3797507-hq.mp3' },
+        // Tom 1: https://freesound.org/people/InspectorJ/sounds/46552/
+        tom1: { soundId: 46552, name: 'Tom 1', fallbackUrl: 'https://cdn.freesound.org/previews/46/46552_394391-hq.mp3' },
+        // Tom 2: https://freesound.org/people/InspectorJ/sounds/46554/
+        tom2: { soundId: 46554, name: 'Tom 2', fallbackUrl: 'https://cdn.freesound.org/previews/46/46554_394391-hq.mp3' },
+        // Tom 3: https://freesound.org/people/InspectorJ/sounds/46550/
+        tom3: { soundId: 46550, name: 'Tom 3', fallbackUrl: 'https://cdn.freesound.org/previews/46/46550_394391-hq.mp3' }
+      }
 
       // Charger un sample par défaut pour chaque instrument
       const loadPromises: Promise<void>[] = []
       
-      for (const instrument of ['kick', 'snare', 'hihat', 'openhat', 'crash', 'ride', 'tom1', 'tom2', 'tom3'] as DrumInstrument[]) {
+      for (const instrument of ['kick', 'snare', 'hihat', 'openhat', 'crash', 'ride', 'chinese', 'tom1', 'tom2', 'tom3'] as DrumInstrument[]) {
         // Vérifier si un sample est déjà chargé
         if (samplePlayersRef.current[instrument]) {
           continue
@@ -433,73 +494,148 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
 
         const loadPromise = (async () => {
           try {
-            let samples: FreesoundSound[] = []
-            
-            // Recherche spécifique selon l'instrument
-            if (instrument === 'kick') {
-              samples = await freesoundService.searchDrumSamples('kick', 5)
-            } else if (instrument === 'snare') {
-              samples = await freesoundService.searchDrumSamples('snare', 5)
-            } else if (instrument === 'hihat') {
-              samples = await freesoundService.searchDrumSamples('hihat', 5)
-            } else if (instrument === 'openhat') {
-              // Recherche spécifique pour hihat ouvert
-              const searchResult = await freesoundService.searchSounds('drum hihat open', {
-                filter: '(license:"Attribution" OR license:"Creative Commons 0") duration:[0 TO 2]',
-                sort: 'downloads_desc',
-                pageSize: 5,
-                fields: 'id,name,tags,description,license,previews,username,duration,samplerate,download'
-              })
-              samples = searchResult.results.filter(sound => {
-                const name = sound.name.toLowerCase()
-                const tags = sound.tags.join(' ').toLowerCase()
-                return !name.includes('loop') && !tags.includes('loop') && sound.duration <= 2.5
-              })
-            } else if (instrument === 'crash') {
-              samples = await freesoundService.searchDrumSamples('crash', 5)
-            } else if (instrument === 'ride') {
-              samples = await freesoundService.searchDrumSamples('ride', 5)
-            } else if (instrument === 'tom1' || instrument === 'tom2' || instrument === 'tom3') {
-              samples = await freesoundService.searchDrumSamples('tom', 5)
+            const sampleConfig = defaultSamples[instrument]
+            if (!sampleConfig) {
+              return
             }
+
+            // Tous les instruments utilisent UNIQUEMENT des samples Freesound
+            let sound = null
+            let previewUrl: string | null = null
+            let loaded = false
+            let sampleName = sampleConfig.name
             
-            if (samples.length > 0) {
-              // Chercher un sample avec un preview (priorité OGG, puis MP3)
-              let sample: FreesoundSound | null = null
-              let previewUrl: string | undefined
-              
-              for (const s of samples) {
-                const url = s.previews?.['preview-hq-ogg']
-                  || s.previews?.['preview-lq-ogg']
-                  || s.previews?.['preview-hq-mp3']
-                  || s.previews?.['preview-lq-mp3']
-                if (url) {
-                  sample = s
-                  previewUrl = url
-                  break
-                }
-              }
-              
-              if (sample && previewUrl) {
-                try {
-                  // Télécharger le preview en blob d'abord (comme dans DrumSampleSelector)
-                  const response = await fetch(previewUrl)
-                  if (response.ok) {
-                    const blob = await response.blob()
-                    // Charger le sample depuis le blob
-                    await loadSample(instrument, blob, sample.name)
-                    logger.debug(`Sample Freesound chargé pour ${instrument}: ${sample.name} (preview)`)
+            // Essayer d'abord avec l'API Freesound si disponible
+            if (freesoundService && freesoundAvailable) {
+              try {
+                logger.debug(`Tentative de chargement via API Freesound pour ${instrument} (ID: ${sampleConfig.soundId})`)
+                sound = await freesoundService.getSoundById(sampleConfig.soundId)
+                
+                if (!sound) {
+                  logger.debug(`Aucune réponse de l'API pour ${instrument}`)
+                } else {
+                  previewUrl = sound.previews?.['preview-hq-mp3'] 
+                    || sound.previews?.['preview-lq-mp3']
+                    || sound.previews?.['preview-hq-ogg']
+                    || sound.previews?.['preview-lq-ogg']
+                    || null
+                  sampleName = sound.name || sampleConfig.name
+                  
+                  if (previewUrl) {
+                    try {
+                      logger.debug(`Téléchargement du preview pour ${instrument} depuis: ${previewUrl}`)
+                      const response = await fetch(previewUrl)
+                      if (response.ok) {
+                        const blob = await response.blob()
+                        await loadSample(instrument, blob, sampleName)
+                        loaded = true
+                        logger.debug(`✓ Sample par défaut chargé via API pour ${instrument}: ${sampleName}`)
+                      } else {
+                        logger.debug(`Preview URL non accessible pour ${instrument}`, { 
+                          status: response.status,
+                          statusText: response.statusText,
+                          url: previewUrl 
+                        })
+                      }
+                    } catch (fetchError: any) {
+                      logger.debug(`Erreur lors du fetch du preview pour ${instrument}`, { 
+                        fetchError: fetchError?.message || fetchError,
+                        url: previewUrl 
+                      })
+                    }
                   } else {
-                    logger.debug(`Impossible de télécharger le preview pour ${instrument}`, { 
-                      status: response.status,
-                      previewUrl 
+                    logger.debug(`Aucun preview disponible dans la réponse API pour ${instrument}`, {
+                      soundId: sampleConfig.soundId,
+                      soundName: sound.name,
+                      hasPreviews: !!sound.previews
                     })
                   }
-                } catch (loadError) {
-                  // Si le chargement échoue, on log et on garde le synth par défaut
-                  logger.debug(`Impossible de charger le preview pour ${instrument}, utilisation du synth par défaut`, { loadError })
+                }
+              } catch (soundError: any) {
+                // Si l'erreur indique un problème d'authentification, marquer le service comme indisponible
+                const errorMessage = soundError?.message || String(soundError)
+                if (errorMessage.includes('authentication') || errorMessage.includes('API key') || errorMessage.includes('401') || errorMessage.includes('403')) {
+                  freesoundAvailable = false
+                  logger.debug(`API Freesound non authentifiée, passage aux URLs directes`, { 
+                    soundError: errorMessage,
+                    instrument,
+                    soundId: sampleConfig.soundId
+                  })
+                } else {
+                  logger.debug(`SoundId ${sampleConfig.soundId} non disponible via API pour ${instrument}, essai avec fallback...`, { 
+                    soundError: errorMessage,
+                    instrument
+                  })
                 }
               }
+              
+              // Si le soundId configuré n'a pas fonctionné, rechercher un sample alternatif via API
+              if (!loaded && freesoundAvailable) {
+                try {
+                  const searchType = instrument === 'kick' ? 'kick'
+                    : instrument === 'snare' ? 'snare'
+                    : instrument === 'hihat' ? 'hihat' 
+                    : instrument === 'openhat' ? 'hihat' 
+                    : instrument === 'crash' ? 'crash'
+                    : instrument === 'ride' ? 'ride'
+                    : instrument === 'chinese' ? 'percussion'
+                    : instrument.startsWith('tom') ? 'tom'
+                    : 'percussion'
+                  
+                  const alternatives = await freesoundService.searchDrumSamples(searchType as any, 10)
+                  
+                  // Essayer chaque alternative jusqu'à en trouver un qui fonctionne
+                  for (const alternative of alternatives) {
+                    const altPreviewUrl = alternative.previews?.['preview-hq-mp3'] 
+                      || alternative.previews?.['preview-lq-mp3']
+                      || alternative.previews?.['preview-hq-ogg']
+                      || alternative.previews?.['preview-lq-ogg']
+                      || null
+                    
+                    if (altPreviewUrl) {
+                      try {
+                        const response = await fetch(altPreviewUrl)
+                        if (response.ok) {
+                          const blob = await response.blob()
+                          await loadSample(instrument, blob, alternative.name)
+                          loaded = true
+                          logger.debug(`Sample alternatif chargé via API pour ${instrument}: ${alternative.name} (ID: ${alternative.id})`)
+                          break
+                        }
+                      } catch (fetchError) {
+                        // Continuer avec le prochain sample
+                        continue
+                      }
+                    }
+                  }
+                } catch (searchError) {
+                  logger.debug(`Impossible de rechercher un sample alternatif via API pour ${instrument}`, { searchError })
+                }
+              }
+            }
+            
+            // Fallback : utiliser l'URL directe de preview si disponible et si l'API n'a pas fonctionné
+            if (!loaded && sampleConfig.fallbackUrl) {
+              try {
+                const response = await fetch(sampleConfig.fallbackUrl)
+                if (response.ok) {
+                  const blob = await response.blob()
+                  await loadSample(instrument, blob, sampleConfig.name)
+                  loaded = true
+                  logger.debug(`Sample chargé via URL directe pour ${instrument}: ${sampleConfig.name}`)
+                } else {
+                  logger.debug(`URL fallback non disponible pour ${instrument}`, { 
+                    status: response.status,
+                    url: sampleConfig.fallbackUrl 
+                  })
+                }
+              } catch (fallbackError) {
+                logger.debug(`Erreur lors du chargement de l'URL fallback pour ${instrument}`, { fallbackError })
+              }
+            }
+            
+            if (!loaded) {
+              logger.debug(`Aucun sample Freesound fonctionnel trouvé pour ${instrument}`)
             }
           } catch (error) {
             // En cas d'erreur, on continue avec les autres instruments
@@ -537,23 +673,29 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
     const now = Tone.now()
 
     try {
-      // Utiliser le sample si disponible, sinon utiliser le synth
+      // Utiliser le sample Freesound si disponible
       const samplePlayer = samplePlayersRef.current[instrument] as ToneSamplePlayer | null
-      if (samplePlayer) {
-        if (samplePlayer.loaded) {
-          samplePlayer.start(now)
-          return
-        } else {
-          logger.debug(`Sample pour ${instrument} pas encore chargé lors de la lecture`, { 
-            hasPlayer: !!samplePlayer,
-            loaded: samplePlayer.loaded 
-          })
-        }
+      if (samplePlayer && samplePlayer.loaded) {
+        samplePlayer.start(now)
+        return
       }
-
-      // Fallback sur les synths
+      
+      // Si le sample n'est pas encore chargé, essayer de le charger maintenant
+      if (!samplePlayer) {
+        logger.debug(`Aucun sample chargé pour ${instrument}, tentative de chargement...`)
+        // Déclencher le chargement des samples par défaut si pas encore fait
+        loadDefaultSamples()
+      } else {
+        logger.debug(`Sample pour ${instrument} pas encore chargé lors de la lecture`, { 
+          hasPlayer: !!samplePlayer,
+          loaded: samplePlayer.loaded 
+        })
+      }
+      
+      // Fallback temporaire sur les synths si aucun sample n'est disponible
+      // (en attendant que les samples Freesound se chargent)
       if (!synthCacheRef.current) return
-
+      
       switch (instrument) {
         case 'kick': {
           const synth = synthCacheRef.current.kick as ToneSynth | undefined
@@ -594,6 +736,13 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
         }
         case 'ride': {
           const synth = synthCacheRef.current.ride as ToneNoiseSynth | undefined
+          if (synth && 'triggerAttackRelease' in synth) {
+            synth.triggerAttackRelease('8n', now)
+          }
+          break
+        }
+        case 'chinese': {
+          const synth = synthCacheRef.current.chinese as ToneNoiseSynth | undefined
           if (synth && 'triggerAttackRelease' in synth) {
             synth.triggerAttackRelease('8n', now)
           }
@@ -648,7 +797,7 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
             // Jouer les sons pour ce step
             const currentStepData = pattern[prev]
             if (currentStepData && volumeNodesRef.current && synthCacheRef.current) {
-              const instruments: DrumInstrument[] = ['kick', 'snare', 'hihat', 'openhat', 'crash', 'ride', 'tom1', 'tom2', 'tom3']
+              const instruments: DrumInstrument[] = ['kick', 'snare', 'hihat', 'openhat', 'crash', 'ride', 'chinese', 'tom1', 'tom2', 'tom3']
               const Tone = toneRef.current
               if (!Tone) return nextStep
               
@@ -656,7 +805,7 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
               const baseTime = Tone.now()
               let timeOffset = 0
               
-              instruments.forEach(instrument => {
+              for (const instrument of instruments) {
                 if (currentStepData[instrument]) {
                   // Jouer le son de manière synchrone avec un offset pour éviter les conflits de timing
                   const volumeNode = volumeNodesRef.current![instrument] as ToneVolumeNode
@@ -670,87 +819,96 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
                   timeOffset += 0.001 // Incrémenter de 1ms pour chaque instrument suivant
 
                   try {
-                    // Utiliser le sample si disponible, sinon utiliser le synth
+                    // Utiliser le sample Freesound si disponible
                     const samplePlayer = samplePlayersRef.current[instrument] as ToneSamplePlayer | null
-                    if (samplePlayer) {
-                      // Vérifier si le sample est chargé
-                      if (samplePlayer.loaded) {
-                        samplePlayer.start(now)
-                      } else {
-                        // Le sample n'est pas encore chargé, utiliser le synth en attendant
-                        logger.debug(`Sample pour ${instrument} pas encore chargé, utilisation du synth`, { 
-                          hasPlayer: !!samplePlayer,
-                          loaded: samplePlayer.loaded 
-                        })
-                        // Fallback sur les synths
+                    if (samplePlayer && samplePlayer.loaded) {
+                      // Le sample est chargé, l'utiliser
+                      samplePlayer.start(now)
+                      continue // Passer au prochain instrument
+                    }
+                    
+                    // Si le sample n'est pas chargé, utiliser le synth en fallback
+                    if (!synthCacheRef.current) continue
+                    
+                    switch (instrument) {
+                      case 'kick': {
+                        const synth = synthCacheRef.current.kick as ToneSynth | undefined
+                        if (synth && 'triggerAttackRelease' in synth) {
+                          synth.triggerAttackRelease('C2', '8n', now)
+                        }
+                        break
                       }
-                    } else {
-                      // Fallback sur les synths
-                      switch (instrument) {
-                        case 'kick': {
-                          const synth = synthCacheRef.current!.kick as ToneSynth | undefined
-                          if (synth) synth.triggerAttackRelease('C2', '8n', now)
-                          break
+                      case 'snare': {
+                        const noiseSynth = snareNoiseRef.current as ToneNoiseSynth | null
+                        const bodySynth = snareBodyRef.current as ToneSynth | null
+                        if (noiseSynth && bodySynth && 'triggerAttackRelease' in noiseSynth && 'triggerAttackRelease' in bodySynth) {
+                          noiseSynth.triggerAttackRelease('8n', now)
+                          bodySynth.triggerAttackRelease('C3', '8n', now + 0.001)
                         }
-                        case 'snare': {
-                          const noiseSynth = snareNoiseRef.current as ToneNoiseSynth | null
-                          const bodySynth = snareBodyRef.current as ToneSynth | null
-                          if (noiseSynth && bodySynth) {
-                            noiseSynth.triggerAttackRelease('8n', now)
-                            bodySynth.triggerAttackRelease('C3', '8n', now + 0.001)
-                          }
-                          break
+                        break
+                      }
+                      case 'hihat': {
+                        const synth = synthCacheRef.current.hihat as ToneNoiseSynth | undefined
+                        if (synth && 'triggerAttackRelease' in synth) {
+                          synth.triggerAttackRelease('8n', now)
                         }
-                        case 'hihat': {
-                          const synth = synthCacheRef.current!.hihat as ToneNoiseSynth | undefined
-                          if (synth) {
-                            synth.triggerAttackRelease('8n', now)
-                          }
-                          break
+                        break
+                      }
+                      case 'openhat': {
+                        const synth = synthCacheRef.current.openhat as ToneNoiseSynth | undefined
+                        if (synth && 'triggerAttackRelease' in synth) {
+                          synth.triggerAttackRelease('8n', now)
                         }
-                        case 'openhat': {
-                          const synth = synthCacheRef.current!.openhat as ToneNoiseSynth | undefined
-                          if (synth) {
-                            synth.triggerAttackRelease('8n', now)
-                          }
-                          break
+                        break
+                      }
+                      case 'crash': {
+                        const synth = synthCacheRef.current.crash as ToneNoiseSynth | undefined
+                        if (synth && 'triggerAttackRelease' in synth) {
+                          synth.triggerAttackRelease('8n', now)
                         }
-                        case 'crash': {
-                          const synth = synthCacheRef.current!.crash as ToneNoiseSynth | undefined
-                          if (synth) {
-                            synth.triggerAttackRelease('8n', now)
-                          }
-                          break
+                        break
+                      }
+                      case 'ride': {
+                        const synth = synthCacheRef.current.ride as ToneNoiseSynth | undefined
+                        if (synth && 'triggerAttackRelease' in synth) {
+                          synth.triggerAttackRelease('8n', now)
                         }
-                        case 'ride': {
-                          const synth = synthCacheRef.current!.ride as ToneNoiseSynth | undefined
-                          if (synth) {
-                            synth.triggerAttackRelease('8n', now)
-                          }
-                          break
+                        break
+                      }
+                      case 'chinese': {
+                        const synth = synthCacheRef.current.chinese as ToneNoiseSynth | undefined
+                        if (synth && 'triggerAttackRelease' in synth) {
+                          synth.triggerAttackRelease('8n', now)
                         }
-                        case 'tom1': {
-                          const synth = synthCacheRef.current!.tom1 as ToneSynth | undefined
-                          if (synth) synth.triggerAttackRelease('C3', '8n', now)
-                          break
+                        break
+                      }
+                      case 'tom1': {
+                        const synth = synthCacheRef.current.tom1 as ToneSynth | undefined
+                        if (synth && 'triggerAttackRelease' in synth) {
+                          synth.triggerAttackRelease('C3', '8n', now)
                         }
-                        case 'tom2': {
-                          const synth = synthCacheRef.current!.tom2 as ToneSynth | undefined
-                          if (synth) synth.triggerAttackRelease('B2', '8n', now)
-                          break
+                        break
+                      }
+                      case 'tom2': {
+                        const synth = synthCacheRef.current.tom2 as ToneSynth | undefined
+                        if (synth && 'triggerAttackRelease' in synth) {
+                          synth.triggerAttackRelease('B2', '8n', now)
                         }
-                        case 'tom3': {
-                          const synth = synthCacheRef.current!.tom3 as ToneSynth | undefined
-                          if (synth) synth.triggerAttackRelease('A2', '8n', now)
-                          break
+                        break
+                      }
+                      case 'tom3': {
+                        const synth = synthCacheRef.current.tom3 as ToneSynth | undefined
+                        if (synth && 'triggerAttackRelease' in synth) {
+                          synth.triggerAttackRelease('A2', '8n', now)
                         }
+                        break
                       }
                     }
                   } catch (error) {
                     logger.debug('Erreur lors de la lecture d\'un instrument', { error, instrument })
                   }
                 }
-              })
+              }
             }
             
             return nextStep
@@ -970,6 +1128,7 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
         openhat: null,
         crash: null,
         ride: null,
+        chinese: null,
         tom1: null,
         tom2: null,
         tom3: null

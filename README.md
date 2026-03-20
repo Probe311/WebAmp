@@ -87,6 +87,14 @@ Le frontend est déployé automatiquement sur Vercel à chaque push sur `main`.
   - `VITE_SUPABASE_URL`
   - `VITE_SUPABASE_ANON_KEY`
   - `VITE_WEBSOCKET_URL` (pour dev local)
+- Variables optionnelles (selon les fonctionnalités activées) :
+  - `VITE_GEMINI_API_KEY`
+  - `VITE_PEXELS_API_KEY`
+  - `VITE_PIXABAY_API_KEY`
+  - `VITE_FREESOUND_CLIENT_ID`
+  - `VITE_FREESOUND_CLIENT_SECRET`
+
+Pour la liste complète et les rappels “build-time”, voir `docs/VERCEL_ENV_VARS.md`.
 
 Voir [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) pour le guide de déploiement.
 
@@ -98,6 +106,13 @@ Voir [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) pour le guide de déploiement.
 - API REST automatique
 
 Voir [supabase/README.md](supabase/README.md) pour la configuration.
+
+#### Secrets Supabase (Edge Function `contact-support`)
+
+Le endpoint `supabase/functions/contact-support` utilise des secrets côté Supabase, notamment :
+- `RESEND_API_KEY`
+- `CONTACT_EMAIL`
+- `RESEND_FROM_EMAIL` (optionnel, fallback à `noreply@webamp.app`)
 
 ## 🔌 Communication
 

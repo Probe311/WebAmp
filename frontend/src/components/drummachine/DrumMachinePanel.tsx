@@ -9,7 +9,7 @@ import { AIBeatArchitect } from '../ai/AIBeatArchitect'
 import { BeatPattern } from '../../services/ai'
 import { DrumSampleSelector } from './DrumSampleSelector'
 
-const INSTRUMENTS: DrumInstrument[] = ['kick', 'snare', 'hihat', 'openhat', 'crash', 'ride', 'tom1', 'tom2', 'tom3']
+const INSTRUMENTS: DrumInstrument[] = ['kick', 'snare', 'hihat', 'openhat', 'crash', 'ride', 'chinese', 'tom1', 'tom2', 'tom3']
 
 const NUM_STEPS = 16
 
