@@ -22,6 +22,10 @@ frontend/.env.local
 frontend/.env*.local
 frontend/.vercel/
 
+# Root environment files (sécurité)
+.env
+.env.*
+
 # Supabase
 supabase/.env
 supabase/.env.local

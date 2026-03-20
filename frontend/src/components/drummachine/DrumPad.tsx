@@ -3,15 +3,16 @@ import { DrumInstrument } from '../../contexts/DrumMachineContext'
 
 export type { DrumInstrument }
 
-export const INSTRUMENTS_COMPACT: DrumInstrument[] = ['kick', 'snare', 'hihat', 'openhat', 'crash', 'ride', 'tom1', 'tom2', 'tom3']
+export const INSTRUMENTS_COMPACT: DrumInstrument[] = ['kick', 'snare', 'hihat', 'openhat', 'crash', 'ride', 'chinese', 'tom1', 'tom2', 'tom3']
 
 export const INSTRUMENT_LABELS: Record<DrumInstrument, string> = {
-  kick: 'Grosse caisse',
-  snare: 'Caisse claire',
-  hihat: 'Charleston',
-  openhat: 'Charleston ouverte',
+  kick: 'Kick',
+  snare: 'Snare',
+  hihat: 'Hi-Hat',
+  openhat: 'Open Hat',
   crash: 'Crash',
   ride: 'Ride',
+  chinese: 'Chinese',
   tom1: 'Tom 1',
   tom2: 'Tom 2',
   tom3: 'Tom 3'
@@ -24,6 +25,7 @@ export const INSTRUMENT_COLORS: Record<DrumInstrument, string> = {
   openhat: '#06b6d4',
   crash: '#f59e0b',
   ride: '#8b5cf6',
+  chinese: '#14b8a6',
   tom1: '#ec4899',
   tom2: '#f97316',
   tom3: '#a855f7'

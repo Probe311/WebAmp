@@ -21,6 +21,8 @@ import dunlopLogo from '../assets/logos/dunlop.svg'
 // Import des logos SVG (small)
 import bossSmallLogo from '../assets/logos/boss_small.svg'
 import walrusSmallLogo from '../assets/logos/walrus_small.svg'
+import electroHarmonixSmallLogo from '../assets/logos/electro-harmonix_small.svg'
+import yamahaSmallLogo from '../assets/logos/yamaha_small.svg'
 
 // Mapping des logos de marques (normaux)
 export const brandLogos: Record<string, string> = {
@@ -53,7 +55,10 @@ export const brandLogosSmall: Record<string, string> = {
   'BOSS': bossSmallLogo,
   'Boss': bossSmallLogo,
   'Walrus': walrusSmallLogo,
-  'Walrus Audio': walrusSmallLogo
+  'Walrus Audio': walrusSmallLogo,
+  'Electro-Harmonix': electroHarmonixSmallLogo,
+  'EHX': electroHarmonixSmallLogo,
+  'Yamaha': yamahaSmallLogo
 }
 
 // Fonction pour obtenir le chemin du logo (normal)

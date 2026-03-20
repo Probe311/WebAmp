@@ -1,0 +1,148 @@
+# ============================================
+# CONFIGURATION DE SÉCURITÉ MAXIMALE
+# ============================================
+
+# Désactiver la liste des répertoires
+Options -Indexes
+
+# Empêcher l'accès aux fichiers sensibles
+<FilesMatch "^\.">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Protéger les fichiers de configuration
+<FilesMatch "\.(htaccess|htpasswd|ini|log|sh|sql|conf|config|env|json|lock|key|pem)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Protéger les fichiers de code source
+<FilesMatch "\.(ts|tsx|jsx|js|map|md|txt|yml|yaml)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Autoriser uniquement les fichiers nécessaires pour le site
+<FilesMatch "\.(html|css|js|jpg|jpeg|png|gif|svg|ico|woff|woff2|ttf|eot|webp|mp3|wav|ogg|mp4|webm)$">
+    Order deny,allow
+    Allow from all
+</FilesMatch>
+
+# ============================================
+# EN-TÊTES DE SÉCURITÉ
+# ============================================
+
+# Protection XSS
+<IfModule mod_headers.c>
+    Header set X-XSS-Protection "1; mode=block"
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "DENY"
+    Header set Referrer-Policy "no-referrer"
+    Header set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+    
+    # Content Security Policy stricte
+    Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:; media-src 'self' data:; worker-src 'self' blob:;"
+    
+    # Strict Transport Security (HSTS) - 1 an
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    
+    # Désactiver la mise en cache pour les fichiers sensibles
+    <FilesMatch "\.(html|json|xml)$">
+        Header set Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0"
+        Header set Pragma "no-cache"
+        Header set Expires "0"
+    </FilesMatch>
+</IfModule>
+
+# ============================================
+# PROTECTION CONTRE LES ATTAQUES
+# ============================================
+
+# Bloquer les requêtes suspectes
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Bloquer les tentatives d'injection SQL
+    RewriteCond %{QUERY_STRING} (\<|%3C).*script.*(\>|%3E) [NC,OR]
+    RewriteCond %{QUERY_STRING} GLOBALS(=|\[|\%[0-9A-Z]{0,2}) [OR]
+    RewriteCond %{QUERY_STRING} _REQUEST(=|\[|\%[0-9A-Z]{0,2}) [OR]
+    RewriteCond %{QUERY_STRING} (\<|%3C).*iframe.*(\>|%3E) [NC,OR]
+    RewriteCond %{QUERY_STRING} base64_encode.*\(.*\) [NC,OR]
+    RewriteCond %{QUERY_STRING} (\;|\'|\"|%22).*(union|select|insert|drop|update|md5|benchmark|or|and) [NC]
+    RewriteRule .* - [F,L]
+    
+    # Bloquer les user agents suspects
+    RewriteCond %{HTTP_USER_AGENT} ^$ [OR]
+    RewriteCond %{HTTP_USER_AGENT} ^(-|\.|') [OR]
+    RewriteCond %{HTTP_USER_AGENT} (libwww|wget|python|nikto|curl|scan|java|winhttp|clshttp|loader) [NC,OR]
+    RewriteCond %{HTTP_USER_AGENT} (<|>|'|%0A|%0D|%27|%3C|%3E|%00) [NC]
+    RewriteRule .* - [F,L]
+    
+    # Bloquer les méthodes HTTP non autorisées
+    RewriteCond %{REQUEST_METHOD} ^(TRACE|DELETE|TRACK|DEBUG) [NC]
+    RewriteRule .* - [F,L]
+    
+    # Bloquer l'accès aux fichiers cachés
+    RewriteRule ^\. - [F,L]
+    
+    # Bloquer l'accès aux répertoires système
+    RewriteRule ^(node_modules|\.git|\.vscode|\.idea|\.env|config|src|tests|scripts|supabase|native|docs)/ - [F,L]
+</IfModule>
+
+# ============================================
+# LIMITATION DES TAILLES DE REQUÊTE
+# ============================================
+
+# Limiter la taille des uploads (10MB)
+php_value upload_max_filesize 10M
+php_value post_max_size 10M
+
+# ============================================
+# DÉSACTIVER LES FONCTIONNALITÉS DANGEREUSES
+# ============================================
+
+# Désactiver l'exécution de scripts dans les répertoires uploadés
+php_flag engine off
+
+# Désactiver la signature du serveur
+ServerSignature Off
+
+# ============================================
+# PROTECTION CONTRE LE HOTLINKING
+# ============================================
+
+<IfModule mod_rewrite.c>
+    RewriteCond %{HTTP_REFERER} !^$
+    RewriteCond %{HTTP_REFERER} !^https?://(www\.)?votre-domaine\.com [NC]
+    RewriteRule \.(jpg|jpeg|png|gif|svg|css|js|woff|woff2|ttf|eot)$ - [F,L]
+</IfModule>
+
+# ============================================
+# COMPRESSION ET OPTIMISATION
+# ============================================
+
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json application/xml
+</IfModule>
+
+# ============================================
+# CACHE POUR LES RESSOURCES STATIQUES
+# ============================================
+
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpg "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType application/x-font-woff "access plus 1 year"
+    ExpiresByType application/x-font-woff2 "access plus 1 year"
+    ExpiresByType font/woff "access plus 1 year"
+    ExpiresByType font/woff2 "access plus 1 year"
+</IfModule>
+

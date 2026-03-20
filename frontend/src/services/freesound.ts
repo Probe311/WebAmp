@@ -108,6 +108,25 @@ class FreesoundService {
   }
 
   /**
+   * Vérifie si l'authentification est disponible
+   */
+  isAuthenticated(): boolean {
+    const hasApiKey = !!this.apiKey;
+    const hasOAuth2 = !!(this.clientId && this.clientSecret);
+    
+    if (import.meta.env.DEV) {
+      console.debug('Freesound authentication check:', {
+        hasApiKey,
+        hasOAuth2,
+        apiKeyLength: this.apiKey?.length || 0,
+        clientIdLength: this.clientId?.length || 0
+      });
+    }
+    
+    return hasApiKey || hasOAuth2;
+  }
+
+  /**
    * Obtient un token d'accès OAuth2 (si nécessaire)
    * Retourne null si OAuth2 n'est pas disponible, permettant l'utilisation de l'API key simple
    */
@@ -208,9 +227,13 @@ class FreesoundService {
         throw new Error('Freesound API: OAuth2 authentication required for this operation. Please configure VITE_FREESOUND_CLIENT_ID and VITE_FREESOUND_CLIENT_SECRET.');
       }
     } else {
-      // Pour les recherches, utiliser directement l'API key
+      // Pour les recherches, utiliser directement l'API key via le paramètre token dans l'URL
+      // C'est la méthode la plus simple et fiable selon la documentation Freesound
       if (this.apiKey) {
-        headers['Authorization'] = `Token ${this.apiKey}`;
+        // Utiliser uniquement le paramètre token dans l'URL (comme dans la doc Freesound)
+        if (!params.token) {
+          params.token = this.apiKey;
+        }
       } else {
         // Si pas d'API key, essayer OAuth2 en dernier recours
         const token = this.accessToken || await this.getAccessToken();
@@ -224,6 +247,17 @@ class FreesoundService {
 
     const queryString = new URLSearchParams(params).toString();
     const url = `${this.baseUrl}/${endpoint}${queryString ? `?${queryString}` : ''}`;
+
+    // Logging en développement pour diagnostiquer les problèmes
+    if (import.meta.env.DEV) {
+      console.debug('Freesound API request:', {
+        endpoint,
+        url: url.replace(/token=[^&]+/, 'token=***'), // Masquer le token dans les logs
+        hasApiKey: !!this.apiKey,
+        useOAuth2,
+        paramsCount: Object.keys(params).length
+      });
+    }
 
     try {
       const response = await fetch(url, {
@@ -241,11 +275,41 @@ class FreesoundService {
             errorMessage = `${errorMessage} - ${errorText}`;
           }
         }
+        
+        // Logging détaillé des erreurs
+        if (import.meta.env.DEV) {
+          console.error('Freesound API error:', {
+            status: response.status,
+            statusText: response.statusText,
+            errorMessage,
+            endpoint,
+            url: url.replace(/token=[^&]+/, 'token=***')
+          });
+        }
+        
         throw new Error(errorMessage);
       }
 
-      return await response.json();
+      const data = await response.json();
+      
+      // Logging en développement pour les succès
+      if (import.meta.env.DEV) {
+        console.debug('Freesound API success:', {
+          endpoint,
+          dataKeys: Object.keys(data),
+          resultsCount: (data as any).results?.length || (data as any).id ? 1 : 0
+        });
+      }
+      
+      return data;
     } catch (error) {
+      if (import.meta.env.DEV) {
+        console.error('Freesound API request failed:', {
+          endpoint,
+          error: error instanceof Error ? error.message : String(error),
+          url: url.replace(/token=[^&]+/, 'token=***')
+        });
+      }
       throw error;
     }
   }
@@ -343,8 +407,10 @@ class FreesoundService {
    */
   async getSoundById(id: number): Promise<FreesoundSound> {
     // Utiliser l'API key directement pour la lecture (useOAuth2 = false)
+    // Le paramètre token sera ajouté automatiquement dans request()
     return await this.request<FreesoundSound>(`sounds/${id}`, {
       fields: 'id,name,tags,description,license,previews,username,duration,samplerate,download,analysis',
+      format: 'json',
     }, false);
   }
 

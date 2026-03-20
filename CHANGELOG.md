@@ -61,14 +61,12 @@ et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
   supabase functions deploy contact-support
   ```
 
-## [1.1.6] - 2025-01-XX
+## [1.1.5] - 2025-01-XX
 
 ### ✅ Maintenance
 - Build de production réussi (11.35s)
 - Aucune erreur TypeScript
 - Code prêt pour le déploiement
-
-## [1.1.5] - 2025-01-XX
 
 ### 🐛 Corrigé
 - **Variables d'environnement Vercel** : Amélioration de la gestion des variables d'environnement
