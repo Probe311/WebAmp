@@ -27,6 +27,7 @@ const INSTRUMENT_SEARCH_TERMS: Record<DrumInstrument, string> = {
   openhat: 'drum hihat open',
   crash: 'drum crash cymbal',
   ride: 'drum ride cymbal',
+  chinese: 'drum china cymbal',
   tom1: 'drum tom',
   tom2: 'drum tom',
   tom3: 'drum tom'
