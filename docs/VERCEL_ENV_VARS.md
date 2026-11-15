@@ -1,91 +1,52 @@
-# Configuration des Variables d'Environnement Vercel
+# Configuration des variables d’environnement (Vercel / local)
 
-## ⚠️ Problème courant : Variables non détectées en production
+## Règles de sécurité
 
-Si vous obtenez l'erreur :
-```
-Clé API Gemini non configurée. Vérifiez que VITE_GEMINI_API_KEY est définie dans les variables d'environnement Vercel et redéployez l'application.
-```
+1. **Ne jamais** committer de clés réelles (ni dans ce fichier, ni dans le README).
+2. Modèle local : copier [`frontend/.env.example`](../frontend/.env.example) → `frontend/.env.local`.
+3. Tout préfixe `VITE_*` est injecté dans le **bundle navigateur** au build. N’y mettez que ce que vous acceptez d’exposer côté client (anon Supabase, éventuellement des clés « public »).
+4. Secrets serveur (`SUPABASE_SERVICE_ROLE_KEY`, `RESEND_API_KEY`, OAuth client secret, etc.) : dashboard Vercel / Supabase Secrets uniquement — **pas** de préfixe `VITE_`.
 
-## 🔧 Solution
+## Liste des variables
 
-### 1. Vérifier que les variables sont bien configurées
+### Obligatoires (frontend)
 
-Dans le dashboard Vercel :
-- Allez dans **Settings** > **Environment Variables**
-- Vérifiez que `VITE_GEMINI_API_KEY` est bien présente
-- Vérifiez qu'elle est activée pour **Production** (et éventuellement Preview/Development)
+| Variable | Description | Exemple (placeholder) |
+|----------|-------------|------------------------|
+| `VITE_SUPABASE_URL` | URL projet Supabase | `https://YOUR_PROJECT.supabase.co` |
+| `VITE_SUPABASE_ANON_KEY` | Clé **anon** (publique + RLS) | `your_supabase_anon_key` |
 
-### 2. ⚠️ IMPORTANT : Redéployer après ajout/modification
+### Optionnelles (frontend)
 
-**Les variables `VITE_*` sont injectées au BUILD TIME, pas au runtime.**
+| Variable | Description | Note |
+|----------|-------------|------|
+| `VITE_WEBSOCKET_URL` | Helper natif | Défaut local : `ws://localhost:8765` |
+| `VITE_ADMIN_UUID` | UUID Auth de l’admin UI | Complété par `is_admin()` côté DB |
+| `VITE_PEXELS_API_KEY` | Images Pexels | Embarquée client |
+| `VITE_PIXABAY_API_KEY` | Images Pixabay | Idem |
+| `VITE_FREESOUND_API_KEY` | Freesound (recherche) | Idem |
+| `VITE_FREESOUND_CLIENT_ID` | OAuth Freesound (public) | Idem |
 
-Cela signifie que :
-- ✅ Si vous ajoutez une variable → **Vous DEVEZ redéployer**
-- ✅ Si vous modifiez une variable → **Vous DEVEZ redéployer**
-- ❌ Les variables ne sont pas disponibles immédiatement après ajout
+### Serveur uniquement (hors frontend)
 
-### 3. Comment redéployer
+| Variable | Où |
+|----------|-----|
+| `SUPABASE_SERVICE_ROLE_KEY` | Seeds / CLI locaux (jamais commit) |
+| `GEMINI_API_KEY` | Secrets Edge (`ai-*`, `ai-gemini`) — **jamais** `VITE_` |
+| `RESEND_API_KEY`, `CONTACT_EMAIL`, `RESEND_FROM_EMAIL` | Secrets Edge `contact-support` |
+| `CORS_ALLOWED_ORIGINS` | Edge Functions — ex. `https://app.webamp.studio,http://localhost:10000` |
+| `FREESOUND_CLIENT_SECRET` | Edge OAuth uniquement — **jamais** `VITE_*` |
 
-**Option A : Via le Dashboard Vercel**
-1. Allez dans **Deployments**
-2. Cliquez sur les **3 points** (⋯) du dernier déploiement
-3. Sélectionnez **Redeploy**
-4. Confirmez le redéploiement
+Les `VITE_*` sont injectées au **build time** : après ajout/modif → Redeploy Vercel.
 
-**Option B : Via Git**
-```bash
-# Faites un commit vide pour déclencher un nouveau déploiement
-git commit --allow-empty -m "trigger redeploy for env vars"
-git push origin main
-```
+## Diagnostic
 
-**Option C : Via Vercel CLI**
-```bash
-vercel --prod
-```
+1. Logs de build Vercel : erreurs liées aux env
+2. Format : préfixe `VITE_` pour le client, pas d’espaces parasites, pas de guillemets inutiles
+3. Environnement correct (Production vs Preview)
 
-### 4. Vérifier que les variables sont injectées
+## Références
 
-Après le redéploiement, vous pouvez vérifier dans les logs de build Vercel :
-- Les variables `VITE_*` doivent être visibles (masquées) dans les logs
-- Si elles n'apparaissent pas, vérifiez qu'elles sont bien configurées pour l'environnement de build
-
-## 📋 Liste des variables requises
-
-### Variables obligatoires
-- `VITE_SUPABASE_URL` - URL de votre projet Supabase
-- `VITE_SUPABASE_ANON_KEY` - Clé anonyme Supabase
-
-### Variables optionnelles (selon les fonctionnalités utilisées)
-- `VITE_GEMINI_API_KEY` - Clé API Google Gemini (pour l'optimisation de cours)
-- `VITE_PEXELS_API_KEY` - Clé API Pexels (pour les images)
-- `VITE_PIXABAY_API_KEY` - Clé API Pixabay (pour les images)
-- `VITE_FREESOUND_CLIENT_ID` - Client ID Freesound
-- `VITE_FREESOUND_CLIENT_SECRET` - Client Secret Freesound
-- `VITE_WEBSOCKET_URL` - URL WebSocket (local uniquement, généralement `ws://localhost:8765`)
-
-## 🔍 Diagnostic
-
-Si les variables ne fonctionnent toujours pas après redéploiement :
-
-1. **Vérifiez les logs de build Vercel**
-   - Allez dans **Deployments** > Cliquez sur le dernier déploiement
-   - Regardez les logs de build
-   - Cherchez les erreurs liées aux variables d'environnement
-
-2. **Vérifiez le format des variables**
-   - Les variables doivent commencer par `VITE_` pour être accessibles dans le code
-   - Pas d'espaces avant/après la valeur
-   - Pas de guillemets autour de la valeur (sauf si nécessaire)
-
-3. **Vérifiez les environnements**
-   - Production : Variables disponibles pour `vercel --prod`
-   - Preview : Variables disponibles pour les PR/commits
-   - Development : Variables disponibles pour `vercel dev`
-
-## 📚 Documentation Vercel
-
-- [Variables d'environnement Vercel](https://vercel.com/docs/concepts/projects/environment-variables)
-- [Build Time vs Runtime Variables](https://vercel.com/docs/concepts/projects/environment-variables#build-time-variables)
-
+- [Variables d’environnement Vercel](https://vercel.com/docs/concepts/projects/environment-variables)
+- [SECURITY.md](../SECURITY.md)
+- [frontend/.env.example](../frontend/.env.example)

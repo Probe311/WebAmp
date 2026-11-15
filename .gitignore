@@ -25,11 +25,14 @@ frontend/.vercel/
 # Root environment files (sécurité)
 .env
 .env.*
+!.env.example
+!**/.env.example
 
 # Supabase
 supabase/.env
 supabase/.env.local
 supabase/.temp/
+**/.temp/
 
 # IDE
 .vscode/
@@ -74,4 +77,17 @@ coverage/
 dist/
 release/
 release-upload/
+
+# Local tooling / captures
+.cursor/
+.freebuff/
+shots/
+
+# Pedal reference assets (3rd-party PDFs/photos — keep local, not in public git)
+docs/pedales/**/*.pdf
+docs/pedales/**/*.jpg
+docs/pedales/**/*.jpeg
+docs/pedales/**/*.png
+docs/pedales/**/*.webp
+docs/pedales/**/*.gif
 

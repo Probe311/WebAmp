@@ -9,12 +9,16 @@ Bienvenue dans la documentation complète de WebAmp, une application de simulati
 - **[Architecture](ARCHITECTURE.md)** - Vue d'ensemble de l'architecture technique
 - **[Design System](DESIGN_SYSTEM.md)** - Guide du design system neumorphic
 
-### 🛠️ Développement
+### Développement
 - **[Composants](COMPONENTS.md)** - Documentation des composants React
 - **[API WebSocket](API.md)** - Protocole de communication front/back
 - **[Optimisations](OPTIMIZATION.md)** - Guide des optimisations du code
 - **[Déploiement](DEPLOYMENT.md)** - Guide de déploiement et options d'hébergement
-- **[Sécurité RLS](RLS_SECURITY_GUIDE.md)** - Guide des politiques de sécurité Supabase
+- **[Variables d’env Vercel](VERCEL_ENV_VARS.md)** - Liste et règles (pas de secrets en clair)
+- **[Sécurité RLS](RLS_SECURITY_GUIDE.md)** - Politiques Supabase
+- **[SECURITY.md](../SECURITY.md)** - Secrets, signalement, admin UUID
+- **[Protection GitHub `main`](GITHUB_BRANCH_PROTECTION.md)** - Branch protection, labels, homepage
+- **[Smoke CTA → Auth](SMOKE_CTA_AUTH.md)** - Tunnel LP « Ouvrir webamp » → login app
 
 ### 📖 Référence
 - **[Pédales](REFERENCE_PEDALES.md)** - Liste complète des pédales disponibles
@@ -67,8 +71,7 @@ WebAmp/
 │   │   ├── data/       # Données (pédales, amplis)
 │   │   └── styles/     # Styles CSS
 │   └── package.json
-├── shared/             # Code partagé
-│   └── protocol/       # Protocole WebSocket
+├── supabase/           # Migrations, Edge Functions, seeds
 └── docs/               # Documentation
 ```
 
@@ -86,12 +89,14 @@ WebAmp/
 
 ```bash
 # 1. Cloner le repository
-git clone <repository-url>
+git clone https://github.com/Probe311/WebAmp.git
 cd WebAmp
 
-# 2. Installer les dépendances frontend
+# 2. Installer les dépendances frontend + env local
 cd frontend
 npm install
+cp .env.example .env.local
+# Éditer .env.local (placeholders → vos clés ; ne jamais committer)
 
 # 3. Build le native helper
 cd ../native
@@ -119,20 +124,19 @@ npm run dev
 
 ---
 
-## 📝 Contribution
+## Contribution
 
-Pour contribuer au projet, consultez :
-1. [Architecture](ARCHITECTURE.md) pour comprendre la structure
-2. [Design System](DESIGN_SYSTEM.md) pour les conventions UI
-3. [Roadmap](ROADMAP.md) pour voir les fonctionnalités prévues
-
----
-
-## 📄 Licence
-
-[À définir]
+1. [CONTRIBUTING.md](../CONTRIBUTING.md) — workflow PR et standards
+2. [SECURITY.md](../SECURITY.md) — secrets et signalement
+3. [Architecture](ARCHITECTURE.md) · [Design System](DESIGN_SYSTEM.md) · [Roadmap](ROADMAP.md)
 
 ---
 
-**Dernière mise à jour** : 2024
+## Licence
+
+[MIT](../LICENSE)
+
+---
+
+**Dernière mise à jour** : 2026
 

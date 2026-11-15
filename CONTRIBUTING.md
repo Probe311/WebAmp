@@ -1,90 +1,88 @@
-# Guide de Contribution - WebAmp
+# Contribuer à WebAmp
 
-Merci de votre intérêt pour contribuer à WebAmp ! 🎸
+Merci de votre intérêt. Ce guide vise un flux simple pour un dépôt opensource participatif.
 
-## 🚀 Démarrage rapide
+## Avant de coder
 
-1. Fork le repository
-2. Cloner votre fork : `git clone https://github.com/VOTRE_USERNAME/WebAmp.git`
-3. Créer une branche : `git checkout -b feature/ma-fonctionnalite`
-4. Installer les dépendances : `cd frontend && npm install`
-5. Faire vos modifications
-6. Tester : `npm run build && npm test`
-7. Commiter : `git commit -m "Ajout de ma fonctionnalité"`
-8. Pousser : `git push origin feature/ma-fonctionnalite`
-9. Créer une Pull Request
+1. Cherchez une issue existante ou ouvrez-en une pour discuter (surtout pour les grosses features).
+2. Les labels `good first issue` et `help wanted` sont de bons points d’entrée.
+3. Lisez [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) et [docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md) si vous touchez à l’UI.
+4. Respectez le [Code of Conduct](CODE_OF_CONDUCT.md).
 
-## 📋 Standards de code
-
-### Frontend (React/TypeScript)
-
-- **TypeScript strict** : Tous les fichiers doivent être typés
-- **ESLint** : Respecter les règles ESLint (`npm run lint`)
-- **Composants** : Utiliser des composants fonctionnels avec hooks
-- **Design System** : Respecter le design neumorphic (voir `docs/DESIGN_SYSTEM.md`)
-- **Nommage** : PascalCase pour les composants, camelCase pour les fonctions
-
-### Backend (C++)
-
-- **Style** : Suivre les conventions C++ modernes (C++17+)
-- **Commentaires** : Documenter les fonctions publiques
-- **CMake** : Utiliser CMake pour le build
-- **Tests** : Ajouter des tests pour les nouvelles fonctionnalités
-
-## 🧪 Tests
+## Setup local
 
 ```bash
-# Frontend
+git clone https://github.com/VOTRE_USERNAME/WebAmp.git
+cd WebAmp
 cd frontend
+npm install
+cp .env.example .env.local
+```
+
+Renseignez `.env.local` avec **vos** clés (jamais celles d’un autre environnement). Détails : [SECURITY.md](SECURITY.md), [frontend/.env.example](frontend/.env.example).
+
+```bash
+npm run dev          # http://localhost:10000
+npm run lint
 npm test
-
-# Avec coverage
-npm run test:coverage
+npm run build
 ```
 
-## 📝 Commits
+Helper natif (optionnel) : [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md).
 
-Utiliser des messages de commit clairs :
+## Workflow Git
+
+1. Fork du dépôt
+2. Branche depuis `main` : `feature/description-courte` ou `fix/description-courte`
+3. Commits atomiques, messages clairs (Conventional Commits encouragés) :
 
 ```
-feat: Ajout d'une nouvelle pédale
-fix: Correction du bug de latence
-docs: Mise à jour de la documentation
-refactor: Refactorisation du composant Pedalboard
-test: Ajout de tests pour les presets
+feat: ajouter la pédale X
+fix: corriger la reconnexion WebSocket
+docs: clarifier le setup env
+refactor: extraire le service presets
+test: couvrir PedalboardEngine
 ```
 
-## 🔍 Pull Requests
+4. Push sur votre fork
+5. Pull Request vers `main` du dépôt upstream
 
-- **Titre clair** : Décrire brièvement la modification
-- **Description** : Expliquer le problème résolu et la solution
-- **Tests** : Vérifier que tous les tests passent
-- **Documentation** : Mettre à jour la doc si nécessaire
+## Standards
 
-## 📚 Documentation
+### Frontend (React / TypeScript)
 
-- Mettre à jour `docs/` si vous ajoutez/modifiez des fonctionnalités
-- Ajouter des commentaires JSDoc pour les fonctions complexes
-- Mettre à jour `README.md` si nécessaire
+- TypeScript strict, pas de `any` nouveau sans justification
+- Composants fonctionnels + hooks
+- Respect du design neumorphic (`docs/DESIGN_SYSTEM.md`)
+- PascalCase composants, camelCase fonctions
+- `npm run lint` au vert avant la PR
 
-## 🐛 Signaler un bug
+### Native (C++)
 
-1. Vérifier que le bug n'a pas déjà été signalé
-2. Créer une issue avec :
-   - Description du bug
-   - Steps to reproduce
-   - Comportement attendu vs actuel
-   - Environnement (OS, navigateur, version)
+- C++17+, CMake
+- Documenter les APIs publiques
+- Ajouter un test / check minimal si vous changez la logique audio ou le protocole
 
-## 💡 Proposer une fonctionnalité
+### Documentation
 
-1. Créer une issue avec le label "enhancement"
-2. Décrire la fonctionnalité et son utilité
-3. Discuter avec les mainteneurs avant de coder
+- Mettre à jour `docs/` si le comportement change
+- Pas de secrets, UUID personnels, ni clés dans les exemples — placeholders uniquement (`YOUR_PROJECT`, `<anon>`, etc.)
 
-## 📄 Licence
+## Pull Requests
 
-En contribuant, vous acceptez que vos contributions soient sous licence MIT.
+- Titre clair + description (problème → solution → comment tester)
+- Captures / GIFs pour les changements UI
+- Une PR = un sujet (évitez les fourre-tout)
+- Indiquer les breaking changes et les nouvelles variables d’env
 
-Merci ! 🎉
+## Bugs
 
+Ouvrir une issue avec : description, steps to reproduce, attendu vs actuel, OS / navigateur / version.
+
+## Features
+
+Issue avec label `enhancement`, motivation, et périmètre. Attendez un retour avant un gros chantier.
+
+## Licence
+
+En contribuant, vous acceptez que vos contributions soient sous [licence MIT](LICENSE).
