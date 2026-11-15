@@ -11,7 +11,7 @@
    - Require branches to be up to date
    - Status check : `Frontend lint & test` (workflow `.github/workflows/ci.yml`)
 3. **Require conversation resolution before merging**
-4. **Do not allow bypassing the above settings** (sauf urgency admin)
+4. **Allow admin bypass** pour un solo-maintainer (`enforce_admins: false`) ; activer `true` dès qu’il y a co-mainteneurs
 5. **Restrict force pushes** et **Restrict deletions**
 6. Optionnel : Require linear history ; Require signed commits
 
