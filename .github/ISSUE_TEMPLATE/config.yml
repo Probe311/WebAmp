@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Sécurité
+    url: https://github.com/Probe311/WebAmp/blob/main/SECURITY.md
+    about: Ne pas ouvrir d’issue publique pour une vulnérabilité — voir SECURITY.md

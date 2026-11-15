@@ -2,13 +2,14 @@
 
 ## Vue d'ensemble
 
-Le panneau d'administration permet de gérer l'ensemble du contenu de WebAmp depuis l'interface frontend. Seul l'utilisateur avec l'UUID `REDACTED_ADMIN_UUID` peut y accéder.
+Le panneau d'administration permet de gérer l'ensemble du contenu de WebAmp depuis l'interface frontend. L'accès est réservé à l'utilisateur dont l'UUID Auth correspond à `VITE_ADMIN_UUID` (défini par environnement, jamais hardcodé dans le dépôt).
 
 ## Accès
 
-1. **Bouton Admin** : Visible uniquement pour l'admin, positionné à droite dans la navigation
-2. **Vérification** : L'accès est vérifié dans `App.tsx` via l'UUID
-3. **Redirection** : Tentative d'accès non autorisée → redirection vers home avec message d'erreur
+1. Définir `VITE_ADMIN_UUID` dans `frontend/.env.local` (dev) ou Vercel (prod) — voir [`.env.example`](../frontend/.env.example)
+2. **Bouton Admin** : visible uniquement si `auth.uid` = `ADMIN_UUID` (`frontend/src/config/constants.ts`)
+3. **Redirection** : tentative non autorisée → home + message d'erreur
+4. Renforcer côté Supabase avec RLS (`is_admin()` / rôles) — le check UI seul ne suffit pas
 
 ## Sections d'administration
 
@@ -119,10 +120,13 @@ Ou via le SQL Editor de Supabase :
 
 ### 2. Vérifier l'accès admin
 
-L'UUID admin est défini dans `frontend/src/App.tsx` :
+L'UUID admin vient de l'environnement :
 ```typescript
-const ADMIN_UUID = 'REDACTED_ADMIN_UUID'
+// frontend/src/config/constants.ts
+export const ADMIN_UUID = (import.meta.env.VITE_ADMIN_UUID || '').trim()
 ```
+
+Sans `VITE_ADMIN_UUID`, aucun utilisateur n'a l'UI admin.
 
 ## Structure des fichiers
 
@@ -163,30 +167,18 @@ supabase/migrations/
 
 ### RLS (Row Level Security)
 
-Les tables admin ont des politiques RLS configurées :
+Appliquer [supabase/migrations/20260320_admin_rls.sql](../supabase/migrations/20260320_admin_rls.sql) :
 
-- **Lecture** : Publique pour certaines tables (brands, feature_flags)
-- **Écriture** : Actuellement ouverte (à restreindre avec `is_admin()` si nécessaire)
-- **Presets** : Propriétaire uniquement pour modification/suppression
+- **Lecture** : contenu publié / public selon table
+- **Écriture catalogue** : `is_admin()` uniquement (`user_roles`)
+- **UI** : `VITE_ADMIN_UUID` — complémentaire, insuffisant seul
 
-### Recommandations
-
-Pour renforcer la sécurité, créer une fonction `is_admin()` dans Supabase :
+Voir [RLS_SECURITY_GUIDE.md](RLS_SECURITY_GUIDE.md) et [SECURITY.md](../SECURITY.md).
 
 ```sql
-CREATE OR REPLACE FUNCTION is_admin()
-RETURNS BOOLEAN AS $$
-BEGIN
-  RETURN auth.uid() = 'REDACTED_ADMIN_UUID'::uuid;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-```
-
-Puis modifier les politiques :
-```sql
-CREATE POLICY "Admins can update brands"
-  ON public.brands FOR UPDATE
-  USING (is_admin());
+INSERT INTO public.user_roles (user_id, role)
+VALUES ('YOUR_AUTH_UUID', 'admin')
+ON CONFLICT (user_id) DO UPDATE SET role = 'admin';
 ```
 
 ## Utilisation des Feature Flags
@@ -241,9 +233,9 @@ function WebAmpPage() {
 - Forcer le refresh : `refreshFeatureFlags()`
 
 ### Le bouton Admin n'apparaît pas
-- Vérifier que l'UUID de l'utilisateur correspond à `ADMIN_UUID`
+- Vérifier que `VITE_ADMIN_UUID` est défini et égal à l’UUID Auth de l’utilisateur
 - Vérifier que l'utilisateur est bien connecté
-- Vérifier dans les DevTools que `isAdmin` est `true`
+- Après changement d’env Vercel : redeploy (build time)
 
 ## Prochaines étapes
 

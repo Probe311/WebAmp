@@ -35,26 +35,18 @@ npm i -g vercel
 # Déploiement
 cd frontend
 vercel
-
-# Variables d'environnement (via dashboard Vercel)
-# IMPORTANT : Les variables VITE_* sont injectées au BUILD TIME
-# Vous DEVEZ redéployer après avoir ajouté/modifié ces variables
-
-VITE_SUPABASE_URL=https://xxx.supabase.co
-VITE_SUPABASE_ANON_KEY=xxx
-VITE_WEBSOCKET_URL=ws://localhost:8765  # Local uniquement
-VITE_GEMINI_API_KEY=xxx  # Clé API Google Gemini
-VITE_PEXELS_API_KEY=xxx  # Clé API Pexels (optionnel)
-VITE_PIXABAY_API_KEY=xxx  # Clé API Pixabay (optionnel)
-VITE_FREESOUND_CLIENT_ID=xxx  # Client ID Freesound
-VITE_FREESOUND_CLIENT_SECRET=xxx  # Client Secret Freesound
-
-# Configuration dans Vercel Dashboard :
-# 1. Allez dans Settings > Environment Variables
-# 2. Ajoutez chaque variable avec le préfixe VITE_
-# 3. Sélectionnez les environnements (Production, Preview, Development)
-# 4. IMPORTANT : Cliquez sur "Redeploy" pour appliquer les changements
 ```
+
+Variables d’environnement : **uniquement** via le dashboard Vercel (ou CLI secrets), jamais dans le dépôt.
+
+Modèle local : [`frontend/.env.example`](../frontend/.env.example). Liste et règles : [`VERCEL_ENV_VARS.md`](VERCEL_ENV_VARS.md), [`../SECURITY.md`](../SECURITY.md).
+
+Rappels :
+
+- Les `VITE_*` sont injectées au **build time** → **Redeploy** après ajout/modif
+- Placeholders uniquement dans la doc (`YOUR_PROJECT`, `your_supabase_anon_key`, …)
+- Pas de `SUPABASE_SERVICE_ROLE_KEY` ni de secrets OAuth en `VITE_*`
+- Dashboard : Settings → Environment Variables → Production / Preview / Development
 
 **Prix :** Gratuit (Hobby) → $20/mois (Pro) pour plus de bande passante
 
@@ -83,7 +75,7 @@ netlify deploy --prod
 ```
 ┌─────────────────────────────────────┐
 │    Utilisateur (Navigateur)         │
-│    https://webamp.vercel.app        │
+│    https://app.webamp.studio        │
 └───────────┬──────────────────────────┘
             │
             ├─────────────────┐
@@ -131,10 +123,11 @@ EOF
 
 ### 2. Variables d'environnement
 
-Dans le dashboard Vercel :
+Dans le dashboard Vercel (valeurs réelles **hors Git**) :
 - `VITE_SUPABASE_URL` : URL de votre projet Supabase
-- `VITE_SUPABASE_ANON_KEY` : Clé anonyme Supabase
-- `VITE_WEBSOCKET_URL=ws://localhost:8765` : ⚠️ **Reste en localhost** car le Native Helper tourne sur la machine locale de l'utilisateur (architecture hybride : frontend cloud + audio local)
+- `VITE_SUPABASE_ANON_KEY` : clé **anon** (publique + RLS)
+- `VITE_WEBSOCKET_URL` : en prod utilisateur, le helper reste en local → souvent `ws://localhost:8765`
+- Optionnel : `VITE_ADMIN_UUID`, APIs tierces — voir [`VERCEL_ENV_VARS.md`](VERCEL_ENV_VARS.md)
 
 ### 3. Déploiement
 
