@@ -36,7 +36,7 @@ Ce guide vous aidera à installer, compiler et lancer WebAmp pour la première f
 ### 1. Cloner le repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/Probe311/WebAmp.git
 cd WebAmp
 ```
 
@@ -45,7 +45,11 @@ cd WebAmp
 ```bash
 cd frontend
 npm install
+cp .env.example .env.local
 ```
+
+Éditez `.env.local` avec **vos** valeurs Supabase (et APIs optionnelles).  
+Ne committez jamais ce fichier. Modèle : [`../frontend/.env.example`](../frontend/.env.example) · [SECURITY.md](../SECURITY.md).
 
 ### 3. Build le Native Helper
 
@@ -112,15 +116,18 @@ Le frontend sera accessible sur **http://localhost:10000**
 
 ## ⚙️ Configuration
 
-### URL WebSocket
+### Variables d’environnement
 
-Par défaut, le frontend se connecte à `ws://localhost:8765`.
-
-Pour changer l'URL, créez un fichier `.env.local` dans `frontend/` :
+Fichier `frontend/.env.local` (gitignored) :
 
 ```env
-VITE_WEBSOCKET_URL=ws://votre-serveur:8765
+VITE_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+VITE_WEBSOCKET_URL=ws://localhost:8765
+# VITE_ADMIN_UUID=your-auth-user-uuid
 ```
+
+Toute variable `VITE_*` est visible dans le bundle JS. Secrets serveur → Supabase / Vercel, pas ici.
 
 ### Driver Audio
 

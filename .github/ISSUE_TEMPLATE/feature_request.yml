@@ -1,0 +1,32 @@
+name: Feature request
+description: Proposition d’amélioration
+title: "[feat] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problème / besoin
+      description: Quel besoin cette feature couvre-t-elle ?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposition
+      description: Description concise de la solution envisagée
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Périmètre
+      description: Ce qui est in / out. Attendez un retour mainteneur avant un gros chantier.
+  - type: checkboxes
+    id: contributing
+    attributes:
+      label: Contribution
+      options:
+        - label: J’ai lu CONTRIBUTING.md
+          required: true
+        - label: Je suis prêt·e à ouvrir une PR si la feature est validée
