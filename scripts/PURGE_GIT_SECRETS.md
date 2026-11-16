@@ -1,4 +1,4 @@
-﻿# Purge secrets from git history (after rotating Supabase keys)
+# Purge secrets from git history (after rotating Supabase keys)
 
 1. Install: `pip install git-filter-repo`
 2. Create a **LOCAL** file outside the repo, e.g. `%TEMP%\webamp-replacements.txt` with lines:

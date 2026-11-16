@@ -11,6 +11,17 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  encoding:
+    name: Encoding guard (no BOM)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      # Aucune dépendance à installer : le script lit l'index git et 3 octets par fichier.
+      - run: node frontend/scripts/check-bom.mjs
+
   frontend:
     name: Frontend lint & test
     runs-on: ubuntu-latest
