@@ -1,0 +1,11 @@
+# Encoding guard: no BOM anywhere in the repo.
+# A leading UTF-8 BOM breaks JSON.parse (Vite jsonLoader, tsconfig, package.json).
+root = true
+
+[*]
+charset = utf-8
+
+[*.{js,cjs,mjs,ts,tsx,jsx,json,jsonc,yml,yaml,css,scss,html}]
+charset = utf-8
+indent_style = space
+indent_size = 2
