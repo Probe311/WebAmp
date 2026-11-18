@@ -95,11 +95,13 @@ export function TcGmajor2Pedal({
   return (
     <PedalFrame
       model={model}
+      size="M"
       layout="gmajor2"
       bypassed={bypassed}
       onBypassToggle={onBypassToggle}
       showFootswitch={false}
       bottomActions={bottomActions}
+      className="shell-1-5x"
     >
       {controls}
     </PedalFrame>

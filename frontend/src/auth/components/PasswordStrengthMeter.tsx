@@ -10,63 +10,45 @@ export function PasswordStrengthMeter({ password, className, showRecommendations
   const strength = evaluatePasswordStrength(password)
   const width = password ? Math.max(8, strength.score) : 0
 
-  const getBarColor = () => {
-    if (strength.score > 90) return 'rgba(34, 197, 94, 0.8)'
-    if (strength.score >= 80) return 'rgba(234, 179, 8, 0.8)'
-    if (strength.score >= 70) return 'rgba(249, 115, 22, 0.8)'
-    return 'rgba(239, 68, 68, 0.8)'
-  }
-
-  const getTextColor = () => {
-    if (strength.score > 90) return 'rgba(34, 197, 94, 0.9)'
-    if (strength.score >= 80) return 'rgba(234, 179, 8, 0.9)'
-    if (strength.score >= 70) return 'rgba(249, 115, 22, 0.9)'
-    return 'rgba(239, 68, 68, 0.9)'
-  }
+  /* Sémantique de force : danger → accent → avertissement → succès. */
+  const color =
+    strength.score > 90
+      ? 'var(--td-success)'
+      : strength.score >= 80
+        ? 'var(--td-warning)'
+        : strength.score >= 70
+          ? 'var(--neu-accent)'
+          : 'var(--td-danger)'
 
   return (
     <div className={className}>
-      <div className="flex items-center justify-between mb-2">
-        <span 
-          className="text-xs font-semibold uppercase tracking-wider text-black/70 dark:text-white/70"
-          style={{ letterSpacing: '0.5px' }}
-        >
+      <div className="mb-2 flex items-center justify-between">
+        <span className="text-xs font-semibold uppercase tracking-[0.5px] text-[color:var(--neu-text-muted)]">
           Force du mot de passe
         </span>
-        <span 
-          className="text-xs font-bold uppercase"
-          style={{ color: getTextColor() }}
-        >
+        <span className="text-xs font-bold uppercase" style={{ color }}>
           {strength.label}
         </span>
       </div>
-      <div 
-        className="h-2 w-full rounded-full overflow-hidden bg-[#EBECF0] dark:bg-gray-600"
-        style={{
-          boxShadow: document.documentElement.classList.contains('dark')
-            ? 'inset 2px 2px 4px rgba(0, 0, 0, 0.5), inset -2px -2px 4px rgba(60, 60, 60, 0.5)'
-            : 'inset 2px 2px 4px rgba(0, 0, 0, 0.05), inset -2px -2px 4px rgba(255, 255, 255, 0.8)'
-        }}
+      <div
+        className="neu-inset h-2 w-full overflow-hidden rounded-full bg-[color:var(--neu-bg-track)]"
+        role="progressbar"
+        aria-valuenow={strength.score}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label="Force du mot de passe"
       >
         <div
-          className="h-full transition-all duration-300 ease-out rounded-full"
-          style={{ 
-            width: `${width}%`,
-            backgroundColor: getBarColor(),
-            boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
-          }}
+          className="h-full rounded-full transition-all duration-300 ease-out"
+          style={{ width: `${width}%`, backgroundColor: color }}
         />
       </div>
       {showRecommendations && strength.recommendations.length > 0 && (
-        <ul className="mt-3 text-xs space-y-1.5">
+        <ul className="mt-3 space-y-1.5 text-xs">
           {strength.recommendations.map((tip) => (
             <li key={tip} className="flex items-center gap-2">
-              <span 
-                className="inline-block h-1.5 w-1.5 rounded-full flex-shrink-0 bg-black/40 dark:bg-white/40"
-              />
-              <span className="text-black/60 dark:text-white/60">
-                {tip}
-              </span>
+              <span className="inline-block h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[color:var(--neu-text-faint)]" />
+              <span className="text-[color:var(--neu-text-muted)]">{tip}</span>
             </li>
           ))}
         </ul>
@@ -74,4 +56,3 @@ export function PasswordStrengthMeter({ password, className, showRecommendations
     </div>
   )
 }
-

@@ -59,7 +59,7 @@ export const TablatureCanvas: React.FC<TablatureCanvasProps> = ({
     <Block className="flex-1 p-0 overflow-visible">
       <div 
         ref={scrollContainerRef}
-        className="h-full overflow-y-auto overflow-x-visible custom-scrollbar scroll-smooth bg-white dark:bg-gray-800"
+        className="h-full overflow-y-auto overflow-x-visible custom-scrollbar scroll-smooth neu-flat"
         style={{ maxHeight: '60vh', overflowX: 'visible' }}
       >
         <div className="w-full py-10 min-h-full" style={{ overflowX: 'hidden' }}>
@@ -67,8 +67,8 @@ export const TablatureCanvas: React.FC<TablatureCanvasProps> = ({
           
             <div className="flex items-center justify-end mb-8">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400">Tuning:</span>
-                <span className="font-mono text-sm bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded text-black dark:text-white">
+                <span className="text-xs font-bold uppercase tracking-wider text-[color:var(--neu-text-muted)]">Tuning:</span>
+                <span className="font-mono text-sm bg-[color:var(--neu-bg-track)] px-2 py-0.5 rounded text-[color:var(--neu-text)]">
                   {currentTrack.tuning}
                 </span>
               </div>
@@ -98,7 +98,7 @@ export const TablatureCanvas: React.FC<TablatureCanvasProps> = ({
             })}
             </div>
             
-            <div className="h-48 flex items-center justify-center text-gray-400 dark:text-gray-600 font-medium tracking-widest text-sm uppercase">
+            <div className="h-48 flex items-center justify-center text-[color:var(--neu-text-faint)] font-medium tracking-widest text-sm uppercase">
               Fin de la piste
             </div>
           </div>

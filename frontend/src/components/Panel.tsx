@@ -1,26 +1,45 @@
 import React from 'react'
+import { cx } from './ui/cx'
 
 interface PanelProps {
   children: React.ReactNode
   icon?: React.ReactNode
   title?: string
+  className?: string
+  depth?: 'flat' | 'inset' | 'pressed'
 }
 
-const Panel: React.FC<PanelProps> = ({ children, icon }) => {
+const Panel: React.FC<PanelProps> = ({
+  children,
+  icon,
+  title,
+  className = '',
+  depth = 'flat',
+}) => {
+  const surface =
+    depth === 'inset' ? 'neu-inset' : depth === 'pressed' ? 'neu-pressed' : 'neu-flat'
+
   return (
     <div
-      style={{
-        borderRadius: '1rem', // 16px - correspond à rounded-2xl
-        boxShadow: document.documentElement.classList.contains('dark')
-          ? '8px 8px 16px rgba(0, 0, 0, 0.5), -8px -8px 16px rgba(40, 40, 40, 0.5), inset 0 0 0 1px rgba(60, 60, 60, 0.8)'
-          : '8px 8px 16px rgba(0, 0, 0, 0.1), -8px -8px 16px rgba(255, 255, 255, 0.9), inset 0 0 0 1px rgba(255, 255, 255, 0.8)'
-      }}
+      className={cx(
+        surface,
+        'neu-card rounded-3xl border-white/80 bg-[color:var(--neu-bg)] p-4 text-[color:var(--neu-text)]',
+        className
+      )}
     >
-      {icon && <div className="text-black/50 dark:text-white/50 mb-2">{icon}</div>}
+      {(icon || title) && (
+        <div className="mb-2 flex items-center gap-2">
+          {icon && <div className="text-[color:var(--neu-text-muted)]">{icon}</div>}
+          {title && (
+            <h3 className="text-xs font-bold uppercase tracking-wider text-[color:var(--neu-text)]">
+              {title}
+            </h3>
+          )}
+        </div>
+      )}
       {children}
     </div>
   )
 }
 
 export default Panel
-

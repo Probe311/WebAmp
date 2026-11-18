@@ -24,9 +24,57 @@ import {
   Shuffle
 } from 'lucide-react'
 import { PEDAL_ACCENT_COLORS } from './pedalAccentColors'
+import { pedalsExpansion } from './pedals-expansion'
+import { pedalsWebampUltra } from './pedals-webamp-ultra'
+import { pedalUiFidelity } from './pedal-ui-fidelity'
 
 
 export type ControlType = 'knob' | 'switch-vertical' | 'switch-horizontal' | 'slider' | 'switch-selector'
+
+export type PedalSkin =
+  | 'flat'
+  | 'ultra'
+  | 'eq'
+  | 'digital'
+  | 'art'
+  | 'wah'
+  | 'industrial'
+
+export type PedalKnobStyle = 'round' | 'chicken' | 'fluted' | 'encoder'
+
+/** Disposition des contrôles — identité visuelle par pédale */
+export type PedalUiLayout =
+  | 'auto'
+  | 'single'
+  | 'triangle'
+  | 'row'
+  | 'grid2'
+  | 'sliders'
+  | 'stack'
+
+export interface PedalUiConfig {
+  skin: PedalSkin
+  artSrc?: string
+  knobStyle?: PedalKnobStyle
+  /** Thème art : hellscape | eons | … */
+  artTheme?: string
+  layout?: PedalUiLayout
+  /** Échelle potard relative au boîtier taille 1 : 1 = M, 0.5 = S */
+  knobScale?: 0.5 | 1
+  /** Tailles par param (ex. TS9 Tone S, Drive/Level M) — prioritaire sur knobScale */
+  knobSizes?: Partial<Record<string, 'S' | 'M' | 'L'>>
+  /** Thumb fader EQ : rect (Walrus) | round (compact) */
+  sliderThumb?: 'rect' | 'round'
+  /**
+   * Pied — override chrome marque :
+   * - `glow` : CTA pale/off vs glow on
+   * - `led` : LED left|right + CTA
+   * - `footShape` : round | square | rect
+   */
+  engageStyle?: 'glow' | 'led'
+  ledSide?: 'left' | 'right'
+  footShape?: 'round' | 'square' | 'rect'
+}
 
 export interface PedalModel {
   id: string
@@ -47,6 +95,20 @@ export interface PedalModel {
   color: string // Déprécié : utiliser accentColor à la place
   accentColor: string // Couleur globale de la pédale (OBLIGATOIRE - utiliser PEDAL_ACCENT_COLORS)
   style: 'vintage' | 'modern' | 'boutique'
+  /** Cible musicale (filtre Style). Sinon résolu via `resolvePedalGenre`. */
+  genre?:
+    | 'rock'
+    | 'metal'
+    | 'blues'
+    | 'jazz-clean'
+    | 'high-gain'
+    | 'versatile'
+    | 'reggae'
+    | 'country'
+    | 'ambient'
+    | 'experimental'
+    | 'funk'
+  ui?: PedalUiConfig
 }
 
 export const pedalLibrary: PedalModel[] = [
@@ -87,10 +149,11 @@ export const pedalLibrary: PedalModel[] = [
     model: 'Tube Screamer TS9',
     type: 'distortion',
     description: 'Overdrive/Distortion avec boost des médiums',
+    // Ordre face TS9 : Drive | Level en haut, Tone en bas (2+1)
     parameters: {
       drive: { min: 0, max: 100, default: 50, label: 'Drive' },
-      tone: { min: 0, max: 100, default: 50, label: 'Tone' },
-      level: { min: 0, max: 100, default: 50, label: 'Level' }
+      level: { min: 0, max: 100, default: 50, label: 'Level' },
+      tone: { min: 0, max: 100, default: 50, label: 'Tone' }
     },
     color: '#00ff00',
     accentColor: PEDAL_ACCENT_COLORS.GREEN_DARK,
@@ -182,8 +245,8 @@ export const pedalLibrary: PedalModel[] = [
     description: 'Overdrive compact',
     parameters: {
       drive: { min: 0, max: 100, default: 50, label: 'Drive' },
-      tone: { min: 0, max: 100, default: 50, label: 'Tone' },
-      level: { min: 0, max: 100, default: 50, label: 'Level' }
+      level: { min: 0, max: 100, default: 50, label: 'Level' },
+      tone: { min: 0, max: 100, default: 50, label: 'Tone' }
     },
     color: '#00ff00',
     accentColor: PEDAL_ACCENT_COLORS.GREEN_DARK,
@@ -202,7 +265,7 @@ export const pedalLibrary: PedalModel[] = [
       mode: { min: 0, max: 2, default: 1, label: 'Mode', controlType: 'switch-selector', labels: ['SMOOTH', 'CRUNCH', 'BRIGHT'], icons: [CircleDot, Square, Sun] }
     },
     color: '#1a1a1a',
-    accentColor: PEDAL_ACCENT_COLORS.PINK_WALRUS,
+    accentColor: PEDAL_ACCENT_COLORS.WALRUS_RED,
     style: 'modern'
   },
   // FUZZ (4+ pédales)
@@ -712,9 +775,9 @@ export const pedalLibrary: PedalModel[] = [
     description: 'EQ paramétrique programmable',
     parameters: {
       low: { min: -18, max: 18, default: 0, label: 'Low', controlType: 'slider', orientation: 'vertical' },
-      lowMid: { min: -18, max: 18, default: 0, label: 'Low Mid', controlType: 'slider', orientation: 'vertical' },
+      lowMid: { min: -18, max: 18, default: 0, label: 'L.Mid', controlType: 'slider', orientation: 'vertical' },
       mid: { min: -18, max: 18, default: 0, label: 'Mid', controlType: 'slider', orientation: 'vertical' },
-      highMid: { min: -18, max: 18, default: 0, label: 'High Mid', controlType: 'slider', orientation: 'vertical' },
+      highMid: { min: -18, max: 18, default: 0, label: 'H.Mid', controlType: 'slider', orientation: 'vertical' },
       high: { min: -18, max: 18, default: 0, label: 'High', controlType: 'slider', orientation: 'vertical' },
       level: { min: 0, max: 100, default: 50, label: 'Level', controlType: 'slider', orientation: 'vertical' }
     },
@@ -1122,6 +1185,22 @@ export const pedalLibrary: PedalModel[] = [
     accentColor: PEDAL_ACCENT_COLORS.PURPLE_PALE,
     style: 'boutique'
   },
+  {
+    id: 'walrus-audio-lofi',
+    brand: 'Walrus Audio',
+    model: 'Fundamental Lo-Fi Delay',
+    type: 'delay',
+    description: 'Delay à mémoire lo-fi : trois algorithmes AM, MURK et ECHO pour un écho granuleux, sombre ou dégradé, avec maintien du footswitch pour le tap tempo.',
+    parameters: {
+      time: { min: 0, max: 100, default: 50, label: 'Time', controlType: 'slider', orientation: 'horizontal' },
+      feedback: { min: 0, max: 100, default: 50, label: 'Feedback', controlType: 'slider', orientation: 'horizontal' },
+      mix: { min: 0, max: 100, default: 50, label: 'Mix', controlType: 'slider', orientation: 'horizontal' },
+      mode: { min: 0, max: 2, default: 1, label: 'Mode', controlType: 'switch-selector', labels: ['AM', 'MURK', 'ECHO'], icons: [Radio, RadioReceiver, RotateCcw] }
+    },
+    color: '#1a1a1a',
+    accentColor: PEDAL_ACCENT_COLORS.GREEN_WALRUS,
+    style: 'modern'
+  },
   // TAPE DELAY
   {
     id: 'strymon-el-capistan',
@@ -1437,5 +1516,36 @@ export const pedalLibrary: PedalModel[] = [
     accentColor: PEDAL_ACCENT_COLORS.RED_BRIGHT,
     style: 'modern'
   },
+  ...pedalsExpansion,
+  ...pedalsWebampUltra,
 ]
+
+// Fidélité hardware : overlay ui (ui déjà défini sur le modèle gagne)
+for (const p of pedalLibrary) {
+  const fidelity = pedalUiFidelity[p.id]
+  if (!fidelity) continue
+  p.ui = { ...fidelity, ...p.ui }
+}
+
+/**
+ * Marques dont les fiches sont validées (droits image obtenus + habillage
+ * constructeur fidèle). Les autres modèles restent dans le code — presets,
+ * profils, pedalboards existants — mais ne sont ni listés ni disponibles.
+ */
+export const VALIDATED_PEDAL_BRANDS: readonly string[] = ['Walrus Audio', 'Webamp Classic']
+
+/** Modèles retirés de l'offre (conservés pour les presets et les pedalboards). */
+export const DISABLED_PEDAL_IDS: readonly string[] = [
+  'walrus-julianna', // CHORUS CH-12
+  'walrus-slo', // REVERB RV-10
+  'webamp-vp1', // Vintage Phaser VP-1
+  'webamp-wahcko', // Wah treadle Wahcko
+]
+
+export function isPedalAvailable(pedal: PedalModel): boolean {
+  return VALIDATED_PEDAL_BRANDS.includes(pedal.brand) && !DISABLED_PEDAL_IDS.includes(pedal.id)
+}
+
+/** Catalogue ouvert à l'utilisateur (sélecteur, boutique, démos). */
+export const availablePedals: PedalModel[] = pedalLibrary.filter(isPedalAvailable)
 

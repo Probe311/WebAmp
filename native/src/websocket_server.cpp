@@ -5,6 +5,7 @@
 #include <vector>
 #include <sstream>
 #include <algorithm>
+#include <chrono>
 #include <cstring>
 
 #ifdef _WIN32
@@ -315,8 +316,8 @@ public:
             return false;
         }
         
-        // Lire les 2 premiers octets pour connaître la taille
-        uint8_t header[2];
+        // Lire l'entête pour connaître la taille réelle (longueur étendue incluse)
+        uint8_t header[14];
         int received = recv(client_socket_, (char*)header, 2, MSG_PEEK);
         if (received < 2) {
             if (received == 0) {
@@ -330,26 +331,63 @@ public:
             return false;
         }
         
-        // Calculer la taille totale de la frame
         bool masked = (header[1] & 0x80) != 0;
         uint64_t payloadLen = header[1] & 0x7F;
-        size_t frameLen = 2;
+        size_t headerLen = 2;
         
         if (payloadLen == 126) {
-            frameLen = 4;
+            headerLen = 4;
         } else if (payloadLen == 127) {
-            frameLen = 10;
+            headerLen = 10;
         }
-        if (masked) {
-            frameLen += 4;
-        }
-        frameLen += payloadLen;
         
-        // Lire la frame complète
-        std::vector<uint8_t> frame(frameLen);
-        received = recv(client_socket_, (char*)frame.data(), static_cast<int>(frameLen), 0);
-        if (received != static_cast<int>(frameLen)) {
+        // Attendre l'entête complète (masque compris) avant de calculer la frame
+        size_t headLen = headerLen + (masked ? 4 : 0);
+        received = recv(client_socket_, (char*)header, static_cast<int>(headLen), MSG_PEEK);
+        if (received < static_cast<int>(headLen)) {
             return false;
+        }
+        
+        if (payloadLen == 126) {
+            payloadLen = (static_cast<uint64_t>(header[2]) << 8) | header[3];
+        } else if (payloadLen == 127) {
+            payloadLen = 0;
+            for (int i = 0; i < 8; ++i) {
+                payloadLen = (payloadLen << 8) | header[2 + i];
+            }
+        }
+        
+        // Modèle NAM en base64 : plusieurs Mo attendus, mais pas de frame déraisonnable
+        constexpr uint64_t MAX_PAYLOAD = 64ull * 1024ull * 1024ull;
+        if (payloadLen > MAX_PAYLOAD) {
+            return false;
+        }
+        
+        size_t frameLen = headLen + static_cast<size_t>(payloadLen);
+        std::vector<uint8_t> frame(frameLen);
+        size_t total = 0;
+        // Un .nam de plusieurs Mo arrive en plusieurs segments : attente bornée
+        const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(30);
+        while (total < frameLen) {
+            fd_set frameSet;
+            FD_ZERO(&frameSet);
+            FD_SET(client_socket_, &frameSet);
+            timeval wait{};
+            wait.tv_sec = 1;
+            if (select(static_cast<int>(client_socket_) + 1, &frameSet, nullptr, nullptr, &wait) <= 0) {
+                if (std::chrono::steady_clock::now() > deadline) {
+                    std::cerr << "WebSocket: frame incomplete, abandon\n";
+                    return false;
+                }
+                continue;
+            }
+
+            int chunk = recv(client_socket_, (char*)frame.data() + total,
+                             static_cast<int>(frameLen - total), 0);
+            if (chunk <= 0) {
+                return false;
+            }
+            total += static_cast<size_t>(chunk);
         }
         
         message = decodeWebSocketFrame(frame);

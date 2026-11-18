@@ -11,6 +11,7 @@ import { SupabasePedal, SupabaseAmplifier } from '../../services/supabase/catalo
 import { getBrandLogos } from '../../utils/brandLogos'
 import { generateLogoFilename, isValidSVG, svgToDataURI } from '../../utils/brandLogoUtils'
 import { createLogger } from '../../services/logger'
+import { sanitizeSvg } from '../../utils/sanitizeHtml'
 
 const logger = createLogger('CreateModals')
 
@@ -190,37 +191,37 @@ export function CreateBrandModal({
     <Modal isOpen={isOpen} onClose={onClose} title={isEditing ? "Modifier une marque" : "Créer une marque"} widthClassName="max-w-2xl">
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Nom <span className="text-red-500">*</span>
+          <label className="block text-sm font-medium text-[color:var(--neu-text-muted)] mb-2">
+            Nom <span className="text-[var(--td-danger)]">*</span>
           </label>
           <input
             type="text"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-[color:var(--neu-edge)] rounded-[var(--td-radius-control)] neu-inset text-[color:var(--neu-text)] focus:ring-2 focus:ring-[color:var(--neu-accent)]/40 focus:border-transparent"
             placeholder="Ex: Fender"
             disabled={isEditing}
           />
           {isEditing && (
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Le nom ne peut pas être modifié</p>
+            <p className="text-xs text-[color:var(--neu-text-muted)] mt-1">Le nom ne peut pas être modifié</p>
           )}
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description</label>
+          <label className="block text-sm font-medium text-[color:var(--neu-text-muted)] mb-2">Description</label>
           <textarea
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-[color:var(--neu-edge)] rounded-[var(--td-radius-control)] neu-inset text-[color:var(--neu-text)] focus:ring-2 focus:ring-[color:var(--neu-accent)]/40 focus:border-transparent"
             rows={3}
             placeholder="Description de la marque"
           />
         </div>
         <div className="grid grid-cols-1 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-[color:var(--neu-text-muted)] mb-2">
               Logo SVG (normal)
               {formData.name && (
-                <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">
+                <span className="text-xs text-[color:var(--neu-text-muted)] ml-2">
                   (sera sauvegardé dans: {generateLogoFilename(formData.name)})
                 </span>
               )}
@@ -228,31 +229,31 @@ export function CreateBrandModal({
             <textarea
               value={formData.logo_svg}
               onChange={(e) => setFormData({ ...formData, logo_svg: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent font-mono text-xs"
+              className="w-full px-4 py-2 border border-[color:var(--neu-edge)] rounded-[var(--td-radius-control)] neu-inset text-[color:var(--neu-text)] focus:ring-2 focus:ring-[color:var(--neu-accent)]/40 focus:border-transparent font-mono text-xs"
               rows={8}
               placeholder="<svg>...</svg>"
             />
             {formData.logo_svg.trim() && isValidSVG(formData.logo_svg) && (
-              <div className="mt-2 p-2 bg-gray-50 dark:bg-gray-800 rounded border">
-                <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Aperçu:</p>
+              <div className="mt-2 p-2 bg-[color:var(--neu-bg-track)] rounded border">
+                <p className="text-xs text-[color:var(--neu-text-muted)] mb-1">Aperçu:</p>
                 <div 
-                  className="h-12 flex items-center justify-center bg-white dark:bg-gray-900 rounded"
-                  dangerouslySetInnerHTML={{ __html: formData.logo_svg.trim() }}
+                  className="h-12 flex items-center justify-center bg-[color:var(--neu-bg)] rounded"
+                  dangerouslySetInnerHTML={{ __html: sanitizeSvg(formData.logo_svg.trim()) }}
                 />
               </div>
             )}
             {formData.logo_svg.trim() && !isValidSVG(formData.logo_svg) && (
-              <p className="text-xs text-red-500 mt-1">Le contenu ne semble pas être un SVG valide</p>
+              <p className="text-xs text-[var(--td-danger)] mt-1">Le contenu ne semble pas être un SVG valide</p>
             )}
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-[color:var(--neu-text-muted)] mb-2">
               Logo SVG (petit)
               {formData.name && (() => {
                 const localLogos = getBrandLogos(formData.name)
                 if (localLogos.small) {
                   return (
-                    <span className="ml-2 text-xs text-green-600 dark:text-green-400">
+                    <span className="ml-2 text-xs text-[var(--td-success)] ">
                       (Logo local disponible)
                     </span>
                   )
@@ -260,7 +261,7 @@ export function CreateBrandModal({
                 return null
               })()}
               {formData.name && (
-                <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">
+                <span className="text-xs text-[color:var(--neu-text-muted)] ml-2">
                   (sera sauvegardé dans: {generateLogoFilename(formData.name, 'small')})
                 </span>
               )}
@@ -268,39 +269,39 @@ export function CreateBrandModal({
             <textarea
               value={formData.logo_svg_small}
               onChange={(e) => setFormData({ ...formData, logo_svg_small: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent font-mono text-xs"
+              className="w-full px-4 py-2 border border-[color:var(--neu-edge)] rounded-[var(--td-radius-control)] neu-inset text-[color:var(--neu-text)] focus:ring-2 focus:ring-[color:var(--neu-accent)]/40 focus:border-transparent font-mono text-xs"
               rows={8}
               placeholder="<svg>...</svg>"
             />
             {formData.logo_svg_small.trim() && isValidSVG(formData.logo_svg_small) && (
-              <div className="mt-2 p-2 bg-gray-50 dark:bg-gray-800 rounded border">
-                <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Aperçu:</p>
+              <div className="mt-2 p-2 bg-[color:var(--neu-bg-track)] rounded border">
+                <p className="text-xs text-[color:var(--neu-text-muted)] mb-1">Aperçu:</p>
                 <div 
-                  className="h-8 flex items-center justify-center bg-white dark:bg-gray-900 rounded"
-                  dangerouslySetInnerHTML={{ __html: formData.logo_svg_small.trim() }}
+                  className="h-8 flex items-center justify-center bg-[color:var(--neu-bg)] rounded"
+                  dangerouslySetInnerHTML={{ __html: sanitizeSvg(formData.logo_svg_small.trim()) }}
                 />
               </div>
             )}
             {formData.logo_svg_small.trim() && !isValidSVG(formData.logo_svg_small) && (
-              <p className="text-xs text-red-500 mt-1">Le contenu ne semble pas être un SVG valide</p>
+              <p className="text-xs text-[var(--td-danger)] mt-1">Le contenu ne semble pas être un SVG valide</p>
             )}
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Site web</label>
+          <label className="block text-sm font-medium text-[color:var(--neu-text-muted)] mb-2">Site web</label>
           <input
             type="url"
             value={formData.website}
             onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-[color:var(--neu-edge)] rounded-[var(--td-radius-control)] neu-inset text-[color:var(--neu-text)] focus:ring-2 focus:ring-[color:var(--neu-accent)]/40 focus:border-transparent"
             placeholder="https://example.com"
           />
         </div>
         <div className="flex justify-end gap-3 pt-4">
-          <button onClick={onClose} className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg" disabled={loading}>
+          <button onClick={onClose} className="px-4 py-2 text-[color:var(--neu-text-muted)] hover:bg-[color:var(--neu-bg-hollow)] rounded-[var(--td-radius-control)]" disabled={loading}>
             Annuler
           </button>
-          <button onClick={handleSubmit} disabled={loading || !formData.name.trim()} className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 min-w-[100px] justify-center">
+          <button onClick={handleSubmit} disabled={loading || !formData.name.trim()} className="px-4 py-2 bg-[var(--td-danger)] text-white rounded-[var(--td-radius-control)] hover:bg-[var(--td-danger)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 min-w-[100px] justify-center">
             {loading ? (
               <>
                 <Loader size="sm" variant="light" showText={false} className="!flex" />
@@ -383,7 +384,7 @@ export function CreateFeatureFlagModal({ isOpen, onClose, onSuccess }: { isOpen:
       <div className="space-y-4">
         {/* Sélecteur de pages prédéfinies */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-[color:var(--neu-text-muted)] mb-2">
             Pages prédéfinies (optionnel)
           </label>
           <div className="grid grid-cols-2 gap-2">
@@ -392,18 +393,18 @@ export function CreateFeatureFlagModal({ isOpen, onClose, onSuccess }: { isOpen:
                 key={page.key}
                 type="button"
                 onClick={() => handlePageSelect(page)}
-                className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors text-left"
+                className="px-3 py-2 text-sm border border-[color:var(--neu-edge)] rounded-[var(--td-radius-control)] neu-inset text-[color:var(--neu-text)] hover:bg-[color:var(--neu-bg-hollow)] transition-colors text-left"
               >
                 <div className="font-medium">{page.name}</div>
-                <div className="text-xs text-gray-500 dark:text-gray-400 font-mono">{page.key}</div>
+                <div className="text-xs text-[color:var(--neu-text-muted)] font-mono">{page.key}</div>
               </button>
             ))}
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Clé <span className="text-red-500">*</span>
+          <label className="block text-sm font-medium text-[color:var(--neu-text-muted)] mb-2">
+            Clé <span className="text-[var(--td-danger)]">*</span>
           </label>
           <input
             type="text"
@@ -412,39 +413,39 @@ export function CreateFeatureFlagModal({ isOpen, onClose, onSuccess }: { isOpen:
               setFormData({ ...formData, key: e.target.value.toLowerCase().replace(/\s+/g, '_') })
               setIsPageFlag(e.target.value.startsWith('page_'))
             }}
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent font-mono"
+            className="w-full px-4 py-2 border border-[color:var(--neu-edge)] rounded-[var(--td-radius-control)] neu-inset text-[color:var(--neu-text)] focus:ring-2 focus:ring-[color:var(--neu-accent)]/40 focus:border-transparent font-mono"
             placeholder="ex: new_feature ou page_looper"
           />
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Format: snake_case (ex: new_feature). Pour les pages, utilisez le préfixe "page_"</p>
+          <p className="text-xs text-[color:var(--neu-text-muted)] mt-1">Format: snake_case (ex: new_feature). Pour les pages, utilisez le préfixe "page_"</p>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Nom <span className="text-red-500">*</span>
+          <label className="block text-sm font-medium text-[color:var(--neu-text-muted)] mb-2">
+            Nom <span className="text-[var(--td-danger)]">*</span>
           </label>
           <input
             type="text"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-[color:var(--neu-edge)] rounded-[var(--td-radius-control)] neu-inset text-[color:var(--neu-text)] focus:ring-2 focus:ring-[color:var(--neu-accent)]/40 focus:border-transparent"
             placeholder="Ex: Nouvelle fonctionnalité"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description</label>
+          <label className="block text-sm font-medium text-[color:var(--neu-text-muted)] mb-2">Description</label>
           <textarea
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-[color:var(--neu-edge)] rounded-[var(--td-radius-control)] neu-inset text-[color:var(--neu-text)] focus:ring-2 focus:ring-[color:var(--neu-accent)]/40 focus:border-transparent"
             rows={3}
             placeholder="Description du feature flag"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Valeur (JSON optionnel)</label>
+          <label className="block text-sm font-medium text-[color:var(--neu-text-muted)] mb-2">Valeur (JSON optionnel)</label>
           <textarea
             value={formData.value}
             onChange={(e) => setFormData({ ...formData, value: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent font-mono text-sm"
+            className="w-full px-4 py-2 border border-[color:var(--neu-edge)] rounded-[var(--td-radius-control)] neu-inset text-[color:var(--neu-text)] focus:ring-2 focus:ring-[color:var(--neu-accent)]/40 focus:border-transparent font-mono text-sm"
             rows={3}
             placeholder='{"config": "value"} ou texte simple'
           />
@@ -455,17 +456,17 @@ export function CreateFeatureFlagModal({ isOpen, onClose, onSuccess }: { isOpen:
             id="enabled"
             checked={formData.enabled}
             onChange={(e) => setFormData({ ...formData, enabled: e.target.checked })}
-            className="w-4 h-4 text-red-500 border-gray-300 rounded focus:ring-red-500"
+            className="w-4 h-4 text-[var(--td-danger)] border-[color:var(--neu-edge)] rounded focus:ring-[color:var(--neu-accent)]/40"
           />
-          <label htmlFor="enabled" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+          <label htmlFor="enabled" className="text-sm font-medium text-[color:var(--neu-text-muted)]">
             Activé par défaut
           </label>
         </div>
         <div className="flex justify-end gap-3 pt-4">
-          <button onClick={onClose} className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg" disabled={loading}>
+          <button onClick={onClose} className="px-4 py-2 text-[color:var(--neu-text-muted)] hover:bg-[color:var(--neu-bg-hollow)] rounded-[var(--td-radius-control)]" disabled={loading}>
             Annuler
           </button>
-          <button onClick={handleSubmit} disabled={loading || !formData.key.trim() || !formData.name.trim()} className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 min-w-[100px] justify-center">
+          <button onClick={handleSubmit} disabled={loading || !formData.key.trim() || !formData.name.trim()} className="px-4 py-2 bg-[var(--td-danger)] text-white rounded-[var(--td-radius-control)] hover:bg-[var(--td-danger)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 min-w-[100px] justify-center">
             {loading ? (
               <>
                 <Loader size="sm" variant="light" showText={false} className="!flex" />
@@ -621,47 +622,47 @@ export function CreateCourseModal({
       <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Titre <span className="text-red-500">*</span>
+            <label className="block text-sm font-medium text-[color:var(--neu-text-muted)] mb-2">
+              Titre <span className="text-[var(--td-danger)]">*</span>
             </label>
             <input
               type="text"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-[color:var(--neu-edge)] rounded-[var(--td-radius-control)] neu-inset text-[color:var(--neu-text)] focus:ring-2 focus:ring-[color:var(--neu-accent)]/40 focus:border-transparent"
               placeholder="Titre du cours"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Catégorie <span className="text-red-500">*</span>
+            <label className="block text-sm font-medium text-[color:var(--neu-text-muted)] mb-2">
+              Catégorie <span className="text-[var(--td-danger)]">*</span>
             </label>
             <input
               type="text"
               value={formData.category}
               onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-[color:var(--neu-edge)] rounded-[var(--td-radius-control)] neu-inset text-[color:var(--neu-text)] focus:ring-2 focus:ring-[color:var(--neu-accent)]/40 focus:border-transparent"
               placeholder="Ex: Technique"
             />
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description</label>
+          <label className="block text-sm font-medium text-[color:var(--neu-text-muted)] mb-2">Description</label>
           <textarea
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-[color:var(--neu-edge)] rounded-[var(--td-radius-control)] neu-inset text-[color:var(--neu-text)] focus:ring-2 focus:ring-[color:var(--neu-accent)]/40 focus:border-transparent"
             rows={3}
             placeholder="Description du cours"
           />
         </div>
         <div className="grid grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Difficulté</label>
+            <label className="block text-sm font-medium text-[color:var(--neu-text-muted)] mb-2">Difficulté</label>
             <select
               value={formData.difficulty}
               onChange={(e) => setFormData({ ...formData, difficulty: e.target.value as any })}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-[color:var(--neu-edge)] rounded-[var(--td-radius-control)] neu-inset text-[color:var(--neu-text)] focus:ring-2 focus:ring-[color:var(--neu-accent)]/40 focus:border-transparent"
             >
               <option value="beginner">Débutant</option>
               <option value="intermediate">Intermédiaire</option>
@@ -669,11 +670,11 @@ export function CreateCourseModal({
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Type</label>
+            <label className="block text-sm font-medium text-[color:var(--neu-text-muted)] mb-2">Type</label>
             <select
               value={formData.type}
               onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-[color:var(--neu-edge)] rounded-[var(--td-radius-control)] neu-inset text-[color:var(--neu-text)] focus:ring-2 focus:ring-[color:var(--neu-accent)]/40 focus:border-transparent"
             >
               <option value="tutorial">Tutoriel</option>
               <option value="guide">Guide</option>
@@ -682,56 +683,56 @@ export function CreateCourseModal({
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Durée (min)</label>
+            <label className="block text-sm font-medium text-[color:var(--neu-text-muted)] mb-2">Durée (min)</label>
             <input
               type="number"
               value={formData.duration}
               onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-[color:var(--neu-edge)] rounded-[var(--td-radius-control)] neu-inset text-[color:var(--neu-text)] focus:ring-2 focus:ring-[color:var(--neu-accent)]/40 focus:border-transparent"
               placeholder="30"
             />
           </div>
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tags (séparés par des virgules)</label>
+            <label className="block text-sm font-medium text-[color:var(--neu-text-muted)] mb-2">Tags (séparés par des virgules)</label>
             <input
               type="text"
               value={formData.tags}
               onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-[color:var(--neu-edge)] rounded-[var(--td-radius-control)] neu-inset text-[color:var(--neu-text)] focus:ring-2 focus:ring-[color:var(--neu-accent)]/40 focus:border-transparent"
               placeholder="rock, blues, technique"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Ordre</label>
+            <label className="block text-sm font-medium text-[color:var(--neu-text-muted)] mb-2">Ordre</label>
             <input
               type="number"
               value={formData.order_index}
               onChange={(e) => setFormData({ ...formData, order_index: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-[color:var(--neu-edge)] rounded-[var(--td-radius-control)] neu-inset text-[color:var(--neu-text)] focus:ring-2 focus:ring-[color:var(--neu-accent)]/40 focus:border-transparent"
             />
           </div>
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Icône</label>
+            <label className="block text-sm font-medium text-[color:var(--neu-text-muted)] mb-2">Icône</label>
             <input
               type="text"
               value={formData.icon}
               onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-[color:var(--neu-edge)] rounded-[var(--td-radius-control)] neu-inset text-[color:var(--neu-text)] focus:ring-2 focus:ring-[color:var(--neu-accent)]/40 focus:border-transparent"
               placeholder="BookOpen"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Prix (si premium)</label>
+            <label className="block text-sm font-medium text-[color:var(--neu-text-muted)] mb-2">Prix (si premium)</label>
             <input
               type="number"
               step="0.01"
               value={formData.price}
               onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-[color:var(--neu-edge)] rounded-[var(--td-radius-control)] neu-inset text-[color:var(--neu-text)] focus:ring-2 focus:ring-[color:var(--neu-accent)]/40 focus:border-transparent"
               placeholder="9.99"
             />
           </div>
@@ -742,25 +743,25 @@ export function CreateCourseModal({
               type="checkbox"
               checked={formData.is_published}
               onChange={(e) => setFormData({ ...formData, is_published: e.target.checked })}
-              className="w-4 h-4 text-red-500 border-gray-300 rounded focus:ring-red-500"
+              className="w-4 h-4 text-[var(--td-danger)] border-[color:var(--neu-edge)] rounded focus:ring-[color:var(--neu-accent)]/40"
             />
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Publié</span>
+            <span className="text-sm font-medium text-[color:var(--neu-text-muted)]">Publié</span>
           </label>
           <label className="flex items-center gap-2">
             <input
               type="checkbox"
               checked={formData.is_premium}
               onChange={(e) => setFormData({ ...formData, is_premium: e.target.checked })}
-              className="w-4 h-4 text-red-500 border-gray-300 rounded focus:ring-red-500"
+              className="w-4 h-4 text-[var(--td-danger)] border-[color:var(--neu-edge)] rounded focus:ring-[color:var(--neu-accent)]/40"
             />
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Premium</span>
+            <span className="text-sm font-medium text-[color:var(--neu-text-muted)]">Premium</span>
           </label>
         </div>
         <div className="flex justify-end gap-3 pt-4">
-          <button onClick={onClose} className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg" disabled={loading}>
+          <button onClick={onClose} className="px-4 py-2 text-[color:var(--neu-text-muted)] hover:bg-[color:var(--neu-bg-hollow)] rounded-[var(--td-radius-control)]" disabled={loading}>
             Annuler
           </button>
-          <button onClick={handleSubmit} disabled={loading || !formData.title.trim() || !formData.category.trim()} className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 min-w-[100px] justify-center">
+          <button onClick={handleSubmit} disabled={loading || !formData.title.trim() || !formData.category.trim()} className="px-4 py-2 bg-[var(--td-danger)] text-white rounded-[var(--td-radius-control)] hover:bg-[var(--td-danger)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 min-w-[100px] justify-center">
             {loading ? (
               <>
                 <Loader size="sm" variant="light" showText={false} className="!flex" />
@@ -877,13 +878,13 @@ export function CreateLessonModal({ isOpen, onClose, onSuccess, courses, editing
     <Modal isOpen={isOpen} onClose={onClose} title={isEditing ? "Modifier la leçon" : "Créer une leçon"} widthClassName="max-w-3xl">
       <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Cours <span className="text-red-500">*</span>
+          <label className="block text-sm font-medium text-[color:var(--neu-text-muted)] mb-2">
+            Cours <span className="text-[var(--td-danger)]">*</span>
           </label>
           <select
             value={formData.course_id}
             onChange={(e) => setFormData({ ...formData, course_id: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-[color:var(--neu-edge)] rounded-[var(--td-radius-control)] neu-inset text-[color:var(--neu-text)] focus:ring-2 focus:ring-[color:var(--neu-accent)]/40 focus:border-transparent"
           >
             <option value="">Sélectionner un cours</option>
             {courses.map((course) => (
@@ -893,23 +894,23 @@ export function CreateLessonModal({ isOpen, onClose, onSuccess, courses, editing
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Titre <span className="text-red-500">*</span>
+            <label className="block text-sm font-medium text-[color:var(--neu-text-muted)] mb-2">
+              Titre <span className="text-[var(--td-danger)]">*</span>
             </label>
             <input
               type="text"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-[color:var(--neu-edge)] rounded-[var(--td-radius-control)] neu-inset text-[color:var(--neu-text)] focus:ring-2 focus:ring-[color:var(--neu-accent)]/40 focus:border-transparent"
               placeholder="Titre de la leçon"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Type de contenu</label>
+            <label className="block text-sm font-medium text-[color:var(--neu-text-muted)] mb-2">Type de contenu</label>
             <select
               value={formData.content_type}
               onChange={(e) => setFormData({ ...formData, content_type: e.target.value as any })}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-[color:var(--neu-edge)] rounded-[var(--td-radius-control)] neu-inset text-[color:var(--neu-text)] focus:ring-2 focus:ring-[color:var(--neu-accent)]/40 focus:border-transparent"
             >
               <option value="text">Texte</option>
               <option value="video">Vidéo</option>
@@ -918,61 +919,61 @@ export function CreateLessonModal({ isOpen, onClose, onSuccess, courses, editing
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description</label>
+          <label className="block text-sm font-medium text-[color:var(--neu-text-muted)] mb-2">Description</label>
           <textarea
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-[color:var(--neu-edge)] rounded-[var(--td-radius-control)] neu-inset text-[color:var(--neu-text)] focus:ring-2 focus:ring-[color:var(--neu-accent)]/40 focus:border-transparent"
             rows={5}
             placeholder="Description de la leçon (peut contenir des tags spéciaux)"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Ordre</label>
+          <label className="block text-sm font-medium text-[color:var(--neu-text-muted)] mb-2">Ordre</label>
           <input
             type="number"
             value={formData.order_index}
             onChange={(e) => setFormData({ ...formData, order_index: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-[color:var(--neu-edge)] rounded-[var(--td-radius-control)] neu-inset text-[color:var(--neu-text)] focus:ring-2 focus:ring-[color:var(--neu-accent)]/40 focus:border-transparent"
           />
         </div>
         <div className="grid grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Type d'action</label>
+            <label className="block text-sm font-medium text-[color:var(--neu-text-muted)] mb-2">Type d'action</label>
             <input
               type="text"
               value={formData.action_type}
               onChange={(e) => setFormData({ ...formData, action_type: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-[color:var(--neu-edge)] rounded-[var(--td-radius-control)] neu-inset text-[color:var(--neu-text)] focus:ring-2 focus:ring-[color:var(--neu-accent)]/40 focus:border-transparent"
               placeholder="addPedal"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Cible</label>
+            <label className="block text-sm font-medium text-[color:var(--neu-text-muted)] mb-2">Cible</label>
             <input
               type="text"
               value={formData.action_target}
               onChange={(e) => setFormData({ ...formData, action_target: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-[color:var(--neu-edge)] rounded-[var(--td-radius-control)] neu-inset text-[color:var(--neu-text)] focus:ring-2 focus:ring-[color:var(--neu-accent)]/40 focus:border-transparent"
               placeholder="pedal_id"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Valeur (JSON)</label>
+            <label className="block text-sm font-medium text-[color:var(--neu-text-muted)] mb-2">Valeur (JSON)</label>
             <input
               type="text"
               value={formData.action_value}
               onChange={(e) => setFormData({ ...formData, action_value: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent font-mono text-sm"
+              className="w-full px-4 py-2 border border-[color:var(--neu-edge)] rounded-[var(--td-radius-control)] neu-inset text-[color:var(--neu-text)] focus:ring-2 focus:ring-[color:var(--neu-accent)]/40 focus:border-transparent font-mono text-sm"
               placeholder='{"param": "value"}'
             />
           </div>
         </div>
         <div className="flex justify-end gap-3 pt-4">
-          <button onClick={onClose} className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg" disabled={loading}>
+          <button onClick={onClose} className="px-4 py-2 text-[color:var(--neu-text-muted)] hover:bg-[color:var(--neu-bg-hollow)] rounded-[var(--td-radius-control)]" disabled={loading}>
             Annuler
           </button>
-          <button onClick={handleSubmit} disabled={loading || !formData.course_id || !formData.title.trim()} className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 min-w-[100px] justify-center">
+          <button onClick={handleSubmit} disabled={loading || !formData.course_id || !formData.title.trim()} className="px-4 py-2 bg-[var(--td-danger)] text-white rounded-[var(--td-radius-control)] hover:bg-[var(--td-danger)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 min-w-[100px] justify-center">
             {loading ? (
               <>
                 <Loader size="sm" variant="light" showText={false} className="!flex" />
@@ -1054,47 +1055,47 @@ export function CreateDLCPackModal({ isOpen, onClose, onSuccess }: { isOpen: boo
       <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Nom <span className="text-red-500">*</span>
+            <label className="block text-sm font-medium text-[color:var(--neu-text-muted)] mb-2">
+              Nom <span className="text-[var(--td-danger)]">*</span>
             </label>
             <input
               type="text"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-[color:var(--neu-edge)] rounded-[var(--td-radius-control)] neu-inset text-[color:var(--neu-text)] focus:ring-2 focus:ring-[color:var(--neu-accent)]/40 focus:border-transparent"
               placeholder="Nom du pack"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Catégorie <span className="text-red-500">*</span>
+            <label className="block text-sm font-medium text-[color:var(--neu-text-muted)] mb-2">
+              Catégorie <span className="text-[var(--td-danger)]">*</span>
             </label>
             <input
               type="text"
               value={formData.category}
               onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-[color:var(--neu-edge)] rounded-[var(--td-radius-control)] neu-inset text-[color:var(--neu-text)] focus:ring-2 focus:ring-[color:var(--neu-accent)]/40 focus:border-transparent"
               placeholder="Ex: Rock"
             />
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description</label>
+          <label className="block text-sm font-medium text-[color:var(--neu-text-muted)] mb-2">Description</label>
           <textarea
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-[color:var(--neu-edge)] rounded-[var(--td-radius-control)] neu-inset text-[color:var(--neu-text)] focus:ring-2 focus:ring-[color:var(--neu-accent)]/40 focus:border-transparent"
             rows={3}
             placeholder="Description du pack"
           />
         </div>
         <div className="grid grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Type</label>
+            <label className="block text-sm font-medium text-[color:var(--neu-text-muted)] mb-2">Type</label>
             <select
               value={formData.type}
               onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-[color:var(--neu-edge)] rounded-[var(--td-radius-control)] neu-inset text-[color:var(--neu-text)] focus:ring-2 focus:ring-[color:var(--neu-accent)]/40 focus:border-transparent"
             >
               <option value="brand">Marque</option>
               <option value="style">Style</option>
@@ -1104,22 +1105,22 @@ export function CreateDLCPackModal({ isOpen, onClose, onSuccess }: { isOpen: boo
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Prix</label>
+            <label className="block text-sm font-medium text-[color:var(--neu-text-muted)] mb-2">Prix</label>
             <input
               type="number"
               step="0.01"
               value={formData.price}
               onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-[color:var(--neu-edge)] rounded-[var(--td-radius-control)] neu-inset text-[color:var(--neu-text)] focus:ring-2 focus:ring-[color:var(--neu-accent)]/40 focus:border-transparent"
               placeholder="9.99"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Devise</label>
+            <label className="block text-sm font-medium text-[color:var(--neu-text-muted)] mb-2">Devise</label>
             <select
               value={formData.currency}
               onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-[color:var(--neu-edge)] rounded-[var(--td-radius-control)] neu-inset text-[color:var(--neu-text)] focus:ring-2 focus:ring-[color:var(--neu-accent)]/40 focus:border-transparent"
             >
               <option value="EUR">EUR</option>
               <option value="USD">USD</option>
@@ -1128,33 +1129,33 @@ export function CreateDLCPackModal({ isOpen, onClose, onSuccess }: { isOpen: boo
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tags (séparés par des virgules)</label>
+          <label className="block text-sm font-medium text-[color:var(--neu-text-muted)] mb-2">Tags (séparés par des virgules)</label>
           <input
             type="text"
             value={formData.tags}
             onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-[color:var(--neu-edge)] rounded-[var(--td-radius-control)] neu-inset text-[color:var(--neu-text)] focus:ring-2 focus:ring-[color:var(--neu-accent)]/40 focus:border-transparent"
             placeholder="rock, blues, premium"
           />
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">URL Thumbnail</label>
+            <label className="block text-sm font-medium text-[color:var(--neu-text-muted)] mb-2">URL Thumbnail</label>
             <input
               type="url"
               value={formData.thumbnail}
               onChange={(e) => setFormData({ ...formData, thumbnail: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-[color:var(--neu-edge)] rounded-[var(--td-radius-control)] neu-inset text-[color:var(--neu-text)] focus:ring-2 focus:ring-[color:var(--neu-accent)]/40 focus:border-transparent"
               placeholder="https://example.com/thumb.jpg"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">URL Image</label>
+            <label className="block text-sm font-medium text-[color:var(--neu-text-muted)] mb-2">URL Image</label>
             <input
               type="url"
               value={formData.image_url}
               onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-[color:var(--neu-edge)] rounded-[var(--td-radius-control)] neu-inset text-[color:var(--neu-text)] focus:ring-2 focus:ring-[color:var(--neu-accent)]/40 focus:border-transparent"
               placeholder="https://example.com/image.jpg"
             />
           </div>
@@ -1164,15 +1165,15 @@ export function CreateDLCPackModal({ isOpen, onClose, onSuccess }: { isOpen: boo
             type="checkbox"
             checked={formData.is_premium}
             onChange={(e) => setFormData({ ...formData, is_premium: e.target.checked })}
-            className="w-4 h-4 text-red-500 border-gray-300 rounded focus:ring-red-500"
+            className="w-4 h-4 text-[var(--td-danger)] border-[color:var(--neu-edge)] rounded focus:ring-[color:var(--neu-accent)]/40"
           />
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Pack premium</label>
+          <label className="text-sm font-medium text-[color:var(--neu-text-muted)]">Pack premium</label>
         </div>
         <div className="flex justify-end gap-3 pt-4">
-          <button onClick={onClose} className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg" disabled={loading}>
+          <button onClick={onClose} className="px-4 py-2 text-[color:var(--neu-text-muted)] hover:bg-[color:var(--neu-bg-hollow)] rounded-[var(--td-radius-control)]" disabled={loading}>
             Annuler
           </button>
-          <button onClick={handleSubmit} disabled={loading || !formData.name.trim() || !formData.category.trim()} className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 min-w-[100px] justify-center">
+          <button onClick={handleSubmit} disabled={loading || !formData.name.trim() || !formData.category.trim()} className="px-4 py-2 bg-[var(--td-danger)] text-white rounded-[var(--td-radius-control)] hover:bg-[var(--td-danger)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 min-w-[100px] justify-center">
             {loading ? (
               <>
                 <Loader size="sm" variant="light" showText={false} className="!flex" />

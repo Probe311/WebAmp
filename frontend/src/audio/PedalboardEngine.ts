@@ -19,6 +19,7 @@ import {
   makeFuzz,
   makeEQ,
   makeCompressor,
+  makeSustainerCompressor,
   makeChorus,
   makeFlanger,
   makePhaser,
@@ -197,11 +198,26 @@ export class PedalboardEngine {
           break
 
         case 'compressor':
-          effectNodes = makeCompressor(
-            audioCtx,
-            config.parameters.output ?? 50,
-            config.parameters.sensitivity ?? 50
-          )
+          // Façades sustainer (SUSTAIN / ATTACK / TONE / LEVEL) : CS-400
+          if (
+            config.parameters.sustain !== undefined ||
+            config.parameters.attack !== undefined
+          ) {
+            effectNodes = makeSustainerCompressor(
+              audioCtx,
+              config.parameters.sustain ?? 50,
+              config.parameters.attack ?? 40,
+              config.parameters.tone ?? 50,
+              config.parameters.level ?? 50,
+              pedalModel.id
+            )
+          } else {
+            effectNodes = makeCompressor(
+              audioCtx,
+              config.parameters.output ?? 50,
+              config.parameters.sensitivity ?? 50
+            )
+          }
           break
 
         case 'chorus':

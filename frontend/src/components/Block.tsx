@@ -1,24 +1,70 @@
 import { ReactNode } from 'react'
+import { GlareHover, SpotlightCard, BorderGlow, FadeContent } from './motion'
+import { Panel } from './tactile/primitives'
+import { cx } from './ui/cx'
 
 interface BlockProps {
   children: ReactNode
   className?: string
   onClick?: () => void
+  /** Soft orange spotlight that follows the pointer */
+  spotlight?: boolean
+  /** Glossy glare streak on hover */
+  glare?: boolean
+  /** Soft border glow that tracks the pointer */
+  borderGlow?: boolean
+  /** Fade / slide in when entering the viewport */
+  fadeIn?: boolean
+  fadeDelay?: number
+  /** Profondeur : relief (défaut) ou creux */
+  depth?: 'flat' | 'inset' | 'pressed'
 }
 
-export function Block({ children, className = '', onClick }: BlockProps) {
-  return (
-    <div
+/**
+ * Carte app — façade kit `Panel` (raised / inset) + effets motion optionnels.
+ */
+export function Block({
+  children,
+  className = '',
+  onClick,
+  spotlight = false,
+  glare = false,
+  borderGlow = false,
+  fadeIn = false,
+  fadeDelay = 0,
+  depth = 'flat',
+}: BlockProps) {
+  let inner: ReactNode = children
+
+  if (spotlight) {
+    inner = <SpotlightCard className="h-full rounded-3xl">{inner}</SpotlightCard>
+  }
+
+  if (glare) {
+    inner = <GlareHover className="h-full rounded-3xl">{inner}</GlareHover>
+  }
+
+  if (borderGlow) {
+    inner = <BorderGlow className="h-full rounded-3xl">{inner}</BorderGlow>
+  }
+
+  const content = (
+    <Panel
+      depth={depth === 'inset' ? 'inset' : depth === 'pressed' ? 'pressed' : 'flat'}
+      className={cx(
+        'h-full rounded-3xl p-4 text-[color:var(--neu-text)]',
+        onClick && 'cursor-pointer',
+        className
+      )}
       onClick={onClick}
-      className={`
-        bg-white dark:bg-gray-800 rounded-2xl p-6
-        shadow-[8px_8px_16px_rgba(0,0,0,0.1),-8px_-8px_16px_rgba(255,255,255,0.9),inset_0_0_0_1px_rgba(255,255,255,0.8)]
-        dark:shadow-[8px_8px_16px_rgba(0,0,0,0.5),-8px_-8px_16px_rgba(60,60,60,0.5),inset_0_0_0_1px_rgba(60,60,60,0.8)]
-        ${className}
-      `.trim().replace(/\s+/g, ' ')}
     >
-      {children}
-    </div>
+      {inner}
+    </Panel>
   )
-}
 
+  if (fadeIn) {
+    return <FadeContent delay={fadeDelay}>{content}</FadeContent>
+  }
+
+  return content
+}

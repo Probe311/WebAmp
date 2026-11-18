@@ -183,7 +183,7 @@ export const TabViewer: React.FC<TabViewerProps> = ({
 
   if (!renderTablature) {
     return (
-      <div className="flex items-center justify-center p-8 text-gray-500">
+      <div className="flex items-center justify-center p-8 text-[color:var(--neu-text-muted)]">
         <p>Aucune tablature disponible</p>
       </div>
     );
@@ -192,7 +192,7 @@ export const TabViewer: React.FC<TabViewerProps> = ({
   return (
     <div className="tab-viewer space-y-4">
       {showControls && (
-        <div className="space-y-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+        <div className="space-y-4 p-4 bg-[color:var(--neu-bg-track)] rounded-[var(--td-radius-control)]">
           <div className="flex items-center justify-between gap-3">
             <div className="flex gap-2">
               <button
@@ -212,7 +212,7 @@ export const TabViewer: React.FC<TabViewerProps> = ({
 
           {/* Éditeur ABC simple pour import/export */}
           <div className="mt-2">
-            <label className="block text-xs font-semibold text-gray-700 dark:text-gray-200 mb-1">
+            <label className="block text-xs font-semibold text-[color:var(--neu-text-muted)] mb-1">
               Représentation ABC (expérimental)
             </label>
             <textarea
@@ -221,7 +221,7 @@ export const TabViewer: React.FC<TabViewerProps> = ({
                 setAbcText(e.target.value);
                 setAbcError(null);
               }}
-              className="w-full h-32 text-xs font-mono rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 p-2 resize-y"
+              className="w-full h-32 text-xs font-mono rounded border border-[color:var(--neu-edge)] bg-[color:var(--neu-bg)] text-[color:var(--neu-text)] p-2 resize-y"
               spellCheck={false}
             />
             {abcError && (
@@ -242,7 +242,7 @@ export const TabViewer: React.FC<TabViewerProps> = ({
                     setAbcError('Erreur lors de la conversion de la tablature en ABC.');
                   }
                 }}
-                className="px-3 py-1.5 text-xs rounded bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-100"
+                className="px-3 py-1.5 text-xs rounded bg-[color:var(--neu-bg-hollow)] hover:bg-[color:var(--neu-bg-hollow)] text-[color:var(--neu-text)]"
               >
                 Actualiser depuis la tablature
               </button>
@@ -281,7 +281,7 @@ export const TabViewer: React.FC<TabViewerProps> = ({
                     setAbcError(null);
                   }
                 }}
-                className="px-3 py-1.5 text-xs rounded bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-100"
+                className="px-3 py-1.5 text-xs rounded bg-[color:var(--neu-bg-hollow)] hover:bg-[color:var(--neu-bg-hollow)] text-[color:var(--neu-text)]"
               >
                 Réinitialiser
               </button>

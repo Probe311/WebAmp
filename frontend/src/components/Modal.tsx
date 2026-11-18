@@ -1,113 +1,122 @@
-import { ReactNode } from 'react'
+import { ReactNode, useEffect } from 'react'
 import { X } from 'lucide-react'
+import { cx } from './ui/cx'
 
 interface ModalProps {
   isOpen: boolean
   onClose: () => void
   title?: string
+  description?: string
   children: ReactNode
   widthClassName?: string
   className?: string
   bodyClassName?: string
   headerRight?: ReactNode
   showCloseButton?: boolean
+  confirmText?: string
+  cancelText?: string
+  onConfirm?: () => void
 }
 
+/**
+ * Modale neumorphique — tokens `--neu-*` / classes `neu-*`.
+ */
 export function Modal({
   isOpen,
   onClose,
   title,
+  description,
   children,
   widthClassName = 'max-w-4xl',
   className = '',
   bodyClassName = '',
   headerRight,
-  showCloseButton = true
+  showCloseButton = true,
+  confirmText,
+  cancelText,
+  onConfirm,
 }: ModalProps) {
+  useEffect(() => {
+    if (!isOpen) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [isOpen, onClose])
+
   if (!isOpen) return null
 
   return (
     <div
-      className="fixed inset-0 bg-black/70 flex items-center justify-center z-[1000] backdrop-blur-sm"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
-        className={`modal-content bg-white dark:bg-gray-800 rounded-2xl p-0 w-[90%] ${widthClassName} max-h-[85vh] overflow-hidden ${className} transition-colors duration-200`}
-        style={{
-          boxShadow: document.documentElement.classList.contains('dark')
-            ? '8px 8px 16px rgba(0, 0, 0, 0.5), -8px -8px 16px rgba(60, 60, 60, 0.5), inset 0 0 0 1px rgba(60, 60, 60, 0.8)'
-            : '8px 8px 16px rgba(0, 0, 0, 0.1), -8px -8px 16px rgba(255, 255, 255, 0.9), inset 0 0 0 1px rgba(255, 255, 255, 0.8)'
-        }}
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
+        className={cx(
+          'neu-flat-lg neu-card flex max-h-[85vh] w-full flex-col overflow-hidden text-[color:var(--neu-text)]',
+          widthClassName,
+          className
+        )}
         onClick={(e) => e.stopPropagation()}
       >
         {(title || showCloseButton || headerRight) && (
-          <div className="flex items-center justify-between p-6 border-b border-black/10 dark:border-white/10">
-            {title ? <h2 className="text-xl font-semibold text-black/85 dark:text-white/90 m-0">{title}</h2> : <div />}
+          <div className="flex items-start justify-between gap-4 border-b border-[color:var(--neu-edge)] p-6">
+            <div>
+              {title ? (
+                <h2 className="m-0 text-base font-bold text-[color:var(--neu-text)]">{title}</h2>
+              ) : null}
+              {description ? (
+                <p className="mt-0.5 text-xs text-[color:var(--neu-text-faint)]">{description}</p>
+              ) : null}
+            </div>
             <div className="flex items-center gap-3">
               {headerRight}
               {showCloseButton && (
                 <button
+                  type="button"
                   onClick={onClose}
-                  className="w-8 h-8 bg-white dark:bg-gray-700 rounded-lg text-black/85 dark:text-white/90 cursor-pointer flex items-center justify-center transition-all duration-200 touch-manipulation"
-                  style={{
-                    minWidth: '44px',
-                    minHeight: '44px',
-                    boxShadow: document.documentElement.classList.contains('dark')
-                      ? '2px 2px 4px rgba(0, 0, 0, 0.5), -2px -2px 4px rgba(60, 60, 60, 0.5)'
-                      : '2px 2px 4px rgba(0, 0, 0, 0.08), -2px -2px 4px rgba(255, 255, 255, 0.9)'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.boxShadow = document.documentElement.classList.contains('dark')
-                      ? '3px 3px 6px rgba(0, 0, 0, 0.6), -3px -3px 6px rgba(70, 70, 70, 0.6)'
-                      : '3px 3px 6px rgba(0, 0, 0, 0.1), -3px -3px 6px rgba(255, 255, 255, 1)'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.boxShadow = document.documentElement.classList.contains('dark')
-                      ? '2px 2px 4px rgba(0, 0, 0, 0.5), -2px -2px 4px rgba(60, 60, 60, 0.5)'
-                      : '2px 2px 4px rgba(0, 0, 0, 0.08), -2px -2px 4px rgba(255, 255, 255, 0.9)'
-                  }}
-                  onMouseDown={(e) => {
-                    e.currentTarget.style.boxShadow = document.documentElement.classList.contains('dark')
-                      ? 'inset 2px 2px 4px rgba(0, 0, 0, 0.5), inset -2px -2px 4px rgba(60, 60, 60, 0.5)'
-                      : 'inset 2px 2px 4px rgba(0, 0, 0, 0.1), inset -2px -2px 4px rgba(255, 255, 255, 0.5)'
-                    e.currentTarget.style.transform = 'scale(0.95)'
-                  }}
-                  onMouseUp={(e) => {
-                    e.currentTarget.style.boxShadow = document.documentElement.classList.contains('dark')
-                      ? '2px 2px 4px rgba(0, 0, 0, 0.5), -2px -2px 4px rgba(60, 60, 60, 0.5)'
-                      : '2px 2px 4px rgba(0, 0, 0, 0.08), -2px -2px 4px rgba(255, 255, 255, 0.9)'
-                    e.currentTarget.style.transform = 'scale(1)'
-                  }}
-                  onTouchStart={(e) => {
-                    e.preventDefault()
-                    const target = e.currentTarget
-                    target.style.boxShadow = document.documentElement.classList.contains('dark')
-                      ? 'inset 2px 2px 4px rgba(0, 0, 0, 0.5), inset -2px -2px 4px rgba(60, 60, 60, 0.5)'
-                      : 'inset 2px 2px 4px rgba(0, 0, 0, 0.1), inset -2px -2px 4px rgba(255, 255, 255, 0.5)'
-                    target.style.transform = 'scale(0.95)'
-                    onClose()
-                  }}
-                  onTouchEnd={(e) => {
-                    const target = e.currentTarget
-                    target.style.boxShadow = document.documentElement.classList.contains('dark')
-                      ? '2px 2px 4px rgba(0, 0, 0, 0.5), -2px -2px 4px rgba(60, 60, 60, 0.5)'
-                      : '2px 2px 4px rgba(0, 0, 0, 0.08), -2px -2px 4px rgba(255, 255, 255, 0.9)'
-                    target.style.transform = 'scale(1)'
-                  }}
-                  aria-label="Fermer le modal"
+                  title="Fermer"
+                  className="neu-flat flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-[color:var(--neu-text-faint)] transition-all hover:text-[color:var(--neu-text)] active:neu-pressed"
                 >
-                  <X size={20} />
+                  <X className="h-4 w-4" />
                 </button>
               )}
             </div>
           </div>
         )}
 
-        <div className={bodyClassName || 'p-6'}>
-          {children}
-        </div>
+        <div className={cx('overflow-y-auto', bodyClassName || 'p-6')}>{children}</div>
+
+        {(confirmText || cancelText) && (
+          <div className="flex items-center justify-end gap-3 border-t border-[color:var(--neu-edge)] p-4">
+            {cancelText && (
+              <button
+                type="button"
+                onClick={onClose}
+                className="rounded-full px-4 py-2 text-xs font-semibold text-[color:var(--neu-text-muted)] hover:neu-flat"
+              >
+                {cancelText}
+              </button>
+            )}
+            {confirmText && (
+              <button
+                type="button"
+                onClick={() => {
+                  onConfirm?.()
+                  onClose()
+                }}
+                className="neu-accent-btn rounded-full px-6 py-2.5 text-sm font-semibold"
+              >
+                {confirmText}
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   )
 }
-

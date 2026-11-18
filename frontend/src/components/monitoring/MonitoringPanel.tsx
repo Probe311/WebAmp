@@ -3,6 +3,7 @@ import { Power, Link2 } from 'lucide-react'
 import { Knob } from '../Knob'
 import { Slider } from '../Slider'
 import type { MonitoringStats } from './types'
+import { MONITORING_CARD, MONITORING_ICON_BUBBLE } from './monitoringStyles'
 
 interface MonitoringPanelProps {
   stats: MonitoringStats
@@ -17,10 +18,10 @@ const dbToPercent = (db: number) => {
 }
 
 const badgeClass = (active: boolean) =>
-  `px-4 py-2 rounded-full text-xs font-semibold transition-all duration-200 border ${
+  `min-h-[44px] min-w-[44px] touch-manipulation rounded-[var(--td-radius-pill)] border px-4 py-2 text-xs font-semibold transition-colors duration-150 ${
     active
-      ? 'bg-black dark:bg-white text-white dark:text-black shadow-[0_8px_18px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_18px_rgba(255,255,255,0.2)] border-black dark:border-white'
-      : 'bg-white dark:bg-gray-700 text-black/70 dark:text-white/70 border-black/15 dark:border-white/15 hover:border-black/25 dark:hover:border-white/25 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.05),inset_-2px_-2px_4px_rgba(255,255,255,1)] dark:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.5),inset_-2px_-2px_4px_rgba(60,60,60,0.5)]'
+      ? 'border-[var(--td-primary-strong)] bg-[var(--td-primary-strong)] text-[var(--td-on-primary)]'
+      : 'border-[var(--td-edge-panel)] bg-[var(--td-control-surface)] text-[var(--td-text-secondary)] shadow-[var(--td-control-shadow)] hover:border-[var(--td-edge-control)]'
   }`
 
 export function MonitoringPanel({ stats }: MonitoringPanelProps) {
@@ -62,15 +63,15 @@ export function MonitoringPanel({ stats }: MonitoringPanelProps) {
   const eqFill = useMemo(() => `0,100 ${eqPolyline} 100,100`, [eqPolyline])
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-black/85 dark:text-white/85">
+    <div className="grid grid-cols-1 gap-6 text-[var(--td-text-primary)] lg:grid-cols-3">
       {/* Colonne gauche : niveau + width */}
-      <section className="bg-white dark:bg-gray-800 rounded-[24px] p-6 shadow-[0_12px_28px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.9)] dark:shadow-[0_12px_28px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(60,60,60,0.5)] border border-black/5 dark:border-white/10 flex flex-col gap-6 min-w-[220px]">
+      <section className={`${MONITORING_CARD} flex min-w-[220px] flex-col gap-6`}>
         <div className="flex justify-center">
           <button
-            className="w-10 h-10 rounded-full bg-[#f7f7f7] dark:bg-gray-700 border border-black/10 dark:border-white/10 flex items-center justify-center shadow-[inset_2px_2px_4px_rgba(0,0,0,0.05),inset_-2px_-2px_4px_rgba(255,255,255,1)] dark:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.5),inset_-2px_-2px_4px_rgba(60,60,60,0.5)]"
+            className={`${MONITORING_ICON_BUBBLE} h-11 w-11`}
             aria-label="Alimentation canal gauche"
           >
-            <Power size={18} className="text-black/60 dark:text-white/60" />
+            <Power size={18} className="text-[var(--td-text-secondary)]" />
           </button>
         </div>
 
@@ -101,7 +102,7 @@ export function MonitoringPanel({ stats }: MonitoringPanelProps) {
       </section>
 
       {/* Colonne centre : EQ */}
-      <section className="bg-white dark:bg-gray-800 rounded-[24px] p-6 shadow-[0_12px_28px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.9)] dark:shadow-[0_12px_28px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(60,60,60,0.5)] border border-black/5 dark:border-white/10 flex flex-col gap-5 min-w-[260px]">
+      <section className={`${MONITORING_CARD} flex min-w-[260px] flex-col gap-5`}>
         <div className="flex justify-center">
           <button
             onClick={() => setEqEnabled((prev) => !prev)}
@@ -109,10 +110,10 @@ export function MonitoringPanel({ stats }: MonitoringPanelProps) {
               e.preventDefault()
               setEqEnabled((prev) => !prev)
             }}
-            className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all duration-200 touch-manipulation ${
+            className={`grid h-10 w-10 touch-manipulation place-items-center rounded-full border transition-colors duration-150 ${
               eqEnabled
-                ? 'bg-black dark:bg-white text-white dark:text-black border-black dark:border-white shadow-[0_8px_18px_rgba(0,0,0,0.2)] dark:shadow-[0_8px_18px_rgba(255,255,255,0.2)]'
-                : 'bg-[#f7f7f7] dark:bg-gray-700 text-black/60 dark:text-white/60 border-black/10 dark:border-white/10 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.05),inset_-2px_-2px_4px_rgba(255,255,255,1)] dark:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.5),inset_-2px_-2px_4px_rgba(60,60,60,0.5)]'
+                ? 'border-[var(--td-primary-strong)] bg-[var(--td-primary-strong)] text-[var(--td-on-primary)]'
+                : 'border-[var(--td-edge-panel)] bg-[var(--td-surface-raised)] text-[var(--td-text-secondary)] shadow-[var(--td-control-shadow-pressed)]'
             }`}
             aria-label="Activer EQ"
             style={{ minWidth: '44px', minHeight: '44px' }}
@@ -121,8 +122,8 @@ export function MonitoringPanel({ stats }: MonitoringPanelProps) {
           </button>
         </div>
 
-        <div className="bg-[#f9fafb] dark:bg-gray-700 border border-black/5 dark:border-white/10 rounded-2xl p-4 shadow-[inset_2px_2px_6px_rgba(0,0,0,0.04),inset_-2px_-2px_6px_rgba(255,255,255,1)] dark:shadow-[inset_2px_2px_6px_rgba(0,0,0,0.5),inset_-2px_-2px_6px_rgba(60,60,60,0.5)]">
-          <div className="flex justify-between text-[0.65rem] font-semibold text-black/50 dark:text-white/50 mb-2 px-1">
+        <div className="rounded-[var(--td-radius-xl)] border border-[var(--td-edge-panel)] bg-[var(--td-surface-raised)] p-4 shadow-[var(--td-elevation-inset-sm)]">
+          <div className="mb-2 flex justify-between px-1 text-[0.65rem] font-semibold text-[var(--td-text-muted)]">
             <span>+12</span>
             <span>0</span>
             <span>-12</span>
@@ -130,11 +131,11 @@ export function MonitoringPanel({ stats }: MonitoringPanelProps) {
           <svg viewBox="0 0 100 100" className="w-full h-32">
             <defs>
               <linearGradient id="eqFill" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#f97316" stopOpacity="0.25" />
-                <stop offset="100%" stopColor="#0ea5e9" stopOpacity="0.2" />
+                <stop offset="0%" stopColor="var(--td-primary)" stopOpacity="0.25" />
+                <stop offset="100%" stopColor="var(--td-secondary)" stopOpacity="0.2" />
               </linearGradient>
             </defs>
-            <g stroke="#e5e7eb" strokeWidth="0.5">
+            <g stroke="var(--td-chart-grid)" strokeWidth="0.5">
               {[20, 40, 60, 80].map((x) => (
                 <line key={x} x1={x} x2={x} y1="6" y2="94" strokeDasharray="2 2" />
               ))}
@@ -146,7 +147,7 @@ export function MonitoringPanel({ stats }: MonitoringPanelProps) {
             <polyline
               points={eqPolyline}
               fill="none"
-              stroke={eqEnabled ? '#f97316' : '#9ca3af'}
+              stroke={eqEnabled ? 'var(--td-primary)' : 'var(--td-text-muted)'}
               strokeWidth="1.8"
             />
             {[low, mid, high, air].map((value, index) => {
@@ -158,15 +159,15 @@ export function MonitoringPanel({ stats }: MonitoringPanelProps) {
                   cx={x}
                   cy={y}
                   r="2.6"
-                  fill="#111827"
-                  stroke="#f3f4f6"
+                  fill="var(--td-text-primary)"
+                  stroke="var(--td-surface-elevated)"
                   strokeWidth="1"
                   opacity={eqEnabled ? 1 : 0.45}
                 />
               )
             })}
           </svg>
-          <div className="flex justify-between text-[0.65rem] text-black/50 dark:text-white/50 font-semibold px-1">
+          <div className="flex justify-between px-1 text-[0.65rem] font-semibold text-[var(--td-text-muted)]">
             <span>100 Hz</span>
             <span>500 Hz</span>
             <span>2 kHz</span>
@@ -221,13 +222,13 @@ export function MonitoringPanel({ stats }: MonitoringPanelProps) {
       </section>
 
       {/* Colonne droite : drive / output / mix */}
-      <section className="bg-white dark:bg-gray-800 rounded-[24px] p-6 shadow-[0_12px_28px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.9)] dark:shadow-[0_12px_28px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(60,60,60,0.5)] border border-black/5 dark:border-white/10 flex flex-col gap-6 min-w-[240px]">
+      <section className={`${MONITORING_CARD} flex min-w-[240px] flex-col gap-6`}>
         <div className="flex justify-center">
           <button
-            className="w-10 h-10 rounded-full bg-[#f7f7f7] dark:bg-gray-700 border border-black/10 dark:border-white/10 flex items-center justify-center shadow-[inset_2px_2px_4px_rgba(0,0,0,0.05),inset_-2px_-2px_4px_rgba(255,255,255,1)] dark:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.5),inset_-2px_-2px_4px_rgba(60,60,60,0.5)]"
+            className={`${MONITORING_ICON_BUBBLE} h-11 w-11`}
             aria-label="Alimentation canal droit"
           >
-            <Power size={18} className="text-black/60 dark:text-white/60" />
+            <Power size={18} className="text-[var(--td-text-secondary)]" />
           </button>
         </div>
 
@@ -255,8 +256,8 @@ export function MonitoringPanel({ stats }: MonitoringPanelProps) {
         </div>
 
         <div className="flex justify-center">
-          <div className="w-10 h-10 rounded-full bg-white dark:bg-gray-700 border border-black/10 dark:border-white/10 flex items-center justify-center shadow-[0_4px_10px_rgba(0,0,0,0.08)] dark:shadow-[0_4px_10px_rgba(0,0,0,0.5)]">
-            <Link2 size={18} className="text-black/50 dark:text-white/50" />
+          <div className={`${MONITORING_ICON_BUBBLE} h-10 w-10`}>
+            <Link2 size={18} className="text-[var(--td-text-muted)]" />
           </div>
         </div>
 

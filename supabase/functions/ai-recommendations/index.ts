@@ -4,6 +4,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { handleCors, createCorsJsonResponse, createCorsErrorResponse } from '../_shared/cors.ts'
 import { callGemini } from '../_shared/gemini.ts'
+import { guardAuthedPost, safeClientError } from '../_shared/guard.ts'
 
 interface RecommendationsRequest {
   userId: string
@@ -35,19 +36,19 @@ interface RecommendationsResponse {
 }
 
 async function handler(req: Request): Promise<Response> {
-  if (req.method === 'OPTIONS') {
-    return createCorsJsonResponse({ ok: true })
-  }
-
-  if (req.method !== 'POST') {
-    return createCorsErrorResponse('Method not allowed', 405)
-  }
+  const gate = await guardAuthedPost(req, 'ai-recommendations')
+  if (!gate.ok) return gate.response
+  const { origin, userId } = gate
 
   try {
     const body = (await req.json()) as RecommendationsRequest
 
-    if (!body.userId || !body.preferences || !body.availablePresets) {
-      return createCorsErrorResponse('userId, preferences and availablePresets are required', 400)
+    if (!body.preferences || !body.availablePresets) {
+      return createCorsErrorResponse('preferences and availablePresets are required', 400, {}, origin)
+    }
+    body.userId = userId
+    if (body.availablePresets.length > 100) {
+      body.availablePresets = body.availablePresets.slice(0, 100)
     }
 
     const systemPrompt = `
@@ -99,22 +100,16 @@ Préférences utilisateur:
     })
 
     return createCorsJsonResponse(
-      {
-        ok: true,
-        recommendations: result.recommendations,
-      },
+      { ok: true, recommendations: result.recommendations },
       200,
+      {},
+      origin,
     )
   } catch (error) {
     console.error('ai-recommendations error:', error)
-    return createCorsErrorResponse(
-      error instanceof Error ? error.message : 'Unknown error',
-      500,
-    )
+    return createCorsErrorResponse(safeClientError(error), 500, {}, origin)
   }
 }
-
-serve((req) => handleCors(req, handler))
 
 serve((req) => handleCors(req, handler))
 

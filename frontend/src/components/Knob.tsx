@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react'
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 
 interface KnobProps {
   label: string
@@ -14,19 +14,33 @@ interface KnobProps {
   valueRawDisplayFn?: (value: number) => string
 }
 
+/** Même UI ; S / M / L = échelle uniquement */
 const sizeClasses: Record<NonNullable<KnobProps['size']>, string> = {
-  sm: 'w-12 h-12',
+  sm: 'w-10 h-10',
   md: 'w-14 h-14',
-  lg: 'w-24 h-24'
+  lg: 'w-20 h-20',
 }
 
-const tickRadiusMap: Record<NonNullable<KnobProps['size']>, number> = {
-  sm: 32,
-  md: 38,
-  lg: 60
-}
+/** Rayon SVG de l’arc (viewBox 100×100, centre 50) */
+const ARC_RADIUS = 42
+const ARC_SWEEP_DEG = 270
+const ARC_START_DEG = -135
 
 const SENSITIVITY = 0.5 // pixels per value unit
+
+function polar(cx: number, cy: number, r: number, angleDeg: number) {
+  const rad = ((angleDeg - 90) * Math.PI) / 180
+  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) }
+}
+
+/** Arc SVG de startDeg → endDeg (sens horaire, sweep-flag 1) */
+function describeArc(cx: number, cy: number, r: number, startDeg: number, endDeg: number) {
+  const start = polar(cx, cy, r, startDeg)
+  const end = polar(cx, cy, r, endDeg)
+  const delta = ((endDeg - startDeg) % 360 + 360) % 360
+  const largeArc = delta > 180 ? 1 : 0
+  return `M ${start.x} ${start.y} A ${r} ${r} 0 ${largeArc} 1 ${end.x} ${end.y}`
+}
 
 export const Knob: React.FC<KnobProps> = ({
   label,
@@ -37,7 +51,7 @@ export const Knob: React.FC<KnobProps> = ({
   size = 'md',
   showValue = false,
   color,
-  knobBaseColor = 'gray',
+  knobBaseColor = 'black',
   disabled = false,
   valueRawDisplayFn
 }) => {
@@ -47,60 +61,37 @@ export const Knob: React.FC<KnobProps> = ({
 
   const percent =
     max === min ? 0 : Math.min(1, Math.max(0, (value - min) / (max - min)))
-  const rotation = percent * 270 - 135
+  const rotation = percent * ARC_SWEEP_DEG + ARC_START_DEG
+  const activeEndDeg = ARC_START_DEG + percent * ARC_SWEEP_DEG
 
   const activeColor = color || '#60a5fa'
-  const inactiveColor = 'rgba(209, 213, 219, 1)' // gray-300
-  const tickRadius = tickRadiusMap[size]
 
-  // Styles de base pour chaque couleur de knob
   const getKnobBaseStyle = () => {
     switch (knobBaseColor) {
-      case 'black':
-        return {
-          background: '#1a1a1a',
-          shadowLight: 'rgba(255, 255, 255, 0.1)',
-          shadowDark: 'rgba(0, 0, 0, 0.8)',
-          activeShadowLight: 'rgba(255, 255, 255, 0.05)',
-          activeShadowDark: 'rgba(0, 0, 0, 0.9)'
-        }
       case 'gold':
-        return {
-          background: 'linear-gradient(135deg, #d4af37 0%, #b8941f 100%)',
-          shadowLight: 'rgba(255, 255, 255, 0.3)',
-          shadowDark: 'rgba(0, 0, 0, 0.5)',
-          activeShadowLight: 'rgba(255, 255, 255, 0.15)',
-          activeShadowDark: 'rgba(0, 0, 0, 0.7)'
-        }
+        return { background: '#b8941f' }
       case 'chrome':
-        return {
-          background: 'linear-gradient(135deg, #e8e8e8 0%, #c0c0c0 100%)',
-          shadowLight: 'rgba(255, 255, 255, 0.8)',
-          shadowDark: 'rgba(0, 0, 0, 0.3)',
-          activeShadowLight: 'rgba(255, 255, 255, 0.4)',
-          activeShadowDark: 'rgba(0, 0, 0, 0.5)'
-        }
       case 'silver':
-        return {
-          background: 'linear-gradient(135deg, #d3d3d3 0%, #a8a8a8 100%)',
-          shadowLight: 'rgba(255, 255, 255, 0.6)',
-          shadowDark: 'rgba(0, 0, 0, 0.4)',
-          activeShadowLight: 'rgba(255, 255, 255, 0.3)',
-          activeShadowDark: 'rgba(0, 0, 0, 0.6)'
-        }
+        return { background: '#a8a8a8' }
       case 'gray':
+        return { background: '#4b5563' }
+      case 'black':
       default:
-        return {
-          background: '#EBECF0',
-          shadowLight: '#ffffff',
-          shadowDark: '#b8b9be',
-          activeShadowLight: '#ffffff',
-          activeShadowDark: '#b8b9be'
-        }
+        return { background: '#1c1c1e' }
     }
   }
 
   const baseStyle = getKnobBaseStyle()
+
+  const trackPath = useMemo(
+    () => describeArc(50, 50, ARC_RADIUS, ARC_START_DEG, ARC_START_DEG + ARC_SWEEP_DEG),
+    []
+  )
+
+  const valuePath = useMemo(() => {
+    if (percent <= 0.001) return ''
+    return describeArc(50, 50, ARC_RADIUS, ARC_START_DEG, activeEndDeg)
+  }, [percent, activeEndDeg])
 
   const startDrag = (clientY: number) => {
     if (disabled) return
@@ -114,18 +105,6 @@ export const Knob: React.FC<KnobProps> = ({
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault()
     startDrag(e.clientY)
-    const target = e.currentTarget as HTMLElement
-    target.style.boxShadow = `inset 4px 4px 8px ${baseStyle.activeShadowDark}, inset -4px -4px 8px ${baseStyle.activeShadowLight}`
-  }
-
-  const handleMouseUp = (e: React.MouseEvent) => {
-    const target = e.currentTarget as HTMLElement
-    target.style.boxShadow = `6px 6px 12px ${baseStyle.shadowDark}, -6px -6px 12px ${baseStyle.shadowLight}`
-  }
-
-  const handleMouseLeave = (e: React.MouseEvent) => {
-    const target = e.currentTarget as HTMLElement
-    target.style.boxShadow = `6px 6px 12px ${baseStyle.shadowDark}, -6px -6px 12px ${baseStyle.shadowLight}`
   }
 
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -137,11 +116,8 @@ export const Knob: React.FC<KnobProps> = ({
     (clientY: number) => {
       const deltaY = startY.current - clientY
       const deltaValue = deltaY * SENSITIVITY
-
       let newValue = startValue.current + deltaValue
-      // Clamp la valeur entre min et max
       newValue = Math.max(min, Math.min(max, newValue))
-
       onChange(Math.round(newValue))
     },
     [min, max, onChange]
@@ -177,44 +153,40 @@ export const Knob: React.FC<KnobProps> = ({
     }
   }, [isDragging, handleDrag])
 
-  const renderTicks = () => {
-    const ticks = []
-    const numTicks = 28
-    const startAngle = -135
-    const endAngle = 135
-
-    for (let i = 0; i <= numTicks; i++) {
-      const angle = startAngle + (i / numTicks) * (endAngle - startAngle)
-      const rad = (angle - 90) * (Math.PI / 180)
-      const isActive = angle <= rotation
-
-      ticks.push(
-        <div
-          key={i}
-          className="absolute w-[2px] h-[2px] rounded-full transition-colors duration-200"
-          style={{
-            left: '50%',
-            top: '50%',
-            transform: `translate(${Math.cos(rad) * tickRadius}px, ${Math.sin(rad) * tickRadius}px)`,
-            backgroundColor: isActive ? activeColor : inactiveColor
-          }}
-        />
-      )
-    }
-    return ticks
-  }
-
   const displayValue = valueRawDisplayFn ? valueRawDisplayFn(value) : Math.round(value).toString()
 
-  // Calculer la taille du conteneur pour accommoder les ticks et les ombres
-  const containerSize = size === 'md' ? 70 : size === 'lg' ? 96 : 48
+  const containerSize = size === 'md' ? 64 : size === 'lg' ? 84 : 44
+  const wrapperPadding = size === 'sm' ? '2px' : '4px'
+  const strokeW = size === 'lg' ? 5 : size === 'sm' ? 3.5 : 4.5
+  const indicatorH = size === 'lg' ? 12 : size === 'sm' ? 7 : 11
 
   return (
-    <div className="flex flex-col items-center gap-3 select-none group" style={{ padding: '8px' }}>
+    <div className="flex flex-col items-center gap-2 select-none group" style={{ padding: wrapperPadding }}>
       <div className="relative flex items-center justify-center" style={{ width: `${containerSize}px`, height: `${containerSize}px` }}>
-        <div className="absolute inset-0 w-full h-full pointer-events-none" style={{ width: '100%', height: '100%', transform: 'translate(0, 0)' }}>
-          {renderTicks()}
-        </div>
+        {/* Arc glow — piste + valeur */}
+        <svg
+          className="absolute inset-0 w-full h-full pointer-events-none overflow-visible"
+          viewBox="0 0 100 100"
+          aria-hidden
+        >
+          <path
+            d={trackPath}
+            fill="none"
+            stroke="rgba(63, 63, 70, 0.45)"
+            strokeWidth={strokeW}
+            strokeLinecap="round"
+          />
+          {valuePath && (
+            <path
+              d={valuePath}
+              fill="none"
+              stroke={activeColor}
+              strokeWidth={strokeW}
+              strokeLinecap="round"
+              style={{ filter: `drop-shadow(0 0 6px ${activeColor}) drop-shadow(0 0 2px ${activeColor})` }}
+            />
+          )}
+        </svg>
 
         <div
           className={`
@@ -228,11 +200,10 @@ export const Knob: React.FC<KnobProps> = ({
           `}
           style={{
             background: baseStyle.background,
-            boxShadow: `6px 6px 12px ${baseStyle.shadowDark}, -6px -6px 12px ${baseStyle.shadowLight}`
+            boxShadow: 'none',
+            border: '1px solid rgba(255,255,255,0.08)'
           }}
           onMouseDown={handleMouseDown}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseLeave}
           onTouchStart={handleTouchStart}
           aria-label={label}
           role="slider"
@@ -242,30 +213,38 @@ export const Knob: React.FC<KnobProps> = ({
           aria-disabled={disabled}
           tabIndex={disabled ? -1 : 0}
         >
+          {/* Trait d’indicateur */}
           <div
             className="w-full h-full rounded-full absolute top-0 left-0 transition-transform duration-75 ease-linear will-change-transform"
             style={{ transform: `rotate(${rotation}deg)` }}
           >
-            <div className="absolute top-[12%] left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-gray-600 rounded-full shadow-inner" />
+            <div
+              className="absolute left-1/2 -translate-x-1/2 rounded-full"
+              style={{
+                top: '10%',
+                width: 2,
+                height: indicatorH,
+                backgroundColor: '#f5f5f7'
+              }}
+            />
           </div>
 
           {showValue && isDragging && (
-            <span className="absolute text-[10px] font-bold text-gray-500 dark:text-gray-400 font-mono pointer-events-none">
+            <span className="absolute text-[10px] font-medium font-mono pointer-events-none" style={{ color: '#1C1C1E' }}>
               {displayValue}
             </span>
           )}
         </div>
       </div>
 
-      <div className="flex flex-col items-center gap-1">
-        <span className="text-[10px] uppercase tracking-widest font-bold text-gray-700 dark:text-gray-200">
+      <div className="flex flex-col items-center gap-0.5">
+        <span className="text-[10px] uppercase tracking-widest font-semibold" style={{ color: '#1C1C1E' }}>
           {label}
         </span>
-        <span className="text-xs font-mono text-gray-700 dark:text-gray-300 h-4">{displayValue}</span>
+        <span className="text-xs font-mono h-4" style={{ color: '#1C1C1E' }}>{displayValue}</span>
       </div>
     </div>
   )
 }
 
 export default Knob
-

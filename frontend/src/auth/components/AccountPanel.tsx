@@ -37,17 +37,17 @@ function getBadgeColor(badgeName: string): string {
     'text-amber-500 dark:text-amber-400',
     'text-blue-500 dark:text-blue-400',
     'text-emerald-500 dark:text-emerald-400',
-    'text-purple-500 dark:text-purple-400',
+    'text-[var(--td-accent-text)] dark:text-[var(--td-accent)]',
     'text-rose-500 dark:text-rose-400',
     'text-pink-500 dark:text-pink-400',
-    'text-indigo-500 dark:text-indigo-400',
+    'text-[var(--td-info)]',
     'text-cyan-500 dark:text-cyan-400',
     'text-teal-500 dark:text-teal-400',
     'text-lime-500 dark:text-lime-400',
     'text-yellow-500 dark:text-yellow-400',
     'text-red-500 dark:text-red-400',
-    'text-violet-500 dark:text-violet-400',
-    'text-fuchsia-500 dark:text-fuchsia-400',
+    'text-[var(--td-accent-strong)] dark:text-[var(--td-accent)]',
+    'text-[var(--td-warning)]',
   ]
 
   // Hash simple basé sur le nom du badge pour obtenir un index déterministe
@@ -144,7 +144,7 @@ export function AccountPanel() {
       'bg-orange-500 text-white',
       'bg-blue-500 text-white',
       'bg-emerald-500 text-white',
-      'bg-purple-500 text-white',
+      'bg-[var(--td-accent-strong)] text-[var(--td-on-primary)]',
       'bg-rose-500 text-white',
       'bg-amber-500 text-white'
     ]
@@ -175,15 +175,7 @@ export function AccountPanel() {
     return combos.slice(0, 30)
   }, [])
 
-  if (!user) {
-    return (
-      <div className="space-y-4">
-        <p className="text-sm text-black/70 dark:text-white/70">
-          Connecte-toi pour accéder à ton compte.
-        </p>
-      </div>
-    )
-  }
+  if (!user) return null
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -239,29 +231,22 @@ export function AccountPanel() {
 
   return (
     <div className="space-y-6">
-      <div 
-        className="rounded-xl px-4 py-3 bg-[#f5f5f5] dark:bg-gray-700"
-        style={{
-          boxShadow: document.documentElement.classList.contains('dark')
-            ? 'inset 2px 2px 4px rgba(0, 0, 0, 0.5), inset -2px -2px 4px rgba(60, 60, 60, 0.5)'
-            : 'inset 2px 2px 4px rgba(0, 0, 0, 0.05), inset -2px -2px 4px rgba(255, 255, 255, 0.8)'
-        }}
-      >
-        <p className="text-xs font-semibold uppercase tracking-wider mb-1 text-black/70 dark:text-white/70" style={{ letterSpacing: '0.5px' }}>
+      <div className="neu-inset rounded-2xl bg-[color:var(--neu-bg-track)] px-4 py-3">
+        <p className="text-xs font-semibold uppercase tracking-wider mb-1 text-[color:var(--neu-text-muted)]" style={{ letterSpacing: '0.5px' }}>
           Connecté en tant que
         </p>
-        <p className="text-base font-semibold text-black/85 dark:text-white/90">
+        <p className="text-base font-semibold text-[color:var(--neu-text)]">
           {user.email}
         </p>
         {user.last_sign_in_at && (
-          <p className="text-xs mt-2 text-black/50 dark:text-white/50">
+          <p className="text-xs mt-2 text-[color:var(--neu-text-faint)]">
             Dernière connexion : {formatDateTimeFrench(user.last_sign_in_at)}
           </p>
         )}
       </div>
 
       {/* Onglets de navigation du compte */}
-      <div className="flex gap-3 pt-4 border-t border-black/10 dark:border-white/10">
+      <div className="flex gap-3 pt-4 border-t border-[color:var(--neu-edge)]">
         <CTA
           type="button"
           variant="secondary"
@@ -296,7 +281,7 @@ export function AccountPanel() {
         <>
         <form className="space-y-6 pt-4" onSubmit={handleProfileSubmit}>
           <div className="space-y-5">
-            <h2 className="text-lg font-bold text-black/85 dark:text-white/90 mb-4">
+            <h2 className="text-lg font-bold text-[color:var(--neu-text)] mb-4">
               Infos personnelles
             </h2>
             
@@ -351,17 +336,17 @@ export function AccountPanel() {
         </form>
 
         {/* Section Préférences */}
-        <div className="space-y-5 pt-6 border-t border-black/10 dark:border-white/10">
-          <h2 className="text-lg font-bold text-black/85 dark:text-white/90 mb-4">
+        <div className="space-y-5 pt-6 border-t border-[color:var(--neu-edge)]">
+          <h2 className="text-lg font-bold text-[color:var(--neu-text)] mb-4">
             Préférences
           </h2>
           
-          <div className="flex items-center justify-between p-4 bg-[#f5f5f5] dark:bg-gray-700/50 rounded-lg border border-black/10 dark:border-white/10">
+          <div className="flex items-center justify-between p-4 neu-inset bg-[color:var(--neu-bg-track)] rounded-[var(--td-radius-control)] border border-[color:var(--neu-edge)]">
             <div className="flex-1">
-              <p className="text-sm font-medium text-black/85 dark:text-white/85 mb-1">
+              <p className="text-sm font-medium text-[color:var(--neu-text)] mb-1">
                 Afficher le message de remerciement
               </p>
-              <p className="text-xs text-black/70 dark:text-white/70">
+              <p className="text-xs text-[color:var(--neu-text-muted)]">
                 Affiche la modale de remerciement aux partenaires lors de la connexion
               </p>
             </div>
@@ -386,8 +371,8 @@ export function AccountPanel() {
         </div>
 
         {/* Section Sécurité */}
-        <form className="space-y-5 pt-6 border-t border-black/10 dark:border-white/10" onSubmit={handleSubmit}>
-            <h2 className="text-lg font-bold text-black/85 dark:text-white/90 mb-2">
+        <form className="space-y-5 pt-6 border-t border-[color:var(--neu-edge)]" onSubmit={handleSubmit}>
+            <h2 className="text-lg font-bold text-[color:var(--neu-text)] mb-2">
               Sécurité
             </h2>
 
@@ -439,26 +424,26 @@ export function AccountPanel() {
       {activeTab === 'equipment' && (
         <form className="space-y-6 pt-4" onSubmit={handleProfileSubmit}>
           <div className="space-y-2">
-            <h2 className="text-lg font-bold text-black/85 dark:text-white/90">
+            <h2 className="text-lg font-bold text-[color:var(--neu-text)]">
               Mon équipement
             </h2>
-            <p className="text-xs text-black/70 dark:text-white/70">
+            <p className="text-xs text-[color:var(--neu-text-muted)]">
               Renseigne ton setup pour adapter les cours et les presets à ton matériel.
             </p>
           </div>
 
           {/* Section Profil musical */}
-          <div className="space-y-5 pt-6 border-t border-black/10 dark:border-white/10">
-            <h2 className="text-lg font-bold text-black/85 dark:text-white/90 mb-2">
+          <div className="space-y-5 pt-6 border-t border-[color:var(--neu-edge)]">
+            <h2 className="text-lg font-bold text-[color:var(--neu-text)] mb-2">
               Profil musical
             </h2>
 
           {/* Avatar musical */}
-          <div className="p-4 bg-[#f5f5f5] dark:bg-gray-700/50 rounded-lg border border-black/10 dark:border-white/10">
-            <p className="text-sm font-medium text-black/85 dark:text-white/85 mb-1">
+          <div className="p-4 neu-inset bg-[color:var(--neu-bg-track)] rounded-[var(--td-radius-control)] border border-[color:var(--neu-edge)]">
+            <p className="text-sm font-medium text-[color:var(--neu-text)] mb-1">
               Avatar
             </p>
-            <p className="text-xs text-black/70 dark:text-white/70 mb-3">
+            <p className="text-xs text-[color:var(--neu-text-muted)] mb-3">
               Choisis un avatar illustré pour te représenter dans WebAmp.
             </p>
             <div className="flex items-center gap-4">
@@ -474,7 +459,7 @@ export function AccountPanel() {
                       <Icon size={28} />
                     </div>
                     <div className="flex flex-col gap-1">
-                      <p className="text-xs text-black/70 dark:text-white/70">
+                      <p className="text-xs text-[color:var(--neu-text-muted)]">
                         {current.label}
                       </p>
                       <CTA
@@ -495,8 +480,8 @@ export function AccountPanel() {
           {/* Instruments */}
           <div className="space-y-3">
             <div className="flex items-center gap-2">
-              <Guitar size={18} className="text-black/70 dark:text-white/70" />
-              <p className="text-sm font-medium text-black/85 dark:text-white/85">
+              <Guitar size={18} className="text-[color:var(--neu-text-muted)]" />
+              <p className="text-sm font-medium text-[color:var(--neu-text)]">
                 Instruments principaux
               </p>
             </div>
@@ -541,8 +526,8 @@ export function AccountPanel() {
           {/* Pédales */}
           <div className="space-y-3">
             <div className="flex items-center gap-2">
-              <Square size={18} className="text-black/70 dark:text-white/70" />
-              <p className="text-sm font-medium text-black/85 dark:text-white/85">
+              <Square size={18} className="text-[color:var(--neu-text-muted)]" />
+              <p className="text-sm font-medium text-[color:var(--neu-text)]">
                 Pédales préférées
               </p>
             </div>
@@ -587,8 +572,8 @@ export function AccountPanel() {
           {/* Amplis */}
           <div className="space-y-3">
             <div className="flex items-center gap-2">
-              <Zap size={18} className="text-black/70 dark:text-white/70" />
-              <p className="text-sm font-medium text-black/85 dark:text-white/85">
+              <Zap size={18} className="text-[color:var(--neu-text-muted)]" />
+              <p className="text-sm font-medium text-[color:var(--neu-text)]">
                 Amplis favoris
               </p>
             </div>
@@ -659,20 +644,20 @@ export function AccountPanel() {
       {activeTab === 'achievements' && (
         <div className="space-y-5 pt-4">
           <div className="space-y-2">
-            <h2 className="text-lg font-bold text-black/85 dark:text-white/90">
+            <h2 className="text-lg font-bold text-[color:var(--neu-text)]">
               Mes succès
             </h2>
-            <p className="text-xs text-black/70 dark:text-white/70">
+            <p className="text-xs text-[color:var(--neu-text-muted)]">
               Suis ta progression, ton XP et tes badges gagnés grâce aux cours WebAmp.
             </p>
           </div>
 
           {/* Statistiques principales */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="p-4 rounded-xl bg-[#f5f5f5] dark:bg-gray-700/60 border border-black/10 dark:border-white/10">
+            <div className="p-4 rounded-[var(--td-radius-well)] neu-inset bg-[color:var(--neu-bg-track)] border border-[color:var(--neu-edge)]">
               <div className="flex items-center gap-2 mb-2">
                 <Award className="text-orange-500 dark:text-orange-400" size={18} />
-                <p className="text-xs font-semibold text-black/60 dark:text-white/60 uppercase">
+                <p className="text-xs font-semibold text-[color:var(--neu-text-muted)] uppercase">
                   XP total
                 </p>
               </div>
@@ -680,10 +665,10 @@ export function AccountPanel() {
                 {statsLoading || !stats ? '—' : stats.total_xp}
               </p>
             </div>
-            <div className="p-4 rounded-xl bg-[#f5f5f5] dark:bg-gray-700/60 border border-black/10 dark:border-white/10">
+            <div className="p-4 rounded-[var(--td-radius-well)] neu-inset bg-[color:var(--neu-bg-track)] border border-[color:var(--neu-edge)]">
               <div className="flex items-center gap-2 mb-2">
                 <Trophy className="text-emerald-500 dark:text-emerald-400" size={18} />
-                <p className="text-xs font-semibold text-black/60 dark:text-white/60 uppercase">
+                <p className="text-xs font-semibold text-[color:var(--neu-text-muted)] uppercase">
                   Cours terminés
                 </p>
               </div>
@@ -691,10 +676,10 @@ export function AccountPanel() {
                 {statsLoading || !stats ? '—' : stats.courses_completed}
               </p>
             </div>
-            <div className="p-4 rounded-xl bg-[#f5f5f5] dark:bg-gray-700/60 border border-black/10 dark:border-white/10">
+            <div className="p-4 rounded-[var(--td-radius-well)] neu-inset bg-[color:var(--neu-bg-track)] border border-[color:var(--neu-edge)]">
               <div className="flex items-center gap-2 mb-2">
                 <Medal className="text-blue-500 dark:text-blue-400" size={18} />
-                <p className="text-xs font-semibold text-black/60 dark:text-white/60 uppercase">
+                <p className="text-xs font-semibold text-[color:var(--neu-text-muted)] uppercase">
                   Leçons complétées
                 </p>
               </div>
@@ -707,20 +692,20 @@ export function AccountPanel() {
           {/* Grille de badges avec médailles */}
           <div className="space-y-3">
             <div className="flex items-center gap-2">
-              <Medal size={18} className="text-black/70 dark:text-white/70" />
-              <p className="text-sm font-medium text-black/85 dark:text-white/85">
+              <Medal size={18} className="text-[color:var(--neu-text-muted)]" />
+              <p className="text-sm font-medium text-[color:var(--neu-text)]">
                 Badges débloqués
               </p>
             </div>
             {statsLoading && (
-              <p className="text-xs text-black/60 dark:text-white/60">
+              <p className="text-xs text-[color:var(--neu-text-muted)]">
                 Chargement des succès...
               </p>
             )}
             {!statsLoading && stats && (!stats.badges || stats.badges.length === 0) && (
-              <div className="p-6 rounded-xl bg-[#f5f5f5] dark:bg-gray-700/30 border border-black/10 dark:border-white/10 text-center">
-                <Medal size={32} className="mx-auto mb-2 text-black/30 dark:text-white/30" />
-                <p className="text-xs text-black/60 dark:text-white/60">
+              <div className="p-6 rounded-[var(--td-radius-well)] neu-inset bg-[color:var(--neu-bg-track)] border border-[color:var(--neu-edge)] text-center">
+                <Medal size={32} className="mx-auto mb-2 text-[color:var(--neu-text-faint)]" />
+                <p className="text-xs text-[color:var(--neu-text-muted)]">
                   Aucun badge pour l'instant. Termine des cours et des leçons pour en débloquer !
                 </p>
               </div>
@@ -730,7 +715,7 @@ export function AccountPanel() {
                 {stats.badges.map((badge: string) => (
                   <div
                     key={badge}
-                    className="flex flex-col items-center gap-2 p-4 rounded-xl bg-[#f5f5f5] dark:bg-gray-700/60 border border-black/10 dark:border-white/10 hover:border-orange-500/50 dark:hover:border-orange-500/50 transition"
+                    className="flex flex-col items-center gap-2 p-4 rounded-[var(--td-radius-well)] neu-inset bg-[color:var(--neu-bg-track)] border border-[color:var(--neu-edge)] hover:border-orange-500/50 dark:hover:border-orange-500/50 transition"
                   >
                     <div className="relative">
                       <Medal
@@ -738,7 +723,7 @@ export function AccountPanel() {
                         className={getBadgeColor(badge)}
                       />
                     </div>
-                    <p className="text-xs font-medium text-center text-black/85 dark:text-white/85">
+                    <p className="text-xs font-medium text-center text-[color:var(--neu-text)]">
                       {badge}
                     </p>
                   </div>
@@ -768,10 +753,10 @@ export function AccountPanel() {
                   setAvatarStyle(option.id)
                   setIsAvatarModalOpen(false)
                 }}
-                className={`flex flex-col items-center gap-2 p-2 rounded-xl border transition ${
+                className={`flex flex-col items-center gap-2 p-2 rounded-[var(--td-radius-well)] border transition ${
                   avatarStyle === option.id
                     ? 'border-orange-500 bg-orange-500/10'
-                    : 'border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10'
+                    : 'border-[color:var(--neu-edge)] bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10'
                 }`}
               >
                 <div

@@ -37,7 +37,7 @@ export const TablatureBackground: React.FC<TablatureBackgroundProps> = ({
           return (
             <div
               key={lineIdx}
-              className="font-mono text-gray-600 dark:text-gray-500 whitespace-pre relative leading-[1.8em] tracking-wide overflow-hidden"
+              className="font-mono text-[color:var(--neu-text-muted)] whitespace-pre relative leading-[1.8em] tracking-wide overflow-hidden"
               style={{
                 fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace',
                 whiteSpace: 'pre',
@@ -50,7 +50,7 @@ export const TablatureBackground: React.FC<TablatureBackgroundProps> = ({
                 // Inclure E majuscule pour la dernière corde (E grave) - même UI que le reste
                 const isStruct = /[|eBGDACHSKE]/.test(char);
                 const className = isStruct 
-                  ? "text-gray-500 dark:text-gray-400 opacity-100" 
+                  ? "text-[color:var(--neu-text-muted)] opacity-100" 
                   : "opacity-30";
 
                 return (

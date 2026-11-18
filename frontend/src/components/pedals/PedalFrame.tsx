@@ -1,21 +1,17 @@
 import { ReactNode, useMemo } from 'react'
 import { Pedal, PedalSize, PedalProps } from '../Pedal'
 import { PedalModel } from '../../data/pedals'
+import { resolveBrandPedalChrome } from '../../utils/brandPedalChrome'
 
 export interface PedalFrameProps extends Omit<PedalProps, 'brand' | 'model' | 'accentColor' | 'size'> {
   model: PedalModel
   size?: PedalSize
-  layout?: 'default' | 'flex' | 'grid' | 'eq' | 'three-knobs' | 'four-knobs' | 'switch-selector-with-knobs' | 'l-grid-3x2' | 'gmajor2'
+  layout?: 'default' | 'flex' | 'grid' | 'eq' | 'two-knobs' | 'three-knobs' | 'four-knobs' | 'switch-selector-with-knobs' | 'l-grid-3x2' | 'gmajor2'
   children: ReactNode
 }
 
 // Fonction helper pour déterminer la taille de la pédale selon le nombre de contrôles
 export function determinePedalSize(pedalModel: PedalModel): PedalSize {
-  // Oceans 11 : taille XL forcée
-  if (pedalModel.id === 'electro-harmonix-oceans-11') {
-    return 'XL'
-  }
-  
   const paramCount = Object.keys(pedalModel.parameters).length
   
   const horizontalSliders = Object.values(pedalModel.parameters).filter(
@@ -25,6 +21,10 @@ export function determinePedalSize(pedalModel: PedalModel): PedalSize {
   const switchSelectors = Object.values(pedalModel.parameters).filter(
     p => p.controlType === 'switch-selector'
   ).length
+
+  const hasManyModeSwitch = Object.values(pedalModel.parameters).some(
+    p => p.controlType === 'switch-selector' && p.labels && p.labels.length >= 6
+  )
   
   // Compter les knobs uniquement
   const knobs = Object.values(pedalModel.parameters).filter(
@@ -35,24 +35,50 @@ export function determinePedalSize(pedalModel: PedalModel): PedalSize {
   const switches = Object.values(pedalModel.parameters).filter(
     p => p.controlType === 'switch-vertical' || p.controlType === 'switch-horizontal'
   ).length
+
+  // Envelope filters / wah sans treadle → taille 1
+  if (
+    pedalModel.id === 'ehx-q-tron' ||
+    pedalModel.id === 'mutron-iii' ||
+    pedalModel.id === 'boss-aw3' ||
+    pedalModel.id === 'digitech-synth-wah'
+  ) {
+    return 'M'
+  }
+
+  // RV-6 → taille 2 (L)
+  if (pedalModel.id === 'boss-rv6') return 'L'
+
+  // Flint, G-Major 2, wah treadle → M + shell-1-5x
+  if (
+    pedalModel.id === 'strymon-flint' ||
+    pedalModel.id === 'tc-gmajor2' ||
+    pedalModel.type === 'wah'
+  ) {
+    return 'M'
+  }
+
+  // Switch multi-modes (6+) → XL (Oceans 11, etc.)
+  if (hasManyModeSwitch) return 'XL'
   
-  // Les EQ doivent avoir une taille adaptée au nombre de bandes
+  // EQ : largeur proportionnelle aux bandes (faders compact)
+  // 10-band → XL (690) · GE-7 → L (460) · programmable → L · ParaEQ → M (230)
   if (pedalModel.type === 'eq') {
-    // Compter uniquement les bandes (exclure level)
     const eqBands = Object.entries(pedalModel.parameters).filter(
       ([name]) => name.toLowerCase() !== 'level'
     ).length
     const totalSliders = Object.values(pedalModel.parameters).filter(
       p => p.controlType === 'slider'
     ).length
-    
-    if (eqBands >= 10) return 'XXL'
-    if (eqBands >= 7) return 'XL'
+
+    if (eqBands >= 10) return 'XL'
     if (eqBands >= 5) return 'L'
-    // ParaEQ a 4 sliders (3 bandes + level), besoin de L pour tout afficher
-    if (totalSliders >= 4) return 'L'
-    return 'M' // Minimum M pour les EQ
+    if (totalSliders >= 4) return 'M'
+    return 'M'
   }
+
+  // Sliders horizontaux (Walrus Fundamental) → M ; largeur 1.5× appliquée via has-horizontal-sliders
+  if (horizontalSliders > 0) return 'M'
   
   // Si la pédale contient des switches, utiliser au minimum 'M' pour éviter le débordement
   if (switches > 0) {
@@ -69,11 +95,6 @@ export function determinePedalSize(pedalModel: PedalModel): PedalSize {
       return 'M'
     }
     // Un seul switch-selector
-    // Si le switch-selector a beaucoup de positions (6+), utiliser L
-    const switchSelectorWithManyPositions = Object.values(pedalModel.parameters).some(
-      p => p.controlType === 'switch-selector' && p.labels && p.labels.length >= 6
-    )
-    if (switchSelectorWithManyPositions && knobs >= 2) return 'L'
     if (knobs >= 5) return 'L'
     if (knobs >= 3) return 'M'
     if (knobs === 1) return 'M' // 1 knob avec switch-selector
@@ -81,11 +102,6 @@ export function determinePedalSize(pedalModel: PedalModel): PedalSize {
   }
   
   if (paramCount >= 7) return 'XL'
-  
-  if (horizontalSliders > 0 || switchSelectors > 0) {
-    if (paramCount >= 5) return 'L'
-    return 'M'
-  }
   
   // Pour les pédales avec uniquement des knobs
   if (knobs >= 5) return 'L'
@@ -105,11 +121,20 @@ export function PedalFrame({
   className = '',
   onClick,
   onBypassToggle,
-  showFootswitch = true,
+  showFootswitch: _showFootswitch = true,
   bottomActions,
   ...rest
 }: PedalFrameProps) {
+  void _showFootswitch
   const pedalSize = useMemo(() => size || determinePedalSize(model), [size, model])
+  const chrome = useMemo(() => {
+    const base = resolveBrandPedalChrome(model.brand)
+    return {
+      engageStyle: model.ui?.engageStyle ?? base.engageStyle,
+      ledSide: model.ui?.ledSide ?? base.ledSide,
+      footShape: model.ui?.footShape ?? base.footShape,
+    }
+  }, [model])
   
   // Couleur principale de la pédale - utilisée de manière cohérente partout
   const accentColor = model.accentColor
@@ -117,6 +142,17 @@ export function PedalFrame({
   // Déterminer les classes CSS selon le layout
   const layoutClasses = useMemo(() => {
     const classes: string[] = []
+
+    // Largeur 1.5× (Flint, wah treadle, G-Major 2) — RV-6 = L (taille 2)
+    const shell15 =
+      model.id === 'strymon-flint' ||
+      model.id === 'tc-gmajor2' ||
+      (model.type === 'wah' &&
+        model.id !== 'ehx-q-tron' &&
+        model.id !== 'mutron-iii' &&
+        model.id !== 'boss-aw3' &&
+        model.id !== 'digitech-synth-wah')
+    if (shell15) classes.push('shell-1-5x')
     
     switch (layout) {
       case 'flex':
@@ -124,6 +160,9 @@ export function PedalFrame({
         break
       case 'eq':
         classes.push('is-eq-pedal')
+        break
+      case 'two-knobs':
+        classes.push('has-two-knobs')
         break
       case 'three-knobs':
         classes.push('has-three-knobs')
@@ -140,14 +179,26 @@ export function PedalFrame({
       case 'gmajor2':
         classes.push('is-gmajor2')
         break
-      default:
-        // Détecter automatiquement certains layouts
-        const hasHorizontalSliders = Object.values(model.parameters).some(
+      default: {
+        const params = Object.values(model.parameters)
+        const hasHorizontalSliders = params.some(
           p => p.controlType === 'slider' && p.orientation === 'horizontal'
         )
         if (hasHorizontalSliders) {
           classes.push('has-horizontal-sliders')
         }
+        const knobs = params.filter(p => !p.controlType || p.controlType === 'knob')
+        const nonKnobs = params.filter(
+          p => p.controlType && p.controlType !== 'knob'
+        )
+        // 2 potards → 1+1 empilés ; 3 → 2+1 (RAT / DS-1)
+        if (knobs.length === 2 && nonKnobs.length === 0) {
+          classes.push('has-two-knobs')
+        } else if (knobs.length === 3 && nonKnobs.length === 0) {
+          classes.push('has-three-knobs')
+        }
+        break
+      }
     }
     
     return classes.join(' ')
@@ -163,8 +214,12 @@ export function PedalFrame({
       className={`${layoutClasses} ${className}`.trim()}
       onClick={onClick}
       onBypassToggle={onBypassToggle}
-      showFootswitch={showFootswitch}
+      showFootswitch={true}
       bottomActions={bottomActions}
+      auroraBg={model.brand === 'WebAmp'}
+      engageStyle={chrome.engageStyle}
+      ledSide={chrome.ledSide}
+      footShape={chrome.footShape}
       {...rest}
     >
       {children}

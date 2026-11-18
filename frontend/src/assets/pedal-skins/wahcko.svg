@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 230 460" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="wg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#c4b5fd"/>
+      <stop offset="45%" stop-color="#2dd4bf"/>
+      <stop offset="100%" stop-color="#facc15"/>
+    </linearGradient>
+  </defs>
+  <rect width="230" height="460" fill="url(#wg)"/>
+  <path d="M0 40 L18 120 L0 200 Z" fill="#0a0a0a" opacity=".35"/>
+  <path d="M230 60 L212 140 L230 220 Z" fill="#0a0a0a" opacity=".35"/>
+  <rect x="28" y="70" width="174" height="280" rx="10" fill="#171717" opacity=".92"/>
+  <g stroke="#262626" stroke-width="6">
+    <line x1="28" y1="100" x2="202" y2="100"/>
+    <line x1="28" y1="140" x2="202" y2="140"/>
+    <line x1="28" y1="180" x2="202" y2="180"/>
+    <line x1="28" y1="220" x2="202" y2="220"/>
+    <line x1="28" y1="260" x2="202" y2="260"/>
+    <line x1="28" y1="300" x2="202" y2="300"/>
+  </g>
+</svg>

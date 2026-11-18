@@ -8,7 +8,7 @@ const pedalId = 'boss-ds1'
 
 /**
  * Composant complet de la pédale BOSS DS-1
- * Layout : 3 knobs en ligne
+ * Layout : 3 knobs en 2+1
  */
 export function BossDs1Pedal({ 
   values = {}, 

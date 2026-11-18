@@ -3,6 +3,7 @@
 
 import { handleCors, createCorsJsonResponse, createCorsErrorResponse } from '../_shared/cors.ts'
 import { callGemini } from '../_shared/gemini.ts'
+import { guardAuthedPost, safeClientError } from '../_shared/guard.ts'
 
 interface RankPreset {
   id: string
@@ -34,8 +35,6 @@ interface RankResponse {
 }
 
 async function callLLMForRanking(prompt: string): Promise<RankResponse> {
-  // Utilise Gemini API via le helper partagé
-
   const systemPrompt = `
 Tu es un moteur de recommandation de presets pour WebAmp.
 On te fournit une liste de presets candidats et un contexte utilisateur.
@@ -54,59 +53,25 @@ Contraintes :
 - Ne renvoie AUCUN autre texte que le JSON.
 `
 
-  const body = {
-    model,
-    messages: [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: prompt },
-    ],
-    response_format: { type: 'json_object' },
-  }
-
-  const resp = await fetch(`${baseUrl}/chat/completions`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify(body),
+  return await callGemini<RankResponse>(systemPrompt, prompt, {
+    temperature: 0.3,
+    maxOutputTokens: 2048,
   })
-
-  if (!resp.ok) {
-    const text = await resp.text()
-    console.error('LLM API error (ai-rank-presets)', resp.status, text)
-    throw new Error(`LLM API error: ${resp.status}`)
-  }
-
-  const data = await resp.json()
-  const content = data.choices?.[0]?.message?.content
-  if (!content) {
-    throw new Error('Empty LLM response')
-  }
-
-  try {
-    const parsed = JSON.parse(content) as RankResponse
-    return parsed
-  } catch (err) {
-    console.error('Failed to parse LLM JSON content (ai-rank-presets)', content, err)
-    throw new Error('Invalid JSON from LLM')
-  }
 }
 
 async function handlePresetRankingRequest(req: Request): Promise<Response> {
-  if (req.method === 'OPTIONS') {
-    return createCorsJsonResponse({ ok: true })
-  }
-
-  if (req.method !== 'POST') {
-    return createCorsErrorResponse('Method not allowed', 405)
-  }
+  const gate = await guardAuthedPost(req, 'ai-rank-presets')
+  if (!gate.ok) return gate.response
+  const { origin } = gate
 
   try {
     const body = (await req.json()) as RankRequest
 
     if (!body.presets || !Array.isArray(body.presets) || body.presets.length === 0) {
-      return createCorsErrorResponse('presets (array) is required', 400)
+      return createCorsErrorResponse('presets (array) is required', 400, {}, origin)
+    }
+    if (body.presets.length > 50) {
+      body.presets = body.presets.slice(0, 50)
     }
 
     const contextLines: string[] = []
@@ -147,22 +112,11 @@ Retourne UNIQUEMENT le JSON RankResponse.`
 
     const ranking = await callLLMForRanking(prompt)
 
-    return createCorsJsonResponse(
-      {
-        ok: true,
-        ranking,
-      },
-      200,
-    )
+    return createCorsJsonResponse({ ok: true, ranking }, 200, {}, origin)
   } catch (error) {
     console.error('ai-rank-presets error:', error)
-    return createCorsErrorResponse(
-      error instanceof Error ? error.message : 'Unknown error',
-      500,
-    )
+    return createCorsErrorResponse(safeClientError(error), 500, {}, origin)
   }
 }
 
-serve((req) => handleCors(req, handlePresetRankingRequest))
-
-
+Deno.serve((req) => handleCors(req, handlePresetRankingRequest))

@@ -5,6 +5,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { handleCors, createCorsJsonResponse, createCorsErrorResponse } from '../_shared/cors.ts'
 import { callGemini } from '../_shared/gemini.ts'
+import { guardAuthedPost, safeClientError } from '../_shared/guard.ts'
 
 interface AnalyzeRequest {
   genre?: string
@@ -73,25 +74,21 @@ Contraintes :
 }
 
 async function handleAnalysisRequest(req: Request): Promise<Response> {
-  if (req.method === 'OPTIONS') {
-    return createCorsJsonResponse({ ok: true })
-  }
-
-  if (req.method !== 'POST') {
-    return createCorsErrorResponse('Method not allowed', 405)
-  }
+  const gate = await guardAuthedPost(req, 'ai-analyze')
+  if (!gate.ok) return gate.response
+  const { origin } = gate
 
   try {
     let body: AnalyzeRequest
     try {
       body = await req.json() as AnalyzeRequest
     } catch {
-      return createCorsErrorResponse('Invalid JSON body', 400)
+      return createCorsErrorResponse('Invalid JSON body', 400, {}, origin)
     }
 
     // Validation des entrées
     if (!body || typeof body !== 'object') {
-      return createCorsErrorResponse('Invalid request body', 400)
+      return createCorsErrorResponse('Invalid request body', 400, {}, origin)
     }
 
     // Validation et sanitisation des champs
@@ -107,6 +104,8 @@ async function handleAnalysisRequest(req: Request): Promise<Response> {
       return createCorsErrorResponse(
         'Au moins un champ parmi genre, artist, songTitle ou mood est requis',
         400,
+        {},
+        origin,
       )
     }
 
@@ -129,13 +128,12 @@ async function handleAnalysisRequest(req: Request): Promise<Response> {
         analysis,
       },
       200,
+      {},
+      origin,
     )
   } catch (error) {
     console.error('ai-analyze error:', error)
-    return createCorsErrorResponse(
-      error instanceof Error ? error.message : 'Unknown error',
-      500,
-    )
+    return createCorsErrorResponse(safeClientError(error), 500, {}, origin)
   }
 }
 

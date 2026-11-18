@@ -99,15 +99,15 @@ export function ContactSupportModal({ isOpen, onClose }: ContactSupportModalProp
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-4">
           <div>
-            <label htmlFor="name" className="block text-sm font-semibold text-black/85 dark:text-white/90 mb-2">
-              Nom <span className="text-red-500">*</span>
+            <label htmlFor="name" className="block text-sm font-semibold text-[var(--td-text-primary)] mb-2">
+              Nom <span className="text-[var(--td-danger)]">*</span>
             </label>
             <input
               id="name"
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg bg-white dark:bg-gray-700 border-2 border-black/15 dark:border-white/15 text-black/90 dark:text-white/90 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:focus:ring-orange-400 transition-colors"
+              className="w-full px-4 py-3 rounded-[var(--td-radius-sm)] bg-[var(--td-control-surface)] border-2 border-[var(--td-edge-control)] text-[var(--td-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--td-focus)] transition-colors"
               placeholder="Votre nom"
               required
               disabled={isSubmitting}
@@ -115,15 +115,15 @@ export function ContactSupportModal({ isOpen, onClose }: ContactSupportModalProp
           </div>
 
           <div>
-            <label htmlFor="email" className="block text-sm font-semibold text-black/85 dark:text-white/90 mb-2">
-              Email <span className="text-red-500">*</span>
+            <label htmlFor="email" className="block text-sm font-semibold text-[var(--td-text-primary)] mb-2">
+              Email <span className="text-[var(--td-danger)]">*</span>
             </label>
             <input
               id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg bg-white dark:bg-gray-700 border-2 border-black/15 dark:border-white/15 text-black/90 dark:text-white/90 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:focus:ring-orange-400 transition-colors"
+              className="w-full px-4 py-3 rounded-[var(--td-radius-sm)] bg-[var(--td-control-surface)] border-2 border-[var(--td-edge-control)] text-[var(--td-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--td-focus)] transition-colors"
               placeholder="votre@email.com"
               required
               disabled={isSubmitting}
@@ -131,15 +131,15 @@ export function ContactSupportModal({ isOpen, onClose }: ContactSupportModalProp
           </div>
 
           <div>
-            <label htmlFor="subject" className="block text-sm font-semibold text-black/85 dark:text-white/90 mb-2">
-              Sujet <span className="text-red-500">*</span>
+            <label htmlFor="subject" className="block text-sm font-semibold text-[var(--td-text-primary)] mb-2">
+              Sujet <span className="text-[var(--td-danger)]">*</span>
             </label>
             <input
               id="subject"
               type="text"
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg bg-white dark:bg-gray-700 border-2 border-black/15 dark:border-white/15 text-black/90 dark:text-white/90 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:focus:ring-orange-400 transition-colors"
+              className="w-full px-4 py-3 rounded-[var(--td-radius-sm)] bg-[var(--td-control-surface)] border-2 border-[var(--td-edge-control)] text-[var(--td-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--td-focus)] transition-colors"
               placeholder="Sujet de votre message"
               required
               disabled={isSubmitting}
@@ -147,15 +147,15 @@ export function ContactSupportModal({ isOpen, onClose }: ContactSupportModalProp
           </div>
 
           <div>
-            <label htmlFor="message" className="block text-sm font-semibold text-black/85 dark:text-white/90 mb-2">
-              Message <span className="text-red-500">*</span>
+            <label htmlFor="message" className="block text-sm font-semibold text-[var(--td-text-primary)] mb-2">
+              Message <span className="text-[var(--td-danger)]">*</span>
             </label>
             <textarea
               id="message"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               rows={6}
-              className="w-full px-4 py-3 rounded-lg bg-white dark:bg-gray-700 border-2 border-black/15 dark:border-white/15 text-black/90 dark:text-white/90 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:focus:ring-orange-400 transition-colors resize-none"
+              className="w-full px-4 py-3 rounded-[var(--td-radius-sm)] bg-[var(--td-control-surface)] border-2 border-[var(--td-edge-control)] text-[var(--td-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--td-focus)] transition-colors resize-none"
               placeholder="Décrivez votre question ou problème..."
               required
               disabled={isSubmitting}
@@ -163,7 +163,7 @@ export function ContactSupportModal({ isOpen, onClose }: ContactSupportModalProp
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-3 pt-4 border-t border-black/10 dark:border-white/10">
+        <div className="flex items-center justify-end gap-3 pt-4 border-t border-[var(--td-edge-panel)]">
           <CTA
             variant="secondary"
             onClick={onClose}

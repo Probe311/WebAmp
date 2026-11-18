@@ -23,16 +23,16 @@ export function EffectSpotlight() {
 
         <div className="space-y-3">
           <div>
-            <p className="text-xs uppercase text-black/60 dark:text-white/60 mb-1">{effect.type}</p>
-            <h3 className="text-xl font-bold text-black/85 dark:text-white leading-tight">{effect.name}</h3>
-            <p className="text-sm text-black/75 dark:text-white/80 mt-2">{effect.tagline}</p>
+            <p className="text-xs uppercase text-[color:var(--neu-text-muted)] mb-1">{effect.type}</p>
+            <h3 className="text-xl font-bold text-[color:var(--neu-text)] dark:text-white leading-tight">{effect.name}</h3>
+            <p className="text-sm text-[color:var(--neu-text)]/75 dark:text-white/80 mt-2">{effect.tagline}</p>
           </div>
 
-          <p className="text-sm text-black/70 dark:text-white/70 line-clamp-4">{effect.description}</p>
+          <p className="text-sm text-[color:var(--neu-text-muted)] line-clamp-4">{effect.description}</p>
 
           {effect.notableUse && (
-            <div className="text-xs text-black/65 dark:text-white/65 bg-black/5 dark:bg-white/5 rounded-md px-3 py-2 border border-black/5 dark:border-white/5">
-              <span className="font-semibold text-black/80 dark:text-white/80 mr-2">On l’entend chez</span>
+            <div className="text-xs text-[color:var(--neu-text)]/65 dark:text-white/65 bg-black/5 dark:bg-white/5 rounded-[var(--td-radius-control)] px-3 py-2 border border-black/5 dark:border-white/5">
+              <span className="font-semibold text-[color:var(--neu-text)] mr-2">On l’entend chez</span>
               {effect.notableUse}
             </div>
           )}

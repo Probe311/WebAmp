@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { Block } from '../components/Block'
 import { PartnerLogosCarousel } from '../components/PartnerLogosCarousel'
 import { LearningProgress } from '../components/learn/LearningProgress'
@@ -10,9 +9,8 @@ import { useFeatureFlags } from '../hooks/useFeatureFlags'
 import { MusicianSpotlight } from '../components/home/MusicianSpotlight'
 import { PedalOfTheDay } from '../components/home/PedalOfTheDay'
 import { EffectSpotlight } from '../components/home/EffectSpotlight'
-import { ContactSupportModal } from '../components/ContactSupportModal'
-import { CTA } from '../components/CTA'
-import { HeartHandshake, HelpCircle } from 'lucide-react'
+import { SplitText, BlurText, FadeContent } from '../components/motion'
+import { HeartHandshake } from 'lucide-react'
 
 function getGreeting() {
   const hour = new Date().getHours()
@@ -29,8 +27,7 @@ interface HomePageProps {
 export function HomePage({ onNavigateToLearn, onNavigateToPedalboard }: HomePageProps) {
   const { user } = useAuth()
   const { isEnabled, loading: flagsLoading } = useFeatureFlags()
-  const [showContactModal, setShowContactModal] = useState(false)
-  
+
   const getFirstName = () => {
     if (user?.user_metadata?.first_name) {
       return user.user_metadata.first_name
@@ -43,76 +40,64 @@ export function HomePage({ onNavigateToLearn, onNavigateToPedalboard }: HomePage
   const useAlternateContent = !flagsLoading && !isEnabled('page_learn') && !isEnabled('page_gallery')
 
   return (
-    <>
-    <div className="h-full overflow-y-auto custom-scrollbar p-6 pb-24">
+    <div className="custom-scrollbar h-full overflow-y-auto bg-[color:var(--neu-bg)] px-4 pb-5 pt-4 sm:px-5 sm:pt-5">
       <div className="w-full">
-        {/* Message de bienvenue */}
-        <div className="mb-8">
-          <h1 className="text-5xl font-bold text-black/85 dark:text-white/90 mb-2">
-            {greeting}{firstName ? ',' : ' !'}
-          </h1>
+        <div className="mb-6">
+          <SplitText
+            text={`${greeting}${firstName ? ',' : ' !'}`}
+            tag="h1"
+            className="mb-1 text-3xl font-bold text-[color:var(--neu-text)] sm:text-4xl"
+          />
           {firstName && (
-            <h2 className="text-5xl font-bold text-orange-500 dark:text-orange-400 mb-2">
-              {firstName}
-            </h2>
+            <BlurText
+              text={firstName}
+              tag="h2"
+              className="mb-1 text-3xl font-bold text-[color:var(--neu-accent)] sm:text-4xl"
+              delay={0.25}
+            />
           )}
-          <p className="text-xl text-black/70 dark:text-white/70">
-            {firstName ? 'Prêt à créer de la musique ?' : 'Bienvenue sur WebAmp'}
-          </p>
+          <FadeContent delay={0.35}>
+            <p className="text-base text-[color:var(--neu-text-muted)] sm:text-lg">
+              {firstName ? 'Prêt à créer de la musique ?' : 'Bienvenue sur WebAmp'}
+            </p>
+          </FadeContent>
         </div>
-        {/* Grille Bento */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Carte 1 - Continue Learning (Grande) */}
-          {useAlternateContent ? (
-            <MusicianSpotlight />
-          ) : (
-            <ContinueLearning onNavigateToLearn={onNavigateToLearn} />
-          )}
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+          <FadeContent delay={0.05} className="h-full min-w-0">
+            {useAlternateContent ? (
+              <MusicianSpotlight />
+            ) : (
+              <ContinueLearning onNavigateToLearn={onNavigateToLearn} />
+            )}
+          </FadeContent>
 
-          {/* Carte 2 - Carrousel des logos partenaires */}
-          <Block className="relative z-10 h-full flex flex-col justify-between">
-          <div className="flex items-center gap-2 mb-4">
-            <HeartHandshake size={18} className="text-orange-500" />
-            <span className="text-xs font-bold uppercase tracking-wider text-orange-500">
-              Merci à
-            </span>
-          </div>
+          <Block className="relative z-10 flex h-full min-w-0 flex-col justify-between" spotlight glare fadeIn fadeDelay={0.1}>
+            <div className="mb-4 flex items-center gap-2">
+              <HeartHandshake size={18} className="text-[color:var(--neu-accent)]" />
+              <span className="text-xs font-bold uppercase tracking-wider text-[color:var(--neu-accent)]">
+                Merci à
+              </span>
+            </div>
             <PartnerLogosCarousel />
           </Block>
 
-          {/* Carte 3 - Progression de l'apprentissage */}
-          {useAlternateContent ? (
-            <PedalOfTheDay onOpenPedalboard={onNavigateToPedalboard} />
-          ) : (
-            <LearningProgress />
-          )}
+          <FadeContent delay={0.15} className="h-full min-w-0">
+            {useAlternateContent ? (
+              <PedalOfTheDay onOpenPedalboard={onNavigateToPedalboard} />
+            ) : (
+              <LearningProgress />
+            )}
+          </FadeContent>
 
-          {/* Carte 4 - Daily Jam */}
-          <DailyJam onOpenPedalboard={() => onNavigateToPedalboard?.()} />
+          <FadeContent delay={0.2} className="h-full min-w-0">
+            <DailyJam onOpenPedalboard={() => onNavigateToPedalboard?.()} />
+          </FadeContent>
 
-          {/* Carte 5 - Weekly Practice */}
-          {useAlternateContent ? <EffectSpotlight /> : <WeeklyPractice />}
+          <FadeContent delay={0.25} className="h-full min-w-0">
+            {useAlternateContent ? <EffectSpotlight /> : <WeeklyPractice />}
+          </FadeContent>
         </div>
       </div>
     </div>
-
-      {/* Bouton CTA Contact/Support en bas à droite, aligné sur la navbar */}
-      <div className="fixed bottom-6 right-6 z-50">
-        <CTA
-          variant="icon-only"
-          icon={<HelpCircle size={24} />}
-          onClick={() => setShowContactModal(true)}
-          title="Contact & Support"
-          className="min-w-[56px] min-h-[56px] rounded-full shadow-[8px_8px_16px_rgba(0,0,0,0.1),-8px_-8px_16px_rgba(255,255,255,0.9)] dark:shadow-[8px_8px_16px_rgba(0,0,0,0.5),-8px_-8px_16px_rgba(60,60,60,0.5)] hover:shadow-[10px_10px_20px_rgba(0,0,0,0.15),-10px_-10px_20px_rgba(255,255,255,1)] dark:hover:shadow-[10px_10px_20px_rgba(0,0,0,0.6),-10px_-10px_20px_rgba(70,70,70,0.6)]"
-        />
-      </div>
-
-      {/* Modale de contact/support */}
-      <ContactSupportModal
-        isOpen={showContactModal}
-        onClose={() => setShowContactModal(false)}
-      />
-    </>
   )
 }
-

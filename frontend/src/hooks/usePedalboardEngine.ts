@@ -1,13 +1,22 @@
 /**
- * Hook pour gérer le PedalboardEngine avec Web Audio API
+ * Accès au moteur audio de la session pour les composants.
+ *
+ * Ce hook ne crée plus de `PedalboardEngine` : il consomme le moteur unique
+ * exposé par `AudioSessionProvider`. L'API publique et la forme du retour sont
+ * inchangées, donc les appelants (Pedalboard, Tuner, Metronome, Looper) n'ont
+ * pas à être modifiés.
+ *
+ * Important : plus aucun `dispose()` au démontage. Fermer une fenêtre ne doit
+ * pas arrêter le signal ; la destruction du moteur est explicite
+ * (`resetSharedEngine`).
  */
 
-import { useEffect, useRef, useState, useCallback } from 'react'
-import { PedalboardEngine } from '../audio/PedalboardEngine'
+import { useEffect, useState, useCallback } from 'react'
+import { useAudioSession } from '../audio/AudioSessionContext'
 import { pedalLibrary } from '../data/pedals'
-import { Effect } from '../components/Pedalboard'
+import type { Effect } from '../audio/types'
 import { createLogger } from '../services/logger'
-import { DEFAULT_SAMPLE_RATE, DEFAULT_AUDIO_ROUTING } from '../config/constants'
+import { getPreference } from '../utils/userPreferences'
 
 const logger = createLogger('usePedalboardEngine')
 
@@ -18,31 +27,15 @@ export interface UsePedalboardEngineOptions {
 
 export function usePedalboardEngine(options: UsePedalboardEngineOptions = {}) {
   const { autoStart = false, enableAudioInput = false } = options
-  
-  const engineRef = useRef<PedalboardEngine | null>(null)
-  const [isInitialized, setIsInitialized] = useState(false)
+  const { engine } = useAudioSession()
+
   const [isRunning, setIsRunning] = useState(false)
   const [audioStream, setAudioStream] = useState<MediaStream | null>(null)
 
-  // Initialiser le moteur
-  useEffect(() => {
-    if (!engineRef.current) {
-      engineRef.current = new PedalboardEngine({
-        sampleRate: DEFAULT_SAMPLE_RATE,
-        routing: DEFAULT_AUDIO_ROUTING
-      })
-      setIsInitialized(true)
-    }
+  // Le moteur existe dès le montage du provider : la session est initialisée.
+  const isInitialized = true
 
-    return () => {
-      if (engineRef.current) {
-        engineRef.current.dispose()
-        engineRef.current = null
-      }
-    }
-  }, [])
-
-  // Nettoyer le stream audio séparément
+  // Nettoyer le stream micro au démontage (le moteur, lui, reste vivant)
   useEffect(() => {
     return () => {
       if (audioStream) {
@@ -51,126 +44,93 @@ export function usePedalboardEngine(options: UsePedalboardEngineOptions = {}) {
     }
   }, [audioStream])
 
-  // Démarrer/arrêter le moteur
   const start = useCallback(async () => {
-    if (!engineRef.current) return
-
     try {
-      await engineRef.current.start()
+      await engine.start()
       setIsRunning(true)
 
-      // Connecter l'entrée audio si demandé
       if (enableAudioInput) {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+        const deviceId = getPreference('audioDeviceId')
+        const audio =
+          deviceId && deviceId !== 'default'
+            ? ({ deviceId: { exact: deviceId } } satisfies MediaTrackConstraints)
+            : true
+        const stream = await navigator.mediaDevices.getUserMedia({ audio })
         setAudioStream(stream)
-        const audioCtx = engineRef.current.getAudioContext()
+        const audioCtx = engine.getAudioContext()
         if (!audioCtx) {
           return
         }
         const source = audioCtx.createMediaStreamSource(stream)
-        source.connect(engineRef.current.getInput())
+        source.connect(engine.getInput())
       }
     } catch (error) {
       logger.error('Échec du démarrage du moteur audio', error, { enableAudioInput })
     }
-  }, [enableAudioInput])
+  }, [engine, enableAudioInput])
 
   const stop = useCallback(() => {
-    if (engineRef.current) {
-      engineRef.current.stop()
-      setIsRunning(false)
-    }
+    engine.stop()
+    setIsRunning(false)
     if (audioStream) {
       audioStream.getTracks().forEach(track => track.stop())
       setAudioStream(null)
     }
-  }, [audioStream])
+  }, [engine, audioStream])
 
-  // Auto-start si demandé
   useEffect(() => {
-    if (autoStart && isInitialized && !isRunning) {
+    if (autoStart && !isRunning) {
       start()
     }
-  }, [autoStart, isInitialized, isRunning, start])
+  }, [autoStart, isRunning, start])
 
-  // Ajouter un effet
   const addEffect = useCallback(async (effect: Effect) => {
-    if (!engineRef.current) return
-
     const pedalModel = pedalLibrary.find(p => p.id === effect.pedalId)
     if (!pedalModel) {
       return
     }
 
     try {
-      // Utiliser l'effect.id comme clé dans le moteur (pas le pedalId)
-      await engineRef.current.addEffect(pedalModel, effect.parameters, effect.id)
+      await engine.addEffect(pedalModel, effect.parameters, effect.id)
     } catch (error) {
       logger.error('Échec d\'ajout d\'effet', error, { effectId: effect.id, pedalId: effect.pedalId })
     }
-  }, [])
+  }, [engine])
 
-  // Supprimer un effet
   const removeEffect = useCallback((effectId: string) => {
-    if (!engineRef.current) return
+    engine.removeEffect(effectId)
+  }, [engine])
 
-    // Trouver le pedalId depuis l'effectId
-    // Note: Dans une vraie implémentation, on devrait stocker le mapping
-    engineRef.current.removeEffect(effectId)
-  }, [])
-
-  // Mettre à jour les paramètres d'un effet
   const updateEffectParameters = useCallback(async (
     effectId: string,
     parameters: Record<string, number>
   ) => {
-    if (!engineRef.current) return
-
     try {
-      await engineRef.current.updateEffectParameters(effectId, parameters)
+      await engine.updateEffectParameters(effectId, parameters)
     } catch (error) {
       logger.error('Échec de mise à jour des paramètres d\'effet', error, { effectId, parameters })
     }
-  }, [])
+  }, [engine])
 
-  // Activer/désactiver un effet
   const setEffectEnabled = useCallback((effectId: string, enabled: boolean) => {
-    if (!engineRef.current) return
-    engineRef.current.setEffectEnabled(effectId, enabled)
-  }, [])
+    engine.setEffectEnabled(effectId, enabled)
+  }, [engine])
 
-  // Charger une IR personnalisée
-  const loadImpulseResponse = useCallback(async (
-    effectId: string,
-    irUrl: string
-  ) => {
-    if (!engineRef.current) return
+  const loadImpulseResponse = useCallback(async (effectId: string, irUrl: string) => {
+    await engine.loadImpulseResponse(effectId, irUrl)
+  }, [engine])
 
-    try {
-      await engineRef.current.loadImpulseResponse(effectId, irUrl)
-    } catch (error) {
-      throw error
-    }
-  }, [])
-
-  // Charger une IR depuis Freesound
   const loadImpulseResponseFromFreesound = useCallback(async (
     effectId: string,
     freesoundSoundId: number
   ) => {
-    if (!engineRef.current) return
-
-    try {
-      await engineRef.current.loadImpulseResponseFromFreesound(effectId, freesoundSoundId)
-    } catch (error) {
-      throw error
-    }
-  }, [])
+    await engine.loadImpulseResponseFromFreesound(effectId, freesoundSoundId)
+  }, [engine])
 
   return {
-    engine: engineRef.current,
-    audioContext: engineRef.current?.getAudioContext() || null,
-    audioSource: engineRef.current?.getInput() || null,
+    engine,
+    audioContext: engine.getAudioContext() || null,
+    audioSource: engine.getAudioContext() ? engine.getInput() : null,
     isInitialized,
     isRunning,
     start,
@@ -183,4 +143,3 @@ export function usePedalboardEngine(options: UsePedalboardEngineOptions = {}) {
     loadImpulseResponseFromFreesound
   }
 }
-

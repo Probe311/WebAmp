@@ -56,7 +56,7 @@ export function TonePackCard({
         <div className="flex items-start gap-4">
           {/* Thumbnail ou placeholder */}
           <div className={`
-            w-24 h-24 rounded-xl flex items-center justify-center flex-shrink-0
+            w-24 h-24 rounded-[var(--td-radius-well)] flex items-center justify-center flex-shrink-0
             bg-gradient-to-br from-orange-500/20 to-red-500/20
             dark:from-orange-500/30 dark:to-red-500/30
             group-hover:scale-110 transition-transform duration-300
@@ -65,7 +65,7 @@ export function TonePackCard({
               <img 
                 src={pack.thumbnail} 
                 alt={pack.name}
-                className="w-full h-full object-cover rounded-xl"
+                className="w-full h-full object-cover rounded-[var(--td-radius-well)]"
               />
             ) : (
               <Zap size={32} className="text-orange-500" />
@@ -76,10 +76,10 @@ export function TonePackCard({
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2 mb-2">
               <div className="flex-1 min-w-0">
-                <h3 className="text-lg font-bold text-black/85 dark:text-white/90 mb-1 group-hover:text-orange-500 dark:group-hover:text-orange-400 transition-colors truncate">
+                <h3 className="text-lg font-bold text-[color:var(--neu-text)] mb-1 group-hover:text-orange-500 dark:group-hover:text-orange-400 transition-colors truncate">
                   {pack.name}
                 </h3>
-                <p className="text-sm text-black/70 dark:text-white/70 line-clamp-2">
+                <p className="text-sm text-[color:var(--neu-text-muted)] line-clamp-2">
                   {pack.description}
                 </p>
               </div>
@@ -88,10 +88,10 @@ export function TonePackCard({
               <button
                 onClick={handleLike}
                 className={`
-                  p-2 rounded-lg transition-all duration-200 flex-shrink-0
+                  p-2 rounded-[var(--td-radius-control)] transition-all duration-200 flex-shrink-0
                   ${localLiked
                     ? 'text-red-500 bg-red-500/10 hover:bg-red-500/20'
-                    : 'text-black/50 dark:text-white/50 hover:text-red-500 hover:bg-red-500/10'
+                    : 'text-[color:var(--neu-text-faint)] hover:text-red-500 hover:bg-red-500/10'
                   }
                 `}
                 aria-label={localLiked ? 'Retirer des favoris' : 'Ajouter aux favoris'}
@@ -115,12 +115,12 @@ export function TonePackCard({
                 </span>
               )}
               {pack.genre && (
-                <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-200 dark:bg-gray-700 text-black/70 dark:text-white/70">
+                <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-200 dark:bg-gray-700 text-[color:var(--neu-text-muted)]">
                   {pack.genre}
                 </span>
               )}
               {pack.style && (
-                <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-200 dark:bg-gray-700 text-black/70 dark:text-white/70">
+                <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-200 dark:bg-gray-700 text-[color:var(--neu-text-muted)]">
                   {pack.style}
                 </span>
               )}
@@ -129,16 +129,16 @@ export function TonePackCard({
         </div>
 
         {/* Auteur */}
-        <div className="flex items-center gap-2 text-sm text-black/60 dark:text-white/60">
+        <div className="flex items-center gap-2 text-sm text-[color:var(--neu-text-muted)]">
           <User size={14} />
           <span>{pack.author.name}</span>
         </div>
 
         {/* Preview de la chaîne d'effets */}
         {chainPreview && (
-          <div className="p-3 bg-gray-100 dark:bg-gray-700/50 rounded-lg">
-            <div className="text-xs text-black/50 dark:text-white/50 mb-1">Chaîne d'effets :</div>
-            <div className="text-sm text-black/70 dark:text-white/70 font-mono truncate">
+          <div className="p-3 bg-gray-100 dark:bg-gray-700/50 rounded-[var(--td-radius-control)]">
+            <div className="text-xs text-[color:var(--neu-text-faint)] mb-1">Chaîne d'effets :</div>
+            <div className="text-sm text-[color:var(--neu-text-muted)] font-mono truncate">
               {chainPreview}
               {pack.chain.length > 5 && ` ... (+${pack.chain.length - 5} autres)`}
             </div>
@@ -157,7 +157,7 @@ export function TonePackCard({
               </span>
             ))}
             {pack.tags.length > 5 && (
-              <span className="text-xs text-black/50 dark:text-white/50">
+              <span className="text-xs text-[color:var(--neu-text-faint)]">
                 +{pack.tags.length - 5} autres
               </span>
             )}
@@ -165,7 +165,7 @@ export function TonePackCard({
         )}
 
         {/* Statistiques */}
-        <div className="flex items-center gap-4 text-sm text-black/60 dark:text-white/60">
+        <div className="flex items-center gap-4 text-sm text-[color:var(--neu-text-muted)]">
           <div className="flex items-center gap-1">
             <Download size={14} />
             <span>{pack.stats.downloads.toLocaleString()}</span>
@@ -193,7 +193,7 @@ export function TonePackCard({
                 e.stopPropagation()
                 setShowRatingModal(true)
               }}
-              className="flex items-center gap-1 text-black/40 dark:text-white/40 hover:text-yellow-500 dark:hover:text-yellow-400 transition-colors"
+              className="flex items-center gap-1 text-[color:var(--neu-text-faint)] hover:text-yellow-500 dark:hover:text-yellow-400 transition-colors"
               title="Soyez le premier à noter"
             >
               <Star size={14} />

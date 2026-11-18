@@ -33,7 +33,7 @@ export function LMSDashboard({ userId }: LMSDashboardProps) {
   if (!stats) {
     return (
       <Block className="p-8">
-        <p className="text-center text-black/70 dark:text-white/70">
+        <p className="text-center text-[color:var(--neu-text-muted)]">
           Aucune statistique disponible
         </p>
       </Block>

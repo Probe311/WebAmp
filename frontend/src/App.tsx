@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { TopBanner } from './components/TopBanner'
-import { BottomNavigation, PageId } from './components/BottomNavigation'
+import { ShellHeader } from './components/shell/ShellHeader'
 import { DrumMachinePanel } from './components/drummachine/DrumMachinePanel'
 import { RockStarProfilesModal } from './components/RockStarProfilesModal'
 import { PartnerThankYouModal } from './components/PartnerThankYouModal'
@@ -10,12 +9,16 @@ import { loadProfile, loadProfileSequentially } from './utils/profileLoader'
 import { loadTonePackSequentially } from './utils/tonePackLoader'
 import { TonePack } from './types/gallery'
 import { useToast } from './components/notifications/ToastProvider'
-import { PedalboardEngine } from './audio/PedalboardEngine'
+import { AudioSessionProvider, useAudioSession } from './audio/AudioSessionContext'
 import { useAuth } from './auth/AuthProvider'
+import { consumePostAuthApp } from './auth/authGateSession'
 import { HomePage } from './pages/HomePage'
-import { WebAmpPage } from './pages/WebAmpPage'
+import { PedalboardPage } from './pages/PedalboardPage'
+import { AmplifierPage } from './pages/AmplifierPage'
+import { MidiKeyboardPage } from './pages/MidiKeyboardPage'
 import { DawPage } from './pages/DawPage'
-import { PracticePage } from './pages/PracticePage'
+import { ChordsPage } from './pages/ChordsPage'
+import { TunerPage } from './pages/TunerPage'
 import { LearnPage } from './pages/LearnPage'
 import { MixingConsolePage } from './pages/MixingConsolePage'
 import { DrumMachinePage } from './pages/DrumMachinePage'
@@ -23,27 +26,38 @@ import { GalleryPage } from './pages/GalleryPage'
 import { SettingsPage } from './pages/SettingsPage'
 import { AccountPage } from './pages/AccountPage'
 import { AdminPage } from './pages/AdminPage'
-import { useFeatureFlags } from './hooks/useFeatureFlags'
+import { LooperPage } from './pages/LooperPage'
+import { MetronomePage } from './pages/MetronomePage'
 import { useAnalytics } from './hooks/useAnalytics'
 import { createLogger } from './services/logger'
-import { ADMIN_UUID } from './config/constants'
 import { pedalLibrary } from './data/pedals'
+import { WorkspaceProvider, useWorkspace } from './workspace/WorkspaceContext'
+import type { AppId } from './workspace/types'
+import { WindowGrid } from './components/shell/WindowGrid'
+import { AppDock } from './components/shell/AppDock'
+import { HelpFab } from './components/shell/HelpFab'
+import { useIsAdmin } from './hooks/useIsAdmin'
 
 const logger = createLogger('App')
 
-function App() {
+function AppShell() {
   const { showToast } = useToast()
   const { user } = useAuth()
-  const isAdmin = user?.id === ADMIN_UUID
+  const isAdmin = useIsAdmin()
   const [isLoading, setIsLoading] = useState(true)
-  const { isEnabled } = useFeatureFlags()
   const { pageView } = useAnalytics()
-  const [currentPage, setCurrentPage] = useState<PageId>('home')
+  const { openApp, closeApp, focusedAppId, windows } = useWorkspace()
+  const pedalboardOpen = windows.some((w) => w.appId === 'pedalboard' || w.appId === 'webamp')
   const [searchQuery, setSearchQuery] = useState('')
   const [librarySearchQuery, setLibrarySearchQuery] = useState('')
   const [autoOpenLibrary, setAutoOpenLibrary] = useState(false)
-  const [selectedAmplifier, setSelectedAmplifier] = useState<string | null>(null)
-  const [, setAmplifierParameters] = useState<Record<string, number>>({})
+  const postAuthHandledRef = useRef(false)
+  const {
+    engine,
+    amplifierId: selectedAmplifier,
+    setAmplifierId: setSelectedAmplifier,
+    setAmplifierParameters
+  } = useAudioSession()
   const [currentPedalIds, setCurrentPedalIds] = useState<string[]>([])
   const [showDrumMachineModal, setShowDrumMachineModal] = useState(false)
   const [showProfilesModal, setShowProfilesModal] = useState(false)
@@ -55,12 +69,11 @@ function App() {
     peakInput: -96,
     peakOutput: -96
   })
-  
+
   const addEffectRef = useRef<((pedalId: string) => void) | null>(null)
   const clearEffectsRef = useRef<(() => void) | null>(null)
   const audioContextResumedRef = useRef(false)
-  const engineRef = useRef<PedalboardEngine | null>(null)
-  
+
   const handleProfileSelect = useCallback(async (profileName: string) => {
     const profileResult = loadProfile(profileName)
     if (!profileResult) {
@@ -94,7 +107,7 @@ function App() {
         title: 'Profil chargé',
         message: `Ampli ${profileResult.amplifierId || 'par défaut'} et ${profileResult.pedalIds.length} pédale(s) appliqués.`
       })
-    } catch (error) {
+    } catch {
       showToast({
         variant: 'error',
         title: 'Erreur',
@@ -103,26 +116,29 @@ function App() {
     }
   }, [showToast, setSelectedAmplifier, setAmplifierParameters])
 
-  // Chargement initial de l'application
   useEffect(() => {
-    // Simuler un délai de chargement minimum pour une meilleure UX
-    const timer = setTimeout(() => {
-      setIsLoading(false)
-    }, 800)
-
+    const timer = setTimeout(() => setIsLoading(false), 800)
     return () => clearTimeout(timer)
   }, [])
 
-  // Charger un TonePack en attente depuis localStorage
+  // Après gate LP → ouvrir `next` / home (sessionStorage posé par AppWithAuth)
   useEffect(() => {
-    if (currentPage === 'webamp' && clearEffectsRef.current && addEffectRef.current) {
+    if (isLoading || !user || postAuthHandledRef.current) return
+    const target = consumePostAuthApp()
+    postAuthHandledRef.current = true
+    if (!target) return
+    openApp(target)
+    pageView(`/${target}`)
+  }, [isLoading, user, openApp, pageView])
+
+  useEffect(() => {
+    if (pedalboardOpen && clearEffectsRef.current && addEffectRef.current) {
       const pendingPackJson = localStorage.getItem('pendingTonePack')
       if (pendingPackJson) {
         try {
           const pack: TonePack = JSON.parse(pendingPackJson)
           localStorage.removeItem('pendingTonePack')
 
-          // Charger le pack de manière asynchrone
           loadTonePackSequentially(
             pack,
             clearEffectsRef.current,
@@ -148,100 +164,72 @@ function App() {
           localStorage.removeItem('pendingTonePack')
         }
       }
-    }
-    // Note: clearEffectsRef et addEffectRef sont des refs stables, pas besoin de les inclure
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, showToast, setSelectedAmplifier, setAmplifierParameters])
 
-  // Détecter une nouvelle connexion et afficher la popup de remerciement partenaire
+      const pendingProfile = localStorage.getItem('pendingRockStarProfile')
+      if (pendingProfile) {
+        localStorage.removeItem('pendingRockStarProfile')
+        void handleProfileSelect(pendingProfile)
+      }
+    }
+  }, [pedalboardOpen, showToast, setSelectedAmplifier, setAmplifierParameters, handleProfileSelect])
+
   useEffect(() => {
     const currentUserId = user?.id || null
-    
-    // Si l'utilisateur vient de se connecter (était null, maintenant connecté)
     if (currentUserId && previousUserRef.current === null && !isLoading) {
-      // Vérifier si la popup n'a pas déjà été affichée dans cette session
       const hasShownPopup = sessionStorage.getItem('partnerThankYouShown')
       if (!hasShownPopup) {
-        // Attendre un peu pour que l'interface soit chargée
         setTimeout(() => {
           setShowPartnerThankYouModal(true)
           sessionStorage.setItem('partnerThankYouShown', 'true')
         }, 1000)
       }
     }
-    
     previousUserRef.current = currentUserId
   }, [user, isLoading])
 
-  // Résumer l'AudioContext lors de la première interaction utilisateur
   useEffect(() => {
     const handleUserInteraction = async () => {
       if (audioContextResumedRef.current) return
-      
       try {
-        // Créer une instance temporaire du moteur pour accéder à l'AudioContext
-        if (!engineRef.current) {
-          const { DEFAULT_SAMPLE_RATE, DEFAULT_AUDIO_ROUTING } = await import('./config/constants')
-          engineRef.current = new PedalboardEngine({
-            sampleRate: DEFAULT_SAMPLE_RATE,
-            routing: DEFAULT_AUDIO_ROUTING
-          })
-        }
-        
-        // Résumer l'AudioContext du moteur
-        await engineRef.current.resumeAudioContext()
+        await engine.resumeAudioContext()
         audioContextResumedRef.current = true
-        
-        // Résumer aussi Tone.js si disponible
         try {
           const Tone = await import('tone')
-          if (Tone.context && Tone.context.state === 'suspended') {
+          if (Tone.context?.state === 'suspended') {
             try {
               await Tone.start()
+            } catch (error) {
+              logger.debug('Impossible de démarrer Tone.js, interaction utilisateur requise', { error })
+            }
+          }
         } catch (error) {
-          logger.debug('Impossible de démarrer Tone.js, interaction utilisateur requise', { error })
+          logger.debug("Tone.js n'est pas encore chargé", { error })
         }
-      } else if (Tone.context && Tone.context.state === 'running') {
-        // AudioContext déjà actif, rien à faire
+      } catch (error) {
+        logger.debug("Erreur lors de la résolution de l'AudioContext", { error })
       }
-    } catch (error) {
-      logger.debug('Tone.js n\'est pas encore chargé', { error })
     }
-  } catch (error) {
-    logger.debug('Erreur lors de la résolution de l\'AudioContext', { error })
-  }
-    }
-    
-    // Écouter les événements utilisateur pour résumer l'AudioContext
-    // Utiliser 'once: true' pour ne résumer qu'une seule fois
+
     const events = ['click', 'touchstart', 'keydown']
     const handlers: Array<() => void> = []
-    
-    events.forEach(event => {
+    events.forEach((event) => {
       const handler = () => {
         handleUserInteraction()
-        // Retirer tous les handlers après la première interaction
-        handlers.forEach(h => {
-          events.forEach(e => {
-            document.removeEventListener(e, h)
-          })
+        handlers.forEach((h) => {
+          events.forEach((e) => document.removeEventListener(e, h))
         })
       }
       handlers.push(handler)
       document.addEventListener(event, handler, { once: true, passive: true })
     })
-    
+
     return () => {
-      handlers.forEach(handler => {
-        events.forEach(event => {
-          document.removeEventListener(event, handler)
-        })
+      handlers.forEach((handler) => {
+        events.forEach((event) => document.removeEventListener(event, handler))
       })
     }
-  }, [])
+  }, [engine])
 
-
-  // Mémoriser les callbacks pour éviter les re-renders infinis
   const handleEffectsChange = useCallback((pedalIds: string[]) => {
     setCurrentPedalIds(pedalIds)
   }, [])
@@ -254,27 +242,10 @@ function App() {
     clearEffectsRef.current = fn
   }, [])
 
-  // Mapping des pages vers leurs feature flags
-  const pageFeatureFlags: Record<PageId, string | null> = {
-    'home': null,
-    'webamp': null,
-    'daw': 'page_daw',
-    'practice': 'page_practice',
-    'learn': 'page_learn',
-    'mixing': 'page_mixing',
-    'drummachine': 'page_drummachine',
-    'gallery': 'page_gallery',
-    'settings': null,
-    'account': null,
-    'admin': null
-  }
-
-  // Gérer la navigation vers le pedalboard avec recherche optionnelle
   const handleNavigateToPedalboard = useCallback((pedalId?: string) => {
     if (pedalId) {
-      const pedal = pedalLibrary.find(p => p.id === pedalId)
+      const pedal = pedalLibrary.find((p) => p.id === pedalId)
       if (pedal) {
-        // Utiliser le nom du modèle pour la recherche
         setLibrarySearchQuery(pedal.model)
         setAutoOpenLibrary(true)
       }
@@ -282,76 +253,34 @@ function App() {
       setLibrarySearchQuery('')
       setAutoOpenLibrary(false)
     }
-    setCurrentPage('webamp')
-    pageView('/webamp')
-  }, [pageView])
+    openApp('pedalboard')
+    pageView('/pedalboard')
+  }, [openApp, pageView])
 
-  // Gérer le changement de page avec redirection pour les pages nécessitant une authentification
-  const handlePageChange = useCallback((page: PageId) => {
-    // Si la page nécessite une authentification et que l'utilisateur n'est pas connecté, rediriger vers home
-    if (page === 'account' && !user) {
-      setCurrentPage('home')
-      return
-    }
-    // Si la page admin est demandée et que l'utilisateur n'est pas admin, rediriger vers home
-    if (page === 'admin' && !isAdmin) {
-      setCurrentPage('home')
-      showToast({
-        variant: 'error',
-        title: 'Accès refusé',
-        message: 'Vous n\'avez pas les droits d\'administration.'
-      })
-      return
-    }
-    // Vérifier le feature flag pour cette page
-    const featureFlagKey = pageFeatureFlags[page]
-    if (featureFlagKey && !isEnabled(featureFlagKey)) {
-      setCurrentPage('home')
-      showToast({
-        variant: 'info',
-        title: 'Page désactivée',
-        message: 'Cette page est actuellement désactivée.'
-      })
-      return
-    }
-    setCurrentPage(page)
-    // Tracker la vue de page
-    pageView(`/${page}`)
-  }, [user, isAdmin, showToast, isEnabled, pageView])
-
-  // Tracker la page initiale
   useEffect(() => {
-    if (!isLoading) {
-      pageView(`/${currentPage}`)
+    if (!isLoading && focusedAppId) {
+      pageView(`/${focusedAppId}`)
     }
-  }, [isLoading, currentPage, pageView])
+  }, [focusedAppId, isLoading, pageView])
 
-  // Afficher le loader pendant le chargement initial
-  if (isLoading) {
-    return <Loader fullScreen size="lg" text="Initialisation..." />
-  }
-
-  // Rendre la page appropriée
-  const renderPage = () => {
-    // Vérifier le feature flag pour la page actuelle
-    const featureFlagKey = pageFeatureFlags[currentPage]
-    if (featureFlagKey && !isEnabled(featureFlagKey)) {
-      return <HomePage onNavigateToLearn={() => setCurrentPage('learn')} onNavigateToPedalboard={handleNavigateToPedalboard} />
-    }
-
-    switch (currentPage) {
+  const renderApp = useCallback((appId: string) => {
+    switch (appId as AppId) {
       case 'home':
-        return <HomePage onNavigateToLearn={() => setCurrentPage('learn')} onNavigateToPedalboard={handleNavigateToPedalboard} />
-      case 'webamp':
         return (
-          <WebAmpPage
+          <HomePage
+            onNavigateToLearn={() => openApp('learn')}
+            onNavigateToPedalboard={handleNavigateToPedalboard}
+          />
+        )
+      case 'webamp':
+      case 'pedalboard':
+        return (
+          <PedalboardPage
             searchQuery={searchQuery}
             librarySearchQuery={librarySearchQuery}
             autoOpenLibrary={autoOpenLibrary}
             onLibraryOpened={() => setAutoOpenLibrary(false)}
-            selectedAmplifier={selectedAmplifier ?? undefined}
-            onAmplifierChange={setSelectedAmplifier}
-            onParametersChange={setAmplifierParameters}
+            currentAmplifierId={selectedAmplifier ?? undefined}
             currentPedalIds={currentPedalIds}
             onAddEffectRef={handleAddEffectRef}
             onClearEffectsRef={handleClearEffectsRef}
@@ -361,51 +290,110 @@ function App() {
             onOpenProfiles={() => setShowProfilesModal(true)}
           />
         )
+      case 'amplifier':
+        return (
+          <AmplifierPage
+            selectedAmplifier={selectedAmplifier ?? undefined}
+            onAmplifierChange={setSelectedAmplifier}
+            onParametersChange={setAmplifierParameters}
+            hasPedals={currentPedalIds.length > 0}
+          />
+        )
       case 'daw':
         return <DawPage />
-      case 'practice':
-        return <PracticePage />
-      case 'learn':
-        return <LearnPage />
       case 'mixing':
         return <MixingConsolePage stats={stats} />
+      case 'midi':
+        return <MidiKeyboardPage />
       case 'drummachine':
         return <DrumMachinePage />
+      case 'looper':
+        return <LooperPage />
+      case 'metronome':
+        return <MetronomePage />
+      case 'chords':
+        return <ChordsPage />
+      case 'tuner':
+        return <TunerPage />
+      case 'learn':
+        return <LearnPage />
       case 'gallery':
-        return <GalleryPage onNavigateToWebAmp={() => setCurrentPage('webamp')} />
+        return <GalleryPage onNavigateToWebAmp={() => openApp('pedalboard')} />
       case 'settings':
         return <SettingsPage />
       case 'account':
         return <AccountPage />
       case 'admin':
-        return isAdmin ? <AdminPage /> : <HomePage onNavigateToLearn={() => setCurrentPage('learn')} onNavigateToPedalboard={handleNavigateToPedalboard} />
+        if (!isAdmin) {
+          return (
+            <HomePage
+              onNavigateToLearn={() => openApp('learn')}
+              onNavigateToPedalboard={handleNavigateToPedalboard}
+            />
+          )
+        }
+        return <AdminPage />
       default:
-        return <HomePage onNavigateToLearn={() => setCurrentPage('learn')} onNavigateToPedalboard={handleNavigateToPedalboard} />
+        return (
+          <HomePage
+            onNavigateToLearn={() => openApp('learn')}
+            onNavigateToPedalboard={handleNavigateToPedalboard}
+          />
+        )
     }
+  }, [
+    openApp,
+    handleNavigateToPedalboard,
+    searchQuery,
+    librarySearchQuery,
+    autoOpenLibrary,
+    selectedAmplifier,
+    currentPedalIds,
+    handleAddEffectRef,
+    handleClearEffectsRef,
+    handleEffectsChange,
+    stats,
+    isAdmin,
+    setSelectedAmplifier,
+    setAmplifierParameters,
+  ])
+
+  useEffect(() => {
+    if (focusedAppId !== 'admin' || isAdmin) return
+    openApp('home')
+    showToast({
+      variant: 'error',
+      title: 'Accès refusé',
+      message: "Vous n'avez pas les droits d'administration.",
+    })
+  }, [focusedAppId, isAdmin, openApp, showToast])
+
+  // Compte = session uniquement (persist workspace / logout)
+  useEffect(() => {
+    if (user) return
+    if (!windows.some((w) => w.appId === 'account')) return
+    closeApp('account')
+  }, [user, windows, closeApp])
+
+  if (isLoading) {
+    return <Loader fullScreen size="lg" />
   }
 
   return (
-    <div className="flex flex-col h-screen bg-white dark:bg-gray-900 overflow-hidden transition-colors duration-200 custom-scrollbar">
-      <TopBanner 
+    <div className="neu-bg neu-theme-transition custom-scrollbar flex h-screen flex-col overflow-hidden">
+      <ShellHeader
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
-        stats={stats}
-        onProfileSelect={handleProfileSelect}
-        onLogoClick={() => handlePageChange('home')}
+        onLogoClick={() => openApp('home')}
       />
 
-      <main className="flex-1 overflow-hidden bg-white dark:bg-gray-900 relative transition-colors duration-200">
-        {renderPage()}
+      <main className="neu-bg neu-theme-transition relative flex-1 overflow-hidden">
+        <WindowGrid renderApp={renderApp} />
       </main>
 
-      <BottomNavigation
-        currentPage={currentPage}
-        onPageChange={handlePageChange}
-        isAuthenticated={!!user}
-        isAdmin={isAdmin}
-      />
+      <AppDock isAdmin={isAdmin} />
+      <HelpFab />
 
-      {/* Modal boîte à rythmes plein écran */}
       <Modal
         isOpen={showDrumMachineModal}
         onClose={() => setShowDrumMachineModal(false)}
@@ -416,19 +404,27 @@ function App() {
         <DrumMachinePanel />
       </Modal>
 
-      {/* Modal profils */}
       <RockStarProfilesModal
         isOpen={showProfilesModal}
         onClose={() => setShowProfilesModal(false)}
         onSelectProfile={handleProfileSelect}
       />
 
-      {/* Modal remerciement partenaire */}
       <PartnerThankYouModal
         isOpen={showPartnerThankYouModal}
         onClose={() => setShowPartnerThankYouModal(false)}
       />
     </div>
+  )
+}
+
+function App() {
+  return (
+    <AudioSessionProvider>
+      <WorkspaceProvider>
+        <AppShell />
+      </WorkspaceProvider>
+    </AudioSessionProvider>
   )
 }
 

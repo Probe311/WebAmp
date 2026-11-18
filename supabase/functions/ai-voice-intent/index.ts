@@ -4,6 +4,7 @@
 
 import { handleCors, createCorsJsonResponse, createCorsErrorResponse } from '../_shared/cors.ts'
 import { callGemini } from '../_shared/gemini.ts'
+import { guardAuthedPost, safeClientError } from '../_shared/guard.ts'
 
 interface VoiceIntentRequest {
   text: string
@@ -66,19 +67,15 @@ Contraintes :
 }
 
 async function handleVoiceIntentRequest(req: Request): Promise<Response> {
-  if (req.method === 'OPTIONS') {
-    return createCorsJsonResponse({ ok: true })
-  }
-
-  if (req.method !== 'POST') {
-    return createCorsErrorResponse('Method not allowed', 405)
-  }
+  const gate = await guardAuthedPost(req, 'ai-voice-intent')
+  if (!gate.ok) return gate.response
+  const { origin } = gate
 
   try {
     const body = (await req.json()) as VoiceIntentRequest
 
-    if (!body.text || typeof body.text !== 'string') {
-      return createCorsErrorResponse('text is required', 400)
+    if (!body.text || typeof body.text !== 'string' || body.text.length > 1000) {
+      return createCorsErrorResponse('text is required', 400, {}, origin)
     }
 
     const lang = body.language || 'fr'
@@ -99,22 +96,13 @@ Interprète cette commande en WebAmpCommand. Retourne UNIQUEMENT le JSON.
 
     const intent = await callLLMForIntent(prompt)
 
-    return createCorsJsonResponse(
-      {
-        ok: true,
-        intent,
-      },
-      200,
-    )
+    return createCorsJsonResponse({ ok: true, intent }, 200, {}, origin)
   } catch (error) {
     console.error('ai-voice-intent error:', error)
-    return createCorsErrorResponse(
-      error instanceof Error ? error.message : 'Unknown error',
-      500,
-    )
+    return createCorsErrorResponse(safeClientError(error), 500, {}, origin)
   }
 }
 
-serve((req) => handleCors(req, handleVoiceIntentRequest))
+Deno.serve((req) => handleCors(req, handleVoiceIntentRequest))
 
 

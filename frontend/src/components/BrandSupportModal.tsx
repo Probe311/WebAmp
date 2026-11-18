@@ -32,10 +32,10 @@ export function BrandSupportModal({ isOpen, onClose }: BrandSupportModalProps) {
       <div className="p-6 space-y-6">
         {/* Texte de remerciement */}
         <div className="text-center space-y-4">
-          <h3 className="text-xl font-semibold text-black/85 dark:text-white/90">
+          <h3 className="text-xl font-semibold text-[var(--td-text-primary)]">
             Merci à :
           </h3>
-          <p className="text-base text-black/70 dark:text-white/70 leading-relaxed">
+          <p className="text-base text-[var(--td-text-secondary)] leading-relaxed">
             WebAmp est fier de collaborer avec des marques de renom qui soutiennent notre projet 
             et certifient leurs équipements pour garantir une qualité sonore optimale.
           </p>
@@ -43,19 +43,19 @@ export function BrandSupportModal({ isOpen, onClose }: BrandSupportModalProps) {
 
         {/* Explication sur les icônes de certification */}
         <div className="space-y-4">
-          <div className="flex items-start gap-3 p-4 bg-[#f5f5f5] dark:bg-gray-700/50 rounded-lg border border-black/10 dark:border-white/10">
-            <BadgeCheck className="w-6 h-6 text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5" />
+          <div className="flex items-start gap-3 p-4 bg-[var(--td-control-track)]/50 rounded-[var(--td-radius-sm)] border border-[var(--td-edge-panel)]">
+            <BadgeCheck className="w-6 h-6 text-[var(--td-success)] flex-shrink-0 mt-0.5" />
             <div className="flex-1">
-              <p className="text-sm font-medium text-black/85 dark:text-white/85 mb-1">
+              <p className="text-sm font-medium text-[var(--td-text-primary)] mb-1">
                 Matériel certifié
               </p>
-              <p className="text-sm text-black/70 dark:text-white/70">
+              <p className="text-sm text-[var(--td-text-secondary)]">
                 Le matériel certifié par les marques partenaires est identifiable par l'icône suivante :{' '}
                 <span className="inline-flex items-center">
-                  <BadgeCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 mx-1" />
+                  <BadgeCheck className="w-4 h-4 text-[var(--td-success)] mx-1" />
                 </span>
               </p>
-              <p className="text-sm text-black/70 dark:text-white/70">
+              <p className="text-sm text-[var(--td-text-secondary)]">
                 Ces équipements ont été validés et approuvés par les fabricants pour garantir une reproduction fidèle de leurs caractéristiques sonores.
               </p>
             </div>
@@ -64,14 +64,14 @@ export function BrandSupportModal({ isOpen, onClose }: BrandSupportModalProps) {
 
         {/* Grille des logos */}
         <div className="space-y-4">
-          <h4 className="text-lg font-semibold text-black/85 dark:text-white/90 text-center">
+          <h4 className="text-lg font-semibold text-[var(--td-text-primary)] text-center">
             Marques partenaires
           </h4>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
             {supportingBrands.map((brand) => (
               <div
                 key={brand.name}
-                className="flex flex-col items-center justify-center p-4 bg-white dark:bg-gray-800 rounded-lg border border-black/10 dark:border-white/10 hover:shadow-lg transition-shadow duration-200 relative"
+                className="flex flex-col items-center justify-center p-4 bg-[var(--td-surface-elevated)] rounded-[var(--td-radius-sm)] border border-[var(--td-edge-panel)] hover:shadow-lg transition-shadow duration-200 relative"
               >
                 <img
                   src={brand.logo}
@@ -80,7 +80,7 @@ export function BrandSupportModal({ isOpen, onClose }: BrandSupportModalProps) {
                 />
                 <div className="absolute top-2 right-2">
                   <BadgeCheck 
-                    className="w-4 h-4 text-emerald-600 dark:text-emerald-400"
+                    className="w-4 h-4 text-[var(--td-success)]"
                   />
                 </div>
               </div>
@@ -92,11 +92,9 @@ export function BrandSupportModal({ isOpen, onClose }: BrandSupportModalProps) {
         <div className="flex justify-center pt-4">
           <button
             onClick={handleClose}
-            className="px-6 py-3 bg-black dark:bg-white text-white dark:text-black rounded-lg font-medium transition-all duration-200 hover:opacity-90 active:scale-95"
+            className="px-6 py-3 bg-[var(--td-primary-strong)] text-[var(--td-on-primary)] rounded-[var(--td-radius-sm)] font-medium transition-all duration-200 hover:opacity-90 active:scale-95"
             style={{
-              boxShadow: document.documentElement.classList.contains('dark')
-                ? '2px 2px 4px rgba(0, 0, 0, 0.5), -2px -2px 4px rgba(60, 60, 60, 0.5)'
-                : '2px 2px 4px rgba(0, 0, 0, 0.08), -2px -2px 4px rgba(255, 255, 255, 0.9)'
+              boxShadow: 'var(--td-elevation-1)'
             }}
           >
             Continuer

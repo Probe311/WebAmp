@@ -331,6 +331,61 @@ export function makeCompressor(
 }
 
 /**
+ * COMPRESSEUR SUSTAINER (WebAmp CS-400 / type Behringer CS400)
+ *
+ * Chaîne : DynamicsCompressor → tilt tone (lowshelf + highshelf) → gain de sortie.
+ * SUSTAIN pilote le seuil, le ratio et le knee (quantité de compression),
+ * ATTACK le temps d'attaque, TONE l'équilibre graves/aigus, LEVEL le niveau de sortie.
+ */
+export function makeSustainerCompressor(
+  audioCtx: AudioContext,
+  sustain: number = 50,
+  attack: number = 40,
+  tone: number = 50,
+  level: number = 50,
+  pedalId?: string
+): EffectNodes {
+  const comp = audioCtx.createDynamicsCompressor()
+  const lowShelf = audioCtx.createBiquadFilter()
+  const highShelf = audioCtx.createBiquadFilter()
+  const outputGain = audioCtx.createGain()
+
+  const thresholdValue = mapParameterToAudioValue('compressor', 'sustain', sustain, pedalId)
+  const attackValue = mapParameterToAudioValue('compressor', 'attack', attack, pedalId)
+  const toneValue = mapParameterToAudioValue('compressor', 'tone', tone, pedalId)
+  const levelValue = mapParameterToAudioValue('compressor', 'level', level, pedalId)
+
+  const amount = Math.max(0, Math.min(1, sustain / 100))
+
+  // Quantité de compression : plus SUSTAIN monte, plus le seuil descend
+  // et plus le ratio se rapproche d'un limiteur.
+  comp.threshold.value = thresholdValue
+  comp.knee.value = 6 + (1 - amount) * 24
+  comp.ratio.value = 2 + amount * 18
+  comp.attack.value = attackValue
+  comp.release.value = 0.12 + amount * 0.28
+
+  // TONE : bascule progressive graves/aigus autour du médium (0 = plat)
+  lowShelf.type = 'lowshelf'
+  lowShelf.frequency.value = 320
+  lowShelf.gain.value = -toneValue
+  highShelf.type = 'highshelf'
+  highShelf.frequency.value = 3200
+  highShelf.gain.value = toneValue
+
+  outputGain.gain.value = levelValue
+
+  comp.connect(lowShelf)
+  lowShelf.connect(highShelf)
+  highShelf.connect(outputGain)
+
+  return {
+    input: comp,
+    output: outputGain
+  }
+}
+
+/**
  * CHORUS - Delay + LFO
  */
 export function makeChorus(

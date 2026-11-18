@@ -13,7 +13,7 @@ export function CreationInspiration() {
         <Sparkles size={18} />
         <span className="text-sm font-semibold uppercase tracking-wider">Inspiration</span>
       </div>
-      <p className="text-black/70 dark:text-white/70 text-sm max-w-md">
+      <p className="text-[color:var(--neu-text-muted)] text-sm max-w-md">
         Une section &quot;Creation Inspiration&quot; sera bientôt disponible ici.
       </p>
     </Block>

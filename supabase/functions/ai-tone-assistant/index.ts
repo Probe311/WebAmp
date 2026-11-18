@@ -4,6 +4,7 @@
 
 import { handleCors, createCorsJsonResponse, createCorsErrorResponse } from '../_shared/cors.ts'
 import { callGemini } from '../_shared/gemini.ts'
+import { guardAuthedPost, safeClientError } from '../_shared/guard.ts'
 
 interface ToneAssistantRequest {
   description: string
@@ -35,19 +36,15 @@ interface ToneAssistantResponse {
 }
 
 async function handleToneAssistantRequest(req: Request): Promise<Response> {
-  if (req.method === 'OPTIONS') {
-    return createCorsJsonResponse({ ok: true })
-  }
-
-  if (req.method !== 'POST') {
-    return createCorsErrorResponse('Method not allowed', 405)
-  }
+  const gate = await guardAuthedPost(req, 'ai-tone-assistant')
+  if (!gate.ok) return gate.response
+  const { origin } = gate
 
   try {
     const body = (await req.json()) as ToneAssistantRequest
 
-    if (!body.description || typeof body.description !== 'string') {
-      return createCorsErrorResponse('description is required', 400)
+    if (!body.description || typeof body.description !== 'string' || body.description.length > 2000) {
+      return createCorsErrorResponse('description is required', 400, {}, origin)
     }
 
     const systemPrompt = `
@@ -102,22 +99,12 @@ Contraintes :
       maxOutputTokens: 2048
     })
 
-    return createCorsJsonResponse(
-      {
-        ok: true,
-        result,
-      },
-      200,
-    )
+    return createCorsJsonResponse({ ok: true, result }, 200, {}, origin)
   } catch (error) {
     console.error('ai-tone-assistant error:', error)
-    return createCorsErrorResponse(
-      error instanceof Error ? error.message : 'Unknown error',
-      500,
-    )
+    return createCorsErrorResponse(safeClientError(error), 500, {}, origin)
   }
 }
 
-// Gérer CORS via le helper partagé
-serve((req) => handleCors(req, handleToneAssistantRequest))
+Deno.serve((req) => handleCors(req, handleToneAssistantRequest))
 

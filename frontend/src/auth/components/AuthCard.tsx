@@ -1,5 +1,4 @@
 import { ReactNode } from 'react'
-import { Zap } from 'lucide-react'
 
 interface Props {
   title: string
@@ -9,54 +8,33 @@ interface Props {
   showLogo?: boolean
 }
 
+/**
+ * Carte d'authentification — surface `neu-flat-lg` du design system.
+ * Aucune ombre ni couleur en dur : tout vient des tokens `--neu-*`.
+ */
 export function AuthCard({ title, subtitle, children, footer, showLogo = true }: Props) {
   return (
-    <div className="max-w-md w-full mx-auto px-4 sm:px-6">
-      <div 
-        className="bg-white rounded-2xl p-8 space-y-6"
-        style={{
-          boxShadow: `
-            8px 8px 16px rgba(0, 0, 0, 0.1),
-            -8px -8px 16px rgba(255, 255, 255, 0.9),
-            inset 0 0 0 1px rgba(255, 255, 255, 0.8)
-          `
-        }}
-      >
+    <div className="mx-auto w-full max-w-md px-4 sm:px-6">
+      <div className="neu-flat-lg neu-card space-y-6 border border-[color:var(--neu-edge)] bg-[color:var(--neu-bg)] p-8">
         {showLogo && (
           <div className="flex justify-center">
-            <div className="flex items-center gap-3">
-              <Zap
-                size={26}
-                className="text-orange-500"
-                style={{ animation: 'logoAnimation 2s ease-in-out infinite' }}
-              />
-              <span className="text-xl font-bold tracking-[2px] uppercase" style={{ color: 'rgba(0, 0, 0, 0.85)' }}>
-                WebAmp
+            <p
+              className="hello-write select-none text-4xl lowercase leading-none text-[color:var(--neu-accent)]"
+              aria-label="webamp"
+            >
+              <span className="hello-write__ink" aria-hidden>
+                webamp
               </span>
-            </div>
+            </p>
           </div>
         )}
         <header className="space-y-2">
-          <h1 className="text-2xl font-semibold" style={{ color: 'rgba(0, 0, 0, 0.85)' }}>
-            {title}
-          </h1>
-          {subtitle && (
-            <p className="text-sm" style={{ color: 'rgba(0, 0, 0, 0.7)' }}>
-              {subtitle}
-            </p>
-          )}
+          <h1 className="text-2xl font-semibold text-[color:var(--neu-text)]">{title}</h1>
+          {subtitle && <p className="text-sm text-[color:var(--neu-text-muted)]">{subtitle}</p>}
         </header>
-        <div className="space-y-4">
-          {children}
-        </div>
+        <div className="space-y-4">{children}</div>
         {footer && (
-          <footer 
-            className="pt-4 border-t text-xs"
-            style={{ 
-              borderColor: 'rgba(0, 0, 0, 0.1)',
-              color: 'rgba(0, 0, 0, 0.7)'
-            }}
-          >
+          <footer className="border-t border-[color:var(--neu-edge)] pt-4 text-xs text-[color:var(--neu-text-muted)]">
             {footer}
           </footer>
         )}
@@ -64,4 +42,3 @@ export function AuthCard({ title, subtitle, children, footer, showLogo = true }:
     </div>
   )
 }
-

@@ -60,6 +60,7 @@ export const PEDAL_ACCENT_COLORS = {
   
   // Rose/Pêche
   PINK_WALRUS: '#E55045',
+  WALRUS_RED: '#D8232A',
   PINK_PHASER: '#D5868B',
   
   // Cyan/Turquoise

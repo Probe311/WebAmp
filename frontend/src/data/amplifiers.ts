@@ -20,6 +20,19 @@ export interface AmplifierModel {
   }
   color: string
   style: 'vintage' | 'modern' | 'high-gain'
+  /** Cible musicale (filtre Style). Sinon résolu via `resolveAmpGenre`. */
+  genre?:
+    | 'rock'
+    | 'metal'
+    | 'blues'
+    | 'jazz-clean'
+    | 'high-gain'
+    | 'versatile'
+    | 'reggae'
+    | 'country'
+    | 'ambient'
+    | 'experimental'
+    | 'funk'
   knobColor: string
   knobBaseColor: 'black' | 'gold' | 'chrome' | 'gray' | 'silver'
   uiStyle: {

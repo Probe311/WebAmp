@@ -545,7 +545,7 @@ export const CourseTablatureViewer: React.FC<CourseTablatureViewerProps> = ({ st
     return (
       <div className="mt-4">
         <Block className="p-4">
-          <div className="text-center text-gray-600 dark:text-gray-400">
+          <div className="text-center text-[color:var(--neu-text-muted)]">
             Chargement de la tablature...
           </div>
         </Block>
@@ -560,10 +560,10 @@ export const CourseTablatureViewer: React.FC<CourseTablatureViewerProps> = ({ st
       <div className="mt-4">
         <Block className="p-8">
           <div className="text-center">
-            <div className="text-2xl font-bold text-gray-700 dark:text-gray-300 mb-2">
+            <div className="text-2xl font-bold text-[color:var(--neu-text-muted)] mb-2">
               Tablature bientôt disponible
             </div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">
+            <div className="text-sm text-[color:var(--neu-text-muted)]">
               La tablature pour ce cours est en cours de préparation.
             </div>
           </div>
@@ -577,7 +577,7 @@ export const CourseTablatureViewer: React.FC<CourseTablatureViewerProps> = ({ st
     return (
       <div className="mt-4">
         <Block className="p-4">
-          <div className="text-center text-gray-600 dark:text-gray-400">
+          <div className="text-center text-[color:var(--neu-text-muted)]">
             Aucune piste disponible
           </div>
         </Block>

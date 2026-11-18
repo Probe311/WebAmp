@@ -3,7 +3,7 @@ import { DrumInstrument } from '../../contexts/DrumMachineContext'
 
 export type { DrumInstrument }
 
-export const INSTRUMENTS_COMPACT: DrumInstrument[] = ['kick', 'snare', 'hihat', 'openhat', 'crash', 'ride', 'chinese', 'tom1', 'tom2', 'tom3']
+export const INSTRUMENTS_COMPACT: DrumInstrument[] = ['kick', 'snare', 'hihat', 'openhat', 'crash', 'ride', 'chinese', 'tom1', 'tom2', 'tom3', 'tom4']
 
 export const INSTRUMENT_LABELS: Record<DrumInstrument, string> = {
   kick: 'Kick',
@@ -15,7 +15,8 @@ export const INSTRUMENT_LABELS: Record<DrumInstrument, string> = {
   chinese: 'Chinese',
   tom1: 'Tom 1',
   tom2: 'Tom 2',
-  tom3: 'Tom 3'
+  tom3: 'Tom 3',
+  tom4: 'Tom 4',
 }
 
 export const INSTRUMENT_COLORS: Record<DrumInstrument, string> = {
@@ -27,8 +28,9 @@ export const INSTRUMENT_COLORS: Record<DrumInstrument, string> = {
   ride: '#8b5cf6',
   chinese: '#14b8a6',
   tom1: '#ec4899',
-  tom2: '#f97316',
-  tom3: '#a855f7'
+  tom2: '#F26A1B',
+  tom3: '#a855f7',
+  tom4: '#64748b',
 }
 
 interface DrumPadProps {
@@ -66,7 +68,7 @@ function DrumPadComponent({
     <button
       onClick={onClick}
       className={`
-        relative rounded-lg transition-all duration-150 touch-manipulation
+        relative rounded-[var(--td-radius-control)] transition-all duration-150 touch-manipulation
         flex flex-col items-center justify-center
         border-2
         ${textSizeClasses[size]}
@@ -118,7 +120,7 @@ function DrumPadComponent({
         <span className={`
           relative z-10 font-bold uppercase tracking-wider
           drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]
-          ${isStepActive ? 'text-white' : 'text-black/70 dark:text-white/70'}
+          ${isStepActive ? 'text-white' : 'text-[color:var(--neu-text-muted)]'}
         `}>
           {INSTRUMENT_LABELS[instrument].split(' ')[0]}
         </span>

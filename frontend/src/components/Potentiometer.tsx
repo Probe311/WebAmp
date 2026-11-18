@@ -1,55 +1,60 @@
-import { Knob } from './Knob'
+import { SpectrumKnob, type SpectrumKnobSize } from './tactile/audio/SpectrumKnob'
+import { neuSize, type NeuSize } from './tactile/tokens'
+
+/** Tailles canoniques — map → SpectrumKnob. */
+export type PotentiometerSize = 'S' | 'M' | 'L' | 's' | 'm' | 'l' | 'small' | 'medium' | 'large' | SpectrumKnobSize
 
 export interface PotentiometerProps {
-  value: number
+  value?: number
   min?: number
   max?: number
   label?: string
+  unit?: string
+  showValue?: boolean
+  /** @deprecated ignore — SpectrumKnob porte son propre spectre */
   color?: string
-  size?: 'small' | 'medium' | 'large'
+  size?: PotentiometerSize
   step?: number
-  onChange: (value: number) => void
+  onChange?: (value: number) => void
   disabled?: boolean
   className?: string
+  bipolar?: boolean
 }
 
-const SIZE_MAP: Record<NonNullable<PotentiometerProps['size']>, 'sm' | 'md' | 'lg'> = {
-  small: 'sm',
-  medium: 'md',
-  large: 'lg'
+function toKnobSize(size: PotentiometerSize = 'm'): SpectrumKnobSize {
+  if (size === 'S' || size === 's' || size === 'small' || size === 'sm') return 'sm'
+  if (size === 'L' || size === 'l' || size === 'large' || size === 'lg') return 'lg'
+  if (size === 'M' || size === 'm' || size === 'medium' || size === 'md') return 'md'
+  return neuSize(size as NeuSize)
 }
 
+/**
+ * Potentiomètre app — délègue au knob spectre tactile (tokens NEU).
+ */
 export function Potentiometer({
-  value,
+  value = 0,
   min = 0,
   max = 100,
   label = '',
-  color,
-  size = 'medium',
+  unit = '%',
+  showValue = true,
+  size = 'm',
   step = 1,
   onChange,
-  disabled = false,
-  className = ''
+  className = '',
 }: PotentiometerProps) {
-  const handleChange = (nextValue: number) => {
-    if (disabled) return
-    const steppedValue = Math.round(nextValue / step) * step
-    onChange(steppedValue)
-  }
-
   return (
-    <div className={`flex flex-col items-center gap-2 ${className}`.trim()}>
-      <Knob
-        label={label}
-        value={value}
-        min={min}
-        max={max}
-        onChange={handleChange}
-        size={SIZE_MAP[size]}
-        color={color}
-        showValue
-        disabled={disabled}
-      />
-    </div>
+    <SpectrumKnob
+      value={value}
+      min={min}
+      max={max}
+      label={label}
+      unit={unit}
+      showValue={showValue}
+      size={toKnobSize(size)}
+      step={step}
+      onChange={onChange ?? (() => undefined)}
+      className={className}
+    />
   )
 }

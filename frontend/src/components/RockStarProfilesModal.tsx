@@ -93,7 +93,7 @@ export function RockStarProfilesModal({
       isOpen={isOpen}
       onClose={onClose}
       title="Profils"
-      bodyClassName="overflow-y-auto custom-scrollbar max-h-[calc(85vh-80px)] p-4"
+              bodyClassName="overflow-y-auto custom-scrollbar max-h-[calc(85vh-80px)] p-5"
       headerRight={(
         <div className="flex items-center gap-3">
           <div className="min-w-[260px]">
@@ -106,7 +106,7 @@ export function RockStarProfilesModal({
           <select
             value={styleFilter}
             onChange={(e) => setStyleFilter(e.target.value)}
-            className="px-3 py-2 rounded-lg bg-white dark:bg-gray-700 border border-black/10 dark:border-white/10 text-sm text-black/80 dark:text-white/80 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all duration-150"
+            className="px-3 py-2 rounded-[var(--td-radius-sm)] bg-[var(--td-control-surface)] border border-[var(--td-edge-panel)] text-sm text-[var(--td-text-secondary)] focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all duration-150"
           >
             <option key="all" value="all">Tous les styles</option>
             {styleFamilies.map(({ family, styles }) => (
@@ -120,7 +120,7 @@ export function RockStarProfilesModal({
           <button
             type="button"
             onClick={() => setSortDir((prev) => prev === 'asc' ? 'desc' : 'asc')}
-            className="p-2 rounded-lg bg-white dark:bg-gray-700 border border-black/10 dark:border-white/10 text-black/80 dark:text-white/80 hover:border-cyan-500/60 hover:text-cyan-500 dark:hover:text-cyan-300 transition-all duration-150 flex items-center justify-center"
+            className="p-2 rounded-[var(--td-radius-sm)] bg-[var(--td-control-surface)] border border-[var(--td-edge-panel)] text-[var(--td-text-secondary)] hover:border-[var(--td-edge-control)] hover:text-[var(--td-info)] transition-all duration-150 flex items-center justify-center"
             title={`Tri ${sortDir === 'asc' ? 'A-Z' : 'Z-A'}`}
           >
             {sortDir === 'asc' ? <ArrowDownAZ size={20} /> : <ArrowUpAZ size={20} />}
@@ -133,66 +133,52 @@ export function RockStarProfilesModal({
           <button
             key={profile.name}
             onClick={() => handleSelectProfile(profile.name)}
-            className="bg-white dark:bg-gray-800 border border-black/10 dark:border-white/10 rounded-lg p-5 cursor-pointer transition-all duration-300 text-left text-black/85 dark:text-white/85"
+            className="bg-[var(--td-surface-elevated)] border border-[var(--td-edge-panel)] rounded-[var(--td-radius-sm)] p-5 cursor-pointer transition-all duration-300 text-left text-[var(--td-text-primary)]"
             style={{
-              boxShadow: document.documentElement.classList.contains('dark')
-                ? '2px 2px 4px rgba(0, 0, 0, 0.5), -2px -2px 4px rgba(60, 60, 60, 0.5)'
-                : '2px 2px 4px rgba(0, 0, 0, 0.08), -2px -2px 4px rgba(255, 255, 255, 0.9)'
+              boxShadow: 'var(--td-elevation-1)'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.boxShadow = document.documentElement.classList.contains('dark')
-                ? '3px 3px 6px rgba(0, 0, 0, 0.6), -3px -3px 6px rgba(70, 70, 70, 0.6)'
-                : '3px 3px 6px rgba(0, 0, 0, 0.1), -3px -3px 6px rgba(255, 255, 255, 1)'
+              e.currentTarget.style.boxShadow = 'var(--td-elevation-2)'
               e.currentTarget.style.transform = 'translateY(-4px)'
-              e.currentTarget.style.backgroundColor = document.documentElement.classList.contains('dark')
-                ? 'rgba(255, 255, 255, 0.05)'
-                : 'rgba(0, 0, 0, 0.02)'
+              e.currentTarget.style.backgroundColor = 'var(--td-surface-hover)'
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.boxShadow = document.documentElement.classList.contains('dark')
-                ? '2px 2px 4px rgba(0, 0, 0, 0.5), -2px -2px 4px rgba(60, 60, 60, 0.5)'
-                : '2px 2px 4px rgba(0, 0, 0, 0.08), -2px -2px 4px rgba(255, 255, 255, 0.9)'
+              e.currentTarget.style.boxShadow = 'var(--td-elevation-1)'
               e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.backgroundColor = document.documentElement.classList.contains('dark')
-                ? '#1f2937'
-                : '#ffffff'
+              e.currentTarget.style.backgroundColor = 'var(--td-surface-elevated)'
             }}
             onMouseDown={(e) => {
-              e.currentTarget.style.boxShadow = document.documentElement.classList.contains('dark')
-                ? 'inset 2px 2px 4px rgba(0, 0, 0, 0.5), inset -2px -2px 4px rgba(60, 60, 60, 0.5)'
-                : 'inset 2px 2px 4px rgba(0, 0, 0, 0.1), inset -2px -2px 4px rgba(255, 255, 255, 0.5)'
+              e.currentTarget.style.boxShadow = 'var(--td-elevation-inset-sm)'
               e.currentTarget.style.transform = 'scale(0.98)'
             }}
             onMouseUp={(e) => {
-              e.currentTarget.style.boxShadow = document.documentElement.classList.contains('dark')
-                ? '2px 2px 4px rgba(0, 0, 0, 0.5), -2px -2px 4px rgba(60, 60, 60, 0.5)'
-                : '2px 2px 4px rgba(0, 0, 0, 0.08), -2px -2px 4px rgba(255, 255, 255, 0.9)'
+              e.currentTarget.style.boxShadow = 'var(--td-elevation-1)'
               e.currentTarget.style.transform = 'scale(1)'
             }}
           >
-            <div className="mb-4 pb-3 border-b border-black/10 dark:border-white/10">
-              <h3 className="text-xl font-bold m-0 mb-2 text-black/90 dark:text-white/90">{profile.name}</h3>
-              <span className="text-xs text-black/60 dark:text-white/60 uppercase tracking-[1px]">{profile.style}</span>
+            <div className="mb-4 pb-3 border-b border-[var(--td-edge-panel)]">
+              <h3 className="text-xl font-bold m-0 mb-2 text-[var(--td-text-primary)]">{profile.name}</h3>
+              <span className="text-xs text-[var(--td-text-muted)] uppercase tracking-[1px]">{profile.style}</span>
             </div>
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-2">
-                <h4 className="text-sm font-semibold m-0 text-black/80 dark:text-white/80 uppercase tracking-[0.5px]">Amplis</h4>
+                <h4 className="text-sm font-semibold m-0 text-[var(--td-text-secondary)] uppercase tracking-[0.5px]">Amplis</h4>
                 <div className="flex flex-wrap gap-2">
                   {profile.amps.map((amp, idx) => (
-                    <span key={idx} className="text-xs px-3 py-1 rounded-xl bg-orange-500/20 border border-orange-500/40 text-orange-600 dark:text-orange-400">{amp}</span>
+                    <span key={idx} className="text-xs px-3 py-1 rounded-[var(--td-radius-lg)] bg-[color-mix(in_srgb,var(--td-energy)_20%,transparent)] border border-[color-mix(in_srgb,var(--td-energy)_45%,transparent)] text-[var(--td-energy)]">{amp}</span>
                   ))}
                 </div>
               </div>
               <div className="flex flex-col gap-2">
-                <h4 className="text-sm font-semibold m-0 text-black/80 dark:text-white/80 uppercase tracking-[0.5px]">Pédales</h4>
+                <h4 className="text-sm font-semibold m-0 text-[var(--td-text-secondary)] uppercase tracking-[0.5px]">Pédales</h4>
                 <div className="flex flex-wrap gap-2">
                   {profile.pedals.map((pedal, idx) => (
-                    <span key={idx} className="text-xs px-3 py-1 rounded-xl bg-cyan-500/20 border border-cyan-500/40 text-cyan-600 dark:text-cyan-400">{pedal}</span>
+                    <span key={idx} className="text-xs px-3 py-1 rounded-[var(--td-radius-lg)] bg-[color-mix(in_srgb,var(--td-info)_18%,transparent)] border border-[color-mix(in_srgb,var(--td-info)_40%,transparent)] text-[var(--td-info)]">{pedal}</span>
                   ))}
                 </div>
               </div>
               {profile.notes && (
-                <p className="text-xs text-black/60 dark:text-white/60 italic m-0 mt-2 leading-relaxed">{profile.notes}</p>
+                <p className="text-xs text-[var(--td-text-muted)] italic m-0 mt-2 leading-relaxed">{profile.notes}</p>
               )}
             </div>
           </button>

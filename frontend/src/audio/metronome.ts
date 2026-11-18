@@ -2,6 +2,28 @@
  * Metronome - Métronome intégré
  */
 
+/** Click Web Audio réutilisable (TempoTap / MetronomeEngine). */
+export function playMetronomeClick(audioCtx: AudioContext, accent: boolean): void {
+  if (audioCtx.state !== 'running') return
+  const frequency = accent ? 800 : 400
+  const volume = accent ? 0.3 : 0.1
+  try {
+    const envelope = audioCtx.createGain()
+    envelope.gain.setValueAtTime(0, audioCtx.currentTime)
+    envelope.gain.linearRampToValueAtTime(volume, audioCtx.currentTime + 0.001)
+    envelope.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05)
+    const tickOsc = audioCtx.createOscillator()
+    tickOsc.type = 'sine'
+    tickOsc.frequency.value = frequency
+    tickOsc.connect(envelope)
+    envelope.connect(audioCtx.destination)
+    tickOsc.start()
+    tickOsc.stop(audioCtx.currentTime + 0.1)
+  } catch {
+    /* ignore */
+  }
+}
+
 export interface MetronomeConfig {
   tempo: number // BPM (30-300)
   timeSignature: [number, number] // [beats, noteValue] ex: [4, 4] = 4/4
@@ -82,37 +104,9 @@ export class Metronome {
    * Jouer un tick
    */
   private playTick(): void {
-    // Vérifier que l'AudioContext est toujours actif
-    if (this.audioCtx.state !== 'running') {
-      return
-    }
-
     const isFirstBeat = this.state.currentSubdivision === 0
     const isAccent = this.config.accentFirstBeat && isFirstBeat
-
-    // Fréquence et volume selon le type de tick
-    const frequency = isAccent ? 800 : 400
-    const volume = isAccent ? 0.3 : 0.1
-
-    try {
-      // Créer un nouveau gain pour l'enveloppe
-      const envelope = this.audioCtx.createGain()
-      envelope.gain.setValueAtTime(0, this.audioCtx.currentTime)
-      envelope.gain.linearRampToValueAtTime(volume, this.audioCtx.currentTime + 0.001)
-      envelope.gain.exponentialRampToValueAtTime(0.01, this.audioCtx.currentTime + 0.05)
-
-      // Créer un oscillateur temporaire pour le tick
-      const tickOsc = this.audioCtx.createOscillator()
-      tickOsc.type = 'sine'
-      tickOsc.frequency.value = frequency
-      tickOsc.connect(envelope)
-      envelope.connect(this.audioCtx.destination)
-
-      tickOsc.start()
-      tickOsc.stop(this.audioCtx.currentTime + 0.1)
-    } catch (error) {
-      return
-    }
+    playMetronomeClick(this.audioCtx, isAccent)
 
     // Mettre à jour l'état
     this.state.currentSubdivision++

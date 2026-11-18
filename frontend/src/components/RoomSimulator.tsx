@@ -12,8 +12,8 @@ export function RoomSimulator({ config, onConfigChange }: RoomSimulatorProps) {
   }
 
   return (
-    <div className="space-y-6 text-black/85 dark:text-white/90">
-      <div className="p-4 bg-white dark:bg-gray-700 rounded-xl border border-black/10 dark:border-white/10">
+    <div className="space-y-6 text-[color:var(--neu-text)]">
+      <div className="p-4 bg-white dark:bg-gray-700 rounded-[var(--td-radius-well)] border border-black/10 dark:border-white/10">
         <div className="grid grid-cols-4 gap-4">
           <div>
             <Slider

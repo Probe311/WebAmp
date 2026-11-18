@@ -76,6 +76,7 @@ export function ZvexFuzzFactoryPedal({
       onBypassToggle={onBypassToggle}
       showFootswitch={false}
       bottomActions={bottomActions}
+      className="shell-1-5x"
     >
       {controls}
     </PedalFrame>

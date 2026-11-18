@@ -52,10 +52,16 @@ export function DLCPackCard({
   }
 
   return (
-    <Block className="p-6 hover:shadow-lg transition-all duration-300 cursor-pointer group">
+    <Block
+      className="p-6 hover:shadow-lg transition-all duration-300 cursor-pointer group"
+      spotlight
+      glare
+      borderGlow
+      fadeIn
+    >
       <div className="flex flex-col gap-4">
         {/* Thumbnail avec image */}
-        <div className="relative w-full h-48 rounded-xl overflow-hidden bg-gradient-to-br from-orange-500/20 to-red-500/20">
+        <div className="relative w-full h-48 rounded-[var(--td-radius-well)] overflow-hidden bg-gradient-to-br from-orange-500/20 to-red-500/20">
           {pack.image ? (
             <img 
               src={pack.image.url} 
@@ -91,7 +97,7 @@ export function DLCPackCard({
 
           {/* Overlay de lock si premium non acheté */}
           {isLocked && (
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center rounded-xl">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center rounded-[var(--td-radius-well)]">
               <div className="text-center">
                 <Lock size={48} className="text-white mx-auto mb-2" />
                 <p className="text-white font-bold text-sm">Pack Premium</p>
@@ -111,10 +117,10 @@ export function DLCPackCard({
 
         {/* Infos principales */}
         <div>
-          <h3 className="text-lg font-bold text-black/85 dark:text-white/90 mb-2 group-hover:text-orange-500 dark:group-hover:text-orange-400 transition-colors">
+          <h3 className="text-lg font-bold text-[color:var(--neu-text)] mb-2 group-hover:text-orange-500 dark:group-hover:text-orange-400 transition-colors">
             {pack.name}
           </h3>
-          <p className="text-sm text-black/70 dark:text-white/70 line-clamp-2 mb-3">
+          <p className="text-sm text-[color:var(--neu-text-muted)] line-clamp-2 mb-3">
             {pack.description}
           </p>
 
@@ -126,7 +132,7 @@ export function DLCPackCard({
               </span>
             )}
             {pack.content.amplifiers && pack.content.amplifiers.length > 0 && (
-              <span className="px-2 py-1 rounded-full text-xs font-medium bg-purple-500/10 text-purple-600 dark:text-purple-400">
+              <span className="px-2 py-1 rounded-full text-xs font-medium bg-[color-mix(in_srgb,var(--td-accent)_12%,transparent)] text-[var(--td-accent-text)] dark:text-[var(--td-accent)]">
                 {pack.content.amplifiers.length} ampli{pack.content.amplifiers.length > 1 ? 's' : ''}
               </span>
             )}
@@ -148,7 +154,7 @@ export function DLCPackCard({
               {pack.tags.slice(0, 3).map(tag => (
                 <span 
                   key={tag}
-                  className="px-2 py-1 rounded-full text-xs font-medium bg-gray-200 dark:bg-gray-700 text-black/70 dark:text-white/70"
+                  className="px-2 py-1 rounded-full text-xs font-medium bg-gray-200 dark:bg-gray-700 text-[color:var(--neu-text-muted)]"
                 >
                   #{tag}
                 </span>
@@ -169,7 +175,7 @@ export function DLCPackCard({
                 Gratuit
               </div>
             )}
-            <div className="text-xs text-black/50 dark:text-white/50">
+            <div className="text-xs text-[color:var(--neu-text-faint)]">
               {itemCount} élément{itemCount > 1 ? 's' : ''}
             </div>
           </div>

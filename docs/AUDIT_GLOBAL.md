@@ -344,7 +344,7 @@ export { supabase, isSupabaseEnabled, requireSupabase } from '../auth/supabaseCl
 **Exemples** :
 ```typescript
 // frontend/src/App.tsx:30
-const ADMIN_UUID = 'REDACTED_ADMIN_UUID'  // ❌
+const ADMIN_UUID = 'REDACTED_ADMIN_UUID'  // ❌ jamais hardcoder un UUID réel
 
 // frontend/src/services/websocket.ts:21
 private maxReconnectAttempts = 5  // ❌ Devrait être configurable
@@ -353,8 +353,8 @@ private reconnectDelay = 1000  // ❌
 
 **Recommandation** :
 ```typescript
-// frontend/src/config/constants.ts
-export const ADMIN_UUID = import.meta.env.VITE_ADMIN_UUID || 'REDACTED_ADMIN_UUID'
+// frontend/src/config/constants.ts — env uniquement, pas de fallback en clair
+export const ADMIN_UUID = (import.meta.env.VITE_ADMIN_UUID || '').trim()
 export const WEBSOCKET_MAX_RECONNECT_ATTEMPTS = 5
 export const WEBSOCKET_RECONNECT_DELAY = 1000
 ```

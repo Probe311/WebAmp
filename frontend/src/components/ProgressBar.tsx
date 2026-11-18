@@ -51,8 +51,8 @@ export function ProgressBar({
     e.preventDefault()
     const range = max - min
     const sensitivity = range / 100
-    const delta = orientation === 'horizontal' 
-      ? e.deltaX * sensitivity * 0.01 
+    const delta = orientation === 'horizontal'
+      ? e.deltaX * sensitivity * 0.01
       : -e.deltaY * sensitivity * 0.01
     const newValue = Math.max(min, Math.min(max, value + delta))
     onChange?.(newValue)
@@ -106,73 +106,73 @@ export function ProgressBar({
 
   const defaultHeight = orientation === 'vertical' ? '120px' : '8px'
   const defaultWidth = orientation === 'horizontal' ? '200px' : '8px'
-  const fillColor = color !== '#fff' ? color : 'rgba(0, 0, 0, 0.4)'
+  // `#fff` est le sentinelle historique « couleur par défaut ».
+  const fillColor = color !== '#fff' ? color : 'var(--td-primary)'
+
+  const thumbClass =
+    'absolute z-[2] grid place-items-center rounded-full border border-[var(--td-primary-strong)] bg-[var(--td-control-surface)] shadow-[var(--td-control-shadow)] transition-transform duration-100 hover:scale-110 active:scale-95 active:shadow-[var(--td-control-shadow-pressed)]'
 
   return (
     <div
-      className={`progress-bar-container flex items-center gap-2 w-full min-w-0 ${
+      className={`progress-bar-container flex w-full min-w-0 items-center gap-2 ${
         orientation === 'horizontal' ? 'progress-bar-horizontal flex-row' : 'progress-bar-vertical flex-col'
       } ${className}`.trim()}
     >
       {label && (
-        <label className={`text-[0.55rem] text-black/90 dark:text-white/90 uppercase tracking-[0.5px] font-bold min-w-[45px] ${
-          orientation === 'horizontal' ? 'text-left min-w-[50px]' : 'text-center'
-        }`}>
+        <label
+          className={`min-w-[45px] text-[0.55rem] font-bold uppercase tracking-[0.5px] text-[var(--td-text-secondary)] ${
+            orientation === 'horizontal' ? 'min-w-[50px] text-left' : 'text-center'
+          }`}
+        >
           {label}
         </label>
       )}
-      <div 
+      <div
         ref={barRef}
-        className={`relative flex items-center justify-center select-none touch-none transition-transform duration-100 ${
-          orientation === 'horizontal' ? 'px-2 flex-1' : 'py-2 w-full'
-        } ${isInteractive && !disabled ? 'hover:scale-102' : ''} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+        className={`relative flex select-none touch-none items-center justify-center transition-transform duration-100 ${
+          orientation === 'horizontal' ? 'flex-1 px-2' : 'w-full py-2'
+        } ${isInteractive && !disabled ? 'hover:scale-[1.02]' : ''} ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
         onMouseDown={handleMouseDown}
         onWheel={handleWheel}
         onClick={handleClick}
-        style={{ 
+        style={{
           cursor: isInteractive && !disabled ? (isDragging ? 'grabbing' : 'grab') : 'default',
           height: height || defaultHeight,
           width: width || defaultWidth
         }}
       >
-        <div 
-          className={`relative bg-[#f5f5f5] dark:bg-gray-700 rounded-lg shadow-[inset_3px_3px_6px_rgba(0,0,0,0.1),inset_-3px_-3px_6px_rgba(255,255,255,0.9),0_0_0_1px_rgba(0,0,0,0.05)] dark:shadow-[inset_3px_3px_6px_rgba(0,0,0,0.5),inset_-3px_-3px_6px_rgba(60,60,60,0.5),0_0_0_1px_rgba(255,255,255,0.1)] overflow-hidden ${
-            orientation === 'horizontal' ? 'w-full h-2' : 'w-3 h-full'
+        <div
+          className={`relative overflow-hidden rounded-[var(--td-radius-sm)] border border-[var(--td-edge-panel)] bg-[var(--td-control-track)] shadow-[var(--td-control-shadow-pressed)] ${
+            orientation === 'horizontal' ? 'h-2 w-full' : 'h-full w-3'
           }`}
         >
           {orientation === 'horizontal' ? (
             <>
-              <div 
-                className="absolute top-0 left-0 h-full rounded-l-lg transition-[width] duration-[50ms] linear shadow-[inset_-2px_0_4px_rgba(0,0,0,0.15)] opacity-60"
-                style={{ 
+              <div
+                className="absolute top-0 left-0 h-full opacity-80 transition-[width] duration-[50ms] ease-linear"
+                style={{
                   width: `${percentage}%`,
                   backgroundColor: fillColor
                 }}
               />
               {isInteractive && (
-                <div 
-                  className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 w-[22px] h-[22px] rounded-full bg-[#4a4a4a] shadow-[4px_4px_8px_rgba(0,0,0,0.2),-4px_-4px_8px_rgba(255,255,255,0.1),inset_0_0_0_1px_rgba(0,0,0,0.3)] cursor-grab transition-transform duration-100 hover:scale-110 hover:shadow-[5px_5px_10px_rgba(0,0,0,0.25),-5px_-5px_10px_rgba(255,255,255,0.15),inset_0_0_0_1px_rgba(0,0,0,0.4)] active:scale-95 active:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.3),inset_-2px_-2px_4px_rgba(255,255,255,0.1),0_0_0_1px_rgba(0,0,0,0.2)] z-[2] active:cursor-grabbing"
-                  style={{ left: `${percentage}%` }}
-                >
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-black/30 rounded-full" />
+                <div className={thumbClass} style={{ left: `${percentage}%`, top: '50%', transform: 'translate(-50%, -50%)', width: 22, height: 22 }}>
+                  <span className="absolute h-1.5 w-1.5 rounded-full bg-[var(--td-surface-inset)]" />
                 </div>
               )}
             </>
           ) : (
             <>
-              <div 
-                className="absolute bottom-0 left-0 right-0 rounded-b-lg transition-[height] duration-[50ms] linear shadow-[inset_0_-2px_4px_rgba(0,0,0,0.15)] opacity-60"
-                style={{ 
+              <div
+                className="absolute bottom-0 left-0 right-0 opacity-80 transition-[height] duration-[50ms] ease-linear"
+                style={{
                   height: `${percentage}%`,
                   backgroundColor: fillColor
                 }}
               />
               {isInteractive && (
-                <div 
-                  className="absolute left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-[#4a4a4a] shadow-[4px_4px_8px_rgba(0,0,0,0.2),-4px_-4px_8px_rgba(255,255,255,0.1),inset_0_0_0_1px_rgba(0,0,0,0.3)] cursor-grab transition-transform duration-100 hover:scale-110 hover:shadow-[5px_5px_10px_rgba(0,0,0,0.25),-5px_-5px_10px_rgba(255,255,255,0.15),inset_0_0_0_1px_rgba(0,0,0,0.4)] active:scale-95 active:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.3),inset_-2px_-2px_4px_rgba(255,255,255,0.1),0_0_0_1px_rgba(0,0,0,0.2)] z-[2] active:cursor-grabbing"
-                  style={{ bottom: `${percentage}%` }}
-                >
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-black/30 rounded-full" />
+                <div className={thumbClass} style={{ bottom: `${percentage}%`, left: '50%', transform: 'translate(-50%, 50%)', width: 24, height: 24 }}>
+                  <span className="absolute h-1.5 w-1.5 rounded-full bg-[var(--td-surface-inset)]" />
                 </div>
               )}
             </>
@@ -180,7 +180,7 @@ export function ProgressBar({
         </div>
       </div>
       {showValue && (
-        <div className="text-[0.6rem] text-black/85 dark:text-white/85 font-bold min-h-[0.9rem] min-w-[25px] text-center">
+        <div className="min-h-[0.9rem] min-w-[25px] text-center text-[0.6rem] font-bold tabular-nums text-[var(--td-text-primary)]">
           {Math.round(value)}
         </div>
       )}

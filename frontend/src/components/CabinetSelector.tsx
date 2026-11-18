@@ -51,7 +51,7 @@ export function CabinetSelector({
     <div className="cabinet-selector">
       <button
         onClick={() => setShowModal(true)}
-        className="px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-black dark:text-white"
+        className="px-4 py-2 rounded-[var(--td-radius-control)] bg-gray-200 dark:bg-gray-700 text-[color:var(--neu-text)]"
       >
         Cabinets ({selectedCabinets.length})
       </button>
@@ -60,7 +60,7 @@ export function CabinetSelector({
         <div className="mt-2 space-y-2">
           {selectedCabinetModels.map((cabinet, index) => (
             <div key={cabinet.id} className="flex items-center gap-2">
-              <span className="text-sm text-black/70 dark:text-white/70">
+              <span className="text-sm text-[color:var(--neu-text-muted)]">
                 {cabinet.brand} {cabinet.model}
               </span>
               <Slider
@@ -84,7 +84,7 @@ export function CabinetSelector({
           <select
             value={selectedBrand || ''}
             onChange={(e) => setSelectedBrand(e.target.value || undefined)}
-            className="w-full px-3 py-2 rounded-lg bg-white dark:bg-gray-700 border border-black/10 dark:border-white/10"
+            className="w-full px-3 py-2 rounded-[var(--td-radius-control)] bg-white dark:bg-gray-700 border border-black/10 dark:border-white/10"
           >
             <option value="">Toutes les marques</option>
             {brands.map(brand => (
@@ -99,19 +99,19 @@ export function CabinetSelector({
                 <button
                   key={cabinet.id}
                   onClick={() => handleSelectCabinet(cabinet.id)}
-                  className={`p-4 rounded-lg border-2 text-left transition-all ${
+                  className={`p-4 rounded-[var(--td-radius-control)] border-2 text-left transition-all ${
                     selectedCabinets.includes(cabinet.id)
                       ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
                       : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                   }`}
                 >
-                  <div className="font-semibold text-black dark:text-white">
+                  <div className="font-semibold text-[color:var(--neu-text)]">
                     {cabinet.brand} {cabinet.model}
                   </div>
-                  <div className="text-sm text-black/70 dark:text-white/70 mt-1">
+                  <div className="text-sm text-[color:var(--neu-text-muted)] mt-1">
                     {cabinet.type} - {cabinet.speakers.join(', ')}
                   </div>
-                  <div className="text-xs text-black/50 dark:text-white/50 mt-1">
+                  <div className="text-xs text-[color:var(--neu-text-faint)] mt-1">
                     {cabinet.description}
                   </div>
                 </button>

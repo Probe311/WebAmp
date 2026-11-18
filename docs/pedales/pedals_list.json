@@ -1,0 +1,536 @@
+[
+  {
+    "id": "boss-ds1",
+    "brand": "BOSS",
+    "model": "DS-1",
+    "type": "distortion"
+  },
+  {
+    "id": "proco-rat",
+    "brand": "Pro Co",
+    "model": "RAT",
+    "type": "distortion"
+  },
+  {
+    "id": "ibanez-tube-screamer",
+    "brand": "Ibanez",
+    "model": "Tube Screamer TS9",
+    "type": "distortion"
+  },
+  {
+    "id": "electro-harmonix-big-muff",
+    "brand": "Electro-Harmonix",
+    "model": "Big Muff Pi",
+    "type": "distortion"
+  },
+  {
+    "id": "walrus-audio-distortion",
+    "brand": "Walrus Audio",
+    "model": "Fundamental Distortion",
+    "type": "distortion"
+  },
+  {
+    "id": "boss-sd1",
+    "brand": "BOSS",
+    "model": "SD-1",
+    "type": "overdrive"
+  },
+  {
+    "id": "fulltone-ocd",
+    "brand": "Fulltone",
+    "model": "OCD",
+    "type": "overdrive"
+  },
+  {
+    "id": "klon-centaur",
+    "brand": "Klon",
+    "model": "Centaur",
+    "type": "overdrive"
+  },
+  {
+    "id": "ibanez-tube-screamer-mini",
+    "brand": "Ibanez",
+    "model": "TS Mini",
+    "type": "overdrive"
+  },
+  {
+    "id": "walrus-audio-drive",
+    "brand": "Walrus Audio",
+    "model": "Fundamental Drive",
+    "type": "overdrive"
+  },
+  {
+    "id": "dunlop-fuzz-face",
+    "brand": "Dunlop",
+    "model": "Fuzz Face",
+    "type": "fuzz"
+  },
+  {
+    "id": "zvex-fuzz-factory",
+    "brand": "ZVEX",
+    "model": "Fuzz Factory",
+    "type": "fuzz"
+  },
+  {
+    "id": "electro-harmonix-muff",
+    "brand": "Electro-Harmonix",
+    "model": "Big Muff",
+    "type": "fuzz"
+  },
+  {
+    "id": "walrus-audio-fuzz",
+    "brand": "Walrus Audio",
+    "model": "Fundamental Fuzz",
+    "type": "fuzz"
+  },
+  {
+    "id": "boss-ch1",
+    "brand": "BOSS",
+    "model": "CH-1",
+    "type": "chorus"
+  },
+  {
+    "id": "electro-harmonix-small-clone",
+    "brand": "Electro-Harmonix",
+    "model": "Small Clone",
+    "type": "chorus"
+  },
+  {
+    "id": "walrus-audio-chorus",
+    "brand": "Walrus Audio",
+    "model": "Fundamental Chorus",
+    "type": "chorus"
+  },
+  {
+    "id": "electro-harmonix-oceans-11",
+    "brand": "Electro-Harmonix",
+    "model": "Oceans 11",
+    "type": "chorus"
+  },
+  {
+    "id": "boss-dd3",
+    "brand": "BOSS",
+    "model": "DD-3",
+    "type": "delay"
+  },
+  {
+    "id": "tc-electronic-flashback",
+    "brand": "TC Electronic",
+    "model": "Flashback",
+    "type": "delay"
+  },
+  {
+    "id": "walrus-audio-delay",
+    "brand": "Walrus Audio",
+    "model": "Fundamental Delay",
+    "type": "delay"
+  },
+  {
+    "id": "strymon-timeline",
+    "brand": "Strymon",
+    "model": "Timeline",
+    "type": "delay"
+  },
+  {
+    "id": "boss-rv6",
+    "brand": "BOSS",
+    "model": "RV-6",
+    "type": "reverb"
+  },
+  {
+    "id": "electro-harmonix-holy-grail",
+    "brand": "Electro-Harmonix",
+    "model": "Holy Grail",
+    "type": "reverb"
+  },
+  {
+    "id": "walrus-audio-reverb",
+    "brand": "Walrus Audio",
+    "model": "Fundamental Reverb",
+    "type": "reverb"
+  },
+  {
+    "id": "walrus-audio-ambient",
+    "brand": "Walrus Audio",
+    "model": "Fundamental Ambient",
+    "type": "reverb"
+  },
+  {
+    "id": "strymon-bigsky",
+    "brand": "Strymon",
+    "model": "BigSky",
+    "type": "reverb"
+  },
+  {
+    "id": "boss-bf3",
+    "brand": "BOSS",
+    "model": "BF-3",
+    "type": "flanger"
+  },
+  {
+    "id": "electro-harmonix-electric-mistress",
+    "brand": "Electro-Harmonix",
+    "model": "Electric Mistress",
+    "type": "flanger"
+  },
+  {
+    "id": "walrus-audio-flanger",
+    "brand": "Walrus Audio",
+    "model": "Fundamental Flanger",
+    "type": "flanger"
+  },
+  {
+    "id": "mooer-e-lady",
+    "brand": "Mooer",
+    "model": "E-Lady",
+    "type": "flanger"
+  },
+  {
+    "id": "boss-tr2",
+    "brand": "BOSS",
+    "model": "TR-2",
+    "type": "tremolo"
+  },
+  {
+    "id": "walrus-audio-tremolo",
+    "brand": "Walrus Audio",
+    "model": "Fundamental Tremolo",
+    "type": "tremolo"
+  },
+  {
+    "id": "fulltone-supatrem",
+    "brand": "Fulltone",
+    "model": "Supatrem",
+    "type": "tremolo"
+  },
+  {
+    "id": "strymon-flint",
+    "brand": "Strymon",
+    "model": "Flint",
+    "type": "tremolo"
+  },
+  {
+    "id": "boss-ph3",
+    "brand": "BOSS",
+    "model": "PH-3",
+    "type": "phaser"
+  },
+  {
+    "id": "electro-harmonix-small-stone",
+    "brand": "Electro-Harmonix",
+    "model": "Small Stone",
+    "type": "phaser"
+  },
+  {
+    "id": "mooer-phaser",
+    "brand": "Mooer",
+    "model": "Phase 90",
+    "type": "phaser"
+  },
+  {
+    "id": "walrus-audio-phaser",
+    "brand": "Walrus Audio",
+    "model": "Fundamental Phaser",
+    "type": "phaser"
+  },
+  {
+    "id": "boss-ge7",
+    "brand": "BOSS",
+    "model": "GE-7",
+    "type": "eq"
+  },
+  {
+    "id": "mxr-10-band-eq",
+    "brand": "MXR",
+    "model": "10-Band EQ",
+    "type": "eq"
+  },
+  {
+    "id": "source-audio-programmable-eq",
+    "brand": "Source Audio",
+    "model": "Programmable EQ",
+    "type": "eq"
+  },
+  {
+    "id": "empress-paraeq",
+    "brand": "Empress",
+    "model": "ParaEQ",
+    "type": "eq"
+  },
+  {
+    "id": "vox-v847-wah",
+    "brand": "Vox",
+    "model": "V847 Wah",
+    "type": "wah"
+  },
+  {
+    "id": "cry-baby-wah",
+    "brand": "Dunlop",
+    "model": "Cry Baby",
+    "type": "wah"
+  },
+  {
+    "id": "slash-wah-sw95",
+    "brand": "Dunlop",
+    "model": "Slash SW95",
+    "type": "wah"
+  },
+  {
+    "id": "evh-wah",
+    "brand": "EVH",
+    "model": "Signature Wah",
+    "type": "wah"
+  },
+  {
+    "id": "kh95-wah",
+    "brand": "Dunlop",
+    "model": "KH95 Wah",
+    "type": "wah"
+  },
+  {
+    "id": "rmc-wah",
+    "brand": "RMC",
+    "model": "Custom Wah",
+    "type": "wah"
+  },
+  {
+    "id": "power-booster",
+    "brand": "Colorsound",
+    "model": "Power Booster",
+    "type": "boost"
+  },
+  {
+    "id": "light-boost",
+    "brand": "Custom",
+    "model": "Clean Boost",
+    "type": "boost"
+  },
+  {
+    "id": "mxr-mc402",
+    "brand": "MXR",
+    "model": "MC-402 Boost/OD",
+    "type": "boost"
+  },
+  {
+    "id": "mxr-dyna-comp",
+    "brand": "MXR",
+    "model": "Dyna Comp",
+    "type": "compressor"
+  },
+  {
+    "id": "octavia-fuzz",
+    "brand": "Roger Mayer",
+    "model": "Octavia",
+    "type": "octaver"
+  },
+  {
+    "id": "univibe",
+    "brand": "Shin-ei",
+    "model": "Uni-Vibe",
+    "type": "vibe"
+  },
+  {
+    "id": "digitech-whammy",
+    "brand": "DigiTech",
+    "model": "Whammy",
+    "type": "pitch"
+  },
+  {
+    "id": "leslie-rotary",
+    "brand": "Leslie",
+    "model": "Rotary Simulator",
+    "type": "rotary"
+  },
+  {
+    "id": "boss-volume-expression",
+    "brand": "BOSS",
+    "model": "Volume/Expression",
+    "type": "volume"
+  },
+  {
+    "id": "noise-gate",
+    "brand": "ISP",
+    "model": "Decimator",
+    "type": "noisegate"
+  },
+  {
+    "id": "tc-gmajor2",
+    "brand": "TC Electronic",
+    "model": "G-Major 2",
+    "type": "multifx"
+  },
+  {
+    "id": "boss-ce1",
+    "brand": "BOSS",
+    "model": "CE-1",
+    "type": "chorus"
+  },
+  {
+    "id": "mxr-analog-chorus",
+    "brand": "MXR",
+    "model": "Analog Chorus",
+    "type": "chorus"
+  },
+  {
+    "id": "mxr-phase90",
+    "brand": "MXR",
+    "model": "Phase 90",
+    "type": "phaser"
+  },
+  {
+    "id": "mxr-flanger-117",
+    "brand": "MXR",
+    "model": "Flanger 117",
+    "type": "flanger"
+  },
+  {
+    "id": "echoplex-tape-delay",
+    "brand": "Maestro",
+    "model": "Echoplex",
+    "type": "delay"
+  },
+  {
+    "id": "moog-mf-ring",
+    "brand": "Moog",
+    "model": "MF Ring",
+    "type": "ringmod"
+  },
+  {
+    "id": "red-panda-bitmap",
+    "brand": "Red Panda",
+    "model": "Bitmap",
+    "type": "bitcrusher"
+  },
+  {
+    "id": "zvex-lo-fi-junky",
+    "brand": "Z.Vex",
+    "model": "Lo-Fi Junky",
+    "type": "lofi"
+  },
+  {
+    "id": "strymon-el-capistan",
+    "brand": "Strymon",
+    "model": "El Capistan",
+    "type": "tapedelay"
+  },
+  {
+    "id": "surfybear-metal",
+    "brand": "SurfyBear",
+    "model": "Metal",
+    "type": "springreverb"
+  },
+  {
+    "id": "strymon-bigsky-shimmer",
+    "brand": "Strymon",
+    "model": "BigSky Shimmer",
+    "type": "shimmerreverb"
+  },
+  {
+    "id": "binson-echorec",
+    "brand": "Binson",
+    "model": "Echorec",
+    "type": "delay"
+  },
+  {
+    "id": "memory-man-delay",
+    "brand": "Electro-Harmonix",
+    "model": "Memory Man",
+    "type": "delay"
+  },
+  {
+    "id": "roland-space-echo",
+    "brand": "Roland",
+    "model": "Space Echo",
+    "type": "delay"
+  },
+  {
+    "id": "tc-delay",
+    "brand": "TC Electronic",
+    "model": "2290 Style",
+    "type": "delay"
+  },
+  {
+    "id": "ibanez-jemini",
+    "brand": "Ibanez",
+    "model": "Jemini Distortion",
+    "type": "distortion"
+  },
+  {
+    "id": "eventide-harmonizer",
+    "brand": "Eventide",
+    "model": "Harmonizer",
+    "type": "chorus"
+  },
+  {
+    "id": "morley-bad-horsie",
+    "brand": "Morley",
+    "model": "Bad Horsie Wah",
+    "type": "phaser"
+  },
+  {
+    "id": "satchurator",
+    "brand": "Vox",
+    "model": "Satchurator",
+    "type": "distortion"
+  },
+  {
+    "id": "vox-time-machine",
+    "brand": "Vox",
+    "model": "Time Machine",
+    "type": "delay"
+  },
+  {
+    "id": "dunlop-crybaby-classic",
+    "brand": "Dunlop",
+    "model": "Cry Baby Wah",
+    "type": "phaser"
+  },
+  {
+    "id": "killswitch-stutter",
+    "brand": "Custom",
+    "model": "Killswitch",
+    "type": "tremolo"
+  },
+  {
+    "id": "treble-booster",
+    "brand": "Rangemaster",
+    "model": "Treble Booster",
+    "type": "overdrive"
+  },
+  {
+    "id": "mesa-grid-slammer",
+    "brand": "Mesa Boogie",
+    "model": "Grid Slammer",
+    "type": "overdrive"
+  },
+  {
+    "id": "boss-ce2",
+    "brand": "BOSS",
+    "model": "CE-2",
+    "type": "chorus"
+  },
+  {
+    "id": "boss-od1",
+    "brand": "BOSS",
+    "model": "OD-1",
+    "type": "overdrive"
+  },
+  {
+    "id": "jhs-at-drive",
+    "brand": "JHS",
+    "model": "AT Drive",
+    "type": "overdrive"
+  },
+  {
+    "id": "neunaber-reverb",
+    "brand": "Neunaber",
+    "model": "Ambient",
+    "type": "reverb"
+  },
+  {
+    "id": "boss-tu3",
+    "brand": "BOSS",
+    "model": "TU-3",
+    "type": "tuner"
+  }
+]

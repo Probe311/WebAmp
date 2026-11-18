@@ -30,7 +30,8 @@ const INSTRUMENT_SEARCH_TERMS: Record<DrumInstrument, string> = {
   chinese: 'drum china cymbal',
   tom1: 'drum tom',
   tom2: 'drum tom',
-  tom3: 'drum tom'
+  tom3: 'drum tom',
+  tom4: 'floor tom',
 }
 
 export function DrumSampleSelector({
@@ -67,7 +68,7 @@ export function DrumSampleSelector({
         results = await freesoundService.searchDrumSamples('crash', 30)
       } else if (instrument === 'ride') {
         results = await freesoundService.searchDrumSamples('ride', 30)
-      } else if (instrument === 'tom1' || instrument === 'tom2' || instrument === 'tom3') {
+      } else if (instrument === 'tom1' || instrument === 'tom2' || instrument === 'tom3' || instrument === 'tom4') {
         results = await freesoundService.searchDrumSamples('tom', 30)
       } else {
         // Recherche générique avec le query fourni
@@ -183,7 +184,7 @@ export function DrumSampleSelector({
       <div className="space-y-4">
         {/* Sample actuel */}
         {currentSampleName && (
-          <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+          <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-[var(--td-radius-control)] border border-blue-200 dark:border-blue-800">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Music size={16} className="text-blue-600 dark:text-blue-400" />
@@ -214,7 +215,7 @@ export function DrumSampleSelector({
         {searching && (
           <div className="flex items-center justify-center py-8">
             <Loader size="sm" variant="light" />
-            <span className="ml-3 text-black/60 dark:text-white/60">Recherche en cours...</span>
+            <span className="ml-3 text-[color:var(--neu-text-muted)]">Recherche en cours...</span>
           </div>
         )}
 
@@ -223,16 +224,16 @@ export function DrumSampleSelector({
             {samples.map(sound => (
               <div
                 key={sound.id}
-                className="p-3 bg-white dark:bg-gray-800 rounded-lg border border-black/10 dark:border-white/10 flex items-center justify-between"
+                className="p-3 bg-white dark:bg-gray-800 rounded-[var(--td-radius-control)] border border-black/10 dark:border-white/10 flex items-center justify-between"
               >
                 <div className="flex-1 min-w-0">
-                  <h4 className="font-medium text-black dark:text-white truncate">{sound.name}</h4>
+                  <h4 className="font-medium text-[color:var(--neu-text)] truncate">{sound.name}</h4>
                   {sound.description && (
-                    <p className="text-sm text-black/60 dark:text-white/60 mt-1 line-clamp-2">
+                    <p className="text-sm text-[color:var(--neu-text-muted)] mt-1 line-clamp-2">
                       {sound.description}
                     </p>
                   )}
-                  <div className="flex items-center gap-4 mt-2 text-xs text-black/40 dark:text-white/40">
+                  <div className="flex items-center gap-4 mt-2 text-xs text-[color:var(--neu-text-faint)]">
                     <span>Licence: {sound.license}</span>
                     <span>Durée: {sound.duration.toFixed(1)}s</span>
                     {sound.samplerate && <span>{sound.samplerate}Hz</span>}
@@ -265,7 +266,7 @@ export function DrumSampleSelector({
         )}
 
         {!searching && samples.length === 0 && searchQuery && (
-          <div className="text-center py-8 text-black/50 dark:text-white/50">
+          <div className="text-center py-8 text-[color:var(--neu-text-faint)]">
             Aucun résultat. Essayez une autre recherche.
           </div>
         )}

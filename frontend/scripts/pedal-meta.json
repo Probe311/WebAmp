@@ -1,0 +1,1169 @@
+[
+  {
+    "id": "boss-ds1",
+    "brand": "BOSS",
+    "type": "distortion",
+    "params": [
+      "distortion",
+      "tone",
+      "level"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 3
+  },
+  {
+    "id": "proco-rat",
+    "brand": "Pro Co",
+    "type": "distortion",
+    "params": [
+      "distortion",
+      "filter",
+      "volume"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 3
+  },
+  {
+    "id": "ibanez-tube-screamer",
+    "brand": "Ibanez",
+    "type": "distortion",
+    "params": [
+      "drive",
+      "level",
+      "tone"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 3
+  },
+  {
+    "id": "electro-harmonix-big-muff",
+    "brand": "Electro-Harmonix",
+    "type": "distortion",
+    "params": [
+      "sustain",
+      "tone",
+      "volume"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 3
+  },
+  {
+    "id": "walrus-audio-distortion",
+    "brand": "Walrus Audio",
+    "type": "distortion",
+    "params": [
+      "gain",
+      "tone",
+      "volume",
+      "mode"
+    ],
+    "hasSlider": true,
+    "hasSwitch": true,
+    "knobCount": 0
+  },
+  {
+    "id": "boss-sd1",
+    "brand": "BOSS",
+    "type": "overdrive",
+    "params": [
+      "drive",
+      "tone",
+      "level"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 3
+  },
+  {
+    "id": "fulltone-ocd",
+    "brand": "Fulltone",
+    "type": "overdrive",
+    "params": [
+      "drive",
+      "tone",
+      "volume",
+      "mode"
+    ],
+    "hasSlider": false,
+    "hasSwitch": true,
+    "knobCount": 3
+  },
+  {
+    "id": "klon-centaur",
+    "brand": "Klon",
+    "type": "overdrive",
+    "params": [
+      "gain",
+      "treble",
+      "output"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 3
+  },
+  {
+    "id": "ibanez-tube-screamer-mini",
+    "brand": "Ibanez",
+    "type": "overdrive",
+    "params": [
+      "drive",
+      "level",
+      "tone"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 3
+  },
+  {
+    "id": "walrus-audio-drive",
+    "brand": "Walrus Audio",
+    "type": "overdrive",
+    "params": [
+      "gain",
+      "tone",
+      "volume",
+      "mode"
+    ],
+    "hasSlider": true,
+    "hasSwitch": true,
+    "knobCount": 0
+  },
+  {
+    "id": "dunlop-fuzz-face",
+    "brand": "Dunlop",
+    "type": "fuzz",
+    "params": [
+      "fuzz",
+      "volume"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 2
+  },
+  {
+    "id": "zvex-fuzz-factory",
+    "brand": "ZVEX",
+    "type": "fuzz",
+    "params": [
+      "gate",
+      "comp",
+      "drive",
+      "stab",
+      "volume"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 5
+  },
+  {
+    "id": "electro-harmonix-muff",
+    "brand": "Electro-Harmonix",
+    "type": "fuzz",
+    "params": [
+      "sustain",
+      "tone",
+      "volume"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 3
+  },
+  {
+    "id": "walrus-audio-fuzz",
+    "brand": "Walrus Audio",
+    "type": "fuzz",
+    "params": [
+      "gain",
+      "tone",
+      "volume",
+      "mode"
+    ],
+    "hasSlider": true,
+    "hasSwitch": true,
+    "knobCount": 0
+  },
+  {
+    "id": "boss-ch1",
+    "brand": "BOSS",
+    "type": "chorus",
+    "params": [
+      "rate",
+      "depth",
+      "equalizer",
+      "level"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 4
+  },
+  {
+    "id": "electro-harmonix-small-clone",
+    "brand": "Electro-Harmonix",
+    "type": "chorus",
+    "params": [
+      "rate",
+      "depth",
+      "mode"
+    ],
+    "hasSlider": false,
+    "hasSwitch": true,
+    "knobCount": 2
+  },
+  {
+    "id": "walrus-audio-chorus",
+    "brand": "Walrus Audio",
+    "type": "chorus",
+    "params": [
+      "rate",
+      "depth",
+      "mix",
+      "mode"
+    ],
+    "hasSlider": true,
+    "hasSwitch": true,
+    "knobCount": 0
+  },
+  {
+    "id": "electro-harmonix-oceans-11",
+    "brand": "Electro-Harmonix",
+    "type": "chorus",
+    "params": [
+      "rate",
+      "depth",
+      "mix",
+      "mode"
+    ],
+    "hasSlider": false,
+    "hasSwitch": true,
+    "knobCount": 3
+  },
+  {
+    "id": "boss-dd3",
+    "brand": "BOSS",
+    "type": "delay",
+    "params": [
+      "time",
+      "feedback",
+      "level",
+      "memory"
+    ],
+    "hasSlider": false,
+    "hasSwitch": true,
+    "knobCount": 3
+  },
+  {
+    "id": "tc-electronic-flashback",
+    "brand": "TC Electronic",
+    "type": "delay",
+    "params": [
+      "time",
+      "feedback",
+      "mix"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 3
+  },
+  {
+    "id": "walrus-audio-delay",
+    "brand": "Walrus Audio",
+    "type": "delay",
+    "params": [
+      "time",
+      "feedback",
+      "mix",
+      "mode"
+    ],
+    "hasSlider": true,
+    "hasSwitch": true,
+    "knobCount": 0
+  },
+  {
+    "id": "strymon-timeline",
+    "brand": "Strymon",
+    "type": "delay",
+    "params": [
+      "time",
+      "feedback",
+      "mix"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 3
+  },
+  {
+    "id": "boss-rv6",
+    "brand": "BOSS",
+    "type": "reverb",
+    "params": [
+      "decay",
+      "tone",
+      "level",
+      "mode"
+    ],
+    "hasSlider": false,
+    "hasSwitch": true,
+    "knobCount": 3
+  },
+  {
+    "id": "electro-harmonix-holy-grail",
+    "brand": "Electro-Harmonix",
+    "type": "reverb",
+    "params": [
+      "reverb"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 1
+  },
+  {
+    "id": "walrus-audio-reverb",
+    "brand": "Walrus Audio",
+    "type": "reverb",
+    "params": [
+      "decay",
+      "tone",
+      "mix",
+      "mode"
+    ],
+    "hasSlider": true,
+    "hasSwitch": true,
+    "knobCount": 0
+  },
+  {
+    "id": "walrus-audio-ambient",
+    "brand": "Walrus Audio",
+    "type": "reverb",
+    "params": [
+      "decay",
+      "tone",
+      "mix",
+      "mode"
+    ],
+    "hasSlider": true,
+    "hasSwitch": true,
+    "knobCount": 0
+  },
+  {
+    "id": "strymon-bigsky",
+    "brand": "Strymon",
+    "type": "reverb",
+    "params": [
+      "decay",
+      "tone",
+      "mix"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 3
+  },
+  {
+    "id": "boss-bf3",
+    "brand": "BOSS",
+    "type": "flanger",
+    "params": [
+      "rate",
+      "depth",
+      "manual",
+      "resonance"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 4
+  },
+  {
+    "id": "electro-harmonix-electric-mistress",
+    "brand": "Electro-Harmonix",
+    "type": "flanger",
+    "params": [
+      "rate",
+      "range",
+      "color"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 3
+  },
+  {
+    "id": "walrus-audio-flanger",
+    "brand": "Walrus Audio",
+    "type": "flanger",
+    "params": [
+      "rate",
+      "depth",
+      "feedback",
+      "mode"
+    ],
+    "hasSlider": true,
+    "hasSwitch": true,
+    "knobCount": 0
+  },
+  {
+    "id": "mooer-e-lady",
+    "brand": "Mooer",
+    "type": "flanger",
+    "params": [
+      "rate",
+      "range",
+      "color"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 3
+  },
+  {
+    "id": "boss-tr2",
+    "brand": "BOSS",
+    "type": "tremolo",
+    "params": [
+      "rate",
+      "depth",
+      "wave"
+    ],
+    "hasSlider": false,
+    "hasSwitch": true,
+    "knobCount": 2
+  },
+  {
+    "id": "walrus-audio-tremolo",
+    "brand": "Walrus Audio",
+    "type": "tremolo",
+    "params": [
+      "rate",
+      "depth",
+      "volume",
+      "wave"
+    ],
+    "hasSlider": true,
+    "hasSwitch": true,
+    "knobCount": 0
+  },
+  {
+    "id": "fulltone-supatrem",
+    "brand": "Fulltone",
+    "type": "tremolo",
+    "params": [
+      "speed",
+      "depth",
+      "volume"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 3
+  },
+  {
+    "id": "strymon-flint",
+    "brand": "Strymon",
+    "type": "tremolo",
+    "params": [
+      "rate",
+      "depth",
+      "intensity",
+      "tremoloWave",
+      "reverbType"
+    ],
+    "hasSlider": false,
+    "hasSwitch": true,
+    "knobCount": 3
+  },
+  {
+    "id": "boss-ph3",
+    "brand": "BOSS",
+    "type": "phaser",
+    "params": [
+      "rate",
+      "depth",
+      "resonance",
+      "mode"
+    ],
+    "hasSlider": false,
+    "hasSwitch": true,
+    "knobCount": 3
+  },
+  {
+    "id": "electro-harmonix-small-stone",
+    "brand": "Electro-Harmonix",
+    "type": "phaser",
+    "params": [
+      "rate",
+      "color"
+    ],
+    "hasSlider": false,
+    "hasSwitch": true,
+    "knobCount": 1
+  },
+  {
+    "id": "mooer-phaser",
+    "brand": "Mooer",
+    "type": "phaser",
+    "params": [
+      "rate",
+      "depth"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 2
+  },
+  {
+    "id": "walrus-audio-phaser",
+    "brand": "Walrus Audio",
+    "type": "phaser",
+    "params": [
+      "rate",
+      "feedback",
+      "depth",
+      "mode"
+    ],
+    "hasSlider": true,
+    "hasSwitch": true,
+    "knobCount": 0
+  },
+  {
+    "id": "boss-ge7",
+    "brand": "BOSS",
+    "type": "eq",
+    "params": [
+      "level"
+    ],
+    "hasSlider": true,
+    "hasSwitch": false,
+    "knobCount": 0
+  },
+  {
+    "id": "mxr-10-band-eq",
+    "brand": "MXR",
+    "type": "eq",
+    "params": [
+      "level"
+    ],
+    "hasSlider": true,
+    "hasSwitch": false,
+    "knobCount": 0
+  },
+  {
+    "id": "source-audio-programmable-eq",
+    "brand": "Source Audio",
+    "type": "eq",
+    "params": [
+      "low",
+      "lowMid",
+      "mid",
+      "highMid",
+      "high",
+      "level"
+    ],
+    "hasSlider": true,
+    "hasSwitch": false,
+    "knobCount": 0
+  },
+  {
+    "id": "empress-paraeq",
+    "brand": "Empress",
+    "type": "eq",
+    "params": [
+      "low",
+      "mid",
+      "high",
+      "level"
+    ],
+    "hasSlider": true,
+    "hasSwitch": false,
+    "knobCount": 0
+  },
+  {
+    "id": "vox-v847-wah",
+    "brand": "Vox",
+    "type": "wah",
+    "params": [
+      "sweep",
+      "q",
+      "level"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 3
+  },
+  {
+    "id": "cry-baby-wah",
+    "brand": "Dunlop",
+    "type": "wah",
+    "params": [
+      "sweep",
+      "q",
+      "volume"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 3
+  },
+  {
+    "id": "slash-wah-sw95",
+    "brand": "Dunlop",
+    "type": "wah",
+    "params": [
+      "sweep",
+      "q",
+      "boost"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 3
+  },
+  {
+    "id": "evh-wah",
+    "brand": "EVH",
+    "type": "wah",
+    "params": [
+      "sweep",
+      "q",
+      "volume"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 3
+  },
+  {
+    "id": "kh95-wah",
+    "brand": "Dunlop",
+    "type": "wah",
+    "params": [
+      "sweep",
+      "q",
+      "gain"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 3
+  },
+  {
+    "id": "rmc-wah",
+    "brand": "RMC",
+    "type": "wah",
+    "params": [
+      "sweep",
+      "q",
+      "bass"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 3
+  },
+  {
+    "id": "power-booster",
+    "brand": "Colorsound",
+    "type": "boost",
+    "params": [
+      "gain",
+      "treble",
+      "bass"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 3
+  },
+  {
+    "id": "light-boost",
+    "brand": "Custom",
+    "type": "boost",
+    "params": [
+      "level",
+      "tone"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 2
+  },
+  {
+    "id": "mxr-mc402",
+    "brand": "MXR",
+    "type": "boost",
+    "params": [
+      "boost",
+      "drive",
+      "tone"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 3
+  },
+  {
+    "id": "mxr-dyna-comp",
+    "brand": "MXR",
+    "type": "compressor",
+    "params": [
+      "output",
+      "sensitivity"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 2
+  },
+  {
+    "id": "octavia-fuzz",
+    "brand": "Roger Mayer",
+    "type": "octaver",
+    "params": [
+      "fuzz",
+      "octave",
+      "level"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 3
+  },
+  {
+    "id": "univibe",
+    "brand": "Shin-ei",
+    "type": "vibe",
+    "params": [
+      "speed",
+      "intensity",
+      "mix"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 3
+  },
+  {
+    "id": "digitech-whammy",
+    "brand": "DigiTech",
+    "type": "pitch",
+    "params": [
+      "interval",
+      "mix",
+      "tracking"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 3
+  },
+  {
+    "id": "leslie-rotary",
+    "brand": "Leslie",
+    "type": "rotary",
+    "params": [
+      "speed",
+      "depth",
+      "mix"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 3
+  },
+  {
+    "id": "boss-volume-expression",
+    "brand": "BOSS",
+    "type": "volume",
+    "params": [
+      "volume",
+      "taper"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 2
+  },
+  {
+    "id": "noise-gate",
+    "brand": "ISP",
+    "type": "noisegate",
+    "params": [
+      "threshold",
+      "release"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 2
+  },
+  {
+    "id": "tc-gmajor2",
+    "brand": "TC Electronic",
+    "type": "multifx",
+    "params": [
+      "mix",
+      "type",
+      "level"
+    ],
+    "hasSlider": false,
+    "hasSwitch": true,
+    "knobCount": 2
+  },
+  {
+    "id": "boss-ce1",
+    "brand": "BOSS",
+    "type": "chorus",
+    "params": [
+      "rate",
+      "depth",
+      "level",
+      "mode"
+    ],
+    "hasSlider": false,
+    "hasSwitch": true,
+    "knobCount": 3
+  },
+  {
+    "id": "mxr-analog-chorus",
+    "brand": "MXR",
+    "type": "chorus",
+    "params": [
+      "rate",
+      "depth",
+      "level"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 3
+  },
+  {
+    "id": "mxr-phase90",
+    "brand": "MXR",
+    "type": "phaser",
+    "params": [
+      "rate",
+      "mix"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 2
+  },
+  {
+    "id": "mxr-flanger-117",
+    "brand": "MXR",
+    "type": "flanger",
+    "params": [
+      "rate",
+      "width",
+      "regen",
+      "manual"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 4
+  },
+  {
+    "id": "echoplex-tape-delay",
+    "brand": "Maestro",
+    "type": "delay",
+    "params": [
+      "time",
+      "repeat",
+      "mix"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 3
+  },
+  {
+    "id": "moog-mf-ring",
+    "brand": "Moog",
+    "type": "ringmod",
+    "params": [
+      "frequency",
+      "mix",
+      "level"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 3
+  },
+  {
+    "id": "red-panda-bitmap",
+    "brand": "Red Panda",
+    "type": "bitcrusher",
+    "params": [
+      "bits",
+      "sampleRate",
+      "mix"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 3
+  },
+  {
+    "id": "zvex-lo-fi-junky",
+    "brand": "Z.Vex",
+    "type": "lofi",
+    "params": [
+      "saturation",
+      "wow",
+      "flutter",
+      "tone"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 4
+  },
+  {
+    "id": "strymon-el-capistan",
+    "brand": "Strymon",
+    "type": "tapedelay",
+    "params": [
+      "time",
+      "feedback",
+      "saturation",
+      "wow",
+      "mix"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 5
+  },
+  {
+    "id": "surfybear-metal",
+    "brand": "SurfyBear",
+    "type": "springreverb",
+    "params": [
+      "decay",
+      "tone",
+      "mix"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 3
+  },
+  {
+    "id": "strymon-bigsky-shimmer",
+    "brand": "Strymon",
+    "type": "shimmerreverb",
+    "params": [
+      "decay",
+      "pitch",
+      "mix"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 3
+  },
+  {
+    "id": "binson-echorec",
+    "brand": "Binson",
+    "type": "delay",
+    "params": [
+      "repeat",
+      "tone",
+      "heads"
+    ],
+    "hasSlider": false,
+    "hasSwitch": true,
+    "knobCount": 2
+  },
+  {
+    "id": "memory-man-delay",
+    "brand": "Electro-Harmonix",
+    "type": "delay",
+    "params": [
+      "delay",
+      "feedback",
+      "blend"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 3
+  },
+  {
+    "id": "roland-space-echo",
+    "brand": "Roland",
+    "type": "delay",
+    "params": [
+      "repeat",
+      "intensity",
+      "echoVolume",
+      "heads"
+    ],
+    "hasSlider": false,
+    "hasSwitch": true,
+    "knobCount": 3
+  },
+  {
+    "id": "tc-delay",
+    "brand": "TC Electronic",
+    "type": "delay",
+    "params": [
+      "time",
+      "feedback",
+      "mix"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 3
+  },
+  {
+    "id": "ibanez-jemini",
+    "brand": "Ibanez",
+    "type": "distortion",
+    "params": [
+      "gainA",
+      "gainB",
+      "tone",
+      "level"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 4
+  },
+  {
+    "id": "eventide-harmonizer",
+    "brand": "Eventide",
+    "type": "chorus",
+    "params": [
+      "mix",
+      "shift",
+      "feedback"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 3
+  },
+  {
+    "id": "morley-bad-horsie",
+    "brand": "Morley",
+    "type": "phaser",
+    "params": [
+      "sweep",
+      "level"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 2
+  },
+  {
+    "id": "satchurator",
+    "brand": "Vox",
+    "type": "distortion",
+    "params": [
+      "gain",
+      "tone",
+      "volume"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 3
+  },
+  {
+    "id": "vox-time-machine",
+    "brand": "Vox",
+    "type": "delay",
+    "params": [
+      "time",
+      "feedback",
+      "mix"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 3
+  },
+  {
+    "id": "dunlop-crybaby-classic",
+    "brand": "Dunlop",
+    "type": "phaser",
+    "params": [
+      "sweep",
+      "q"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 2
+  },
+  {
+    "id": "killswitch-stutter",
+    "brand": "Custom",
+    "type": "tremolo",
+    "params": [
+      "speed",
+      "depth"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 2
+  },
+  {
+    "id": "treble-booster",
+    "brand": "Rangemaster",
+    "type": "overdrive",
+    "params": [
+      "boost",
+      "level"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 2
+  },
+  {
+    "id": "mesa-grid-slammer",
+    "brand": "Mesa Boogie",
+    "type": "overdrive",
+    "params": [
+      "gain",
+      "tone",
+      "level"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 3
+  },
+  {
+    "id": "boss-ce2",
+    "brand": "BOSS",
+    "type": "chorus",
+    "params": [
+      "rate",
+      "depth"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 2
+  },
+  {
+    "id": "boss-od1",
+    "brand": "BOSS",
+    "type": "overdrive",
+    "params": [
+      "level",
+      "overdrive"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 2
+  },
+  {
+    "id": "jhs-at-drive",
+    "brand": "JHS",
+    "type": "overdrive",
+    "params": [
+      "drive",
+      "tone",
+      "level"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 3
+  },
+  {
+    "id": "neunaber-reverb",
+    "brand": "Neunaber",
+    "type": "reverb",
+    "params": [
+      "mix",
+      "decay",
+      "tone"
+    ],
+    "hasSlider": false,
+    "hasSwitch": false,
+    "knobCount": 3
+  },
+  {
+    "id": "boss-tu3",
+    "brand": "BOSS",
+    "type": "tuner",
+    "params": [
+      "mode"
+    ],
+    "hasSlider": false,
+    "hasSwitch": true,
+    "knobCount": 0
+  }
+]

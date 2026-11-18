@@ -7,19 +7,14 @@ import { tablatureService } from '../../services/tablatures'
 import { lmsService } from '../../services/lms'
 import { customLessonBlocks } from './customLessonBlocks'
 import { parseLessonContent, cleanLessonDescription, type HtmlTabBlock, type YouTubeLink } from '../../utils/lessonContentParser'
+import { sanitizeHtml } from '../../utils/sanitizeHtml'
 import { Dropdown, type DropdownOption } from '../Dropdown'
 import { Block } from '../Block'
 import { Guitar, Piano, Music, Loader2 } from 'lucide-react'
 import { CourseTablatureViewer } from './CourseTablatureViewer'
 
 /**
- * Composant sécurisé pour rendre du HTML stocké dans Supabase.
- * Utilisé pour les blocs de tablatures/instruments définis dans la description
- * d'une leçon via :
- *
- * [html instrument="Guitare lead" title="Solo - Intro"]
- *   ... SVG / HTML de la tablature ...
- * [/html]
+ * Rendu HTML leçon après sanitizeHtml (pas de scripts / handlers).
  */
 function SafeHTMLRenderer({ html }: { html: string }) {
   return (
@@ -36,7 +31,7 @@ function SafeHTMLRenderer({ html }: { html: string }) {
         style={{
           minWidth: 'fit-content'
         }}
-      dangerouslySetInnerHTML={{ __html: html }}
+      dangerouslySetInnerHTML={{ __html: sanitizeHtml(html) }}
     />
     </div>
   )
@@ -73,11 +68,11 @@ export function TutorialContentRenderer({
       {/* Contenu principal de l'étape */}
       <div className="prose prose-sm dark:prose-invert max-w-none prose-p:my-1 prose-li:my-1">
         <div 
-          className="text-black/70 dark:text-white/70 text-base"
+          className="text-[color:var(--neu-text-muted)] text-base"
           style={{ 
             lineHeight: '1.3',
           }}
-          dangerouslySetInnerHTML={{ __html: cleanLessonDescription(step.description) }}
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(cleanLessonDescription(step.description)) }}
         />
       </div>
 
@@ -177,7 +172,7 @@ function TablatureHtmlBlocks({ blocks }: { blocks: HtmlTabBlock[] }) {
       <div className="mt-4">
         <Block className="p-4">
         {(block.title || block.instrument) && (
-            <h4 className="text-sm font-bold text-black/70 dark:text-white/70 mb-4 flex items-center gap-2">
+            <h4 className="text-sm font-bold text-[color:var(--neu-text-muted)] mb-4 flex items-center gap-2">
               {getInstrumentIcon(block.instrument)}
               {block.title || block.instrument || 'Tablature'}
             </h4>
@@ -192,7 +187,7 @@ function TablatureHtmlBlocks({ blocks }: { blocks: HtmlTabBlock[] }) {
     <div className="mt-4">
       <Block className="p-4">
         <div className="mb-4">
-          <label className="block mb-2 text-xs font-semibold uppercase tracking-wider text-black/70 dark:text-white/70">
+          <label className="block mb-2 text-xs font-semibold uppercase tracking-wider text-[color:var(--neu-text-muted)]">
             Sélectionner l'instrument
           </label>
           <Dropdown
@@ -247,7 +242,7 @@ function TablatureFromAPI({ tablatureId }: { tablatureId: string }) {
     return (
       <div className="mt-4">
         <Block className="p-4">
-          <div className="flex items-center justify-center gap-2 text-black/70 dark:text-white/70">
+          <div className="flex items-center justify-center gap-2 text-[color:var(--neu-text-muted)]">
             <Loader2 size={16} className="animate-spin" />
             <span className="text-sm">Chargement de la tablature...</span>
           </div>
@@ -260,7 +255,7 @@ function TablatureFromAPI({ tablatureId }: { tablatureId: string }) {
     return (
       <div className="mt-4">
         <Block className="p-4">
-          <div className="text-sm text-red-500 dark:text-red-400">{error}</div>
+          <div className="text-sm text-[var(--td-danger)] ">{error}</div>
         </Block>
       </div>
     )
@@ -275,7 +270,7 @@ function TablatureFromAPI({ tablatureId }: { tablatureId: string }) {
     return (
       <div className="mt-4">
         <Block className="p-4">
-          <h4 className="text-sm font-bold text-black/70 dark:text-white/70 mb-4 flex items-center gap-2">
+          <h4 className="text-sm font-bold text-[color:var(--neu-text-muted)] mb-4 flex items-center gap-2">
             <Music size={16} />
             {tablature.title || 'Tablature'}
           </h4>
@@ -315,13 +310,13 @@ function YouTubeEmbed({ link }: { link: YouTubeLink }) {
     <div className="mt-4">
       <Block className="p-4">
         {link.title && (
-          <h4 className="text-sm font-bold text-black/70 dark:text-white/70 mb-4">
+          <h4 className="text-sm font-bold text-[color:var(--neu-text-muted)] mb-4">
             {link.title}
           </h4>
         )}
         <div className="relative w-full" style={{ paddingBottom: '56.25%' }}> {/* 16:9 aspect ratio */}
           <iframe
-            className="absolute top-0 left-0 w-full h-full rounded-lg"
+            className="absolute top-0 left-0 w-full h-full rounded-[var(--td-radius-control)]"
             src={embedUrl}
             title={link.title || 'Vidéo YouTube'}
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

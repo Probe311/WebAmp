@@ -20,7 +20,7 @@ import {
 import { ComposableMap, Geographies, Geography } from 'react-simple-maps'
 import { AnalyticsStats } from '../../services/analytics'
 
-const COLORS = ['#ef4444', '#f97316', '#f59e0b', '#eab308', '#84cc16', '#22c55e', '#10b981', '#14b8a6', '#06b6d4', '#3b82f6', '#6366f1', '#8b5cf6', '#a855f7', '#d946ef', '#ec4899']
+const COLORS = ['#ef4444', '#F26A1B', '#f59e0b', '#eab308', '#84cc16', '#22c55e', '#10b981', '#14b8a6', '#06b6d4', '#3b82f6', '#6366f1', '#8b5cf6', '#a855f7', '#d946ef', '#ec4899']
 
 // URL de la carte du monde TopoJSON (format 110m pour meilleures performances)
 const geoUrl = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json"
@@ -84,8 +84,8 @@ const countryToISO: Record<string, string> = {
 
 // Composant de conteneur uniforme pour tous les graphiques
 const ChartContainer: React.FC<{ title: string; children: React.ReactNode; className?: string }> = ({ title, children, className = '' }) => (
-  <div className={`bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 p-6 ${className}`}>
-    <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">{title}</h3>
+  <div className={`neu-flat rounded-[var(--td-radius-control)] p-6 ${className}`}>
+    <h3 className="text-lg font-semibold text-[color:var(--neu-text)] mb-4">{title}</h3>
     {children}
   </div>
 )
@@ -110,7 +110,7 @@ export function SessionsWorldMap({ stats }: AnalyticsChartsProps) {
   if (countryData.length === 0) {
     return (
       <ChartContainer title="Sessions par pays">
-        <p className="text-gray-500 dark:text-gray-400">Aucune donnée disponible</p>
+        <p className="text-[color:var(--neu-text-muted)]">Aucune donnée disponible</p>
       </ChartContainer>
     )
   }
@@ -141,16 +141,16 @@ export function SessionsWorldMap({ stats }: AnalyticsChartsProps) {
           <div className="flex items-center justify-center h-[500px]">
             <div className="text-center">
               <p className="text-red-500 dark:text-red-400 mb-2">Erreur de chargement de la carte</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{mapError}</p>
+              <p className="text-sm text-[color:var(--neu-text-muted)]">{mapError}</p>
             </div>
           </div>
         ) : (
           <>
             {isLoading && (
-              <div className="absolute inset-0 flex items-center justify-center bg-white dark:bg-gray-800 rounded-lg z-20">
+              <div className="absolute inset-0 flex items-center justify-center neu-flat rounded-[var(--td-radius-control)] z-20">
                 <div className="text-center">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto mb-2"></div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Chargement de la carte...</p>
+                  <p className="text-sm text-[color:var(--neu-text-muted)]">Chargement de la carte...</p>
                 </div>
               </div>
             )}
@@ -219,30 +219,30 @@ export function SessionsWorldMap({ stats }: AnalyticsChartsProps) {
             
             {/* Tooltip */}
             {tooltipContent && (
-              <div className="absolute top-4 left-4 bg-gray-900 dark:bg-gray-700 text-white px-3 py-2 rounded-lg shadow-lg text-sm z-10 pointer-events-none">
+              <div className="absolute top-4 left-4 bg-[color:var(--neu-bg-track)] text-[color:var(--neu-text)] px-3 py-2 rounded-[var(--td-radius-control)] shadow-lg text-sm z-10 pointer-events-none">
                 {tooltipContent}
               </div>
             )}
 
             {/* Légende */}
-            <div className="absolute bottom-4 right-4 bg-white dark:bg-gray-800 px-4 py-3 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-10">
-              <div className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Intensité</div>
+            <div className="absolute bottom-4 right-4 neu-flat px-4 py-3 rounded-[var(--td-radius-control)] shadow-lg border border-[color:var(--neu-edge)] z-10">
+              <div className="text-xs font-semibold text-[color:var(--neu-text-muted)] mb-2">Intensité</div>
               <div className="flex flex-wrap items-center gap-2">
                 <div className="flex items-center gap-1">
                   <div className="w-4 h-4 rounded" style={{ backgroundColor: '#fca5a5' }}></div>
-                  <span className="text-xs text-gray-600 dark:text-gray-400">Faible</span>
+                  <span className="text-xs text-[color:var(--neu-text-muted)]">Faible</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <div className="w-4 h-4 rounded" style={{ backgroundColor: '#f87171' }}></div>
-                  <span className="text-xs text-gray-600 dark:text-gray-400">Moyen</span>
+                  <span className="text-xs text-[color:var(--neu-text-muted)]">Moyen</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <div className="w-4 h-4 rounded" style={{ backgroundColor: '#ef4444' }}></div>
-                  <span className="text-xs text-gray-600 dark:text-gray-400">Élevé</span>
+                  <span className="text-xs text-[color:var(--neu-text-muted)]">Élevé</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <div className="w-4 h-4 rounded" style={{ backgroundColor: '#dc2626' }}></div>
-                  <span className="text-xs text-gray-600 dark:text-gray-400">Très élevé</span>
+                  <span className="text-xs text-[color:var(--neu-text-muted)]">Très élevé</span>
                 </div>
               </div>
             </div>
@@ -265,7 +265,7 @@ export function CountriesBarChart({ stats }: AnalyticsChartsProps) {
   if (countryData.length === 0) {
     return (
       <ChartContainer title="Top 10 pays">
-        <p className="text-gray-500 dark:text-gray-400">Aucune donnée disponible</p>
+        <p className="text-[color:var(--neu-text-muted)]">Aucune donnée disponible</p>
       </ChartContainer>
     )
   }
@@ -281,11 +281,11 @@ export function CountriesBarChart({ stats }: AnalyticsChartsProps) {
             textAnchor="end" 
             height={100}
             tick={{ fill: '#6b7280', fontSize: 12 }}
-            className="dark:text-gray-400"
+            className=""
           />
           <YAxis 
             tick={{ fill: '#6b7280', fontSize: 12 }}
-            className="dark:text-gray-400"
+            className=""
           />
           <Tooltip 
             contentStyle={{ 
@@ -310,7 +310,7 @@ export function EvolutionLineChart({ stats }: AnalyticsChartsProps) {
   if (evolutionData.length === 0) {
     return (
       <ChartContainer title="Évolution temporelle">
-        <p className="text-gray-500 dark:text-gray-400">Aucune donnée disponible</p>
+        <p className="text-[color:var(--neu-text-muted)]">Aucune donnée disponible</p>
       </ChartContainer>
     )
   }
@@ -329,11 +329,11 @@ export function EvolutionLineChart({ stats }: AnalyticsChartsProps) {
           <XAxis 
             dataKey="dateFormatted"
             tick={{ fill: '#6b7280', fontSize: 12 }}
-            className="dark:text-gray-400"
+            className=""
           />
           <YAxis 
             tick={{ fill: '#6b7280', fontSize: 12 }}
-            className="dark:text-gray-400"
+            className=""
           />
           <Tooltip 
             contentStyle={{ 
@@ -366,7 +366,7 @@ export function DevicesPieChart({ stats }: AnalyticsChartsProps) {
   if (deviceData.length === 0) {
     return (
       <ChartContainer title="Répartition par device">
-        <p className="text-gray-500 dark:text-gray-400">Aucune donnée disponible</p>
+        <p className="text-[color:var(--neu-text-muted)]">Aucune donnée disponible</p>
       </ChartContainer>
     )
   }
@@ -416,7 +416,7 @@ export function BrowsersPieChart({ stats }: AnalyticsChartsProps) {
   if (browserData.length === 0) {
     return (
       <ChartContainer title="Répartition par navigateur">
-        <p className="text-gray-500 dark:text-gray-400">Aucune donnée disponible</p>
+        <p className="text-[color:var(--neu-text-muted)]">Aucune donnée disponible</p>
       </ChartContainer>
     )
   }
@@ -466,7 +466,7 @@ export function OSPieChart({ stats }: AnalyticsChartsProps) {
   if (osData.length === 0) {
     return (
       <ChartContainer title="Répartition par OS">
-        <p className="text-gray-500 dark:text-gray-400">Aucune donnée disponible</p>
+        <p className="text-[color:var(--neu-text-muted)]">Aucune donnée disponible</p>
       </ChartContainer>
     )
   }

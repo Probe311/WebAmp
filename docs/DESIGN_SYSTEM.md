@@ -284,7 +284,9 @@ color: rgba(255, 255, 255, 0.9);
 
 ## Typographie
 
-- **Famille** : 'Inter', system-ui, sans-serif
+- **Corps** : 'DM Sans', system-ui, sans-serif (`--font-sans`)
+- **Titres** : 'Plus Jakarta Sans', 500–800 (`--font-display`)
+- **Valeurs techniques** (dB, Hz, BPM, timecode) : 'JetBrains Mono', `tabular-nums` (`--font-mono`)
 - **Poids** : 400 (normal), 600 (medium), 700 (bold)
 - **Transformation** : uppercase pour les labels
 - **Letter-spacing** : 0.5px pour les labels
@@ -305,10 +307,11 @@ color: rgba(255, 255, 255, 0.9);
 
 ## Fichiers du design système
 
-- `frontend/src/styles/neumorphic-design-system.css` : Variables et classes utilitaires
-- `frontend/src/index.css` : Styles globaux
-- `frontend/src/App.css` : Layout principal
-- Composants individuels : Chaque composant a son propre fichier CSS avec styles neumorphic
+- `frontend/src/styles/neu-tokens.css` : Tokens et utilitaires `neu-*` (accent, profondeurs, rayons)
+- `frontend/src/styles/tones-tokens.css` : Tokens sémantiques du shell (`--td-*`)
+- `frontend/src/styles/tones-primitives.css` : Habillage des contrôles natifs (`range`)
+- `frontend/src/index.css` : Styles globaux, typographie, scrollbars et tablatures
+- `frontend/src/components/tactile/` : Composants du kit, stylés uniquement via les tokens
 
 ## Personnalisation par marque/pédale
 

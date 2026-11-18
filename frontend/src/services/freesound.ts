@@ -77,7 +77,6 @@ export interface FreesoundConfig {
   apiKey?: string;
   baseUrl?: string;
   clientId?: string;
-  clientSecret?: string;
   accessToken?: string;
 }
 
@@ -86,23 +85,18 @@ class FreesoundService {
   private apiKey?: string;
   private accessToken?: string;
   private clientId?: string;
-  private clientSecret?: string;
 
   constructor(config: FreesoundConfig = {}) {
     this.baseUrl = config.baseUrl || 'https://freesound.org/apiv2';
     this.apiKey = config.apiKey || import.meta.env.VITE_FREESOUND_API_KEY;
     this.accessToken = config.accessToken;
     this.clientId = config.clientId || import.meta.env.VITE_FREESOUND_CLIENT_ID;
-    this.clientSecret = config.clientSecret || import.meta.env.VITE_FREESOUND_CLIENT_SECRET;
-    
-    // Debug: vérifier que les variables sont chargées (uniquement en développement)
+    // client_secret volontairement absent du client (bundle VITE_*). OAuth → Edge Function.
+
     if (import.meta.env.DEV) {
       console.debug('Freesound config:', {
         hasApiKey: !!this.apiKey,
         hasClientId: !!this.clientId,
-        hasClientSecret: !!this.clientSecret,
-        clientIdLength: this.clientId?.length || 0,
-        clientSecretLength: this.clientSecret?.length || 0,
       });
     }
   }
@@ -111,93 +105,14 @@ class FreesoundService {
    * Vérifie si l'authentification est disponible
    */
   isAuthenticated(): boolean {
-    const hasApiKey = !!this.apiKey;
-    const hasOAuth2 = !!(this.clientId && this.clientSecret);
-    
-    if (import.meta.env.DEV) {
-      console.debug('Freesound authentication check:', {
-        hasApiKey,
-        hasOAuth2,
-        apiKeyLength: this.apiKey?.length || 0,
-        clientIdLength: this.clientId?.length || 0
-      });
-    }
-    
-    return hasApiKey || hasOAuth2;
+    return !!this.apiKey || !!this.accessToken;
   }
 
   /**
-   * Obtient un token d'accès OAuth2 (si nécessaire)
-   * Retourne null si OAuth2 n'est pas disponible, permettant l'utilisation de l'API key simple
+   * Token OAuth pré-fourni uniquement (pas d'échange client_secret dans le navigateur).
    */
   async getAccessToken(): Promise<string | null> {
-    if (this.accessToken) {
-      return this.accessToken;
-    }
-
-    if (!this.clientId || !this.clientSecret) {
-      // OAuth2 non configuré, on utilisera l'API key simple si disponible
-      return null;
-    }
-
-    try {
-      const requestBody = new URLSearchParams({
-        client_id: this.clientId!,
-        client_secret: this.clientSecret!,
-        grant_type: 'client_credentials',
-      });
-
-      if (import.meta.env.DEV) {
-        console.debug('Freesound OAuth2 request:', {
-          url: `${this.baseUrl}/oauth2/access_token/`,
-          clientId: this.clientId?.substring(0, 5) + '...',
-          hasClientSecret: !!this.clientSecret,
-        });
-      }
-
-      const response = await fetch(`${this.baseUrl}/oauth2/access_token/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: requestBody,
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        let errorMessage = `Freesound OAuth2 error: ${response.status}`;
-        let errorDetails: any = {};
-        try {
-          errorDetails = JSON.parse(errorText);
-          errorMessage = errorDetails.error_description || errorDetails.error || errorMessage;
-        } catch {
-          errorMessage = `${errorMessage} - ${errorText}`;
-        }
-        
-        console.warn('Freesound OAuth2 authentication failed:', {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorMessage,
-          details: errorDetails,
-        });
-        
-        // Ne pas lancer d'erreur, retourner null pour permettre l'utilisation de l'API key
-        return null;
-      }
-
-      const data = await response.json();
-      this.accessToken = data.access_token || '';
-      
-      if (import.meta.env.DEV) {
-        console.debug('Freesound OAuth2 token obtained successfully');
-      }
-      
-      return this.accessToken || null;
-    } catch (error) {
-      console.warn('Freesound OAuth2 authentication error:', error);
-      // Ne pas lancer d'erreur, retourner null pour permettre l'utilisation de l'API key
-      return null;
-    }
+    return this.accessToken || null;
   }
 
   /**
@@ -224,7 +139,7 @@ class FreesoundService {
         // Fallback vers API key si OAuth2 n'est pas disponible
         headers['Authorization'] = `Token ${this.apiKey}`;
       } else {
-        throw new Error('Freesound API: OAuth2 authentication required for this operation. Please configure VITE_FREESOUND_CLIENT_ID and VITE_FREESOUND_CLIENT_SECRET.');
+        throw new Error('Freesound API: authentication required. Configure VITE_FREESOUND_API_KEY (OAuth secret belongs on an Edge Function).');
       }
     } else {
       // Pour les recherches, utiliser directement l'API key via le paramètre token dans l'URL
@@ -240,7 +155,7 @@ class FreesoundService {
         if (token) {
           headers['Authorization'] = `Bearer ${token}`;
         } else {
-          throw new Error('Freesound API: No authentication method available. Please configure VITE_FREESOUND_API_KEY or OAuth2 credentials.');
+          throw new Error('Freesound API: configure VITE_FREESOUND_API_KEY.');
         }
       }
     }
@@ -426,7 +341,7 @@ class FreesoundService {
 
     const token = this.accessToken || await this.getAccessToken();
     if (!token) {
-      throw new Error('OAuth2 authentication required for downloading sounds. Please configure VITE_FREESOUND_CLIENT_ID and VITE_FREESOUND_CLIENT_SECRET.');
+      throw new Error('Freesound download requires VITE_FREESOUND_API_KEY (OAuth secret must stay server-side).');
     }
 
     const response = await fetch(sound.download, {

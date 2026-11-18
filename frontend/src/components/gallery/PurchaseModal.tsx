@@ -31,7 +31,7 @@ export function PurchaseModal({
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={`Acheter "${pack.name}"`}>
       <div className="space-y-6">
-        <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+        <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-[var(--td-radius-control)] border border-amber-200 dark:border-amber-800">
           <div className="flex items-start gap-3">
             <Crown className="text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" size={20} />
             <div>
@@ -47,10 +47,10 @@ export function PurchaseModal({
 
         {pack.price && (
           <div className="text-center py-4">
-            <div className="text-3xl font-bold text-black/85 dark:text-white/90 mb-2">
+            <div className="text-3xl font-bold text-[color:var(--neu-text)] mb-2">
               {pack.price} {pack.currency || 'EUR'}
             </div>
-            <p className="text-sm text-black/60 dark:text-white/60">
+            <p className="text-sm text-[color:var(--neu-text-muted)]">
               Achat unique - Accès permanent
             </p>
           </div>
@@ -77,7 +77,7 @@ export function PurchaseModal({
           </CTA>
         </div>
 
-        <div className="text-xs text-black/50 dark:text-white/50 text-center">
+        <div className="text-xs text-[color:var(--neu-text-faint)] text-center">
           En achetant, vous acceptez nos conditions d'utilisation.
           Les paiements sont sécurisés via Stripe/PayPal.
         </div>

@@ -78,6 +78,7 @@ describe('pedalControlHelpers', () => {
       const result = analyzeControlTypes(parameters, pedalModel)
       
       expect(result.potentiometers.length).toBeGreaterThan(0)
+      expect(result.hasTwoKnobs).toBe(true)
     })
   })
 

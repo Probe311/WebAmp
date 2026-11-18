@@ -46,9 +46,9 @@ export const Countdown: React.FC<CountdownProps> = ({ onComplete, isVisible }) =
           style={{
             fontSize: '12rem',
             lineHeight: '1',
-            textShadow: '0 0 40px rgba(249, 115, 22, 0.8), 0 0 80px rgba(249, 115, 22, 0.6)',
+            textShadow: '0 0 40px rgba(242, 106, 27, 0.8), 0 0 80px rgba(242, 106, 27, 0.6)',
             animation: 'pulse 0.5s ease-in-out',
-            color: '#f97316'
+            color: 'var(--neu-accent)'
           }}
         >
           {count}

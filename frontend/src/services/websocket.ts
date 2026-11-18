@@ -26,6 +26,10 @@ export type WebSocketMessageType =
   | 'toggleBypass'
   | 'moveEffect'
   | 'setAmplifierPower'
+  | 'setAmplifier'
+  | 'setAmplifierParameter'
+  | 'loadNAMModel'
+  | 'setNAMModelActive'
   | 'setEqualizerParameter'
   | 'saveEqualizerConfig'
 
@@ -192,10 +196,14 @@ export class WebSocketClient {
     logger.debug('Message WebSocket non géré', { messageType: message.type })
   }
 
-  public send(message: WebSocketMessage, requireAck: boolean = false): Promise<WebSocketMessage> {
+  public send(
+    message: WebSocketMessage,
+    requireAck: boolean = false,
+    timeoutMs: number = WEBSOCKET_ACK_TIMEOUT
+  ): Promise<WebSocketMessage> {
     if (!this.isConnected()) {
       // Tentative de connexion automatique
-      return this.connect().then(() => this.send(message, requireAck))
+      return this.connect().then(() => this.send(message, requireAck, timeoutMs))
     }
 
     if (requireAck) {
@@ -206,7 +214,7 @@ export class WebSocketClient {
         const timeout = setTimeout(() => {
           this.pendingAcks.delete(messageId)
           reject(new Error('Timeout WebSocket'))
-        }, WEBSOCKET_ACK_TIMEOUT)
+        }, timeoutMs)
 
         this.pendingAcks.set(messageId, {
           resolve,

@@ -11,7 +11,7 @@ import { clamp } from '../utils/number'
  * - Réverb légère (space) optionnelle
  * - Phase flip
  *
- * Tous les réglages sont exposés pour être pilotés par l'UI (EqualizerPanel).
+ * Tous les réglages sont exposés pour être pilotés par l'UI Mixage.
  */
 export class MasterEqualizer {
   private ctx: AudioContext

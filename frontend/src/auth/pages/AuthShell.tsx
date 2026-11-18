@@ -18,16 +18,16 @@ function AuthContent() {
 
   if (initializing) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
-        <div className="rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 px-6 py-4 shadow">
-          <p className="text-sm text-gray-700 dark:text-gray-200">Initialisation de Supabase Auth...</p>
+      <div className="flex min-h-screen items-center justify-center bg-[color:var(--neu-bg)]">
+        <div className="neu-flat rounded-2xl px-6 py-4">
+          <p className="text-sm text-[color:var(--neu-text-muted)]">Initialisation de Supabase Auth...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 p-6">
+    <div className="flex min-h-screen items-center justify-center bg-[color:var(--neu-bg)] p-6">
       {view === 'login' && <LoginPage onSwitchView={setView} />}
       {view === 'signup' && <SignupPage onSwitchView={setView} />}
       {view === 'forgot' && <ForgotPasswordPage onSwitchView={setView} />}
@@ -43,4 +43,3 @@ export function AuthShell() {
     </AuthProvider>
   )
 }
-

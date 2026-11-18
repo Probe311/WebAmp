@@ -1,8 +1,7 @@
-import { useState, useEffect, useRef } from 'react'
 import { Block } from './Block'
+import { LogoLoop } from './motion'
 import { brandCertifications, getCertifiedBrandFullLogo } from '../utils/certificationStatus'
 
-// Récupérer tous les logos certifiés depuis la configuration de certification
 const LOGOS = Object.keys(brandCertifications)
   .filter(brandName => brandCertifications[brandName].status === 'certified')
   .map(brandName => ({
@@ -10,69 +9,27 @@ const LOGOS = Object.keys(brandCertifications)
     src: getCertifiedBrandFullLogo(brandName)!
   }))
 
-const DISPLAY_DURATION = 1500 // 1.5 secondes
-
 interface PartnerLogosCarouselProps {
   /** Si true, le composant sera enveloppé dans un Block */
   withBlock?: boolean
 }
 
 export function PartnerLogosCarousel({ withBlock = false }: PartnerLogosCarouselProps) {
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [isVisible, setIsVisible] = useState(true)
-  const timeoutRef = useRef<number | null>(null)
-
-  // Désactiver l'animation s'il n'y a qu'un seul logo
-  useEffect(() => {
-    if (LOGOS.length <= 1) {
-      return
-    }
-
-    const interval = setInterval(() => {
-      // Faire disparaître le logo actuel
-      setIsVisible(false)
-      
-      // Après la transition, changer de logo et le faire apparaître
-      timeoutRef.current = window.setTimeout(() => {
-        setCurrentIndex((prevIndex) => (prevIndex + 1) % LOGOS.length)
-        setIsVisible(true)
-      }, 300) // Durée de la transition de sortie
-    }, DISPLAY_DURATION)
-
-    return () => {
-      clearInterval(interval)
-      if (timeoutRef.current) {
-        window.clearTimeout(timeoutRef.current)
-      }
-    }
-  }, [])
-
   const content = (
-    <div className="relative w-full h-full flex items-center justify-center p-6">
-      <div
-        className={`absolute inset-0 flex items-center justify-center ${
-          LOGOS.length > 1 ? 'transition-all duration-300 ease-in-out' : ''
-        } ${
-          isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
-        }`}
-      >
-        <img
-          src={LOGOS[currentIndex].src}
-          alt={LOGOS[currentIndex].name}
-          className="h-20 w-full object-contain opacity-80 dark:opacity-100 dark:brightness-0 dark:invert"
-        />
-      </div>
-    </div>
+    <LogoLoop
+      logos={LOGOS}
+      className="min-h-[5rem]"
+      imgClassName="neu-logo h-20 w-auto max-w-[160px] object-contain"
+    />
   )
 
   if (withBlock) {
     return (
-      <Block className="w-full overflow-hidden">
+      <Block className="w-full overflow-hidden" spotlight glare>
         {content}
       </Block>
     )
   }
 
-  return <div className="w-full h-full overflow-hidden">{content}</div>
+  return <div className="w-full h-full overflow-hidden flex items-center">{content}</div>
 }
-

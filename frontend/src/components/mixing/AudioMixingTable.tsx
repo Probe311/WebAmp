@@ -60,27 +60,27 @@ export function AudioMixingTable({ tracks: initialTracks }: AudioMixingTableProp
     <div className="w-full overflow-x-auto custom-scrollbar">
       <div className="min-w-[1200px]">
         {/* En-tête avec contrôles master */}
-        <div className="mb-6 p-4 bg-white dark:bg-gray-700 rounded-xl shadow-[inset_2px_2px_4px_rgba(0,0,0,0.05),inset_-2px_-2px_4px_rgba(255,255,255,0.8)] dark:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.5),inset_-2px_-2px_4px_rgba(60,60,60,0.5)] border border-black/10 dark:border-white/10">
+        <div className="mb-6 p-4 neu-inset rounded-2xl border border-[color:var(--neu-edge)]">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <span className="text-sm font-bold uppercase tracking-wider text-black/85 dark:text-white/90">
+              <span className="text-sm font-bold uppercase tracking-wider text-[color:var(--neu-text)]">
                 Master
               </span>
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setMasterMute(!masterMute)}
                   className={`
-                    w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-200
+                    w-10 h-10 rounded-[var(--td-radius-control)] flex items-center justify-center transition-all duration-200
                     ${masterMute
-                      ? 'bg-red-500 text-white shadow-[inset_2px_2px_4px_rgba(0,0,0,0.3)]'
-                      : 'bg-white dark:bg-gray-600 text-black/70 dark:text-white/70 shadow-[2px_2px_4px_rgba(0,0,0,0.08),-2px_-2px_4px_rgba(255,255,255,0.9)] dark:shadow-[2px_2px_4px_rgba(0,0,0,0.5),-2px_-2px_4px_rgba(60,60,60,0.5)]'
+                      ? 'bg-[color:var(--td-danger)] text-[color:var(--td-on-danger)] neu-pressed'
+                      : 'neu-flat-sm text-[color:var(--neu-text-muted)]'
                     }
                   `}
                 >
                   {masterMute ? <VolumeX size={18} /> : <Volume2 size={18} />}
                 </button>
                 <div className="flex items-center gap-2">
-                  <Volume2 size={16} className="text-black/50 dark:text-white/50" />
+                  <Volume2 size={16} className="text-[color:var(--neu-text-faint)]" />
                   <Slider
                     value={masterVolume}
                     onChange={setMasterVolume}
@@ -89,7 +89,7 @@ export function AudioMixingTable({ tracks: initialTracks }: AudioMixingTableProp
                     orientation="horizontal"
                     className="w-32"
                   />
-                  <span className="text-xs font-mono text-black/70 dark:text-white/70 w-8">{masterVolume}</span>
+                  <span className="text-xs font-mono text-[color:var(--neu-text-muted)] w-8">{masterVolume}</span>
                 </div>
               </div>
             </div>
@@ -111,7 +111,7 @@ export function AudioMixingTable({ tracks: initialTracks }: AudioMixingTableProp
           {tracks.map((track) => (
             <div
               key={track.id}
-              className="bg-white dark:bg-gray-700 rounded-xl p-4 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.05),inset_-2px_-2px_4px_rgba(255,255,255,0.8)] dark:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.5),inset_-2px_-2px_4px_rgba(60,60,60,0.5)] border border-black/10 dark:border-white/10 flex flex-col items-center gap-3"
+              className="neu-inset rounded-2xl p-4 border border-[color:var(--neu-edge)] flex flex-col items-center gap-3"
             >
               {/* Nom de la piste */}
               <div className="flex flex-col items-center gap-2 w-full">
@@ -120,7 +120,7 @@ export function AudioMixingTable({ tracks: initialTracks }: AudioMixingTableProp
                     className="w-3 h-3 rounded-full"
                     style={{ backgroundColor: track.color }}
                   />
-                  <span className="text-xs font-bold uppercase tracking-wider text-black/85 dark:text-white/90 truncate">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[color:var(--neu-text)] truncate">
                     {track.name}
                   </span>
                 </div>
@@ -131,10 +131,10 @@ export function AudioMixingTable({ tracks: initialTracks }: AudioMixingTableProp
                 <button
                   onClick={() => toggleMute(track.id)}
                   className={`
-                    flex-1 py-1.5 rounded-lg text-[10px] font-bold uppercase transition-all duration-200
+                    flex-1 py-1.5 rounded-[var(--td-radius-control)] text-[10px] font-bold uppercase transition-all duration-200
                     ${track.muted
-                      ? 'bg-red-500 text-white shadow-[inset_2px_2px_4px_rgba(0,0,0,0.3)]'
-                      : 'bg-white dark:bg-gray-600 text-black/70 dark:text-white/70 shadow-[2px_2px_4px_rgba(0,0,0,0.08),-2px_-2px_4px_rgba(255,255,255,0.9)] dark:shadow-[2px_2px_4px_rgba(0,0,0,0.5),-2px_-2px_4px_rgba(60,60,60,0.5)]'
+                      ? 'bg-[color:var(--td-danger)] text-[color:var(--td-on-danger)] neu-pressed'
+                      : 'neu-flat-sm text-[color:var(--neu-text-muted)]'
                     }
                   `}
                 >
@@ -143,10 +143,10 @@ export function AudioMixingTable({ tracks: initialTracks }: AudioMixingTableProp
                 <button
                   onClick={() => toggleSolo(track.id)}
                   className={`
-                    flex-1 py-1.5 rounded-lg text-[10px] font-bold uppercase transition-all duration-200
+                    flex-1 py-1.5 rounded-[var(--td-radius-control)] text-[10px] font-bold uppercase transition-all duration-200
                     ${track.solo
-                      ? 'bg-yellow-500 text-white shadow-[inset_2px_2px_4px_rgba(0,0,0,0.3)]'
-                      : 'bg-white dark:bg-gray-600 text-black/70 dark:text-white/70 shadow-[2px_2px_4px_rgba(0,0,0,0.08),-2px_-2px_4px_rgba(255,255,255,0.9)] dark:shadow-[2px_2px_4px_rgba(0,0,0,0.5),-2px_-2px_4px_rgba(60,60,60,0.5)]'
+                      ? 'bg-[color:var(--td-warning)] text-[color:var(--neu-text)] neu-pressed'
+                      : 'neu-flat-sm text-[color:var(--neu-text-muted)]'
                     }
                   `}
                 >
@@ -164,14 +164,14 @@ export function AudioMixingTable({ tracks: initialTracks }: AudioMixingTableProp
                   orientation="vertical"
                   className="flex-1 h-full"
                 />
-                <span className="text-xs font-mono text-black/70 dark:text-white/70">
+                <span className="text-xs font-mono text-[color:var(--neu-text-muted)]">
                   {track.volume}
                 </span>
               </div>
 
               {/* Pan Knob */}
               <div className="flex flex-col items-center gap-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-black/70 dark:text-white/70">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--neu-text-muted)]">
                   Pan
                 </span>
                 <Knob
@@ -187,12 +187,12 @@ export function AudioMixingTable({ tracks: initialTracks }: AudioMixingTableProp
 
               {/* Peak Meter */}
               <div className="w-full">
-                <div className="h-20 bg-black/10 dark:bg-white/10 rounded-lg overflow-hidden relative flex flex-col justify-end p-1">
+                <div className="h-20 neu-inset rounded-2xl overflow-hidden relative flex flex-col justify-end p-1">
                   <div
                     className={`w-full transition-all duration-75 ${
-                      track.peak > -6 ? 'bg-red-500' :
-                      track.peak > -12 ? 'bg-yellow-500' :
-                      'bg-green-500'
+                      track.peak > -6 ? 'bg-[color:var(--td-danger)]' :
+                      track.peak > -12 ? 'bg-[color:var(--td-warning)]' :
+                      'bg-[color:var(--td-success)]'
                     }`}
                     style={{ height: `${Math.max(0, Math.min(100, ((track.peak + 60) / 60) * 100))}%` }}
                   />
@@ -207,9 +207,9 @@ export function AudioMixingTable({ tracks: initialTracks }: AudioMixingTableProp
           ))}
 
           {/* Colonne Master */}
-          <div className="bg-white dark:bg-gray-700 rounded-xl p-4 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.05),inset_-2px_-2px_4px_rgba(255,255,255,0.8)] dark:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.5),inset_-2px_-2px_4px_rgba(60,60,60,0.5)] border border-black/10 dark:border-white/10 flex flex-col items-center gap-3">
+          <div className="neu-inset rounded-2xl p-4 border border-[color:var(--neu-edge)] flex flex-col items-center gap-3">
             <div className="flex flex-col items-center gap-2 w-full">
-              <span className="text-xs font-bold uppercase tracking-wider text-black/85 dark:text-white/90">
+              <span className="text-xs font-bold uppercase tracking-wider text-[color:var(--neu-text)]">
                 Master
               </span>
             </div>
@@ -218,10 +218,10 @@ export function AudioMixingTable({ tracks: initialTracks }: AudioMixingTableProp
               <button
                 onClick={() => setMasterMute(!masterMute)}
                 className={`
-                  flex-1 py-1.5 rounded-lg text-[10px] font-bold uppercase transition-all duration-200
+                  flex-1 py-1.5 rounded-[var(--td-radius-control)] text-[10px] font-bold uppercase transition-all duration-200
                   ${masterMute
-                    ? 'bg-red-500 text-white shadow-[inset_2px_2px_4px_rgba(0,0,0,0.3)]'
-                    : 'bg-white dark:bg-gray-600 text-black/70 dark:text-white/70 shadow-[2px_2px_4px_rgba(0,0,0,0.08),-2px_-2px_4px_rgba(255,255,255,0.9)] dark:shadow-[2px_2px_4px_rgba(0,0,0,0.5),-2px_-2px_4px_rgba(60,60,60,0.5)]'
+                    ? 'bg-[color:var(--td-danger)] text-[color:var(--td-on-danger)] neu-pressed'
+                    : 'neu-flat-sm text-[color:var(--neu-text-muted)]'
                   }
                 `}
               >
@@ -238,15 +238,15 @@ export function AudioMixingTable({ tracks: initialTracks }: AudioMixingTableProp
                 orientation="vertical"
                 className="flex-1 h-full"
               />
-              <span className="text-xs font-mono text-black/70 dark:text-white/70">
+              <span className="text-xs font-mono text-[color:var(--neu-text-muted)]">
                 {masterVolume}
               </span>
             </div>
 
             <div className="w-full">
-              <div className="h-20 bg-black/10 dark:bg-white/10 rounded-lg overflow-hidden relative flex flex-col justify-end p-1">
+              <div className="h-20 neu-inset rounded-2xl overflow-hidden relative flex flex-col justify-end p-1">
                 <div
-                  className="w-full bg-green-500 transition-all duration-75"
+                  className="w-full bg-[color:var(--td-success)] transition-all duration-75"
                   style={{ height: '60%' }}
                 />
               </div>

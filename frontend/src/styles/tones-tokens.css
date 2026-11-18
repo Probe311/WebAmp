@@ -1,0 +1,274 @@
+/**
+ * ToneDock — jetons de design à trois couches.
+ *
+ * 1. primitives  : valeurs brutes, jamais utilisées directement par un composant ;
+ * 2. sémantiques : rôle (surface, texte, accent, arête, focus) — c'est la couche
+ *    que les composants consomment ;
+ * 3. composants  : alias courts pour un usage précis (fenêtre, dock).
+ *
+ * Aucun composant ne doit écrire une couleur, un rayon, une bordure ou une ombre
+ * en dur : tout passe par ces variables, ce qui rend le thème clair/sombre
+ * gratuit et évite les branches `classList.contains('dark')` dans le JS.
+ *
+ * Toutes les valeurs sémantiques de texte ont été vérifiées : 4,5:1 minimum sur
+ * leur surface, 3:1 pour les arêtes de contrôle et le focus. Voir
+ * `App/docs/AUDIT_UI.md` §6 pour les ratios mesurés.
+ *
+ * Le néomorphisme est décoratif : une ombre ne doit jamais être la seule
+ * indication d'un état. Les contrôles portent en plus `--td-edge-control` et un
+ * anneau de focus explicite.
+ */
+
+:root {
+  /* --- 1. primitives ------------------------------------------------------ */
+  --td-orange-500: #f28a36;   /* accent clair : aplats et halos */
+  --td-orange-600: #c2410c;   /* aplats à texte blanc */
+  --td-orange-700: #a34a0b;   /* texte et icônes sur surface claire */
+  --td-amber-500: #e0a33a;
+  --td-ink-900: #17191f;
+  --td-ink-800: #20232d;
+
+  /* --- 2. sémantiques (clair) -------------------------------------------- */
+  /* Surfaces shell = NEU (évite l'écart header / bureau au toggle thème). */
+  --td-surface-base: var(--neu-bg);
+  --td-surface-raised: var(--neu-bg);
+  --td-surface-elevated: var(--neu-bg);
+  --td-surface-inset: var(--neu-bg-track);
+  /* États interactifs : jamais une couleur pleine, toujours une voile. */
+  --td-surface-hover: rgba(0, 0, 0, 0.04);
+  --td-surface-active: rgba(0, 0, 0, 0.08);
+  --td-surface-selected: rgba(194, 65, 12, 0.12);
+  --td-surface-subtle: rgba(0, 0, 0, 0.02);
+  --td-glare: rgba(255, 255, 255, 0.35);
+
+  --td-text-primary: #20232d;      /* 13,14:1 sur base */
+  --td-text-secondary: #4a5160;    /* 6,68:1 sur base */
+  --td-text-muted: #5c6373;        /* 5,05:1 sur base, 4,73:1 sur inset */
+  --td-text-inverse: #f7f8fa;
+
+  /* Accent unique : l'orange, décliné en trois valeurs selon l'usage. */
+  --td-accent: var(--td-orange-500);        /* aplats, halos : 2,08:1, jamais en texte */
+  --td-accent-strong: var(--td-orange-600); /* aplats portant du texte blanc : 5,18:1 */
+  --td-accent-text: var(--td-orange-700);   /* icônes et petit texte : 4,97:1 sur base */
+  --td-primary: var(--td-accent-text);      /* alias historique (26 usages) */
+  --td-primary-strong: var(--td-accent-strong);
+  --td-secondary: var(--td-amber-500);      /* ambre chaud : plus de magenta */
+  --td-energy: var(--td-accent);
+  --td-on-primary: #ffffff;
+  --td-on-energy: #20232d;         /* 6,32:1 sur energy */
+  --td-danger: #b3261e;            /* 5,48:1 sur base, 6,54:1 avec blanc */
+  --td-on-danger: #ffffff;
+  --td-danger-surface: rgba(179, 38, 30, 0.12);
+  --td-success: #1a7449;           /* 4,84:1 sur base, 4,53:1 sur inset */
+  --td-success-surface: rgba(28, 122, 77, 0.12);
+  --td-warning: #8a5a00;           /* 4,97:1 sur base */
+  --td-warning-surface: rgba(138, 90, 0, 0.12);
+  --td-info: #1f5f8b;              /* 5,74:1 sur base */
+  --td-info-surface: rgba(31, 95, 139, 0.12);
+
+  --td-edge-control: #7b8499;      /* 3,14:1 sur base — contrôles */
+  --td-edge-panel: #d5d9e2;        /* hairline décorative de fenêtre */
+  --td-edge-strong: #b3b9c7;       /* séparation marquée */
+  --td-focus: #c2410c;             /* 4,34:1 sur base, indicateur non textuel */
+  --td-scrim: rgba(23, 25, 31, 0.55);
+  --td-white-04: rgba(255, 255, 255, 0.04);
+  --td-white-08: rgba(255, 255, 255, 0.08);
+  --td-white-10: rgba(255, 255, 255, 0.1);
+  --td-white-15: rgba(255, 255, 255, 0.15);
+  --td-white-40: rgba(255, 255, 255, 0.4);
+  --td-white-70: rgba(255, 255, 255, 0.7);
+  --td-white-90: rgba(255, 255, 255, 0.9);
+  --td-black-04: rgba(0, 0, 0, 0.04);
+  --td-black-05: rgba(0, 0, 0, 0.05);
+  --td-black-08: rgba(0, 0, 0, 0.08);
+  --td-black-10: rgba(0, 0, 0, 0.1);
+  --td-black-15: rgba(0, 0, 0, 0.15);
+  --td-black-30: rgba(0, 0, 0, 0.3);
+  --td-black-40: rgba(0, 0, 0, 0.4);
+  --td-black-70: rgba(0, 0, 0, 0.7);
+
+  /* --- dimensions -------------------------------------------------------- */
+  --td-radius-xs: 6px;
+  --td-radius-sm: 8px;
+  --td-radius-md: 10px;
+  --td-radius-lg: 12px;
+  --td-radius-xl: 16px;
+  --td-radius-2xl: 20px;
+  --td-radius-3xl: 24px;
+  --td-radius-pill: 9999px;
+
+  /* Échelle sémantique : les composants visent ces noms, pas les numéros. */
+  --td-radius-panel: 20px;    /* fenêtres, panneaux, grandes surfaces */
+  --td-radius-card: 16px;     /* cartes, modales, tuiles */
+  --td-radius-well: 12px;     /* zones creusées, listes, écrans */
+  --td-radius-control: 10px;  /* boutons, champs, onglets */
+  --td-radius-badge: 9999px;  /* pastilles, points, avatars */
+
+  --td-border-hairline: 1px;
+  --td-border-control: 2px;
+
+  /* --- élévation --------------------------------------------------------- */
+  --td-elevation-flat: none;
+  --td-elevation-1: 4px 4px 8px rgba(0, 0, 0, 0.08), -4px -4px 8px rgba(255, 255, 255, 0.9);
+  --td-elevation-2: 8px 8px 16px rgba(0, 0, 0, 0.12), -8px -8px 16px rgba(255, 255, 255, 0.9), inset 0 0 0 1px rgba(255, 255, 255, 0.8);
+  --td-elevation-3: 12px 12px 28px rgba(0, 0, 0, 0.16), -8px -8px 20px rgba(255, 255, 255, 0.9), inset 0 0 0 1px rgba(255, 255, 255, 0.8);
+  --td-elevation-inset: inset 3px 3px 7px rgba(0, 0, 0, 0.1), inset -3px -3px 7px rgba(255, 255, 255, 0.9);
+  --td-elevation-inset-sm: inset 2px 2px 4px rgba(0, 0, 0, 0.08), inset -2px -2px 4px rgba(255, 255, 255, 0.85);
+  --td-elevation-side: 4px 0 24px rgba(0, 0, 0, 0.1);
+
+  /* --- effets ------------------------------------------------------------ */
+  --td-blur-panel: 12px;
+  --td-blur-scrim: 8px;
+  --td-glow-primary: 0 0 12px rgba(242, 138, 54, 0.45);
+  --td-glow-energy: 0 0 12px rgba(242, 138, 54, 0.45);
+  --td-gradient-primary: linear-gradient(135deg, var(--td-orange-500), var(--td-orange-600));
+  --td-gradient-energy: linear-gradient(135deg, var(--td-orange-500), var(--td-amber-500));
+  --td-gradient-ai: linear-gradient(135deg, var(--td-amber-500), var(--td-orange-500));
+  --td-gradient-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0));
+
+  /* --- 3. composants ----------------------------------------------------- */
+  --td-window-surface: var(--td-surface-raised);
+  --td-window-edge: var(--td-edge-panel);
+  --td-window-shadow: var(--td-elevation-2);
+  --td-window-shadow-focused: var(--td-elevation-3);
+  --td-window-focus-ring: var(--td-focus);
+  --td-titlebar-surface: rgba(0, 0, 0, 0.03);
+  --td-dock-accent: var(--td-accent);
+  --td-control-surface: var(--td-surface-elevated);
+  --td-control-track: var(--td-surface-inset);
+  --td-control-shadow: var(--td-elevation-1);
+  --td-control-shadow-pressed: var(--td-elevation-inset-sm);
+  --td-menu-surface: var(--td-surface-elevated);
+  --td-menu-shadow: var(--td-elevation-2);
+  --td-dialog-surface: var(--td-surface-raised);
+  --td-dialog-shadow: var(--td-elevation-3);
+  --td-chart-grid: var(--td-edge-panel);
+  --td-chart-grid-minor: color-mix(in srgb, var(--td-edge-panel) 60%, transparent);
+
+  /* --- 4. structure du shell --------------------------------------------- */
+  /* Une seule marge pour le cadre : le header et la zone d'affichage la partagent. */
+  --td-shell-gap: 16px;
+  /* Dock : item + 2×8 px de padding + 2 px de bordure. Doit suivre `baseItemSize`. */
+  --td-dock-item: 46px;
+  --td-dock-height: 64px;
+  --td-dock-offset: 16px;
+  /* Bande réservée sous les fenêtres : marge + dock + son décalage. */
+  --td-dock-clearance: calc(var(--td-shell-gap) + var(--td-dock-height) + var(--td-dock-offset));
+
+  /* --- 5. mouvement ------------------------------------------------------ */
+  /* Même source que `--neu-duration-*` pour sync thème shell. */
+  --td-duration-fast: var(--neu-duration-fast);
+  --td-duration-base: var(--neu-duration-base);
+  --td-duration-slow: var(--neu-duration-slow);
+  --td-duration-slower: 480ms;
+  --td-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --td-ease-in-out: var(--neu-ease);
+  --td-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* --- 6. empilement ----------------------------------------------------- */
+  /* fond < dock < fenêtres < épinglées < header < menus
+     → l'ombre du dock ne passe pas devant les fenêtres. */
+  --td-z-dock: 20;
+  --td-z-window: 40;
+  --td-z-window-pinned: 70;
+  --td-z-header: 100;
+  --td-z-menu: 200;
+  --td-z-overlay: 1000;
+  --td-z-tooltip: 1100;
+
+  color-scheme: light;
+}
+
+.dark {
+  /* --- sémantiques (sombre) ---------------------------------------------- */
+  --td-surface-base: var(--neu-bg);
+  --td-surface-raised: var(--neu-bg);
+  --td-surface-elevated: var(--neu-bg);
+  --td-surface-inset: var(--neu-bg-track);
+  --td-surface-hover: rgba(255, 255, 255, 0.06);
+  --td-surface-active: rgba(255, 255, 255, 0.12);
+  --td-surface-selected: rgba(255, 160, 79, 0.18);
+  --td-surface-subtle: rgba(255, 255, 255, 0.02);
+  --td-glare: rgba(255, 255, 255, 0.18);
+
+  --td-text-primary: #f2f3f7;      /* 15,84:1 sur base */
+  --td-text-secondary: #c0c4cf;    /* 10,07:1 sur base */
+  --td-text-muted: #a4a9b7;        /* 5,69:1 sur élevé */
+  --td-text-inverse: #17191f;
+
+  --td-accent: #f26a1b;
+  --td-accent-strong: #e0590e;
+  --td-accent-text: #f26a1b;
+  --td-primary: var(--td-accent-text);
+  --td-primary-strong: var(--td-accent-strong);
+  --td-secondary: #e0590e;
+  --td-energy: var(--td-accent);
+  --td-on-primary: #ffffff;
+  --td-on-energy: #ffffff;
+  --td-danger: #ff6b6b;            /* 5,52:1 sur élevé, 6,70:1 avec encre */
+  --td-on-danger: #10131a;
+  --td-danger-surface: rgba(255, 107, 107, 0.16);
+  --td-success: #4ade80;
+  --td-success-surface: rgba(74, 222, 128, 0.16);
+  --td-warning: #fbbf24;
+  --td-warning-surface: rgba(251, 191, 36, 0.16);
+  --td-info: #7dd3fc;
+  --td-info-surface: rgba(125, 211, 252, 0.16);
+
+  --td-edge-control: #6e7690;      /* 3,39:1 sur élevé */
+  --td-edge-panel: #3a3f4d;
+  --td-edge-strong: #4d5464;
+  --td-focus: #f26a1b;
+  --td-scrim: rgba(5, 6, 9, 0.72);
+  --td-white-04: rgba(255, 255, 255, 0.04);
+  --td-white-08: rgba(255, 255, 255, 0.08);
+  --td-white-10: rgba(255, 255, 255, 0.1);
+  --td-white-15: rgba(255, 255, 255, 0.15);
+  --td-white-40: rgba(255, 255, 255, 0.4);
+  --td-white-70: rgba(255, 255, 255, 0.7);
+  --td-white-90: rgba(255, 255, 255, 0.9);
+  --td-black-04: rgba(0, 0, 0, 0.2);
+  --td-black-05: rgba(0, 0, 0, 0.24);
+  --td-black-08: rgba(0, 0, 0, 0.32);
+  --td-black-10: rgba(0, 0, 0, 0.38);
+  --td-black-15: rgba(0, 0, 0, 0.44);
+  --td-black-30: rgba(0, 0, 0, 0.55);
+  --td-black-40: rgba(0, 0, 0, 0.6);
+  --td-black-70: rgba(0, 0, 0, 0.75);
+
+  --td-elevation-1: 4px 4px 8px rgba(0, 0, 0, 0.45), -2px -2px 6px rgba(255, 255, 255, 0.04);
+  --td-elevation-2: 8px 8px 18px rgba(0, 0, 0, 0.5), -6px -6px 14px rgba(60, 60, 60, 0.4), inset 0 0 0 1px rgba(60, 60, 60, 0.7);
+  --td-elevation-3: 12px 12px 30px rgba(0, 0, 0, 0.6), -8px -8px 18px rgba(60, 60, 60, 0.4), inset 0 0 0 1px rgba(60, 60, 60, 0.7);
+  --td-elevation-inset: inset 2px 2px 6px rgba(0, 0, 0, 0.55), inset -2px -2px 6px rgba(255, 255, 255, 0.04);
+  --td-elevation-inset-sm: inset 1px 1px 3px rgba(0, 0, 0, 0.5), inset -1px -1px 3px rgba(255, 255, 255, 0.03);
+  --td-elevation-side: 4px 0 24px rgba(0, 0, 0, 0.5);
+
+  --td-glow-primary: 0 0 12px rgba(242, 106, 27, 0.5);
+  --td-glow-energy: 0 0 12px rgba(242, 106, 27, 0.5);
+  --td-gradient-primary: linear-gradient(135deg, #f26a1b, #e0590e);
+  --td-gradient-energy: linear-gradient(135deg, #f26a1b, #e0590e);
+  --td-gradient-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0));
+
+  --td-titlebar-surface: rgba(255, 255, 255, 0.04);
+
+  color-scheme: dark;
+}
+
+/* Respecte la préférence système tant que le thème n'est pas forcé. */
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    color-scheme: dark;
+  }
+}
+
+/* Anneau de focus unique pour toute la couche desktop. */
+.td-focusable:focus-visible {
+  outline: var(--td-border-control) solid var(--td-focus);
+  outline-offset: 2px;
+}
+
+/* Voile des surfaces modales : couleur et flou viennent des tokens. */
+.td-scrim {
+  background: var(--td-scrim);
+  backdrop-filter: blur(var(--td-blur-scrim));
+}

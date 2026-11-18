@@ -4,8 +4,8 @@
  * Toutes les constantes magiques doivent être définies ici
  */
 
-// Configuration Admin
-export const ADMIN_UUID = import.meta.env.VITE_ADMIN_UUID || 'REDACTED_ADMIN_UUID'
+// Configuration Admin (UUID via env uniquement — jamais de fallback en clair)
+export const ADMIN_UUID = (import.meta.env.VITE_ADMIN_UUID || '').trim()
 
 // Configuration WebSocket
 export const WEBSOCKET_DEFAULT_URL = import.meta.env.VITE_WEBSOCKET_URL || 'ws://localhost:8765'

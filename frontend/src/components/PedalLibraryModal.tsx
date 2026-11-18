@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useCallback, useEffect } from 'react'
-import { Tag, Building2, Volume1, Volume2, BadgeCheck } from 'lucide-react'
+import { Tag, Music2, Volume1, Volume2, BadgeCheck } from 'lucide-react'
 import { Modal } from './Modal'
 import { Dropdown, DropdownOption } from './Dropdown'
 import { CTA } from './CTA'
@@ -9,12 +9,21 @@ type ToneType = typeof import('tone')
 let ToneModule: ToneType | null = null
 import { getPedalPreviewConfig } from '../audio/pedalPreviewConfig'
 import { useCatalog } from '../hooks/useCatalog'
-// import { getBrandLogo } from '../utils/brandLogos' // Non utilisé actuellement
-import { 
-  hasCertificationStatus, 
-  getCertifiedBrandSmallLogo, 
-  getCertificationStatus 
+import {
+  hasCertificationStatus,
+  getCertifiedBrandSmallLogo,
+  getCertificationStatus,
 } from '../utils/certificationStatus'
+import {
+  displayLabelForPedal,
+  keepsRealName,
+  pedalIndexInType,
+} from '../equipment/branding'
+import {
+  genreLabel,
+  resolvePedalGenre,
+  type MusicGenre,
+} from '../equipment/genres'
 import { createLogger } from '../services/logger'
 
 const logger = createLogger('PedalLibraryModal')
@@ -133,7 +142,7 @@ interface PedalLibraryModalProps {
 export function PedalLibraryModal({ isOpen, onClose, onSelectPedal, searchQuery = '' }: PedalLibraryModalProps) {
   const { pedals: pedalLibrary } = useCatalog()
   const [selectedType, setSelectedType] = useState<string | undefined>(undefined)
-  const [selectedBrand, setSelectedBrand] = useState<string | undefined>(undefined)
+  const [selectedGenre, setSelectedGenre] = useState<MusicGenre | undefined>(undefined)
   const [internalSearchQuery, setInternalSearchQuery] = useState('')
   const [previewingPedalId, setPreviewingPedalId] = useState<string | null>(null)
   const previewTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -153,64 +162,76 @@ export function PedalLibraryModal({ isOpen, onClose, onSelectPedal, searchQuery 
   const activeSearchQuery = internalSearchQuery
 
   const filteredPedals = useMemo(() => {
-    return pedalLibrary.filter(pedal => {
-      const matchesSearch = activeSearchQuery === '' || 
-        pedal.brand.toLowerCase().includes(activeSearchQuery.toLowerCase()) ||
-        pedal.model.toLowerCase().includes(activeSearchQuery.toLowerCase()) ||
-        pedal.type.toLowerCase().includes(activeSearchQuery.toLowerCase())
+    const q = activeSearchQuery.toLowerCase()
+    return pedalLibrary.filter((pedal) => {
+      const label = displayLabelForPedal(pedal, pedalIndexInType(pedalLibrary, pedal))
+      const genre = resolvePedalGenre(pedal)
+      const matchesSearch =
+        activeSearchQuery === '' ||
+        label.brandName.toLowerCase().includes(q) ||
+        label.modelName.toLowerCase().includes(q) ||
+        label.sourceName.toLowerCase().includes(q) ||
+        pedal.type.toLowerCase().includes(q) ||
+        genreLabel(genre).toLowerCase().includes(q)
       const matchesType = selectedType === undefined || pedal.type === selectedType
-      const matchesBrand = selectedBrand === undefined || pedal.brand === selectedBrand
-      return matchesSearch && matchesType && matchesBrand
+      const matchesGenre = selectedGenre === undefined || genre === selectedGenre
+      return matchesSearch && matchesType && matchesGenre
     })
-  }, [activeSearchQuery, selectedType, selectedBrand])
+  }, [pedalLibrary, activeSearchQuery, selectedType, selectedGenre])
 
-  // Grouper par type et trier par ordre alphabétique dans chaque catégorie
+  // Grouper par type et trier par libellé affiché
   const pedalsByType = useMemo(() => {
-    const grouped = filteredPedals.reduce((acc, pedal) => {
-      if (!acc[pedal.type]) {
-        acc[pedal.type] = []
-      }
-      acc[pedal.type].push(pedal)
-      return acc
-    }, {} as Record<string, typeof pedalLibrary>)
-    
-    // Trier les pédales par ordre alphabétique dans chaque catégorie (marque puis modèle)
-    Object.keys(grouped).forEach(type => {
+    const grouped = filteredPedals.reduce(
+      (acc, pedal) => {
+        if (!acc[pedal.type]) {
+          acc[pedal.type] = []
+        }
+        acc[pedal.type].push(pedal)
+        return acc
+      },
+      {} as Record<string, typeof pedalLibrary>
+    )
+
+    Object.keys(grouped).forEach((type) => {
       grouped[type].sort((a, b) => {
-        const brandCompare = a.brand.localeCompare(b.brand, 'fr', { sensitivity: 'base' })
+        const la = displayLabelForPedal(a, pedalIndexInType(pedalLibrary, a))
+        const lb = displayLabelForPedal(b, pedalIndexInType(pedalLibrary, b))
+        const brandCompare = la.brandName.localeCompare(lb.brandName, 'fr', {
+          sensitivity: 'base',
+        })
         if (brandCompare !== 0) return brandCompare
-        return a.model.localeCompare(b.model, 'fr', { sensitivity: 'base' })
+        return la.modelName.localeCompare(lb.modelName, 'fr', { sensitivity: 'base' })
       })
     })
-    
-    return grouped
-  }, [filteredPedals])
 
-  // Types uniques pour le dropdown
+    return grouped
+  }, [filteredPedals, pedalLibrary])
+
   const typeOptions = useMemo<DropdownOption[]>(() => {
-    const types = Array.from(new Set(pedalLibrary.map(p => p.type))).sort()
+    const types = Array.from(new Set(pedalLibrary.map((p) => p.type))).sort()
     return [
       { value: '', label: 'Tous les types', icon: <Tag size={16} /> },
-      ...types.map(type => ({
+      ...types.map((type) => ({
         value: type,
         label: type.charAt(0).toUpperCase() + type.slice(1),
-        icon: <Tag size={16} />
-      }))
+        icon: <Tag size={16} />,
+      })),
     ]
-  }, [])
+  }, [pedalLibrary])
 
-  // Marques uniques pour le dropdown
-  const brandOptions = useMemo<DropdownOption[]>(() => {
-    const brands = Array.from(new Set(pedalLibrary.map(p => p.brand))).sort()
+  const genreOptions = useMemo<DropdownOption[]>(() => {
+    const genres = Array.from(
+      new Set(pedalLibrary.map((p) => resolvePedalGenre(p)))
+    ).sort((a, b) => genreLabel(a).localeCompare(genreLabel(b), 'fr'))
     return [
-      { value: '', label: 'Toutes les marques', icon: <Building2 size={16} /> },
-      ...brands.map(brand => ({
-        value: brand,
-        label: brand,
-        icon: <Building2 size={16} />
-      }))
+      { value: '', label: 'Tous les styles', icon: <Music2 size={16} /> },
+      ...genres.map((genre) => ({
+        value: genre,
+        label: genreLabel(genre),
+        icon: <Music2 size={16} />,
+      })),
     ]
-  }, [])
+  }, [pedalLibrary])
 
   // Charger Tone.js dynamiquement pour éviter la création automatique du contexte
   const loadTone = useCallback(async () => {
@@ -747,19 +768,19 @@ export function PedalLibraryModal({ isOpen, onClose, onSelectPedal, searchQuery 
       onClose={handleClose}
       title="Bibliothèque de Pédales"
       className="flex flex-col"
-        bodyClassName="overflow-y-auto custom-scrollbar flex-1 p-4 min-h-0"
+        bodyClassName="overflow-y-auto custom-scrollbar flex-1 p-5 min-h-0"
     >
-      <div className="p-4 border-b border-black/10 dark:border-white/10 shrink-0">
+      <div className="p-4 border-b border-[var(--td-edge-panel)] shrink-0">
         <div className="mb-4">
           <SearchBar
             value={internalSearchQuery}
             onChange={setInternalSearchQuery}
-            placeholder="Rechercher par marque, modèle ou type..."
+            placeholder="Rechercher par modèle, type ou style..."
           />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-black/70 dark:text-white/70 mb-2">
+            <label className="block text-sm font-medium text-[var(--td-text-secondary)] mb-2">
               Type
             </label>
             <Dropdown
@@ -770,49 +791,45 @@ export function PedalLibraryModal({ isOpen, onClose, onSelectPedal, searchQuery 
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-black/70 dark:text-white/70 mb-2">
-              Marque
+            <label className="block text-sm font-medium text-[var(--td-text-secondary)] mb-2">
+              Style
             </label>
             <Dropdown
-              options={brandOptions}
-              value={selectedBrand || ''}
-              placeholder="Toutes les marques"
-              onChange={(value) => setSelectedBrand(value === '' ? undefined : value)}
+              options={genreOptions}
+              value={selectedGenre || ''}
+              placeholder="Tous les styles"
+              onChange={(value) =>
+                setSelectedGenre(value === '' ? undefined : (value as MusicGenre))
+              }
             />
           </div>
         </div>
       </div>
 
-      <div className="overflow-y-auto custom-scrollbar flex-1 p-4 min-h-0">
+      <div className="overflow-y-auto custom-scrollbar flex-1 p-5 min-h-0">
         {Object.keys(pedalsByType).length === 0 ? (
-          <div className="text-center py-12 text-black/50 dark:text-white/50 text-base">
+          <div className="text-center py-12 text-[var(--td-text-muted)] text-base">
             Aucune pédale trouvée
           </div>
         ) : (
           Object.entries(pedalsByType).map(([type, pedals]) => (
             <div key={type} className="mb-8">
-              <div className="text-sm text-black/50 dark:text-white/50 uppercase tracking-[2px] mb-3 font-semibold">{type.toUpperCase()}</div>
+              <div className="text-sm text-[var(--td-text-muted)] uppercase tracking-[2px] mb-3 font-semibold">{type.toUpperCase()}</div>
               <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4">
                 {pedals.map(pedal => (
                   <div
                     key={pedal.id}
-                    className="relative bg-white dark:bg-gray-800 border-2 rounded-xl p-0 cursor-pointer transition-all duration-300 overflow-hidden"
+                    className="relative bg-[var(--td-surface-elevated)] border-2 rounded-[var(--td-radius-lg)] p-0 cursor-pointer transition-all duration-300 overflow-hidden"
                     style={{ 
                       borderColor: pedal.accentColor,
-                      boxShadow: document.documentElement.classList.contains('dark')
-                        ? '2px 2px 4px rgba(0, 0, 0, 0.5), -2px -2px 4px rgba(60, 60, 60, 0.5)'
-                        : '2px 2px 4px rgba(0, 0, 0, 0.08), -2px -2px 4px rgba(255, 255, 255, 0.9)'
+                      boxShadow: 'var(--td-elevation-1)'
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.boxShadow = document.documentElement.classList.contains('dark')
-                        ? '3px 3px 6px rgba(0, 0, 0, 0.6), -3px -3px 6px rgba(70, 70, 70, 0.6)'
-                        : '3px 3px 6px rgba(0, 0, 0, 0.1), -3px -3px 6px rgba(255, 255, 255, 1)'
+                      e.currentTarget.style.boxShadow = 'var(--td-elevation-2)'
                       e.currentTarget.style.transform = 'translateY(-4px)'
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.boxShadow = document.documentElement.classList.contains('dark')
-                        ? '2px 2px 4px rgba(0, 0, 0, 0.5), -2px -2px 4px rgba(60, 60, 60, 0.5)'
-                        : '2px 2px 4px rgba(0, 0, 0, 0.08), -2px -2px 4px rgba(255, 255, 255, 0.9)'
+                      e.currentTarget.style.boxShadow = 'var(--td-elevation-1)'
                       e.currentTarget.style.transform = 'translateY(0)'
                     }}
                   >
@@ -834,9 +851,7 @@ export function PedalLibraryModal({ isOpen, onClose, onSelectPedal, searchQuery 
                         }
                         const container = e.currentTarget.closest('div')
                         if (container) {
-                          container.style.boxShadow = document.documentElement.classList.contains('dark')
-                            ? 'inset 2px 2px 4px rgba(0, 0, 0, 0.5), inset -2px -2px 4px rgba(60, 60, 60, 0.5)'
-                            : 'inset 2px 2px 4px rgba(0, 0, 0, 0.1), inset -2px -2px 4px rgba(255, 255, 255, 0.5)'
+                          container.style.boxShadow = 'var(--td-elevation-inset-sm)'
                           container.style.transform = 'scale(0.98)'
                         }
                       }}
@@ -847,9 +862,7 @@ export function PedalLibraryModal({ isOpen, onClose, onSelectPedal, searchQuery 
                         }
                         const container = e.currentTarget.closest('div')
                         if (container) {
-                          container.style.boxShadow = document.documentElement.classList.contains('dark')
-                            ? '2px 2px 4px rgba(0, 0, 0, 0.5), -2px -2px 4px rgba(60, 60, 60, 0.5)'
-                            : '2px 2px 4px rgba(0, 0, 0, 0.08), -2px -2px 4px rgba(255, 255, 255, 0.9)'
+                          container.style.boxShadow = 'var(--td-elevation-1)'
                           container.style.transform = 'scale(1)'
                         }
                       }}
@@ -867,35 +880,43 @@ export function PedalLibraryModal({ isOpen, onClose, onSelectPedal, searchQuery 
                         const ctaBg = isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.15)'
                         const ctaHover = isLight ? 'rgba(0,0,0,0.12)' : 'rgba(255,255,255,0.25)'
 
-                        const hasCertification = hasCertificationStatus(pedal.brand)
-                        const certificationStatus = hasCertification ? getCertificationStatus(pedal.brand) : null
-                        const certifiedLogo = hasCertification ? getCertifiedBrandSmallLogo(pedal.brand) : null
-                        // brandLogo calculé mais non utilisé directement (utilisé via certifiedLogo)
-                        // const brandLogo = certifiedLogo || getBrandLogo(pedal.brand)
+                        const label = displayLabelForPedal(
+                          pedal,
+                          pedalIndexInType(pedalLibrary, pedal)
+                        )
+                        const showRealBrand = keepsRealName(pedal.brand)
+                        const hasCertification =
+                          showRealBrand && hasCertificationStatus(pedal.brand)
+                        const certificationStatus = hasCertification
+                          ? getCertificationStatus(pedal.brand)
+                          : null
+                        const certifiedLogo = hasCertification
+                          ? getCertifiedBrandSmallLogo(pedal.brand)
+                          : null
 
                         return (
-                          <div className="p-4 border-b border-black/10 dark:border-white/10 relative" style={{ backgroundColor: pedal.color, color: textColor }}>
+                          <div className="p-4 border-b border-[var(--td-edge-panel)] relative" style={{ backgroundColor: pedal.color, color: textColor }}>
                             <div className="flex items-center gap-2 mb-1">
                               {hasCertification && certifiedLogo ? (
                                 <div className="flex items-center gap-2">
                                   <img
                                     src={certifiedLogo}
-                                    alt={pedal.brand}
+                                    alt={label.brandName}
                                     className="h-4 object-contain"
                                     style={{ filter: isLight ? 'none' : 'brightness(0) invert(1)' }}
                                   />
                                   <BadgeCheck 
-                                    className="w-3.5 h-3.5 flex-shrink-0 text-emerald-600 dark:text-emerald-400"
+                                    className="w-3.5 h-3.5 flex-shrink-0 text-[var(--td-success)]"
                                   />
                                   <span className="sr-only">
                                     {certificationStatus === 'certified' ? 'Matériel certifié' : 'En cours de certification'}
                                   </span>
                                 </div>
                               ) : (
-                                <div className="text-xs uppercase tracking-[1px] font-medium" style={{ color: subTextColor }}>{pedal.brand}</div>
+                                <div className="text-xs uppercase tracking-[1px] font-medium" style={{ color: subTextColor }}>{label.brandName}</div>
                               )}
                             </div>
-                            <div className="text-base font-bold" style={{ color: textColor }}>{pedal.model}</div>
+                            <div className="text-base font-bold" style={{ color: textColor }}>{label.modelName}</div>
                             <div className="absolute top-2 right-2 z-10">
                               <CTA
                                 variant="icon-only"
@@ -926,7 +947,7 @@ export function PedalLibraryModal({ isOpen, onClose, onSelectPedal, searchQuery 
                           </div>
                         )
                       })()}
-                      <div className="px-3 py-3 text-xs text-black/60 dark:text-white/60 leading-relaxed">{pedal.description}</div>
+                      <div className="px-3 py-3 text-xs text-[var(--td-text-muted)] leading-relaxed">{pedal.description}</div>
                     </div>
                   </div>
                 ))}

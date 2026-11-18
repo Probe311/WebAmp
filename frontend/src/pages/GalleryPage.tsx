@@ -130,26 +130,19 @@ export function GalleryPage({ onNavigateToWebAmp }: GalleryPageProps) {
 
   if (loading) {
     return (
-      <div className="h-full flex items-center justify-center">
-        <Loader text="Chargement de La Galerie..." />
+      <div className="flex h-full items-center justify-center bg-[color:var(--neu-bg)]">
+        <Loader />
       </div>
     )
   }
 
   return (
-    <div className="h-full overflow-y-auto custom-scrollbar p-6 pb-24">
+    <div className="custom-scrollbar h-full overflow-y-auto bg-[color:var(--neu-bg)] px-4 pb-5 pt-4 sm:px-5 sm:pt-5">
       <div className="w-full">
-        {/* En-tête */}
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-black/85 dark:text-white/90 mb-2">
-            La Galerie
-          </h1>
-          <p className="text-sm text-black/70 dark:text-white/70">
-            Marketplace de Tones - Découvrez et partagez vos presets
-          </p>
-        </div>
+        <p className="mb-4 text-sm text-[color:var(--neu-text-muted)]">
+          Marketplace de tones et packs
+        </p>
 
-        {/* Filtres */}
         <div className="mb-6">
           <GalleryFilters
             searchQuery={searchQuery}
@@ -163,10 +156,8 @@ export function GalleryPage({ onNavigateToWebAmp }: GalleryPageProps) {
         {dlcPacks.length > 0 && (
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold text-black/85 dark:text-white/90">
-                Packs
-              </h2>
-              <div className="flex items-center gap-4 text-sm text-black/60 dark:text-white/60">
+              <h2 className="text-lg font-bold text-[color:var(--neu-text)]">Packs</h2>
+              <div className="flex items-center gap-4 text-sm text-[color:var(--neu-text-muted)]">
                 <span>
                   {dlcPacks.length} pack{dlcPacks.length > 1 ? 's' : ''} premium disponible{dlcPacks.length > 1 ? 's' : ''}
                 </span>
@@ -189,10 +180,10 @@ export function GalleryPage({ onNavigateToWebAmp }: GalleryPageProps) {
         {/* Message si aucun pack */}
         {dlcPacks.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-lg text-black/70 dark:text-white/70 mb-2">
+            <p className="text-lg text-[color:var(--neu-text-muted)] mb-2">
               Aucun pack trouvé
             </p>
-            <p className="text-sm text-black/50 dark:text-white/50">
+            <p className="text-sm text-[color:var(--neu-text-faint)]">
               Essayez de modifier vos critères de recherche
             </p>
           </div>

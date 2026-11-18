@@ -4,6 +4,7 @@ import { useToast } from '../components/notifications/ToastProvider'
 import { supabase, isSupabaseEnabled, requireSupabase } from './supabaseClient'
 import { AuthContextValue } from './types'
 import { createLogger } from '../services/logger'
+import { analyticsService } from '../services/analytics'
 
 const logger = createLogger('AuthProvider')
 
@@ -88,6 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const client = ensureClient()
       const { error } = await client.auth.signInWithPassword({ email, password })
       if (error) throw error
+      analyticsService.track('auth_login_success')
       showToast({
         variant: 'success',
         title: 'Connexion réussie',
@@ -113,7 +115,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/`
+          // Toujours l’origine courante (app.webamp.studio en prod) — pas la LP
+          emailRedirectTo: `${window.location.origin}/?auth=login`
         }
       })
       if (error) throw error
@@ -122,6 +125,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (data.user && data.session) {
         setSession(data.session)
         setUser(data.user)
+        analyticsService.track('auth_signup_success', { immediate: true })
         showToast({
           variant: 'success',
           title: 'Compte créé',
@@ -131,6 +135,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       
       // Sinon, confirmation email nécessaire
+      analyticsService.track('auth_signup_success', { immediate: false })
       showToast({
         variant: 'success',
         title: 'Compte créé',
@@ -182,7 +187,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const client = ensureClient()
       const { error } = await client.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/account`
+        redirectTo: `${window.location.origin}/?auth=recovery`
       })
       if (error) throw error
       showToast({
@@ -205,6 +210,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const updatePassword = useCallback(async (newPassword: string) => {
     setLoading(true)
     try {
+      if (newPassword.length < 12) {
+        throw new Error('Le mot de passe doit contenir au moins 12 caractères.')
+      }
       const client = ensureClient()
       const { error } = await client.auth.updateUser({ password: newPassword })
       if (error) throw error

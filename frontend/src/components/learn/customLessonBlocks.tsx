@@ -4,7 +4,7 @@ import { ReactNode } from 'react'
  * Registre de contenus "riches" personnalisés pour les leçons.
  *
  * Utilisation côté contenu :
- *  - Dans la description d'une étape de tutoriel, ajoute par exemple :
+ * - Dans la description d'une étape de tutoriel, ajoute par exemple :
  *      "[block:solo-intro-diagram]"
  *  - `TutorialContentRenderer` détecte ce tag et viendra rendre ici le bloc
  *    correspondant.
@@ -13,13 +13,13 @@ import { ReactNode } from 'react'
  *  1. Choisir un identifiant stable (ex: "solo-intro-diagram")
  *  2. Ajouter une entrée dans `customLessonBlocks` avec cet id
  *  3. Coller le HTML/SVG fourni dans le JSX du bloc
- *  4. Référencer le bloc dans la description de l'étape via `[block:solo-intro-diagram]`
+ * 4. Référencer le bloc dans la description de l'étape via `[block:solo-intro-diagram]`
  */
 
 export const customLessonBlocks: Record<string, ReactNode> = {
   // Exemple : bloc de démo
   example_demo_block: (
-    <div className="mt-4 rounded-lg border border-orange-500/30 bg-orange-500/5 p-4 text-sm text-black/80 dark:text-white/80">
+    <div className="mt-4 rounded-[var(--td-radius-control)] border border-[color:var(--neu-accent)]/30 bg-[color:var(--neu-accent)]/5 p-4 text-sm text-[color:var(--neu-text)]">
       <p className="font-semibold mb-1">Bloc de contenu personnalisé</p>
       <p className="text-xs opacity-80">
         Remplace ce bloc par ton code HTML/SVG réel dans

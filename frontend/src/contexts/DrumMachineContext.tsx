@@ -1,5 +1,7 @@
 import { createContext, useContext, useState, useRef, useCallback, ReactNode, useEffect } from 'react'
 import { DEFAULT_PATTERNS } from './patterns'
+import { peekSharedEngine } from '../audio/audioSession'
+import { getSessionMixer } from '../audio/sessionMixer'
 import { createLogger } from '../services/logger'
 import type { FreesoundSound } from '../services/freesound'
 
@@ -46,6 +48,8 @@ type ToneGainNode = {
     value: number
   }
   toDestination: () => unknown
+  connect: (destination: unknown) => unknown
+  disconnect: () => void
   dispose: () => void
 }
 
@@ -58,7 +62,7 @@ const loadTone = async (): Promise<ToneType> => {
 }
 
 // Types d'instruments de batterie
-export type DrumInstrument = 'kick' | 'snare' | 'hihat' | 'openhat' | 'crash' | 'ride' | 'chinese' | 'tom1' | 'tom2' | 'tom3'
+export type DrumInstrument = 'kick' | 'snare' | 'hihat' | 'openhat' | 'crash' | 'ride' | 'chinese' | 'tom1' | 'tom2' | 'tom3' | 'tom4'
 
 export interface DrumStep {
   [key: string]: boolean // instrument -> activé ou non
@@ -68,8 +72,10 @@ export interface DrumPattern {
   name: string
   steps: DrumStep[]
   bpm?: number
-  volumes?: Record<DrumInstrument, number>
+  volumes?: Partial<Record<DrumInstrument, number>>
 }
+
+export type DrumOutputRouted = 'bus' | 'destination'
 
 interface DrumMachineContextType {
   isPlaying: boolean
@@ -94,6 +100,10 @@ interface DrumMachineContextType {
   handleStop: () => void
   handlePatternChange: (index: number) => void
   handleVolumeChange: (instrument: DrumInstrument, value: number) => void
+  /** Route la sortie batterie vers un bus session (null = destination). */
+  setOutputNode: (node: AudioNode | null) => void
+  /** Où la batterie sort réellement (bus Mix ou destination directe). */
+  outputRouted: DrumOutputRouted
   loadSample: (instrument: DrumInstrument, audioUrl: string | Blob, name?: string) => Promise<void>
   clearSample: (instrument: DrumInstrument) => void
 }
@@ -129,15 +139,18 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
     chinese: DEFAULT_PATTERNS[0].volumes?.chinese ?? 100,
     tom1: DEFAULT_PATTERNS[0].volumes?.tom1 ?? 100,
     tom2: DEFAULT_PATTERNS[0].volumes?.tom2 ?? 100,
-    tom3: DEFAULT_PATTERNS[0].volumes?.tom3 ?? 100
+    tom3: DEFAULT_PATTERNS[0].volumes?.tom3 ?? 100,
+    tom4: DEFAULT_PATTERNS[0].volumes?.tom4 ?? 100,
   })
   const [masterVolume, setMasterVolume] = useState(80)
+  const [outputRouted, setOutputRouted] = useState<DrumOutputRouted>('destination')
 
   // Références pour Tone.js
   // Note: Utilisation de unknown au lieu de any pour une meilleure sécurité de type
   const toneRef = useRef<ToneType | null>(null)
   const volumeNodesRef = useRef<Record<DrumInstrument, unknown> | null>(null)
   const masterGainRef = useRef<unknown | null>(null)
+  const outputNodeRef = useRef<AudioNode | null>(null)
   const initializedRef = useRef(false)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const synthCacheRef = useRef<Partial<Record<DrumInstrument, unknown>>>({
@@ -150,7 +163,8 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
     chinese: null,
     tom1: null,
     tom2: null,
-    tom3: null
+    tom3: null,
+    tom4: null,
   })
   const snareNoiseRef = useRef<unknown | null>(null)
   const snareBodyRef = useRef<unknown | null>(null)
@@ -166,7 +180,8 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
     chinese: null,
     tom1: null,
     tom2: null,
-    tom3: null
+    tom3: null,
+    tom4: null,
   })
   const [sampleSources, setSampleSources] = useState<Record<DrumInstrument, string | null>>({
     kick: null,
@@ -178,7 +193,8 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
     chinese: null,
     tom1: null,
     tom2: null,
-    tom3: null
+    tom3: null,
+    tom4: null,
   })
   
   // Références pour éviter les problèmes de closure
@@ -223,6 +239,25 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
     try {
       const Tone = await loadTone()
       toneRef.current = Tone
+
+      // Connexion inter-contextes interdite : Tone doit vivre sur le contexte de session.
+      // Bus demandé, sinon contexte du moteur partagé (batterie solidaire du mixer).
+      const engine = peekSharedEngine()
+      if (engine && !engine.getAudioContext()) {
+        // Le clic de lecture est un geste utilisateur : on crée le contexte de session
+        // ici pour que la batterie naisse sur le même contexte que le mixer.
+        try {
+          await engine.start()
+        } catch {
+          /* ignore */
+        }
+      }
+      const busNode = outputNodeRef.current
+      const sessionContext =
+        (busNode?.context as AudioContext | undefined) ?? engine?.getAudioContext() ?? undefined
+      if (sessionContext && !masterGainRef.current && Tone.getContext().rawContext !== sessionContext) {
+        Tone.setContext(sessionContext)
+      }
       
       // Démarrer le contexte audio
       if (Tone.context.state === 'suspended' || Tone.context.state === 'closed') {
@@ -233,13 +268,25 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
         }
       }
       
-      // Créer le bus master
-      const masterGain = new Tone.Gain(masterVolume / 100).toDestination()
+      // Créer le bus master (destination par défaut, reroutable vers un bus session)
+      const masterGain = new Tone.Gain(masterVolume / 100)
+      let routed: DrumOutputRouted = 'destination'
+      if (busNode) {
+        try {
+          masterGain.connect(busNode)
+          routed = 'bus'
+        } catch {
+          masterGain.toDestination()
+        }
+      } else {
+        masterGain.toDestination()
+      }
       masterGainRef.current = masterGain
+      setOutputRouted(routed)
 
       // Créer les nœuds de volume pour chaque instrument
       const volumeNodes: Record<DrumInstrument, ToneVolumeNode> = {} as Record<DrumInstrument, ToneVolumeNode>
-      const instruments: DrumInstrument[] = ['kick', 'snare', 'hihat', 'openhat', 'crash', 'ride', 'chinese', 'tom1', 'tom2', 'tom3']
+      const instruments: DrumInstrument[] = ['kick', 'snare', 'hihat', 'openhat', 'crash', 'ride', 'chinese', 'tom1', 'tom2', 'tom3', 'tom4']
       
       instruments.forEach(instrument => {
         const volumeNode = new Tone.Volume(0) as unknown as ToneVolumeNode
@@ -261,7 +308,8 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
         chinese: undefined,
         tom1: undefined,
         tom2: undefined,
-        tom3: undefined
+        tom3: undefined,
+        tom4: undefined,
       }
       
       synthCache.kick = (new Tone.MembraneSynth({
@@ -327,6 +375,14 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
         oscillator: { type: 'sine' },
         envelope: { attack: 0.001, decay: 0.25, sustain: 0, release: 0.25 }
       }) as any).connect(volumeNodes.tom3 as any) as unknown as ToneSynth
+
+      // Floor tom — plus grave / plus long que tom3
+      synthCache.tom4 = (new Tone.MembraneSynth({
+        pitchDecay: 0.08,
+        octaves: 2.5,
+        oscillator: { type: 'sine' },
+        envelope: { attack: 0.001, decay: 0.35, sustain: 0, release: 0.35 }
+      }) as any).connect(volumeNodes.tom4 as any) as unknown as ToneSynth
       
       synthCacheRef.current = synthCache
       initializedRef.current = true
@@ -480,13 +536,15 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
         // Tom 2: https://freesound.org/people/InspectorJ/sounds/46554/
         tom2: { soundId: 46554, name: 'Tom 2', fallbackUrl: 'https://cdn.freesound.org/previews/46/46554_394391-hq.mp3' },
         // Tom 3: https://freesound.org/people/InspectorJ/sounds/46550/
-        tom3: { soundId: 46550, name: 'Tom 3', fallbackUrl: 'https://cdn.freesound.org/previews/46/46550_394391-hq.mp3' }
+        tom3: { soundId: 46550, name: 'Tom 3', fallbackUrl: 'https://cdn.freesound.org/previews/46/46550_394391-hq.mp3' },
+        // Tom 4 (floor) — réutilise sample tom3 en attendant un floor dédié
+        tom4: { soundId: 46550, name: 'Tom 4', fallbackUrl: 'https://cdn.freesound.org/previews/46/46550_394391-hq.mp3' },
       }
 
       // Charger un sample par défaut pour chaque instrument
       const loadPromises: Promise<void>[] = []
       
-      for (const instrument of ['kick', 'snare', 'hihat', 'openhat', 'crash', 'ride', 'chinese', 'tom1', 'tom2', 'tom3'] as DrumInstrument[]) {
+      for (const instrument of ['kick', 'snare', 'hihat', 'openhat', 'crash', 'ride', 'chinese', 'tom1', 'tom2', 'tom3', 'tom4'] as DrumInstrument[]) {
         // Vérifier si un sample est déjà chargé
         if (samplePlayersRef.current[instrument]) {
           continue
@@ -769,6 +827,13 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
           }
           break
         }
+        case 'tom4': {
+          const synth = synthCacheRef.current.tom4 as ToneSynth | undefined
+          if (synth && 'triggerAttackRelease' in synth) {
+            synth.triggerAttackRelease('F2', '8n', now)
+          }
+          break
+        }
       }
     } catch (error) {
       logger.debug('Erreur lors de la lecture d\'un instrument (preview)', { error, instrument })
@@ -797,7 +862,7 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
             // Jouer les sons pour ce step
             const currentStepData = pattern[prev]
             if (currentStepData && volumeNodesRef.current && synthCacheRef.current) {
-              const instruments: DrumInstrument[] = ['kick', 'snare', 'hihat', 'openhat', 'crash', 'ride', 'chinese', 'tom1', 'tom2', 'tom3']
+              const instruments: DrumInstrument[] = ['kick', 'snare', 'hihat', 'openhat', 'crash', 'ride', 'chinese', 'tom1', 'tom2', 'tom3', 'tom4']
               const Tone = toneRef.current
               if (!Tone) return nextStep
               
@@ -903,6 +968,13 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
                         }
                         break
                       }
+                      case 'tom4': {
+                        const synth = synthCacheRef.current.tom4 as ToneSynth | undefined
+                        if (synth && 'triggerAttackRelease' in synth) {
+                          synth.triggerAttackRelease('F2', '8n', now)
+                        }
+                        break
+                      }
                     }
                   } catch (error) {
                     logger.debug('Erreur lors de la lecture d\'un instrument', { error, instrument })
@@ -946,6 +1018,34 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
       })
     }
   }, [])
+
+  // Router la batterie vers un bus session (Mix/DAW) ou la destination
+  const setOutputNode = useCallback((node: AudioNode | null) => {
+    outputNodeRef.current = node
+    const masterGain = masterGainRef.current as ToneGainNode | null
+    if (!masterGain) {
+      // Appliqué à l'initialisation (alignée sur le contexte de session)
+      setOutputRouted(node ? 'bus' : 'destination')
+      return
+    }
+    try {
+      masterGain.disconnect()
+      if (node) masterGain.connect(node)
+      else masterGain.toDestination()
+      setOutputRouted(node ? 'bus' : 'destination')
+    } catch {
+      // Tone déjà initialisé sur un autre contexte : signale-le au lieu de mentir
+      masterGain.toDestination()
+      setOutputRouted('destination')
+    }
+  }, [])
+
+  // Attachement session unique : la batterie suit le bus Drums du mixer, quel que
+  // soit le montage des pages (Mix, DAW). Aucun détachement au démontage de page.
+  useEffect(() => {
+    getSessionMixer().registerDrumOutput(setOutputNode)
+    return () => getSessionMixer().registerDrumOutput(null)
+  }, [setOutputNode])
 
   // Mettre à jour le master volume
   const updateMasterVolume = useCallback((value: number) => {
@@ -1131,7 +1231,8 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
         chinese: null,
         tom1: null,
         tom2: null,
-        tom3: null
+        tom3: null,
+        tom4: null,
       }
     }
   }, [])
@@ -1161,6 +1262,8 @@ export function DrumMachineProvider({ children }: DrumMachineProviderProps) {
         handleStop,
         handlePatternChange,
         handleVolumeChange,
+        setOutputNode,
+        outputRouted,
         loadSample,
         clearSample
       }}

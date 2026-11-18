@@ -162,16 +162,13 @@ export function LearnPage() {
   const totalXP = computeTotalXPFromProgress(progressMap, rewardsMap)
 
   return (
-    <div className="h-full overflow-y-auto p-6 pb-24">
+    <div className="custom-scrollbar h-full overflow-y-auto bg-[color:var(--neu-bg)] px-4 pb-5 pt-4 sm:px-5 sm:pt-5">
       <div className="w-full">
-        <h1 className="text-3xl font-bold text-black/85 dark:text-white/90 mb-2">
-          Apprendre
-        </h1>
-        <p className="text-sm text-black/70 dark:text-white/70 mb-6">
-          Cours interactifs, tutoriels et guides pour maîtriser la guitare et les effets
+        <p className="mb-4 text-sm text-[color:var(--neu-text-muted)]">
+          Cours, tutoriels et guides
         </p>
-        
-        <Block className="p-6">
+
+        <Block className="p-5 sm:p-6">
           {/* Barre de recherche */}
           <div className="mb-4">
             <SearchBar 
@@ -201,7 +198,7 @@ export function LearnPage() {
           <div className="mb-6 space-y-4">
             {/* Filtre par niveau */}
             <div>
-              <h3 className="text-sm font-medium text-black/70 dark:text-white/70 mb-2">
+              <h3 className="mb-2 text-sm font-medium text-[color:var(--neu-text-muted)]">
                 Niveau
               </h3>
               <DifficultyFilter
@@ -212,7 +209,7 @@ export function LearnPage() {
 
             {/* Filtre par typologie */}
             <div>
-              <h3 className="text-sm font-medium text-black/70 dark:text-white/70 mb-2">
+              <h3 className="mb-2 text-sm font-medium text-[color:var(--neu-text-muted)]">
                 Typologie
               </h3>
               <CategoryTabs
@@ -231,10 +228,10 @@ export function LearnPage() {
           ) : sortedCourses.length === 0 ? (
             <div className="p-12">
               <div className="flex flex-col items-center justify-center text-center">
-                <p className="text-lg text-black/70 dark:text-white/70 mb-2">
+                <p className="text-lg text-[color:var(--neu-text-muted)] mb-2">
                   Aucun cours trouvé
                 </p>
-                <p className="text-sm text-black/50 dark:text-white/50">
+                <p className="text-sm text-[color:var(--neu-text-faint)]">
                   Essayez de modifier vos critères de recherche
                 </p>
               </div>

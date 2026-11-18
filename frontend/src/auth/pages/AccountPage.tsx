@@ -13,13 +13,12 @@ export function AccountPage({ onSwitchView }: Props) {
       subtitle="Gère ton mot de passe et déconnecte-toi en un clic."
       footer={
         <div className="flex items-center justify-between">
-          <span style={{ color: 'rgba(0, 0, 0, 0.6)' }}>Besoin de changer de compte ?</span>
+          <span className="text-[color:var(--neu-text-muted)]">Besoin de changer de compte ?</span>
           {onSwitchView && (
             <button
               type="button"
               onClick={() => onSwitchView('login')}
-              className="text-sm font-medium transition-opacity hover:opacity-80"
-              style={{ color: 'rgba(0, 0, 0, 0.7)' }}
+              className="text-sm font-medium text-[color:var(--neu-text-muted)] transition-colors hover:text-[color:var(--neu-accent)]"
             >
               Revenir à la connexion
             </button>
@@ -31,4 +30,3 @@ export function AccountPage({ onSwitchView }: Props) {
     </AuthCard>
   )
 }
-

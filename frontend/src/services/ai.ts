@@ -1,9 +1,7 @@
 /**
- * AI Services
- *
- * Service frontend pour appeler les fonctions Edge IA (Supabase) :
- * - Génération de presets WebAmp à partir d'une description (ai-presets)
+ * AI Services — Edge Functions Supabase (JWT requis).
  */
+import { invokeEdge } from './invokeEdge'
 
 export interface GeneratePresetContext {
   instrument?: 'guitar' | 'bass' | 'other'
@@ -76,85 +74,57 @@ export interface WebAmpCommand {
   naturalLanguageSummary?: string
 }
 
+export interface EffectModule {
+  type: 'amp' | 'cab' | 'pedal' | 'utility'
+  id: string
+  enabled: boolean
+  parameters: Record<string, number | string | boolean>
+  position?: number
+}
+
+export interface ToneAssistantResponse {
+  effects: EffectModule[]
+  name?: string
+  description?: string
+  notes?: string
+}
+
+export interface DrumStep {
+  step: number
+  instruments: Array<'kick' | 'snare' | 'hihat' | 'openhat' | 'crash' | 'ride' | 'tom1' | 'tom2' | 'tom3'>
+}
+
+export interface BeatPattern {
+  name: string
+  description?: string
+  steps: DrumStep[]
+  tempo?: number
+  timeSignature?: string
+}
+
 export async function generatePresetFromDescription(
   description: string,
   context?: GeneratePresetContext,
 ): Promise<WebAmpPreset> {
-  if (!description.trim()) {
-    throw new Error('La description du preset est requise')
-  }
-
-  // L’URL d’appel dépendra de la config Supabase en prod.
-  // En local, Supabase expose en général les fonctions sur /functions/v1/<nom>.
-  const endpoint =
-    import.meta.env.VITE_SUPABASE_EDGE_URL_AI_PRESETS ||
-    '/functions/v1/ai-presets'
-
-  const resp = await fetch(endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ description, context }),
+  if (!description.trim()) throw new Error('La description du preset est requise')
+  const data = await invokeEdge<{ ok: boolean; preset?: WebAmpPreset }>('ai-presets', {
+    description,
+    context,
   })
-
-  if (!resp.ok) {
-    const text = await resp.text()
-    throw new Error(`Erreur IA (ai-presets): ${resp.status} - ${text}`)
-  }
-
-  const data = await resp.json()
-
-  if (!data.ok || !data.preset) {
-    throw new Error('Réponse IA invalide (preset manquant)')
-  }
-
-  return data.preset as WebAmpPreset
+  if (!data.ok || !data.preset) throw new Error('Réponse IA invalide (preset manquant)')
+  return data.preset
 }
 
-/**
- * Analyse intelligente (IA) pour suggérer des effets en fonction du contexte
- * (genre, artiste, morceau, humeur...).
- */
-export async function analyzeContext(
-  context: AnalyzeContext,
-): Promise<AnalysisResult> {
-  const hasInput =
-    !!context.genre || !!context.artist || !!context.songTitle || !!context.mood
-
+export async function analyzeContext(context: AnalyzeContext): Promise<AnalysisResult> {
+  const hasInput = !!context.genre || !!context.artist || !!context.songTitle || !!context.mood
   if (!hasInput) {
     throw new Error('Au moins un champ (genre, artiste, morceau, humeur) est requis')
   }
-
-  const endpoint =
-    import.meta.env.VITE_SUPABASE_EDGE_URL_AI_ANALYZE ||
-    '/functions/v1/ai-analyze'
-
-  const resp = await fetch(endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(context),
-  })
-
-  if (!resp.ok) {
-    const text = await resp.text()
-    throw new Error(`Erreur IA (ai-analyze): ${resp.status} - ${text}`)
-  }
-
-  const data = await resp.json()
-  if (!data.ok || !data.analysis) {
-    throw new Error('Réponse IA invalide (analysis manquant)')
-  }
-
-  return data.analysis as AnalysisResult
+  const data = await invokeEdge<{ ok: boolean; analysis?: AnalysisResult }>('ai-analyze', context)
+  if (!data.ok || !data.analysis) throw new Error('Réponse IA invalide (analysis manquant)')
+  return data.analysis
 }
 
-/**
- * Classement IA des presets pour un utilisateur donné
- * à partir d'une liste de presets candidats + contexte utilisateur.
- */
 export async function rankPresetsForUser(
   presets: WebAmpPreset[],
   userContext?: {
@@ -165,51 +135,25 @@ export async function rankPresetsForUser(
     recentlyUsedPresetIds?: string[]
   },
 ): Promise<RankedPreset[]> {
-  if (!presets.length) {
-    return []
-  }
-
-  const endpoint =
-    import.meta.env.VITE_SUPABASE_EDGE_URL_AI_RANK_PRESETS ||
-    '/functions/v1/ai-rank-presets'
-
-  const payload = {
-    presets: presets.map((p) => ({
-      id: p.id,
-      name: p.name,
-      tags: p.tags,
-      genre: p.genre,
-      mood: p.mood,
-      instrument: p.instrument,
-    })),
-    userContext,
-  }
-
-  const resp = await fetch(endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
+  if (!presets.length) return []
+  const data = await invokeEdge<{ ok: boolean; ranking?: { ranked: RankedPreset[] } }>(
+    'ai-rank-presets',
+    {
+      presets: presets.map((p) => ({
+        id: p.id,
+        name: p.name,
+        tags: p.tags,
+        genre: p.genre,
+        mood: p.mood,
+        instrument: p.instrument,
+      })),
+      userContext,
     },
-    body: JSON.stringify(payload),
-  })
-
-  if (!resp.ok) {
-    const text = await resp.text()
-    throw new Error(`Erreur IA (ai-rank-presets): ${resp.status} - ${text}`)
-  }
-
-  const data = await resp.json()
-  if (!data.ok || !data.ranking || !data.ranking.ranked) {
-    throw new Error('Réponse IA invalide (ranking manquant)')
-  }
-
-  return data.ranking.ranked as RankedPreset[]
+  )
+  if (!data.ok || !data.ranking?.ranked) throw new Error('Réponse IA invalide (ranking manquant)')
+  return data.ranking.ranked
 }
 
-/**
- * Interprétation d'une commande vocale transcrite (texte) en commande WebAmp structurée.
- * (La reconnaissance vocale elle-même est gérée côté client ou par un service externe.)
- */
 export async function interpretVoiceCommand(
   text: string,
   options?: {
@@ -218,132 +162,40 @@ export async function interpretVoiceCommand(
     presetId?: string
   },
 ): Promise<WebAmpCommand> {
-  if (!text.trim()) {
-    throw new Error('La commande vocale (texte) est vide')
-  }
-
-  const endpoint =
-    import.meta.env.VITE_SUPABASE_EDGE_URL_AI_VOICE_INTENT ||
-    '/functions/v1/ai-voice-intent'
-
-  const resp = await fetch(endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
+  if (!text.trim()) throw new Error('La commande vocale (texte) est vide')
+  const data = await invokeEdge<{ ok: boolean; intent?: { command: WebAmpCommand } }>(
+    'ai-voice-intent',
+    {
       text,
       language: options?.language || 'fr',
       context: {
         instrument: options?.instrument,
         presetId: options?.presetId,
       },
-    }),
-  })
-
-  if (!resp.ok) {
-    const textResp = await resp.text()
-    throw new Error(`Erreur IA (ai-voice-intent): ${resp.status} - ${textResp}`)
-  }
-
-  const data = await resp.json()
-  if (!data.ok || !data.intent || !data.intent.command) {
-    throw new Error('Réponse IA invalide (intent manquant)')
-  }
-
-  return data.intent.command as WebAmpCommand
+    },
+  )
+  if (!data.ok || !data.intent?.command) throw new Error('Réponse IA invalide (intent manquant)')
+  return data.intent.command
 }
 
-/**
- * Interface pour les modules d'effets générés par AI Tone Assistant
- */
-export interface EffectModule {
-  type: 'amp' | 'cab' | 'pedal' | 'utility'
-  id: string
-  enabled: boolean
-  parameters: Record<string, number | string | boolean>
-  position?: number
-}
-
-/**
- * Réponse de AI Tone Assistant
- */
-export interface ToneAssistantResponse {
-  effects: EffectModule[]
-  name?: string
-  description?: string
-  notes?: string
-}
-
-/**
- * Génération de chaîne d'effets complète via AI Tone Assistant (Gemini)
- * Utilise gemini-1.5-flash pour des réponses rapides
- */
 export async function generateToneFromDescription(
   description: string,
   context?: {
     instrument?: 'guitar' | 'bass' | 'other'
     genre?: string
     artist?: string
-    currentEffects?: Array<{
-      id: string
-      type: string
-      enabled: boolean
-    }>
+    currentEffects?: Array<{ id: string; type: string; enabled: boolean }>
   },
 ): Promise<ToneAssistantResponse> {
-  if (!description.trim()) {
-    throw new Error('La description du ton est requise')
-  }
-
-  const endpoint =
-    import.meta.env.VITE_SUPABASE_EDGE_URL_AI_TONE_ASSISTANT ||
-    '/functions/v1/ai-tone-assistant'
-
-  const resp = await fetch(endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ description, context }),
-  })
-
-  if (!resp.ok) {
-    const text = await resp.text()
-    throw new Error(`Erreur IA (ai-tone-assistant): ${resp.status} - ${text}`)
-  }
-
-  const data = await resp.json()
-  if (!data.ok || !data.result) {
-    throw new Error('Réponse IA invalide (result manquant)')
-  }
-
-  return data.result as ToneAssistantResponse
+  if (!description.trim()) throw new Error('La description du ton est requise')
+  const data = await invokeEdge<{ ok: boolean; result?: ToneAssistantResponse }>(
+    'ai-tone-assistant',
+    { description, context },
+  )
+  if (!data.ok || !data.result) throw new Error('Réponse IA invalide (result manquant)')
+  return data.result
 }
 
-/**
- * Interface pour les steps de batterie générés par AI Beat Architect
- */
-export interface DrumStep {
-  step: number // 0-15
-  instruments: Array<'kick' | 'snare' | 'hihat' | 'openhat' | 'crash' | 'ride' | 'tom1' | 'tom2' | 'tom3'>
-}
-
-/**
- * Pattern de batterie généré par AI Beat Architect
- */
-export interface BeatPattern {
-  name: string
-  description?: string
-  steps: DrumStep[]
-  tempo?: number
-  timeSignature?: string
-}
-
-/**
- * Génération de rythmes de batterie intelligents via AI Beat Architect (Gemini)
- * Retourne une grille de séquençage sur 16 pas pour la machine à rythmes
- */
 export async function generateBeatFromDescription(
   description: string,
   context?: {
@@ -352,32 +204,11 @@ export async function generateBeatFromDescription(
     complexity?: 'simple' | 'medium' | 'complex'
   },
 ): Promise<BeatPattern> {
-  if (!description.trim()) {
-    throw new Error('La description du style est requise')
-  }
-
-  const endpoint =
-    import.meta.env.VITE_SUPABASE_EDGE_URL_AI_BEAT_ARCHITECT ||
-    '/functions/v1/ai-beat-architect'
-
-  const resp = await fetch(endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ description, context }),
+  if (!description.trim()) throw new Error('La description du style est requise')
+  const data = await invokeEdge<{ ok: boolean; pattern?: BeatPattern }>('ai-beat-architect', {
+    description,
+    context,
   })
-
-  if (!resp.ok) {
-    const text = await resp.text()
-    throw new Error(`Erreur IA (ai-beat-architect): ${resp.status} - ${text}`)
-  }
-
-  const data = await resp.json()
-  if (!data.ok || !data.pattern) {
-    throw new Error('Réponse IA invalide (pattern manquant)')
-  }
-
-  return data.pattern as BeatPattern
+  if (!data.ok || !data.pattern) throw new Error('Réponse IA invalide (pattern manquant)')
+  return data.pattern
 }
-

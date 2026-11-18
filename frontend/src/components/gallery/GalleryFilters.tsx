@@ -42,13 +42,13 @@ export function GalleryFilters({
 
         {/* Filtres */}
         <div className="flex items-center gap-2">
-          <Filter className="text-black/60 dark:text-white/60" size={20} />
+          <Filter className="text-[color:var(--neu-text-muted)]" size={20} />
           
           {/* Catégorie */}
           <select
             value={filter.category}
             onChange={(e) => handleCategoryChange(e.target.value as GalleryFilter['category'])}
-            className="px-4 py-2 rounded-xl bg-white dark:bg-gray-800 border border-black/10 dark:border-white/10 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+            className="px-4 py-2 rounded-[var(--td-radius-well)] bg-white dark:bg-gray-800 border border-black/10 dark:border-white/10 text-[color:var(--neu-text)] focus:outline-none focus:ring-2 focus:ring-orange-500"
           >
             <option value="all">Toutes les catégories</option>
             <option value="brands">Marques</option>
@@ -60,7 +60,7 @@ export function GalleryFilters({
           <select
             value={filter.premium}
             onChange={(e) => handlePremiumChange(e.target.value as GalleryFilter['premium'])}
-            className="px-4 py-2 rounded-xl bg-white dark:bg-gray-800 border border-black/10 dark:border-white/10 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+            className="px-4 py-2 rounded-[var(--td-radius-well)] bg-white dark:bg-gray-800 border border-black/10 dark:border-white/10 text-[color:var(--neu-text)] focus:outline-none focus:ring-2 focus:ring-orange-500"
           >
             <option value="all">Tous les packs</option>
             <option value="premium">Premium</option>

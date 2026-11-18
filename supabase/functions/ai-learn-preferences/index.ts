@@ -4,6 +4,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { handleCors, createCorsJsonResponse, createCorsErrorResponse } from '../_shared/cors.ts'
 import { callGemini } from '../_shared/gemini.ts'
+import { guardAuthedPost, safeClientError } from '../_shared/guard.ts'
 
 interface LearnPreferencesRequest {
   userId: string
@@ -41,20 +42,18 @@ interface LearnedPreferences {
 }
 
 async function handler(req: Request): Promise<Response> {
-  if (req.method === 'OPTIONS') {
-    return createCorsJsonResponse({ ok: true })
-  }
-
-  if (req.method !== 'POST') {
-    return createCorsErrorResponse('Method not allowed', 405)
-  }
+  const gate = await guardAuthedPost(req, 'ai-learn-preferences')
+  if (!gate.ok) return gate.response
+  const { origin, userId } = gate
 
   try {
     const body = (await req.json()) as LearnPreferencesRequest
 
-    if (!body.userId || !body.history) {
-      return createCorsErrorResponse('userId and history are required', 400)
+    if (!body.history) {
+      return createCorsErrorResponse('history is required', 400, {}, origin)
     }
+    // Ignore spoofed userId — always use JWT subject
+    body.userId = userId
 
     const systemPrompt = `
 Tu es un système d'apprentissage des préférences utilisateur pour WebAmp.
@@ -108,19 +107,10 @@ Historique utilisateur:
       maxOutputTokens: 2048
     })
 
-    return createCorsJsonResponse(
-      {
-        ok: true,
-        preferences,
-      },
-      200,
-    )
+    return createCorsJsonResponse({ ok: true, preferences }, 200, {}, origin)
   } catch (error) {
     console.error('ai-learn-preferences error:', error)
-    return createCorsErrorResponse(
-      error instanceof Error ? error.message : 'Unknown error',
-      500,
-    )
+    return createCorsErrorResponse(safeClientError(error), 500, {}, origin)
   }
 }
 

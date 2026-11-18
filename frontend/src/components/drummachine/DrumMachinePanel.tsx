@@ -9,7 +9,7 @@ import { AIBeatArchitect } from '../ai/AIBeatArchitect'
 import { BeatPattern } from '../../services/ai'
 import { DrumSampleSelector } from './DrumSampleSelector'
 
-const INSTRUMENTS: DrumInstrument[] = ['kick', 'snare', 'hihat', 'openhat', 'crash', 'ride', 'chinese', 'tom1', 'tom2', 'tom3']
+const INSTRUMENTS: DrumInstrument[] = ['kick', 'snare', 'hihat', 'openhat', 'crash', 'ride', 'chinese', 'tom1', 'tom2', 'tom3', 'tom4']
 
 const NUM_STEPS = 16
 
@@ -98,9 +98,9 @@ export function DrumMachinePanel() {
   }, [clearSample])
 
   return (
-    <div className="space-y-6 text-black/85 dark:text-white/90">
+    <div className="space-y-6 text-[color:var(--neu-text)]">
       {/* Contrôles principaux */}
-      <div className="flex items-center justify-between gap-4 p-4 bg-white dark:bg-gray-700 rounded-xl border border-black/10 dark:border-white/10">
+      <div className="flex items-center justify-between gap-4 p-4 bg-white dark:bg-gray-700 rounded-[var(--td-radius-well)] border border-black/10 dark:border-white/10">
         <div className="flex items-center gap-3">
           <CTA
             variant="icon-only"
@@ -157,7 +157,7 @@ export function DrumMachinePanel() {
                 onChange={setBpm}
                 orientation="horizontal"
                 className="w-32"
-                color="#f97316"
+                color="#F26A1B"
               />
             </div>
           </div>
@@ -173,7 +173,7 @@ export function DrumMachinePanel() {
                 onChange={setMasterVolume}
                 orientation="horizontal"
                 className="w-32"
-                color="#f97316"
+                color="#F26A1B"
               />
             </div>
           </div>
@@ -193,7 +193,7 @@ export function DrumMachinePanel() {
             >
               <div className="flex flex-col items-start leading-tight">
                 <span className="font-semibold">{p.name}</span>
-                <span className="text-[11px] text-black/60 dark:text-white/60">BPM: {p.bpm ?? '—'}</span>
+                <span className="text-[11px] text-[color:var(--neu-text-muted)]">BPM: {p.bpm ?? '—'}</span>
               </div>
             </CTA>
           ))}
@@ -204,19 +204,19 @@ export function DrumMachinePanel() {
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold">Séquenceur</h3>
-          <div className="text-xs text-black/50 dark:text-white/50">
+          <div className="text-xs text-[color:var(--neu-text-faint)]">
             {NUM_STEPS} steps
           </div>
         </div>
         
-        <div className="bg-white dark:bg-gray-700 rounded-xl border border-black/10 dark:border-white/10 p-4 overflow-x-auto custom-scrollbar">
+        <div className="bg-white dark:bg-gray-700 rounded-[var(--td-radius-well)] border border-black/10 dark:border-white/10 p-4 overflow-x-auto custom-scrollbar">
           <div className="min-w-max">
             {/* En-tête avec numéros de steps */}
             <div className="grid grid-cols-[160px_60px_repeat(16,40px)_200px] gap-1.5 mb-2 items-center">
-              <div className="text-xs font-semibold text-black/60 dark:text-white/60 px-2">
+              <div className="text-xs font-semibold text-[color:var(--neu-text-muted)] px-2">
                 Instrument
               </div>
-              <div className="text-xs font-semibold text-black/60 dark:text-white/60 px-2 text-center">
+              <div className="text-xs font-semibold text-[color:var(--neu-text-muted)] px-2 text-center">
                 Sample
               </div>
               {Array.from({ length: NUM_STEPS }).map((_, stepIndex) => (
@@ -224,14 +224,14 @@ export function DrumMachinePanel() {
                   key={stepIndex}
                   className={`h-6 w-full min-w-[40px] flex items-center justify-center text-xs font-semibold rounded ${
                     stepIndex === currentStep && isPlaying
-                      ? 'bg-black dark:bg-white text-white dark:text-black'
-                      : 'bg-gray-100 dark:bg-gray-600 text-black/60 dark:text-white/60'
+                      ? 'bg-black dark:bg-white text-white dark:text-[color:var(--neu-text)]'
+                      : 'bg-gray-100 dark:bg-gray-600 text-[color:var(--neu-text-muted)]'
                   }`}
                 >
                   {stepIndex + 1}
                 </div>
               ))}
-              <div className="text-xs font-semibold text-black/60 dark:text-white/60 px-2">
+              <div className="text-xs font-semibold text-[color:var(--neu-text-muted)] px-2">
                 Volume
               </div>
             </div>
@@ -285,7 +285,7 @@ export function DrumMachinePanel() {
                     )
                   })}
                   <div className="flex items-center gap-3 pl-2">
-                    <Volume2 size={14} className="text-black/50 dark:text-white/50" />
+                    <Volume2 size={14} className="text-[color:var(--neu-text-faint)]" />
                     <Slider
                       value={volumes[instrument]}
                       min={0}

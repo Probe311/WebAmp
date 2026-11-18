@@ -6,10 +6,16 @@ const STORAGE_KEY_PREFIX = 'webamp-'
 
 export interface UserPreferences {
   showThankYouMessage: boolean
+  audioDeviceId: string
+  sampleRate: number
+  bufferSize: number
 }
 
 const DEFAULT_PREFERENCES: UserPreferences = {
-  showThankYouMessage: true // Par défaut, afficher le message
+  showThankYouMessage: true,
+  audioDeviceId: 'default',
+  sampleRate: 44100,
+  bufferSize: 128,
 }
 
 /**
@@ -20,13 +26,12 @@ export function getUserPreferences(): UserPreferences {
     const stored = localStorage.getItem(`${STORAGE_KEY_PREFIX}preferences`)
     if (stored) {
       const parsed = JSON.parse(stored)
-      // Fusionner avec les valeurs par défaut pour gérer les nouvelles préférences
       return { ...DEFAULT_PREFERENCES, ...parsed }
     }
-  } catch (error) {
-    // lecture silencieuse des préférences
+  } catch {
+    /* lecture silencieuse */
   }
-  return DEFAULT_PREFERENCES
+  return { ...DEFAULT_PREFERENCES }
 }
 
 /**
@@ -37,28 +42,18 @@ export function saveUserPreferences(preferences: Partial<UserPreferences>): void
     const current = getUserPreferences()
     const updated = { ...current, ...preferences }
     localStorage.setItem(`${STORAGE_KEY_PREFIX}preferences`, JSON.stringify(updated))
-  } catch (error) {
-    // écriture silencieuse des préférences
+  } catch {
+    /* écriture silencieuse */
   }
 }
 
-/**
- * Récupère une préférence spécifique
- */
-export function getPreference<K extends keyof UserPreferences>(
-  key: K
-): UserPreferences[K] {
-  const preferences = getUserPreferences()
-  return preferences[key]
+export function getPreference<K extends keyof UserPreferences>(key: K): UserPreferences[K] {
+  return getUserPreferences()[key]
 }
 
-/**
- * Sauvegarde une préférence spécifique
- */
 export function setPreference<K extends keyof UserPreferences>(
   key: K,
   value: UserPreferences[K]
 ): void {
   saveUserPreferences({ [key]: value })
 }
-

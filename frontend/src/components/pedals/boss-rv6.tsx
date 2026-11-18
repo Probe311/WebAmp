@@ -32,8 +32,7 @@ export function BossRv6Pedal({
   const mode = values.mode ?? model.parameters.mode.default
 
   const controls = useMemo(() => (
-    <div className="flex flex-col gap-3 w-full">
-      {/* Switch-selector en haut, pleine largeur */}
+    <div className="flex flex-col gap-1.5 w-full">
       <div className="w-full">
         <SwitchSelector
           value={mode}
@@ -46,15 +45,14 @@ export function BossRv6Pedal({
           className="switch-selector-full-width"
         />
       </div>
-
-      {/* 3 knobs en ligne horizontale */}
-      <div className="flex flex-row justify-center items-center gap-3 w-full">
+      <div className="flex flex-row justify-center items-center gap-2 w-full">
         <Potentiometer
           label="DECAY"
           value={decay}
           min={model.parameters.decay.min}
           max={model.parameters.decay.max}
           color={pedalAccentColor}
+          size="M"
           onChange={(v) => onChange?.('decay', v)}
         />
         <Potentiometer
@@ -63,6 +61,7 @@ export function BossRv6Pedal({
           min={model.parameters.tone.min}
           max={model.parameters.tone.max}
           color={pedalAccentColor}
+          size="M"
           onChange={(v) => onChange?.('tone', v)}
         />
         <Potentiometer
@@ -71,6 +70,7 @@ export function BossRv6Pedal({
           min={model.parameters.level.min}
           max={model.parameters.level.max}
           color={pedalAccentColor}
+          size="M"
           onChange={(v) => onChange?.('level', v)}
         />
       </div>
@@ -80,6 +80,7 @@ export function BossRv6Pedal({
   return (
     <PedalFrame
       model={model}
+      size="L"
       layout="flex"
       bypassed={bypassed}
       onBypassToggle={onBypassToggle}
@@ -109,7 +110,7 @@ export const BossRv6Controls = ({
   const mode = values.mode ?? model.parameters.mode.default
 
   return (
-    <div className="flex flex-col gap-3 w-full">
+    <div className="flex flex-col gap-1.5 w-full">
       <div className="w-full">
         <SwitchSelector
           value={mode}
@@ -122,13 +123,14 @@ export const BossRv6Controls = ({
           className="switch-selector-full-width"
         />
       </div>
-      <div className="flex flex-row justify-center items-center gap-3 w-full">
+      <div className="flex flex-row justify-center items-center gap-2 w-full">
         <Potentiometer
           label="DECAY"
           value={decay}
           min={model.parameters.decay.min}
           max={model.parameters.decay.max}
           color={pedalAccentColor}
+          size="M"
           onChange={(v) => onChange?.('decay', v)}
         />
         <Potentiometer
@@ -137,6 +139,7 @@ export const BossRv6Controls = ({
           min={model.parameters.tone.min}
           max={model.parameters.tone.max}
           color={pedalAccentColor}
+          size="M"
           onChange={(v) => onChange?.('tone', v)}
         />
         <Potentiometer
@@ -145,6 +148,7 @@ export const BossRv6Controls = ({
           min={model.parameters.level.min}
           max={model.parameters.level.max}
           color={pedalAccentColor}
+          size="M"
           onChange={(v) => onChange?.('level', v)}
         />
       </div>

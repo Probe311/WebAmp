@@ -258,8 +258,10 @@ function getPedalSpecificAudioConfig(
         // Gain élevé : 0-100 -> 0.5-18
         return 0.5 + normalized * 17.5
       case 'tone':
+      case 'toneB':
         return 200 + normalized * 7800
       case 'level':
+      case 'levelB':
         return normalized * 2
       default:
         return null
@@ -1061,6 +1063,26 @@ function getPedalSpecificAudioConfig(
   }
 
   // COMPRESSOR
+  // WebAmp CS-400 (sustainer, réf. Behringer CS400)
+  if (pedalId === 'webamp-cs400') {
+    switch (paramName) {
+      case 'sustain':
+        // Seuil : 0 -> -6 dB (compression légère), 100 -> -42 dB (sustain maximal)
+        return -6 - normalized * 36
+      case 'attack':
+        // Temps d'attaque : 1 ms (0) -> 80 ms (100)
+        return 0.001 + normalized * 0.079
+      case 'tone':
+        // Tilt : -9 dB (sourd) .. +9 dB (brillant), 50 = plat
+        return (normalized - 0.5) * 18
+      case 'level':
+        // Niveau de sortie : 0 -> 2
+        return normalized * 2
+      default:
+        return null
+    }
+  }
+
   // MXR Dyna Comp
   if (pedalId === 'mxr-dyna-comp') {
     switch (paramName) {

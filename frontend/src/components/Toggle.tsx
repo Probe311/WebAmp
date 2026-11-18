@@ -26,12 +26,16 @@ interface TogglePropsLegacy {
 
 type ToggleProps = TogglePropsNew | TogglePropsLegacy
 
+/**
+ * Interrupteur à deux positions.
+ *
+ * Les couleurs viennent des tokens (`--td-success`, `--td-danger`, `--td-primary`)
+ * donc le thème sombre suit la classe `dark` sans relecture du DOM.
+ */
 const Toggle: React.FC<ToggleProps> = (props) => {
-  const isDark = document.documentElement.classList.contains('dark')
-  
   // Détection de l'interface utilisée
   const isLegacyInterface = 'options' in props && 'value' in props
-  
+
   // Variables pour la nouvelle interface
   let checked: boolean
   let labelLeft: string | undefined
@@ -40,7 +44,7 @@ const Toggle: React.FC<ToggleProps> = (props) => {
   let disabled: boolean
   let className: string
   let mode: 'onoff' | 'choice' | undefined
-  
+
   if (isLegacyInterface) {
     // Conversion de l'ancienne interface vers la nouvelle
     const legacyProps = props as TogglePropsLegacy
@@ -68,52 +72,31 @@ const Toggle: React.FC<ToggleProps> = (props) => {
     className = newProps.className || ''
     mode = newProps.mode || undefined // Pas de mode par défaut, on détectera automatiquement
   }
-  
+
   // Détection automatique du mode si non spécifié
   if (!mode) {
-    const isOnOff = (
+    const isOnOff =
       (labelLeft?.toLowerCase() === 'off' && labelRight?.toLowerCase() === 'on') ||
       (labelLeft?.toLowerCase() === 'on' && labelRight?.toLowerCase() === 'off')
-    )
     mode = isOnOff ? 'onoff' : 'choice'
   }
-  
-  // Couleurs selon le mode et l'état
+
   const isOnOffMode = mode === 'onoff'
-  
-  // Ombres neumorphic pour le track
-  const trackShadow = isOnOffMode
-    ? (isDark
-        ? 'inset 2px 2px 4px rgba(0, 0, 0, 0.5), inset -2px -2px 4px rgba(60, 60, 60, 0.5)'
-        : 'inset 2px 2px 4px rgba(0, 0, 0, 0.1), inset -2px -2px 4px rgba(255, 255, 255, 0.9)')
-    : 'inset 2px 2px 4px rgba(0, 0, 0, 0.5), inset -2px -2px 4px rgba(60, 60, 60, 0.5)' // Mode choice avec ombres spécifiques
-  
-  // Ombres neumorphic pour le thumb (slider)
-  const thumbShadow = isDark
-    ? '2px 2px 4px rgba(0, 0, 0, 0.5), -2px -2px 4px rgba(60, 60, 60, 0.5)'
-    : '2px 2px 4px rgba(0, 0, 0, 0.08), -2px -2px 4px rgba(255, 255, 255, 0.9)'
-  
-  // Couleurs positives/négatives explicites pour le mode on/off
-  const positiveColor = isDark ? '#4ade80' : '#22c55e'
-  const negativeColor = isDark ? '#f87171' : '#ef4444'
-  
-  // Pour le mode on/off : track vert (positif) ou rouge (négatif)
-  // Pour le mode choice : background orange avec ombres
+
+  // Tokens : le track s'enfonce, le pouce reste en relief.
   const trackBackground = isOnOffMode
-    ? (checked
-        ? (isDark ? 'rgba(34, 197, 94, 0.35)' : 'rgba(34, 197, 94, 0.25)')
-        : (isDark ? 'rgba(239, 68, 68, 0.35)' : 'rgba(239, 68, 68, 0.22)'))
-    : 'rgba(249, 115, 22, 0.3)'
-  
-  // Couleur du thumb selon le mode
+    ? checked
+      ? 'var(--td-success-surface)'
+      : 'var(--td-danger-surface)'
+    : 'var(--td-surface-selected)'
+
   const thumbBackground = isOnOffMode
-    ? (checked ? positiveColor : negativeColor)
-    : (isDark ? 'rgba(249, 115, 22, 0.9)' : '#f97316') // Toujours orange en mode choice
-  
-  // Couleur du label actif (orange pour mode choice)
-  const activeLabelColor = isOnOffMode
-    ? undefined // Pas de couleur spéciale pour les labels en mode on/off
-    : (isDark ? 'rgba(249, 115, 22, 0.9)' : '#f97316') // Orange pour le label actif en mode choice
+    ? checked
+      ? 'var(--td-success)'
+      : 'var(--td-danger)'
+    : 'var(--td-primary)'
+
+  const activeLabelColor = isOnOffMode ? undefined : 'var(--td-primary)'
 
   const handleToggle = () => {
     if (!disabled) {
@@ -121,41 +104,43 @@ const Toggle: React.FC<ToggleProps> = (props) => {
     }
   }
 
+  const labelClass = `text-xs font-semibold uppercase tracking-wider transition-colors duration-[var(--td-duration-base)] cursor-pointer select-none ${
+    disabled ? 'cursor-not-allowed opacity-50' : ''
+  }`
+
   return (
     <div className={`flex items-center gap-2 ${className}`}>
       {/* Label gauche */}
       {labelLeft && (
-        <label 
-          className={`text-xs font-semibold uppercase tracking-wider transition-colors duration-200 cursor-pointer select-none shadow-none ${
-            isOnOffMode
-              ? (checked ? 'text-black/50 dark:text-white/50' : '')
-              : (checked ? 'text-black/70 dark:text-white/70' : '')
-          } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-          style={{ 
-            boxShadow: 'none',
+        <label
+          className={`${labelClass} ${!disabled ? '' : ''}`}
+          style={{
             color: isOnOffMode
-              ? (!checked ? negativeColor : undefined)
-              : (!isOnOffMode && !checked && activeLabelColor ? activeLabelColor : undefined)
+              ? checked
+                ? 'var(--td-text-muted)'
+                : 'var(--td-danger)'
+              : activeLabelColor
           }}
           onClick={!disabled ? handleToggle : undefined}
         >
-          <span className="toggle-left" style={{ boxShadow: 'none' }}>{labelLeft}</span>
+          <span className="toggle-left">{labelLeft}</span>
         </label>
       )}
-      
+
       {/* Toggle switch */}
       <button
         onClick={handleToggle}
         disabled={disabled}
         className={`
-          relative w-10 h-5 rounded-full transition-all duration-300 ease-in-out 
-          focus:outline-none touch-manipulation overflow-hidden
-          ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-          ${!disabled ? 'hover:scale-105' : ''}
+          relative h-5 w-10 overflow-hidden rounded-[var(--td-radius-pill)]
+          transition-transform duration-[var(--td-duration-slow)] ease-[var(--td-ease-spring)]
+          focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--td-focus)] focus-visible:ring-offset-2
+          touch-manipulation
+          ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer enabled:hover:scale-105'}
         `}
         style={{
           background: trackBackground,
-          boxShadow: trackShadow
+          boxShadow: 'var(--td-control-shadow-pressed)'
         }}
         aria-pressed={checked}
         aria-disabled={disabled}
@@ -163,32 +148,29 @@ const Toggle: React.FC<ToggleProps> = (props) => {
       >
         {/* Slider (thumb) */}
         <div
-          className="absolute top-0.5 w-4 h-4 rounded-full transition-all duration-300 ease-in-out z-10"
+          className="absolute top-0.5 z-10 h-4 w-4 rounded-full transition-[left] duration-[var(--td-duration-slow)] ease-[var(--td-ease-spring)]"
           style={{
             left: checked ? 'calc(100% - 16px - 2px)' : '2px',
             background: thumbBackground,
-            boxShadow: thumbShadow
+            boxShadow: 'var(--td-control-shadow)'
           }}
         />
       </button>
-      
+
       {/* Label droit */}
       {labelRight && (
-        <label 
-          className={`text-xs font-semibold uppercase tracking-wider transition-colors duration-200 cursor-pointer select-none shadow-none ${
-            isOnOffMode
-              ? (!checked ? 'text-black/50 dark:text-white/50' : '')
-              : (checked ? '' : 'text-black/70 dark:text-white/70')
-          } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-          style={{ 
-            boxShadow: 'none',
+        <label
+          className={labelClass}
+          style={{
             color: isOnOffMode
-              ? (checked ? positiveColor : undefined)
-              : (!isOnOffMode && checked && activeLabelColor ? activeLabelColor : undefined)
+              ? checked
+                ? 'var(--td-success)'
+                : 'var(--td-text-muted)'
+              : activeLabelColor
           }}
           onClick={!disabled ? handleToggle : undefined}
         >
-          <span className="toggle-right" style={{ boxShadow: 'none' }}>{labelRight}</span>
+          <span className="toggle-right">{labelRight}</span>
         </label>
       )}
     </div>

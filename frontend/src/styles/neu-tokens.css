@@ -1,0 +1,213 @@
+/**
+ * Tokens + utilitaires neumorphiques (API `neu-*`).
+ * Contrat kit : accent #F26A1B, bg #e4ebf5, ombres 163/177/198.
+ * Fichier importé hors de index.css → pas de @layer utilities.
+ */
+
+:root {
+  --neu-accent: #f26a1b;
+  --neu-accent-hover: #e0590e;
+  --neu-accent-soft: rgba(242, 106, 27, 0.12);
+  --neu-accent-glow: rgba(242, 106, 27, 0.45);
+
+  --neu-bg: #e4ebf5;
+  --neu-bg-track: #dbe4ef;
+  --neu-bg-hollow: #c8d4e4;
+
+  --neu-text: #1e293b;
+  --neu-text-muted: #64748b;
+  --neu-text-faint: #94a3b8;
+
+  --neu-edge: rgba(255, 255, 255, 0.8);
+  --neu-shadow-dark: 163, 177, 198;
+  --neu-shadow-light: 255, 255, 255;
+
+  /* CTA = carré arrondi (squircle Softube / dock), pas pilule */
+  --neu-radius-cta: 1rem;
+  --neu-radius-card: 1.5rem;
+  --neu-radius-control: 1rem;
+  --neu-radius-pill: 9999px;
+
+  --neu-duration-fast: 120ms;
+  --neu-duration-base: 200ms;
+  --neu-duration-slow: 320ms;
+  --neu-ease: cubic-bezier(0.4, 0, 0.2, 1);
+
+  --neu-logo-filter: brightness(0) opacity(0.72);
+  --neu-knob-face: linear-gradient(145deg, #ffffff, #e6ebf2);
+
+  /* Clavier MIDI — blanches toujours claires, noires Softube slate */
+  --neu-piano-white: #eef2f7;
+  --neu-piano-white-held: rgba(242, 106, 27, 0.14);
+  --neu-piano-white-label: #94a3b8;
+  --neu-piano-black-from: #475569;
+  --neu-piano-black-to: #1e293b;
+  --neu-piano-black-shadow: 2px 3px 6px rgba(30, 41, 59, 0.45);
+}
+
+.dark {
+  /* Accent inchangé en dark — contrat brand #F26A1B */
+  --neu-accent: #f26a1b;
+  --neu-accent-hover: #e0590e;
+  --neu-accent-soft: rgba(242, 106, 27, 0.16);
+  --neu-accent-glow: rgba(242, 106, 27, 0.45);
+
+  --neu-bg: #22252e;
+  --neu-bg-track: #1a1d25;
+  --neu-bg-hollow: #14171e;
+
+  --neu-text: #f2f3f7;
+  --neu-text-muted: #c0c4cf;
+  --neu-text-faint: #8b92a3;
+
+  --neu-edge: rgba(255, 255, 255, 0.08);
+  --neu-shadow-dark: 8, 10, 14;
+  --neu-shadow-light: 48, 52, 64;
+
+  --neu-logo-filter: brightness(0) invert(1) opacity(0.88);
+  --neu-knob-face: linear-gradient(145deg, #2b303a, #1a1d25);
+
+  /* Dark : blanches ivoire (lisibles), noires quasi-noir — pas de slate trop clair */
+  --neu-piano-white: #d8dee8;
+  --neu-piano-white-held: rgba(242, 106, 27, 0.22);
+  --neu-piano-white-label: #64748b;
+  --neu-piano-black-from: #2a303c;
+  --neu-piano-black-to: #0c0e12;
+  --neu-piano-black-shadow: 2px 3px 8px rgba(0, 0, 0, 0.55);
+}
+
+.neu-flat {
+  background-color: var(--neu-bg);
+  box-shadow:
+    6px 6px 14px rgba(var(--neu-shadow-dark), 0.55),
+    -6px -6px 14px rgba(var(--neu-shadow-light), 0.95);
+}
+
+.neu-flat-sm {
+  background-color: var(--neu-bg);
+  box-shadow:
+    3px 3px 8px rgba(var(--neu-shadow-dark), 0.5),
+    -3px -3px 8px rgba(var(--neu-shadow-light), 0.9);
+}
+
+/* CTA Softube — même surface que flat-sm (squircle idle). */
+.neu-cta-flat {
+  background-color: var(--neu-bg);
+  box-shadow:
+    3px 3px 8px rgba(var(--neu-shadow-dark), 0.5),
+    -3px -3px 8px rgba(var(--neu-shadow-light), 0.9);
+}
+
+.neu-flat-lg {
+  background-color: var(--neu-bg);
+  box-shadow:
+    10px 10px 24px rgba(var(--neu-shadow-dark), 0.6),
+    -10px -10px 24px rgba(var(--neu-shadow-light), 0.95);
+}
+
+.neu-inset {
+  background-color: var(--neu-bg-track);
+  box-shadow:
+    inset 2px 2px 5px rgba(var(--neu-shadow-dark), 0.65),
+    inset -2px -2px 5px rgba(var(--neu-shadow-light), 0.95);
+}
+
+.neu-pressed {
+  background-color: var(--neu-bg);
+  box-shadow:
+    inset 3px 3px 7px rgba(var(--neu-shadow-dark), 0.7),
+    inset -3px -3px 7px rgba(var(--neu-shadow-light), 0.9);
+}
+
+.neu-convex {
+  background: var(--neu-knob-face);
+  box-shadow:
+    6px 6px 14px rgba(var(--neu-shadow-dark), 0.55),
+    -6px -6px 14px rgba(var(--neu-shadow-light), 0.95),
+    inset 1px 1px 2px rgba(var(--neu-shadow-light), 0.85);
+}
+
+.neu-accent-surface {
+  color: #fff;
+  background: linear-gradient(145deg, #e0590e, var(--neu-accent));
+  box-shadow:
+    6px 6px 14px rgba(var(--neu-shadow-dark), 0.5),
+    -4px -4px 10px rgba(var(--neu-shadow-light), 0.45),
+    0 0 12px var(--neu-accent-glow);
+}
+
+.neu-accent-btn {
+  color: #fff;
+  background: linear-gradient(145deg, #e0590e, var(--neu-accent));
+  /* glow ≤ padding page (px-5/6) pour éviter la coupe au bord contenu */
+  box-shadow:
+    4px 4px 10px rgba(var(--neu-shadow-dark), 0.55),
+    -3px -3px 8px rgba(var(--neu-shadow-light), 0.85),
+    0 0 10px var(--neu-accent-glow);
+}
+
+.neu-accent-btn:active {
+  box-shadow:
+    inset 3px 3px 7px rgba(0, 0, 0, 0.25),
+    inset -2px -2px 5px rgba(255, 255, 255, 0.25);
+}
+
+/**
+ * Ombre fenêtre — budget ≤ --td-shell-gap (16px).
+ * neu-flat-lg (blur 24) + ring débordent → coupés par main overflow-hidden.
+ */
+.neu-window,
+.neu-window-focus {
+  background-color: var(--neu-bg);
+  border-color: var(--neu-edge);
+  border-width: 1px;
+  border-style: solid;
+  box-shadow:
+    5px 5px 12px rgba(var(--neu-shadow-dark), 0.55),
+    -5px -5px 12px rgba(var(--neu-shadow-light), 0.9);
+}
+
+.neu-card {
+  border-radius: var(--neu-radius-card);
+  border: 1px solid var(--neu-edge);
+}
+
+.neu-cta {
+  border-radius: var(--neu-radius-cta);
+}
+
+.neu-pill {
+  border-radius: var(--neu-radius-pill);
+}
+
+.neu-text-accent {
+  color: var(--neu-accent);
+}
+
+.neu-bg {
+  background-color: var(--neu-bg);
+}
+
+.neu-bg-track {
+  background-color: var(--neu-bg-track);
+}
+
+/** Transition thème unique : shell / header / dock / desktop. */
+.neu-theme-transition {
+  transition-property: background-color, color, border-color, box-shadow, fill, stroke, filter;
+  transition-duration: var(--neu-duration-base);
+  transition-timing-function: var(--neu-ease);
+}
+
+.neu-logo {
+  filter: var(--neu-logo-filter);
+}
+
+/** Wordmark « studio » du logo marque — suit le thème shell. */
+.webamp-brand-logo .logo-studio {
+  fill: #1c1a18;
+}
+
+.dark .webamp-brand-logo .logo-studio {
+  fill: #ffffff;
+}

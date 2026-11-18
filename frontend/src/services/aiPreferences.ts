@@ -1,7 +1,7 @@
 /**
- * Service d'apprentissage des préférences utilisateur via IA
- * Utilise Gemini pour analyser l'historique d'utilisation et apprendre les préférences
+ * Préférences utilisateur via Edge Functions (JWT requis).
  */
+import { invokeEdge } from './invokeEdge'
 
 export interface UserUsageHistory {
   presetIds: string[]
@@ -11,8 +11,8 @@ export interface UserUsageHistory {
   artists: string[]
   moods: string[]
   instruments: ('guitar' | 'bass' | 'other')[]
-  timeSpent: Record<string, number> // presetId -> minutes
-  lastUsed: Record<string, string> // presetId -> ISO date
+  timeSpent: Record<string, number>
+  lastUsed: Record<string, string>
 }
 
 export interface LearnedPreferences {
@@ -35,73 +35,34 @@ export interface LearnedPreferences {
   }
 }
 
-/**
- * Apprend les préférences utilisateur à partir de l'historique d'utilisation
- */
 export async function learnUserPreferences(
-  userId: string,
+  _userId: string,
   history: UserUsageHistory,
 ): Promise<LearnedPreferences> {
-  const endpoint =
-    import.meta.env.VITE_SUPABASE_EDGE_URL_AI_LEARN_PREFERENCES ||
-    '/functions/v1/ai-learn-preferences'
-
-  const resp = await fetch(endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ userId, history }),
-  })
-
-  if (!resp.ok) {
-    const text = await resp.text()
-    throw new Error(`Erreur IA (ai-learn-preferences): ${resp.status} - ${text}`)
-  }
-
-  const data = await resp.json()
+  const data = await invokeEdge<{ ok: boolean; preferences?: LearnedPreferences }>(
+    'ai-learn-preferences',
+    { history },
+  )
   if (!data.ok || !data.preferences) {
     throw new Error('Réponse IA invalide (preferences manquant)')
   }
-
-  return data.preferences as LearnedPreferences
+  return data.preferences
 }
 
-/**
- * Récupère les recommandations personnalisées basées sur les préférences apprises
- */
 export async function getPersonalizedRecommendations(
-  userId: string,
+  _userId: string,
   preferences: LearnedPreferences,
   availablePresets: Array<{ id: string; name: string; genre?: string; tags?: string[] }>,
 ): Promise<Array<{ id: string; score: number; reason: string }>> {
-  const endpoint =
-    import.meta.env.VITE_SUPABASE_EDGE_URL_AI_RECOMMENDATIONS ||
-    '/functions/v1/ai-recommendations'
-
-  const resp = await fetch(endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      userId,
-      preferences,
-      availablePresets,
-    }),
+  const data = await invokeEdge<{
+    ok: boolean
+    recommendations?: Array<{ id: string; score: number; reason: string }>
+  }>('ai-recommendations', {
+    preferences,
+    availablePresets,
   })
-
-  if (!resp.ok) {
-    const text = await resp.text()
-    throw new Error(`Erreur IA (ai-recommendations): ${resp.status} - ${text}`)
-  }
-
-  const data = await resp.json()
   if (!data.ok || !data.recommendations) {
     throw new Error('Réponse IA invalide (recommendations manquant)')
   }
-
-  return data.recommendations as Array<{ id: string; score: number; reason: string }>
+  return data.recommendations
 }
-
-

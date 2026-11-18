@@ -19,36 +19,17 @@ export function Checkbox({
   size = 'md',
   onClick
 }: CheckboxProps) {
-  const isDark = document.documentElement.classList.contains('dark')
-  
   const sizeClasses = {
-    sm: 'w-4 h-4',
-    md: 'w-5 h-5',
-    lg: 'w-6 h-6'
+    sm: 'h-4 w-4',
+    md: 'h-5 w-5',
+    lg: 'h-6 w-6'
   }
-  
+
   const iconSizes = {
     sm: 10,
     md: 12,
     lg: 14
   }
-  
-  // Ombres neumorphic pour le checkbox
-  const checkboxShadow = isDark
-    ? 'inset 2px 2px 4px rgba(0, 0, 0, 0.5), inset -2px -2px 4px rgba(60, 60, 60, 0.5)'
-    : 'inset 2px 2px 4px rgba(0, 0, 0, 0.1), inset -2px -2px 4px rgba(255, 255, 255, 0.9)'
-  
-  const checkboxShadowChecked = isDark
-    ? '2px 2px 4px rgba(0, 0, 0, 0.5), -2px -2px 4px rgba(60, 60, 60, 0.5), inset 1px 1px 2px rgba(0, 0, 0, 0.3)'
-    : '2px 2px 4px rgba(0, 0, 0, 0.08), -2px -2px 4px rgba(255, 255, 255, 0.9), inset 1px 1px 2px rgba(0, 0, 0, 0.1)'
-  
-  const checkboxBackground = checked
-    ? (isDark ? 'rgba(249, 115, 22, 0.3)' : 'rgba(249, 115, 22, 0.2)')
-    : (isDark ? '#374151' : '#f5f5f5')
-  
-  const checkboxBorder = checked
-    ? (isDark ? 'rgba(249, 115, 22, 0.6)' : 'rgba(249, 115, 22, 0.4)')
-    : (isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.15)')
 
   const handleClick = () => {
     if (!disabled) {
@@ -57,8 +38,8 @@ export function Checkbox({
   }
 
   return (
-    <div 
-      className={`flex items-center gap-2 ${className} ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+    <div
+      className={`flex items-center gap-2 ${className} ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
       onClick={(e) => {
         if (onClick) {
           onClick(e)
@@ -70,14 +51,12 @@ export function Checkbox({
     >
       <div
         className={`
-          ${sizeClasses[size]} rounded border-2 transition-all duration-200 relative
-          ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}
-          ${!disabled ? 'hover:scale-105 active:scale-95' : ''}
+          ${sizeClasses[size]} relative rounded-[var(--td-radius-xs)] border transition-[background-color,box-shadow,transform] duration-[var(--td-duration-base)]
+          ${disabled ? 'cursor-not-allowed' : 'cursor-pointer enabled:hover:scale-105 active:scale-95'}
+          ${checked ? 'border-[var(--td-primary-strong)] bg-[var(--td-surface-selected)]' : 'border-[var(--td-edge-control)] bg-[var(--td-control-surface)]'}
         `}
         style={{
-          background: checkboxBackground,
-          borderColor: checkboxBorder,
-          boxShadow: checked ? checkboxShadowChecked : checkboxShadow
+          boxShadow: checked ? 'var(--td-elevation-1)' : 'var(--td-control-shadow-pressed)'
         }}
         role="checkbox"
         aria-checked={checked}
@@ -90,7 +69,7 @@ export function Checkbox({
             height={iconSizes[size]}
             viewBox="0 0 24 24"
             fill="none"
-            stroke={isDark ? '#f97316' : '#f97316'}
+            stroke="var(--td-primary-strong)"
             strokeWidth={3}
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -102,11 +81,8 @@ export function Checkbox({
       {label && (
         <label
           className={`
-            text-sm font-medium transition-colors duration-200 select-none
-            ${checked 
-              ? 'text-black dark:text-white' 
-              : 'text-gray-600 dark:text-gray-400'
-            }
+            select-none text-sm font-medium transition-colors duration-[var(--td-duration-base)]
+            ${checked ? 'text-[var(--td-text-primary)]' : 'text-[var(--td-text-secondary)]'}
             ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}
           `}
           onClick={(e) => {
@@ -124,4 +100,3 @@ export function Checkbox({
 }
 
 export default Checkbox
-

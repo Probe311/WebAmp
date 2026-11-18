@@ -1,6 +1,8 @@
 // Import des logos
 import walrusSmallLogo from '../assets/logos/walrus_small.svg'
 import walrusLogo from '../assets/logos/walrus.svg'
+import webampSmallLogo from '../assets/logos/webamp_small.svg'
+import webampLogo from '../assets/logos/webamp.svg'
 import bossSmallLogo from '../assets/logos/boss_small.svg'
 import bossLogo from '../assets/logos/boss.svg'
 import electroHarmonixSmallLogo from '../assets/logos/electro-harmonix_small.svg'
@@ -30,6 +32,11 @@ export const brandCertifications: Record<string, BrandCertification> = {
     status: 'certified',
     smallLogo: walrusSmallLogo,
     fullLogo: walrusLogo
+  },
+  WebAmp: {
+    status: 'certified',
+    smallLogo: webampSmallLogo,
+    fullLogo: webampLogo
   }
 }
 

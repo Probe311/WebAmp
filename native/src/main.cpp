@@ -11,8 +11,38 @@
 #include <thread>
 #include <chrono>
 #include <sstream>
+#include <vector>
+#include <cstdint>
 
 using namespace webamp;
+
+// Décodage base64 (modèle NAM envoyé en mémoire par le frontend)
+static int base64Value(char c) {
+    if (c >= 'A' && c <= 'Z') return c - 'A';
+    if (c >= 'a' && c <= 'z') return c - 'a' + 26;
+    if (c >= '0' && c <= '9') return c - '0' + 52;
+    if (c == '+') return 62;
+    if (c == '/') return 63;
+    return -1; // padding / espaces ignorés
+}
+
+static std::vector<uint8_t> decodeBase64(const std::string& input) {
+    std::vector<uint8_t> out;
+    out.reserve(input.size() * 3 / 4);
+    uint32_t val = 0; // masqué : évite tout débordement sur plusieurs Mo
+    int bits = 0;
+    for (char c : input) {
+        int v = base64Value(c);
+        if (v < 0) continue;
+        val = ((val << 6) | static_cast<uint32_t>(v)) & 0xFFFFFFu;
+        bits += 6;
+        if (bits >= 8) {
+            bits -= 8;
+            out.push_back(static_cast<uint8_t>((val >> bits) & 0xFF));
+        }
+    }
+    return out;
+}
 
 // Signal handler pour arrêt propre
 std::atomic<bool> g_running{true};
@@ -168,28 +198,58 @@ void handleWebSocketMessage(const std::string& message, AudioEngine& engine, Web
         server.sendMessage("{\"type\":\"ack\"}");
     }
     else if (type == "loadNAMModel") {
+        std::string messageId = JsonParser::getString(data, "messageId", "");
+        std::string encoded = JsonParser::getString(data, "data", "");
         std::string filePath = JsonParser::getString(data, "filePath");
         auto pipeline = engine.getPipeline();
-        if (pipeline) {
-            bool success = pipeline->loadNAMModel(filePath);
-            if (success) {
-                server.sendMessage("{\"type\":\"ack\"}");
-            } else {
-                server.sendMessage("{\"type\":\"error\",\"message\":\"Échec du chargement du modèle NAM\"}");
-            }
+
+        bool success = false;
+        std::string errorMessage;
+        if (!pipeline) {
+            errorMessage = "DSP pipeline non disponible";
+        } else if (!encoded.empty()) {
+            // Le navigateur n'expose pas de chemin : le .nam arrive en base64.
+            std::vector<uint8_t> bytes = decodeBase64(encoded);
+            success = !bytes.empty() && pipeline->loadNAMModelFromMemory(bytes.data(), bytes.size());
+            if (!success) errorMessage = "Échec du chargement du modèle NAM (mémoire)";
+        } else if (!filePath.empty()) {
+            success = pipeline->loadNAMModel(filePath);
+            if (!success) errorMessage = "Échec du chargement du modèle NAM (fichier)";
         } else {
-            server.sendMessage("{\"type\":\"error\",\"message\":\"DSP pipeline non disponible\"}");
+            errorMessage = "Champ data ou filePath manquant";
         }
+
+        std::ostringstream response;
+        response << "{\"type\":\"" << (success ? "ack" : "error") << "\"";
+        if (!messageId.empty()) {
+            response << ",\"messageId\":\"" << messageId << "\"";
+        }
+        if (!success) {
+            response << ",\"message\":\"" << errorMessage << "\"";
+        }
+        response << "}";
+        server.sendMessage(response.str());
     }
     else if (type == "setNAMModelActive") {
         bool active = JsonParser::getBool(data, "active", false);
+        std::string messageId = JsonParser::getString(data, "messageId", "");
         auto pipeline = engine.getPipeline();
+        bool success = false;
         if (pipeline) {
             pipeline->setNAMModelActive(active);
-            server.sendMessage("{\"type\":\"ack\"}");
-        } else {
-            server.sendMessage("{\"type\":\"error\",\"message\":\"DSP pipeline non disponible\"}");
+            success = true;
         }
+
+        std::ostringstream response;
+        response << "{\"type\":\"" << (success ? "ack" : "error") << "\"";
+        if (!messageId.empty()) {
+            response << ",\"messageId\":\"" << messageId << "\"";
+        }
+        if (!success) {
+            response << ",\"message\":\"DSP pipeline non disponible\"";
+        }
+        response << "}";
+        server.sendMessage(response.str());
     }
     else if (type == "setEqualizerParameter") {
         std::string parameter = JsonParser::getString(data, "parameter");

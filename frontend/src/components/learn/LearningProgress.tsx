@@ -1,5 +1,6 @@
 import { BookOpen, Award, Target, TrendingUp } from 'lucide-react'
 import { Block } from '../Block'
+import { CountUp } from '../motion'
 import { useUserStats, useAllCoursesProgress } from '../../hooks/useLMS'
 import { useAuth } from '../../auth/AuthProvider'
 import { lmsService } from '../../services/lms'
@@ -10,21 +11,20 @@ export function LearningProgress() {
   const { user } = useAuth()
   const { stats, loading } = useUserStats(user?.id)
   const { progressMap } = useAllCoursesProgress(user?.id)
-  const [totalXP, setTotalXP] = useState<number>(0)
-  const [coursesCompleted, setCoursesCompleted] = useState<number>(0)
-  const [lessonsCompleted, setLessonsCompleted] = useState<number>(0)
-
-  if (!user) {
-    return null
-  }
+  const [totalXP, setTotalXP] = useState(0)
+  const [coursesCompleted, setCoursesCompleted] = useState(0)
+  const [lessonsCompleted, setLessonsCompleted] = useState(0)
 
   useEffect(() => {
     const computeFromProgress = async () => {
-      if (!user) return
+      if (!user) {
+        setTotalXP(0)
+        setCoursesCompleted(0)
+        setLessonsCompleted(0)
+        return
+      }
 
-      // Calculer côté client à partir des progressions et des rewards
       const completedCount = computeCompletedCoursesCount(progressMap)
-
       if (completedCount === 0) {
         setTotalXP(0)
         setCoursesCompleted(0)
@@ -33,31 +33,38 @@ export function LearningProgress() {
       }
 
       const completedCourseIds = Array.from(progressMap.entries())
-        .filter(([_, p]) => p.completed)
+        .filter(([, p]) => p.completed)
         .map(([courseId]) => courseId)
 
       const rewardsMap = await lmsService.getAllCourseRewards(completedCourseIds)
-
-      const xp = computeTotalXPFromProgress(progressMap, rewardsMap)
-
-      setTotalXP(xp)
+      setTotalXP(computeTotalXPFromProgress(progressMap, rewardsMap))
       setCoursesCompleted(completedCount)
-
-      // Pour le nombre de leçons complétées, on utilise la valeur agrégée de Supabase si disponible
-      if (stats) {
-        setLessonsCompleted(stats.lessons_completed || 0)
-      }
+      if (stats) setLessonsCompleted(stats.lessons_completed || 0)
     }
 
     computeFromProgress()
   }, [user, stats, progressMap])
 
+  if (!user) {
+    return (
+      <Block className="flex min-h-[280px] flex-col justify-center">
+        <div className="mb-4 flex items-center gap-2">
+          <BookOpen size={18} className="text-[color:var(--neu-accent)]" />
+          <span className="text-xs font-bold uppercase tracking-wider text-[color:var(--neu-accent)]">
+            Progression
+          </span>
+        </div>
+        <p className="text-center text-sm text-[color:var(--neu-text-faint)]">
+          Connectez-vous pour suivre votre progression
+        </p>
+      </Block>
+    )
+  }
+
   if (loading && !stats) {
     return (
-      <Block className="min-h-[280px] flex flex-col justify-center">
-        <div className="text-center text-black/50 dark:text-white/50">
-          Chargement...
-        </div>
+      <Block className="flex min-h-[280px] flex-col justify-center">
+        <div className="text-center text-[color:var(--neu-text-faint)]">Chargement...</div>
       </Block>
     )
   }
@@ -65,82 +72,70 @@ export function LearningProgress() {
   const badges = stats?.badges || []
   const streak = stats?.current_streak || 0
 
-  // Valeurs affichées (priorité aux stats calculées côté client)
-  const displayedXP = totalXP
-  const displayedCoursesCompleted = coursesCompleted
-  const displayedLessonsCompleted = lessonsCompleted
-
   return (
-    <Block className="min-h-[280px] flex flex-col">
-      <div className="flex items-center gap-2 mb-4">
-        <BookOpen size={18} className="text-orange-500 dark:text-orange-400" />
-        <span className="text-xs font-bold uppercase tracking-wider text-orange-500 dark:text-orange-400">
+    <Block className="flex min-h-[280px] flex-col" spotlight glare>
+      <div className="mb-4 flex items-center gap-2">
+        <BookOpen size={18} className="text-[color:var(--neu-accent)]" />
+        <span className="text-xs font-bold uppercase tracking-wider text-[color:var(--neu-accent)]">
           Progression
         </span>
       </div>
 
-      <div className="flex-1 flex flex-col justify-between">
-        {/* XP Total */}
+      <div className="flex flex-1 flex-col justify-between">
         <div className="mb-4">
-          <div className="flex items-baseline gap-2 mb-2">
-            <span className="text-4xl font-bold text-black/85 dark:text-white/90">
-              {displayedXP.toLocaleString()}
-            </span>
-            <span className="text-sm text-black/70 dark:text-white/70">XP</span>
+          <div className="mb-2 flex items-baseline gap-2">
+            <CountUp to={totalXP} className="text-4xl font-bold text-[color:var(--neu-text)]" />
+            <span className="text-sm text-[color:var(--neu-text-muted)]">XP</span>
           </div>
-          <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+          <div className="neu-inset h-2 w-full overflow-hidden rounded-full">
             <div
-              className="h-full bg-gradient-to-r from-orange-500 to-orange-600 rounded-full transition-all duration-500"
+              className="h-full rounded-full bg-gradient-to-r from-[color:var(--neu-accent)] to-[color:var(--neu-accent-hover)] transition-all duration-500"
               style={{ width: `${Math.min((totalXP % 1000) / 10, 100)}%` }}
             />
           </div>
-          <p className="text-xs text-black/50 dark:text-white/50 mt-1">
-            {1000 - (totalXP % 1000)} XP jusqu'au prochain niveau
+          <p className="mt-1 text-xs text-[color:var(--neu-text-faint)]">
+            {1000 - (totalXP % 1000)} XP jusqu&apos;au prochain niveau
           </p>
         </div>
 
-        {/* Statistiques */}
         <div className="grid grid-cols-2 gap-4">
           <div className="flex items-center gap-2">
-            <Target size={16} className="text-black/50 dark:text-white/50" />
+            <Target size={16} className="text-[color:var(--neu-text-faint)]" />
             <div>
-              <div className="text-lg font-bold text-black/85 dark:text-white/90">
-                {displayedCoursesCompleted}
-              </div>
-              <div className="text-xs text-black/70 dark:text-white/70">
-                Cours terminés
-              </div>
+              <CountUp
+                to={coursesCompleted}
+                className="text-lg font-bold text-[color:var(--neu-text)]"
+              />
+              <div className="text-xs text-[color:var(--neu-text-muted)]">Cours terminés</div>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <BookOpen size={16} className="text-black/50 dark:text-white/50" />
+            <BookOpen size={16} className="text-[color:var(--neu-text-faint)]" />
             <div>
-              <div className="text-lg font-bold text-black/85 dark:text-white/90">
-                {displayedLessonsCompleted}
-              </div>
-              <div className="text-xs text-black/70 dark:text-white/70">
-                Leçons complétées
-              </div>
+              <CountUp
+                to={lessonsCompleted}
+                className="text-lg font-bold text-[color:var(--neu-text)]"
+              />
+              <div className="text-xs text-[color:var(--neu-text-muted)]">Leçons complétées</div>
             </div>
           </div>
         </div>
 
-        {/* Badges et Streak */}
         {(badges.length > 0 || streak > 0) && (
-          <div className="mt-4 pt-4 border-t border-black/10 dark:border-white/10 flex items-center justify-between">
+          <div className="mt-4 flex items-center justify-between border-t border-[color:var(--neu-edge)] pt-4">
             {badges.length > 0 && (
               <div className="flex items-center gap-2">
-                <Award size={16} className="text-yellow-500" />
-                <span className="text-sm font-medium text-black/85 dark:text-white/90">
+                <Award size={16} className="text-[var(--td-warning)]" />
+                <span className="text-sm font-medium text-[color:var(--neu-text)]">
                   {badges.length} badge{badges.length > 1 ? 's' : ''}
                 </span>
               </div>
             )}
             {streak > 0 && (
               <div className="flex items-center gap-2">
-                <TrendingUp size={16} className="text-orange-500 dark:text-orange-400" />
-                <span className="text-sm font-medium text-black/85 dark:text-white/90">
+                <TrendingUp size={16} className="text-[color:var(--neu-accent)]" />
+                <span className="text-sm font-medium text-[color:var(--neu-text)]">
                   {streak} jour{streak > 1 ? 's' : ''} consécutifs
                 </span>
               </div>

@@ -63,26 +63,26 @@ export function MusicianSpotlight() {
         <div className="flex-1 flex flex-col justify-between gap-4">
           <div>
             <div className="flex items-center gap-3 mb-1">
-              <h2 className="text-2xl font-bold text-black/85 dark:text-white drop-shadow">
+              <h2 className="text-2xl font-bold text-[color:var(--neu-text)] dark:text-white drop-shadow">
                 {musician.name}
               </h2>
-              <span className="px-3 py-1 rounded-full text-xs font-semibold bg-black/5 text-black/80 dark:bg-white/15 dark:text-white">
+              <span className="px-3 py-1 rounded-full text-xs font-semibold bg-black/5 text-[color:var(--neu-text)]/80 dark:bg-white/15 dark:text-white">
                 {musician.instrument}
               </span>
             </div>
-            <p className="text-sm text-black/75 dark:text-white/80 mb-3">{musician.bio}</p>
+            <p className="text-sm text-[color:var(--neu-text)]/75 dark:text-white/80 mb-3">{musician.bio}</p>
             <div className="flex flex-wrap gap-2 mb-2">
               {musician.genres.map((genre) => (
                 <span
                   key={genre}
-                  className="px-2 py-1 rounded-lg text-[11px] font-semibold bg-black/5 text-black/70 dark:bg-white/10 dark:text-white/80"
+                  className="px-2 py-1 rounded-[var(--td-radius-control)] text-[11px] font-semibold bg-black/5 text-[color:var(--neu-text-muted)] dark:bg-white/10 dark:text-white/80"
                 >
                   {genre}
                 </span>
               ))}
             </div>
             {musician.highlight && (
-              <div className="flex items-center gap-2 text-xs text-black/65 dark:text-white/75">
+              <div className="flex items-center gap-2 text-xs text-[color:var(--neu-text)]/65 dark:text-white/75">
                 <Sparkles size={14} />
                 <span>{musician.highlight}</span>
               </div>

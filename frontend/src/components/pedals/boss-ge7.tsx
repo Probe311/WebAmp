@@ -45,9 +45,8 @@ export function BossGe7Pedal({
   const levelName = level ? level[0] : null
 
   const controls = useMemo(() => (
-    <div className="flex items-end gap-2 w-full">
-      {/* Colonnes des bandes EQ */}
-      <div className="flex items-end gap-1.5 flex-1 justify-center">
+    <div className="flex items-stretch gap-1 w-full h-full min-h-[200px] overflow-visible">
+      <div className="flex items-stretch gap-1 flex-1 justify-center overflow-visible">
         {bands.map(([name, def]) => {
           const value = values[name] ?? def.default ?? 0
           return (
@@ -58,28 +57,31 @@ export function BossGe7Pedal({
               min={def.min}
               max={def.max}
               orientation="vertical"
+              compact
+              className="flex-1 min-w-0 max-w-[48px]"
               onChange={(v) => onChange?.(name, v)}
               color={pedalAccentColor}
             />
           )
         })}
       </div>
-      {/* Contrôle level séparé si présent */}
       {level && levelDef && levelName && (
-        <div className="ml-2">
+        <div className="ml-1 shrink-0">
           <Slider
             label={levelDef.label || 'Level'}
             value={values[levelName] ?? levelDef.default ?? 0}
             min={levelDef.min ?? 0}
             max={levelDef.max ?? 100}
             orientation="vertical"
+            compact
+            className="max-w-[48px]"
             onChange={(v) => onChange?.(levelName, v)}
             color={pedalAccentColor}
           />
         </div>
       )}
     </div>
-  ), [bands, level, levelDef, levelName, values, onChange, model])
+  ), [bands, level, levelDef, levelName, values, onChange, pedalAccentColor])
 
   return (
     <PedalFrame

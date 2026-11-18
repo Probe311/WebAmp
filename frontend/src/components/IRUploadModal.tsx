@@ -202,7 +202,27 @@ export function IRUploadModal({ isOpen, onClose, onIRSelected }: IRUploadModalPr
     try {
       setImportingFromUrl(true)
 
-      const response = await fetch(irUrl)
+      // Anti-SSRF : HTTPS public only, no private/metadata hosts
+      let parsed: URL
+      try {
+        parsed = new URL(irUrl.trim())
+      } catch {
+        throw new Error('URL invalide')
+      }
+      if (parsed.protocol !== 'https:') {
+        throw new Error('Seules les URLs HTTPS sont autorisées')
+      }
+      const host = parsed.hostname.toLowerCase()
+      if (
+        host === 'localhost' ||
+        host.endsWith('.local') ||
+        host === 'metadata.google.internal' ||
+        /^(127\.|10\.|192\.168\.|169\.254\.|0\.|::1$)/.test(host)
+      ) {
+        throw new Error('Hôte non autorisé')
+      }
+
+      const response = await fetch(parsed.toString(), { redirect: 'error' })
       if (!response.ok) {
         throw new Error(`Erreur HTTP ${response.status}`)
       }
@@ -264,7 +284,7 @@ export function IRUploadModal({ isOpen, onClose, onIRSelected }: IRUploadModalPr
     return (
       <Modal isOpen={isOpen} onClose={onClose} title="Upload d'IR">
         <div className="p-6 text-center">
-          <p className="text-black/70 dark:text-white/70 mb-4">
+          <p className="text-[var(--td-text-secondary)] mb-4">
             Vous devez être connecté pour uploader des IR
           </p>
           <CTA variant="primary" onClick={onClose}>
@@ -279,15 +299,15 @@ export function IRUploadModal({ isOpen, onClose, onIRSelected }: IRUploadModalPr
     <Modal isOpen={isOpen} onClose={onClose} title="Gestion des Impulse Responses" className="max-w-2xl">
       <div className="space-y-6">
         {/* Upload */}
-        <div className="p-4 bg-white dark:bg-gray-700 rounded-xl border border-black/10 dark:border-white/10">
-          <h3 className="text-lg font-semibold text-black dark:text-white mb-4 flex items-center gap-2">
+        <div className="p-4 bg-[var(--td-control-surface)] rounded-[var(--td-radius-lg)] border border-[var(--td-edge-panel)]">
+          <h3 className="text-lg font-semibold text-[var(--td-text-primary)] mb-4 flex items-center gap-2">
             <Upload size={20} />
             Uploader un IR
           </h3>
 
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-black/70 dark:text-white/70 mb-2">
+              <label className="block text-sm font-medium text-[var(--td-text-secondary)] mb-2">
                 Fichier (WAV ou OGG, max 50MB) *
               </label>
               <input
@@ -299,17 +319,17 @@ export function IRUploadModal({ isOpen, onClose, onIRSelected }: IRUploadModalPr
                 id="ir-file-input"
               />
               <label htmlFor="ir-file-input" className="block">
-                <div className="px-4 py-3 border-2 border-dashed border-black/20 dark:border-white/20 rounded-lg cursor-pointer hover:border-black/40 dark:hover:border-white/40 transition-colors">
+                <div className="px-4 py-3 border-2 border-dashed border-[var(--td-edge-control)] rounded-[var(--td-radius-sm)] cursor-pointer hover:border-[var(--td-edge-control)] transition-colors">
                   {selectedFile ? (
                     <div className="flex items-center gap-2">
                       <FileAudio size={20} />
-                      <span className="text-sm text-black dark:text-white">{selectedFile.name}</span>
-                      <span className="text-xs text-black/50 dark:text-white/50">
+                      <span className="text-sm text-[var(--td-text-primary)]">{selectedFile.name}</span>
+                      <span className="text-xs text-[var(--td-text-muted)]">
                         ({(selectedFile.size / 1024 / 1024).toFixed(2)} MB)
                       </span>
                     </div>
                   ) : (
-                    <div className="text-center text-black/50 dark:text-white/50">
+                    <div className="text-center text-[var(--td-text-muted)]">
                       Cliquez pour sélectionner un fichier
                     </div>
                   )}
@@ -318,26 +338,26 @@ export function IRUploadModal({ isOpen, onClose, onIRSelected }: IRUploadModalPr
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-black/70 dark:text-white/70 mb-2">
+              <label className="block text-sm font-medium text-[var(--td-text-secondary)] mb-2">
                 Nom *
               </label>
               <input
                 type="text"
                 value={irName}
                 onChange={(e) => setIrName(e.target.value)}
-                className="w-full px-3 py-2 bg-white dark:bg-gray-800 rounded-lg border border-black/20 dark:border-white/20"
+                className="w-full px-3 py-2 bg-[var(--td-surface-elevated)] rounded-[var(--td-radius-sm)] border border-[var(--td-edge-control)]"
                 placeholder="Nom de l'IR"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-black/70 dark:text-white/70 mb-2">
+              <label className="block text-sm font-medium text-[var(--td-text-secondary)] mb-2">
                 Description
               </label>
               <textarea
                 value={irDescription}
                 onChange={(e) => setIrDescription(e.target.value)}
-                className="w-full px-3 py-2 bg-white dark:bg-gray-800 rounded-lg border border-black/20 dark:border-white/20"
+                className="w-full px-3 py-2 bg-[var(--td-surface-elevated)] rounded-[var(--td-radius-sm)] border border-[var(--td-edge-control)]"
                 rows={2}
                 placeholder="Description de l'IR..."
               />
@@ -356,7 +376,7 @@ export function IRUploadModal({ isOpen, onClose, onIRSelected }: IRUploadModalPr
 
               {/* Import depuis URL (dépôts communautaires type Tone3000, etc.) */}
               <div className="flex-1 flex flex-col gap-2">
-                <label className="block text-xs font-medium text-black/60 dark:text-white/60">
+                <label className="block text-xs font-medium text-[var(--td-text-muted)]">
                   Importer depuis une URL (WAV/OGG)
                 </label>
                 <div className="flex gap-2">
@@ -364,7 +384,7 @@ export function IRUploadModal({ isOpen, onClose, onIRSelected }: IRUploadModalPr
                     type="url"
                     value={irUrl}
                     onChange={(e) => setIrUrl(e.target.value)}
-                    className="flex-1 px-3 py-2 bg-white dark:bg-gray-800 rounded-lg border border-black/20 dark:border-white/20 text-xs"
+                    className="flex-1 px-3 py-2 bg-[var(--td-surface-elevated)] rounded-[var(--td-radius-sm)] border border-[var(--td-edge-control)] text-xs"
                     placeholder="https://exemple.com/ir/gratuit.wav"
                   />
                   <CTA
@@ -382,8 +402,8 @@ export function IRUploadModal({ isOpen, onClose, onIRSelected }: IRUploadModalPr
         </div>
 
         {/* Recherche Freesound */}
-        <div className="p-4 bg-white dark:bg-gray-700 rounded-xl border border-black/10 dark:border-white/10">
-          <h3 className="text-lg font-semibold text-black dark:text-white mb-4">
+        <div className="p-4 bg-[var(--td-control-surface)] rounded-[var(--td-radius-lg)] border border-[var(--td-edge-panel)]">
+          <h3 className="text-lg font-semibold text-[var(--td-text-primary)] mb-4">
             Rechercher des IR sur Freesound
           </h3>
 
@@ -404,26 +424,26 @@ export function IRUploadModal({ isOpen, onClose, onIRSelected }: IRUploadModalPr
             </div>
 
             {searchingFreesound && (
-              <div className="text-center py-4 text-black/50 dark:text-white/50">
+              <div className="text-center py-4 text-[var(--td-text-muted)]">
                 Recherche en cours...
               </div>
             )}
 
             {freesoundIRs.length > 0 && (
-              <div className="space-y-2 max-h-64 overflow-y-auto custom-scrollbar">
+              <div className="space-y-2 max-h-64 overflow-y-auto custom-scrollbar p-1">
                 {freesoundIRs.map(sound => (
                   <div
                     key={sound.id}
-                    className="p-3 bg-white dark:bg-gray-800 rounded-lg border border-black/10 dark:border-white/10 flex items-center justify-between"
+                    className="p-3 bg-[var(--td-surface-elevated)] rounded-[var(--td-radius-sm)] border border-[var(--td-edge-panel)] flex items-center justify-between"
                   >
                     <div className="flex-1">
-                      <h4 className="font-medium text-black dark:text-white">{sound.name}</h4>
+                      <h4 className="font-medium text-[var(--td-text-primary)]">{sound.name}</h4>
                       {sound.description && (
-                        <p className="text-sm text-black/60 dark:text-white/60 mt-1 line-clamp-2">
+                        <p className="text-sm text-[var(--td-text-muted)] mt-1 line-clamp-2">
                           {sound.description}
                         </p>
                       )}
-                      <div className="flex items-center gap-4 mt-2 text-xs text-black/40 dark:text-white/40">
+                      <div className="flex items-center gap-4 mt-2 text-xs text-[var(--td-text-muted)]">
                         <span>Licence: {sound.license}</span>
                         <span>Durée: {sound.duration.toFixed(1)}s</span>
                         <span>Sample Rate: {sound.samplerate}Hz</span>
@@ -456,7 +476,7 @@ export function IRUploadModal({ isOpen, onClose, onIRSelected }: IRUploadModalPr
             )}
 
             {!searchingFreesound && freesoundIRs.length === 0 && freesoundQuery && (
-              <div className="text-center py-4 text-black/50 dark:text-white/50">
+              <div className="text-center py-4 text-[var(--td-text-muted)]">
                 Aucun résultat. Essayez une autre recherche.
               </div>
             )}
@@ -464,8 +484,8 @@ export function IRUploadModal({ isOpen, onClose, onIRSelected }: IRUploadModalPr
         </div>
 
         {/* Liste des IR */}
-        <div className="p-4 bg-white dark:bg-gray-700 rounded-xl border border-black/10 dark:border-white/10">
-          <h3 className="text-lg font-semibold text-black dark:text-white mb-4">
+        <div className="p-4 bg-[var(--td-control-surface)] rounded-[var(--td-radius-lg)] border border-[var(--td-edge-panel)]">
+          <h3 className="text-lg font-semibold text-[var(--td-text-primary)] mb-4">
             Mes IR ({userIRs.length})
           </h3>
 
@@ -474,22 +494,22 @@ export function IRUploadModal({ isOpen, onClose, onIRSelected }: IRUploadModalPr
               <Loader size="sm" variant="light" />
             </div>
           ) : userIRs.length === 0 ? (
-            <div className="text-center py-4 text-black/50 dark:text-white/50">
+            <div className="text-center py-4 text-[var(--td-text-muted)]">
               Aucun IR uploadé
             </div>
           ) : (
-            <div className="space-y-2 max-h-64 overflow-y-auto custom-scrollbar">
+            <div className="space-y-2 max-h-64 overflow-y-auto custom-scrollbar p-1">
               {userIRs.map(ir => (
                 <div
                   key={ir.id}
-                  className="p-3 bg-white dark:bg-gray-800 rounded-lg border border-black/10 dark:border-white/10 flex items-center justify-between"
+                  className="p-3 bg-[var(--td-surface-elevated)] rounded-[var(--td-radius-sm)] border border-[var(--td-edge-panel)] flex items-center justify-between"
                 >
                   <div className="flex-1">
-                    <h4 className="font-medium text-black dark:text-white">{ir.name}</h4>
+                    <h4 className="font-medium text-[var(--td-text-primary)]">{ir.name}</h4>
                     {ir.description && (
-                      <p className="text-sm text-black/60 dark:text-white/60 mt-1">{ir.description}</p>
+                      <p className="text-sm text-[var(--td-text-muted)] mt-1">{ir.description}</p>
                     )}
-                    <p className="text-xs text-black/40 dark:text-white/40 mt-1">
+                    <p className="text-xs text-[var(--td-text-muted)] mt-1">
                       {ir.mime_type} • {formatDateFrench(ir.created_at)}
                     </p>
                   </div>

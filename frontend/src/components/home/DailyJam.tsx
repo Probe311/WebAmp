@@ -4,18 +4,16 @@ import { useAuth } from '../../auth/AuthProvider'
 import { useMemo } from 'react'
 import { LucideIcon } from 'lucide-react'
 
-// Presets recommandés du jour (rotation basée sur le jour de la semaine)
-const dailyPresets: Array<{ name: string; style: string; Icon: LucideIcon }> = [
-  { name: 'Clean Reverb', style: 'Clean', Icon: Guitar },
-  { name: 'Blues Drive', style: 'Blues', Icon: Music },
-  { name: 'Rock Crunch', style: 'Rock', Icon: Guitar },
-  { name: 'Jazz Warm', style: 'Jazz', Icon: Piano },
-  { name: 'Metal Distortion', style: 'Metal', Icon: Flame },
-  { name: 'Ambient Space', style: 'Ambient', Icon: Sparkles },
-  { name: 'Funk Rhythm', style: 'Funk', Icon: Radio }
+const dailyPresets: Array<{ name: string; style: string; profile: string; Icon: LucideIcon }> = [
+  { name: 'Clean Reverb', style: 'Clean', profile: 'David Gilmour', Icon: Guitar },
+  { name: 'Blues Drive', style: 'Blues', profile: 'Stevie Ray Vaughan', Icon: Music },
+  { name: 'Rock Crunch', style: 'Rock', profile: 'Jimmy Page', Icon: Guitar },
+  { name: 'Jazz Warm', style: 'Jazz', profile: 'Wes Montgomery', Icon: Piano },
+  { name: 'Metal Distortion', style: 'Metal', profile: 'Dimebag Darrell', Icon: Flame },
+  { name: 'Ambient Space', style: 'Ambient', profile: 'The Edge', Icon: Sparkles },
+  { name: 'Funk Rhythm', style: 'Funk', profile: 'Nile Rodgers', Icon: Radio },
 ]
 
-// Challenges du jour
 const dailyChallenges = [
   'Pratiquez 15 minutes avec un nouveau preset',
   'Explorez un nouveau style musical',
@@ -23,8 +21,10 @@ const dailyChallenges = [
   'Apprenez une nouvelle technique de pédale',
   'Jouez avec le métronome à différents tempos',
   'Expérimentez avec les effets de modulation',
-  'Revisitez un cours que vous avez complété'
+  'Revisitez un cours que vous avez complété',
 ]
+
+export const PENDING_DAILY_PROFILE_KEY = 'pendingRockStarProfile'
 
 interface DailyJamProps {
   onOpenPedalboard?: () => void
@@ -34,29 +34,18 @@ export function DailyJam({ onOpenPedalboard }: DailyJamProps) {
   const { user } = useAuth()
   const { stats } = useUserStats(user?.id)
 
-  // Sélectionner un preset et un challenge basés sur le jour de la semaine
   const dayOfWeek = useMemo(() => new Date().getDay(), [])
   const dailyPreset = dailyPresets[dayOfWeek]
   const dailyChallenge = dailyChallenges[dayOfWeek]
 
-  // Calculer le message de motivation basé sur la série
   const motivationMessage = useMemo(() => {
-    if (!stats?.current_streak) {
-      return "Commencez votre série aujourd'hui !"
-    }
-    if (stats.current_streak === 1) {
-      return 'Continuez demain pour maintenir votre série !'
-    }
-    if (stats.current_streak < 7) {
-      return `${stats.current_streak} jours consécutifs !`
-    }
-    if (stats.current_streak < 30) {
-      return `Série impressionnante de ${stats.current_streak} jours !`
-    }
+    if (!stats?.current_streak) return "Commencez votre série aujourd'hui !"
+    if (stats.current_streak === 1) return 'Continuez demain pour maintenir votre série !'
+    if (stats.current_streak < 7) return `${stats.current_streak} jours consécutifs !`
+    if (stats.current_streak < 30) return `Série impressionnante de ${stats.current_streak} jours !`
     return `${stats.current_streak} jours de pratique !`
   }, [stats?.current_streak])
 
-  // Déterminer si l'utilisateur a été actif aujourd'hui
   const isActiveToday = useMemo(() => {
     if (!stats?.last_activity_at) return false
     const lastActivity = new Date(stats.last_activity_at)
@@ -68,49 +57,55 @@ export function DailyJam({ onOpenPedalboard }: DailyJamProps) {
     )
   }, [stats?.last_activity_at])
 
+  const startJam = () => {
+    try {
+      localStorage.setItem(PENDING_DAILY_PROFILE_KEY, dailyPreset.profile)
+    } catch {
+      /* ignore */
+    }
+    onOpenPedalboard?.()
+  }
+
   return (
-    <div className="bg-orange-500 dark:bg-orange-600 rounded-2xl p-6 shadow-[8px_8px_16px_rgba(0,0,0,0.2),-8px_-8px_16px_rgba(255,255,255,0.1)] dark:shadow-[8px_8px_16px_rgba(0,0,0,0.6),-8px_-8px_16px_rgba(60,60,60,0.6)] min-h-[280px] flex flex-col justify-between relative overflow-hidden">
-      {/* Élément décoratif */}
-      <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16" />
-      <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full -ml-12 -mb-12" />
+    <div className="neu-accent-surface neu-card relative flex min-h-[280px] flex-col justify-between rounded-3xl p-6">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl" aria-hidden>
+        <div className="absolute -right-16 -top-16 h-32 w-32 rounded-full bg-white/10" />
+        <div className="absolute -bottom-12 -left-12 h-24 w-24 rounded-full bg-white/5" />
+      </div>
 
       <div className="relative z-10">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-bold text-white flex items-center gap-2">
+        <div className="mb-4 flex items-center justify-between">
+          <h3 className="flex items-center gap-2 text-lg font-bold text-white">
             <Music size={18} />
             Jam Quotidien
           </h3>
           <span
-            className={`px-2 py-1 text-xs font-bold rounded-full ${
-              isActiveToday
-                ? 'bg-yellow-400 text-black'
-                : 'bg-white/20 text-white'
+            className={`rounded-full px-2 py-1 text-xs font-bold ${
+              isActiveToday ? 'bg-yellow-400 text-slate-900' : 'bg-white/20 text-white'
             }`}
           >
             {isActiveToday ? 'ACTIF' : 'NOUVEAU'}
           </span>
         </div>
 
-        {/* Preset du jour */}
         <div className="mb-4">
-          <div className="flex items-center gap-2 mb-1">
+          <div className="mb-1 flex items-center gap-2">
             <dailyPreset.Icon size={24} className="text-white" />
             <div>
-              <p className="text-sm font-semibold text-white">
-                Preset du jour
+              <p className="text-sm font-semibold text-white">Preset du jour</p>
+              <p className="text-xs text-white/85">
+                {dailyPreset.name} · {dailyPreset.profile}
               </p>
-              <p className="text-xs text-white/80">{dailyPreset.name}</p>
             </div>
           </div>
           <div className="mt-2 flex items-center gap-1">
-            <Target size={12} className="text-white/70" />
+            <Target size={12} className="text-white/75" />
             <p className="text-xs text-white/90">{dailyChallenge}</p>
           </div>
         </div>
 
-        {/* Série de jours */}
-        {stats && stats.current_streak > 0 && (
-          <div className="mb-4 p-3 bg-white/10 rounded-lg backdrop-blur-sm">
+        {stats && stats.current_streak > 0 ? (
+          <div className="mb-4 rounded-2xl bg-black/15 p-3 backdrop-blur-sm">
             <div className="flex items-center gap-2">
               <TrendingUp size={16} className="text-yellow-300" />
               <div>
@@ -120,18 +115,13 @@ export function DailyJam({ onOpenPedalboard }: DailyJamProps) {
                 </p>
               </div>
             </div>
-            <p className="text-xs text-white/70 mt-1">{motivationMessage}</p>
+            <p className="mt-1 text-xs text-white/75">{motivationMessage}</p>
           </div>
-        )}
-
-        {/* Message pour nouveaux utilisateurs */}
-        {(!stats || stats.current_streak === 0) && (
-          <div className="mb-4 p-3 bg-white/10 rounded-lg backdrop-blur-sm">
+        ) : (
+          <div className="mb-4 rounded-2xl bg-black/15 p-3 backdrop-blur-sm">
             <div className="flex items-center gap-2">
               <Zap size={16} className="text-yellow-300" />
-              <p className="text-xs text-white/90">
-                Commencez votre première session aujourd'hui !
-              </p>
+              <p className="text-xs text-white/90">Commencez votre première session aujourd&apos;hui !</p>
             </div>
           </div>
         )}
@@ -139,13 +129,13 @@ export function DailyJam({ onOpenPedalboard }: DailyJamProps) {
 
       <div className="relative z-10">
         <button
-          onClick={onOpenPedalboard}
-          className="w-full mt-4 px-4 py-2 bg-white text-orange-600 font-semibold rounded-xl text-sm shadow-[2px_2px_4px_rgba(0,0,0,0.2)] hover:shadow-[3px_3px_6px_rgba(0,0,0,0.25)] transition-all duration-150 disabled:opacity-60"
+          type="button"
+          onClick={startJam}
+          className="neu-flat neu-pill mt-4 w-full px-4 py-2.5 text-sm font-semibold text-[color:var(--neu-accent)] transition-all duration-150 hover:-translate-y-0.5 active:neu-pressed"
         >
-          Ouvrir le pedalboard et jammer
+          Charger le preset et jammer
         </button>
       </div>
     </div>
   )
 }
-

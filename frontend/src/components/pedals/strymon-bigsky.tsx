@@ -2,101 +2,78 @@ import { useMemo } from 'react'
 import { pedalLibrary } from '../../data/pedals'
 import { PedalFrame } from './PedalFrame'
 import { Potentiometer } from '../Potentiometer'
-import { Slider } from '../Slider'
-import { SwitchSelector } from '../SwitchSelector'
 import type { PedalComponentProps } from './types'
 
 const pedalId = 'strymon-bigsky'
 
 /**
- * Composant complet de la pédale Strymon BigSky
- * Layout simple : 5 knobs en ligne avec marges ajustées
+ * Strymon BigSky — 3 knobs en 2+1 (Decay / Tone / Mix)
  */
-export function StrymonBigskyPedal({ 
-  values = {}, 
-  onChange, 
+export function StrymonBigskyPedal({
+  values = {},
+  onChange,
   bypassed = false,
   onBypassToggle,
-  bottomActions
-,
-  accentColor}: PedalComponentProps) {
+  bottomActions,
+  accentColor,
+}: PedalComponentProps) {
   const model = useMemo(() => pedalLibrary.find((p) => p.id === pedalId), [])
-  
+
   if (!model) return null
 
-  // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
   const pedalAccentColor = accentColor || model.accentColor
 
-  const controls = useMemo(() => {
-    return Object.entries(model.parameters).map(([name, def]) => {
-      const controlType = def.controlType || 'knob'
-      const value = values[name] ?? def.default ?? 0
+  const decay = values.decay ?? model.parameters.decay.default
+  const tone = values.tone ?? model.parameters.tone.default
+  const mix = values.mix ?? model.parameters.mix.default
 
-      if (controlType === 'slider') {
-        return (
-          <Slider
-            key={name}
-            label={def.label}
-            value={value}
-            min={def.min}
-            max={def.max}
-            orientation={def.orientation || 'vertical'}
-            onChange={(v) => onChange?.(name, v)}
-            color={pedalAccentColor}
-          />
-        )
-      }
-
-      if (controlType === 'switch-selector' && def.labels) {
-        return (
-          <SwitchSelector
-            key={name}
-            value={value}
-            min={def.min}
-            max={def.max}
-            labels={def.labels}
-            icons={def.icons}
-            color={pedalAccentColor}
-            onChange={(v) => onChange?.(name, v)}
-          />
-        )
-      }
-
-      return (
-        <Potentiometer
-          key={name}
-          label={def.label}
-          value={value}
-          min={def.min}
-          max={def.max}
-          color={pedalAccentColor}
-          onChange={(v) => onChange?.(name, v)}
-        />
-      )
-    })
-  }, [model, values, onChange])
-
-  const layoutControls = useMemo(() => (
-    <div className="flex flex-row justify-center items-center gap-2 w-full" style={{ marginTop: '-0.5rem', marginBottom: '-0.5rem' }}>
-      {controls}
-    </div>
-  ), [controls])
+  const controls = useMemo(
+    () => [
+      <Potentiometer
+        key="decay"
+        label="DECAY"
+        value={decay}
+        min={model.parameters.decay.min}
+        max={model.parameters.decay.max}
+        color={pedalAccentColor}
+        onChange={(v) => onChange?.('decay', v)}
+      />,
+      <Potentiometer
+        key="tone"
+        label="TONE"
+        value={tone}
+        min={model.parameters.tone.min}
+        max={model.parameters.tone.max}
+        color={pedalAccentColor}
+        onChange={(v) => onChange?.('tone', v)}
+      />,
+      <Potentiometer
+        key="mix"
+        label="MIX"
+        value={mix}
+        min={model.parameters.mix.min}
+        max={model.parameters.mix.max}
+        color={pedalAccentColor}
+        onChange={(v) => onChange?.('mix', v)}
+      />,
+    ],
+    [decay, tone, mix, model, onChange, pedalAccentColor],
+  )
 
   return (
     <PedalFrame
       model={model}
-      layout="default"
+      layout="three-knobs"
       bypassed={bypassed}
       onBypassToggle={onBypassToggle}
       showFootswitch={false}
       bottomActions={bottomActions}
     >
-      {layoutControls}
+      {controls}
     </PedalFrame>
   )
 }
 
-// Export pour compatibilité avec l'ancien système
 export const StrymonBigskyControls = ({
   values = {},
   onChange,
@@ -104,63 +81,40 @@ export const StrymonBigskyControls = ({
 }: PedalComponentProps) => {
   const model = pedalLibrary.find((p) => p.id === pedalId)
   if (!model) return null
-  
-  // Utiliser accentColor depuis les props, avec fallback sur model.accentColor
+
   const pedalAccentColor = accentColor || model.accentColor
-  
-  const controls = Object.entries(model.parameters).map(([name, def]) => {
-    const controlType = def.controlType || 'knob'
-    const value = values[name] ?? def.default ?? 0
-
-    if (controlType === 'slider') {
-      return (
-        <Slider
-          key={name}
-          label={def.label}
-          value={value}
-          min={def.min}
-          max={def.max}
-          orientation={def.orientation || 'vertical'}
-          onChange={(v) => onChange?.(name, v)}
-          color={pedalAccentColor}
-        />
-      )
-    }
-
-    if (controlType === 'switch-selector' && def.labels) {
-      return (
-        <SwitchSelector
-          key={name}
-          value={value}
-          min={def.min}
-          max={def.max}
-          labels={def.labels}
-          icons={def.icons}
-          color={pedalAccentColor}
-          onChange={(v) => onChange?.(name, v)}
-        />
-      )
-    }
-
-    return (
-      <Potentiometer
-        key={name}
-        label={def.label}
-        value={value}
-        min={def.min}
-        max={def.max}
-        color={pedalAccentColor}
-        onChange={(v) => onChange?.(name, v)}
-      />
-    )
-  })
+  const decay = values.decay ?? model.parameters.decay.default
+  const tone = values.tone ?? model.parameters.tone.default
+  const mix = values.mix ?? model.parameters.mix.default
 
   return (
-    <div className="flex flex-row justify-center items-center gap-2 w-full" style={{ marginTop: '-0.5rem', marginBottom: '-0.5rem' }}>
-      {controls}
-    </div>
+    <>
+      <Potentiometer
+        label="DECAY"
+        value={decay}
+        min={model.parameters.decay.min}
+        max={model.parameters.decay.max}
+        color={pedalAccentColor}
+        onChange={(v) => onChange?.('decay', v)}
+      />
+      <Potentiometer
+        label="TONE"
+        value={tone}
+        min={model.parameters.tone.min}
+        max={model.parameters.tone.max}
+        color={pedalAccentColor}
+        onChange={(v) => onChange?.('tone', v)}
+      />
+      <Potentiometer
+        label="MIX"
+        value={mix}
+        min={model.parameters.mix.min}
+        max={model.parameters.mix.max}
+        color={pedalAccentColor}
+        onChange={(v) => onChange?.('mix', v)}
+      />
+    </>
   )
 }
 
 export default StrymonBigskyPedal
-

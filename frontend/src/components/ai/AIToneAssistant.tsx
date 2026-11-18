@@ -124,7 +124,7 @@ export function AIToneAssistant({
         bodyClassName="p-6"
       >
         <div className="space-y-5">
-          <div className="flex items-start gap-3 p-3.5 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+          <div className="flex items-start gap-3 p-3.5 bg-amber-50 dark:bg-amber-900/20 rounded-[var(--td-radius-control)] border border-amber-200 dark:border-amber-800">
             <Sparkles className="w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
             <div className="flex-1">
               <p className="text-sm text-amber-900 dark:text-amber-100 font-medium mb-1.5">
@@ -141,7 +141,7 @@ export function AIToneAssistant({
           <div>
             <label
               htmlFor="tone-description"
-              className="block text-sm font-medium text-black/70 dark:text-white/70 mb-2.5"
+              className="block text-sm font-medium text-[color:var(--neu-text-muted)] mb-2.5"
             >
               Description du ton désiré
             </label>
@@ -150,13 +150,13 @@ export function AIToneAssistant({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Ex: Son clean Fender avec un peu de reverb et un léger delay..."
-              className="w-full h-32 px-4 py-3 rounded-lg border border-black/20 dark:border-white/20 bg-white dark:bg-gray-800 text-black dark:text-white placeholder:text-black/40 dark:placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
+              className="w-full h-32 px-4 py-3 rounded-[var(--td-radius-control)] border border-black/20 dark:border-white/20 bg-white dark:bg-gray-800 text-[color:var(--neu-text)] placeholder:text-[color:var(--neu-text-faint)] dark:placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
               disabled={isGenerating}
             />
           </div>
 
           {isGenerating && (
-            <div className="flex items-center gap-3 p-3.5 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
+            <div className="flex items-center gap-3 p-3.5 bg-amber-50 dark:bg-amber-900/20 rounded-[var(--td-radius-control)]">
               <Loader2 className="w-5 h-5 text-amber-600 dark:text-amber-400 animate-spin" />
               <p className="text-sm text-amber-900 dark:text-amber-100">
                 Génération du ton en cours...

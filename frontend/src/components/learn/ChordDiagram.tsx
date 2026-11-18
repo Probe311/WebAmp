@@ -5,9 +5,11 @@ import { useTheme } from '../../contexts/ThemeContext'
 interface ChordDiagramProps {
   chord: Chord
   scale?: number
+  /** Tuile outils 4×3 : moins de chrome autour du SVG. */
+  compact?: boolean
 }
 
-export const ChordDiagram: React.FC<ChordDiagramProps> = ({ chord, scale = 1 }) => {
+export const ChordDiagram: React.FC<ChordDiagramProps> = ({ chord, scale = 1, compact = false }) => {
   const { theme } = useTheme()
   const isDark = theme === 'dark'
 
@@ -58,9 +60,20 @@ export const ChordDiagram: React.FC<ChordDiagramProps> = ({ chord, scale = 1 }) 
   const numFretsToShow = Math.max(NUM_FRETS, displayFrets)
 
   return (
-    <div className="p-8 rounded-3xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 shadow-[6px_6px_14px_rgba(0,0,0,0.08),-6px_-6px_14px_rgba(255,255,255,0.75)] dark:shadow-[6px_6px_14px_rgba(0,0,0,0.6),-6px_-6px_14px_rgba(60,60,60,0.4)]">
-      {/* Titre de l'accord centré */}
-      <h3 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white tracking-tight text-center">
+    <div
+      className={
+        compact
+          ? 'flex flex-col items-center gap-2'
+          : 'rounded-[var(--td-radius-panel)] border border-gray-200 bg-white p-8 shadow-[6px_6px_14px_rgba(0,0,0,0.08),-6px_-6px_14px_rgba(255,255,255,0.75)] dark:border-white/10 dark:bg-gray-900 dark:shadow-[6px_6px_14px_rgba(0,0,0,0.6),-6px_-6px_14px_rgba(60,60,60,0.4)]'
+      }
+    >
+      <h3
+        className={
+          compact
+            ? 'text-center text-xl font-bold tracking-tight text-[color:var(--neu-text)]'
+            : 'mb-6 text-center text-3xl font-bold tracking-tight text-gray-900 dark:text-white'
+        }
+      >
         {chord.name}
       </h3>
       

@@ -78,13 +78,13 @@ export function KeyboardShortcutsConfig({ isOpen, onClose }: KeyboardShortcutsCo
     >
       <div className="space-y-6">
         {/* Mode clavier uniquement */}
-        <div className="p-4 bg-white dark:bg-gray-700 rounded-xl border border-black/10 dark:border-white/10">
+        <div className="p-4 bg-white dark:bg-gray-700 rounded-[var(--td-radius-well)] border border-black/10 dark:border-white/10">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-semibold text-black dark:text-white mb-1">
+              <h3 className="text-lg font-semibold text-[color:var(--neu-text)] mb-1">
                 Mode clavier uniquement
               </h3>
-              <p className="text-sm text-black/70 dark:text-white/70">
+              <p className="text-sm text-[color:var(--neu-text-muted)]">
                 Active le mode sans souris pour une navigation complète au clavier
               </p>
             </div>
@@ -105,7 +105,7 @@ export function KeyboardShortcutsConfig({ isOpen, onClose }: KeyboardShortcutsCo
           const IconComponent = category.icon
           return (
           <div key={category.id} className="space-y-3">
-            <h3 className="text-lg font-semibold text-black dark:text-white flex items-center gap-2">
+            <h3 className="text-lg font-semibold text-[color:var(--neu-text)] flex items-center gap-2">
               <IconComponent size={20} />
               {category.name}
             </h3>
@@ -113,7 +113,7 @@ export function KeyboardShortcutsConfig({ isOpen, onClose }: KeyboardShortcutsCo
               {category.shortcuts.map(shortcut => (
                 <div
                   key={shortcut.id}
-                  className={`p-4 bg-white dark:bg-gray-700 rounded-xl border transition-all ${
+                  className={`p-4 bg-white dark:bg-gray-700 rounded-[var(--td-radius-well)] border transition-all ${
                     editingId === shortcut.id
                       ? 'border-black/30 dark:border-white/30 shadow-lg'
                       : 'border-black/10 dark:border-white/10'
@@ -122,7 +122,7 @@ export function KeyboardShortcutsConfig({ isOpen, onClose }: KeyboardShortcutsCo
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3">
-                        <h4 className="font-semibold text-black dark:text-white">
+                        <h4 className="font-semibold text-[color:var(--neu-text)]">
                           {shortcut.name}
                         </h4>
                         <label className="relative inline-flex items-center cursor-pointer">
@@ -135,18 +135,18 @@ export function KeyboardShortcutsConfig({ isOpen, onClose }: KeyboardShortcutsCo
                           <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-black/20 dark:peer-focus:ring-white/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-black dark:peer-checked:bg-white"></div>
                         </label>
                       </div>
-                      <p className="text-sm text-black/70 dark:text-white/70 mt-1">
+                      <p className="text-sm text-[color:var(--neu-text-muted)] mt-1">
                         {shortcut.description}
                       </p>
                     </div>
                     <div className="flex items-center gap-2 ml-4">
                       {capturingKey === shortcut.id ? (
-                        <div className="px-4 py-2 bg-yellow-500/20 text-yellow-700 dark:text-yellow-400 rounded-lg font-mono text-sm border border-yellow-500/30">
+                        <div className="px-4 py-2 bg-yellow-500/20 text-yellow-700 dark:text-yellow-400 rounded-[var(--td-radius-control)] font-mono text-sm border border-yellow-500/30">
                           Appuyez sur une touche...
                         </div>
                       ) : (
                         <>
-                          <div className="px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg font-mono text-sm border border-black/10 dark:border-white/10 text-black dark:text-white">
+                          <div className="px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-[var(--td-radius-control)] font-mono text-sm border border-black/10 dark:border-white/10 text-[color:var(--neu-text)]">
                             {shortcut.currentKey}
                           </div>
                           <CTA

@@ -77,11 +77,13 @@ export function StrymonFlintPedal({
   return (
     <PedalFrame
       model={model}
+      size="M"
       layout="flex"
       bypassed={bypassed}
       onBypassToggle={onBypassToggle}
       showFootswitch={false}
       bottomActions={bottomActions}
+      className="shell-1-5x"
     >
       {controls}
     </PedalFrame>

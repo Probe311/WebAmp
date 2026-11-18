@@ -62,7 +62,7 @@ export function ChordViewer({ chord, showName = true, size = 'medium' }: ChordVi
         {/* Nom de l'accord */}
         {showName && (
           <div className="mb-1 text-center flex-shrink-0">
-            <h4 className={`${sizes.text} font-bold text-black/85 dark:text-white/90`}>
+            <h4 className={`${sizes.text} font-bold text-[color:var(--neu-text)]`}>
               {chord.name}
             </h4>
           </div>
@@ -70,7 +70,7 @@ export function ChordViewer({ chord, showName = true, size = 'medium' }: ChordVi
 
         {/* Indication de frette de base */}
         {showBaseFret && (
-          <div className="mb-1 text-xs font-bold text-black/70 dark:text-white/70 text-center flex-shrink-0">
+          <div className="mb-1 text-xs font-bold text-[color:var(--neu-text-muted)] text-center flex-shrink-0">
             {baseFret}fr
           </div>
         )}

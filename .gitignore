@@ -80,14 +80,23 @@ release-upload/
 
 # Local tooling / captures
 .cursor/
+.cloud-attachments/
 .freebuff/
 shots/
 
-# Pedal reference assets (3rd-party PDFs/photos — keep local, not in public git)
+# Root visual QA captures (keep local)
+/*.png
+/*.webp
+/*.jpg
+/*.jpeg
+
+# Pedal reference assets (3rd-party PDFs/photos/HTML scrapes — keep local, not in public git)
 docs/pedales/**/*.pdf
 docs/pedales/**/*.jpg
 docs/pedales/**/*.jpeg
 docs/pedales/**/*.png
 docs/pedales/**/*.webp
 docs/pedales/**/*.gif
+docs/pedales/**/*.html
+docs/pedales/**/*.htm
 

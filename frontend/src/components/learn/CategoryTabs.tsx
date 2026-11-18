@@ -1,6 +1,7 @@
 import { TutorialCategory, categoryLabels, categoryIcons } from '../../data/tutorials'
 import * as LucideIcons from 'lucide-react'
 import { LucideIcon } from 'lucide-react'
+import { FILTER_ROW_CLASS, filterChipClass } from './filterChip'
 
 interface CategoryTabsProps {
   categories: TutorialCategory[]
@@ -8,25 +9,19 @@ interface CategoryTabsProps {
   onCategoryChange: (category: TutorialCategory | 'all') => void
 }
 
+/** Filtre de typologie — même puce que `DifficultyFilter`. */
 export function CategoryTabs({ categories, activeCategory, onCategoryChange }: CategoryTabsProps) {
   return (
-    <div className="flex items-center gap-2 overflow-x-auto custom-scrollbar pb-2">
-      {/* Tous */}
+    <div className={FILTER_ROW_CLASS}>
       <button
+        type="button"
+        aria-pressed={activeCategory === 'all'}
         onClick={() => onCategoryChange('all')}
-        className={`
-          flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium
-          transition-all duration-200 whitespace-nowrap touch-manipulation
-          ${activeCategory === 'all'
-            ? 'bg-orange-500 text-white shadow-lg'
-            : 'bg-white dark:bg-gray-700 text-black/70 dark:text-white/70 hover:bg-gray-100 dark:hover:bg-gray-600'
-          }
-        `}
+        className={filterChipClass(activeCategory === 'all')}
       >
         Tous
       </button>
 
-      {/* Catégories */}
       {categories.map((category) => {
         const iconName = categoryIcons[category] || 'BookOpen'
         const Icon = (LucideIcons[iconName as keyof typeof LucideIcons] || LucideIcons.BookOpen) as LucideIcon
@@ -35,17 +30,12 @@ export function CategoryTabs({ categories, activeCategory, onCategoryChange }: C
         return (
           <button
             key={category}
+            type="button"
+            aria-pressed={isActive}
             onClick={() => onCategoryChange(category)}
-            className={`
-              flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium
-              transition-all duration-200 whitespace-nowrap touch-manipulation
-              ${isActive
-                ? 'bg-orange-500 text-white shadow-lg'
-                : 'bg-white dark:bg-gray-700 text-black/70 dark:text-white/70 hover:bg-gray-100 dark:hover:bg-gray-600'
-              }
-            `}
+            className={filterChipClass(isActive)}
           >
-            <Icon size={16} />
+            <Icon size={16} aria-hidden="true" />
             <span>{categoryLabels[category]}</span>
           </button>
         )
@@ -53,4 +43,3 @@ export function CategoryTabs({ categories, activeCategory, onCategoryChange }: C
     </div>
   )
 }
-

@@ -15,7 +15,7 @@ export function ChordGrid({ chords, title }: ChordGridProps) {
     <div className="mt-4">
       <Block className="p-4">
         {title && (
-          <h4 className="text-sm font-bold text-black/70 dark:text-white/70 mb-4 flex items-center gap-2">
+          <h4 className="text-sm font-bold text-[color:var(--neu-text-muted)] mb-4 flex items-center gap-2">
             <Music size={16} />
             {title}
           </h4>
@@ -32,11 +32,11 @@ export function ChordGrid({ chords, title }: ChordGridProps) {
 
         {/* Légende explicative */}
         <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
-          <p className="text-xs font-bold text-black/70 dark:text-white/70 mb-2 flex items-center gap-2">
+          <p className="text-xs font-bold text-[color:var(--neu-text-muted)] mb-2 flex items-center gap-2">
             <BookOpen size={14} />
             Légende du diagramme d'accord :
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-black/60 dark:text-white/60">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-[color:var(--neu-text-muted)]">
             <div className="flex items-center gap-2">
               <svg width="16" height="16" viewBox="0 0 16 16" className="flex-shrink-0">
                 <circle cx="8" cy="8" r="3" stroke="#f59e0b" strokeWidth="1.5" fill="none" />
@@ -55,7 +55,7 @@ export function ChordGrid({ chords, title }: ChordGridProps) {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-red-500 font-bold text-base flex-shrink-0">×</span>
+              <span className="text-[var(--td-danger)] font-bold text-base flex-shrink-0">×</span>
               <div>
                 <strong>Symbole ×</strong> : Corde muette (ne pas jouer)
               </div>

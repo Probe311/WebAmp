@@ -1,5 +1,13 @@
 import { useEffect, useState } from 'react'
 import { Cpu, HardDrive, MemoryStick, Monitor } from 'lucide-react'
+import {
+  MONITORING_CARD,
+  MONITORING_ICON_BUBBLE,
+  MONITORING_TRACK,
+  MONITORING_UNAVAILABLE,
+  statusBarClass,
+  statusTextClass,
+} from './monitoringStyles'
 
 interface SystemStats {
   cpu: number
@@ -27,17 +35,9 @@ const formatBytes = (bytes: number): string => {
   return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i]
 }
 
-const getColorClass = (value: number, thresholds: { good: number; warning: number }): string => {
-  if (value >= thresholds.warning) return 'text-red-500'
-  if (value >= thresholds.good) return 'text-yellow-500'
-  return 'text-green-500'
-}
+const getColorClass = statusTextClass
 
-const getBarColor = (value: number, thresholds: { good: number; warning: number }): string => {
-  if (value >= thresholds.warning) return 'bg-red-500'
-  if (value >= thresholds.good) return 'bg-yellow-500'
-  return 'bg-green-500'
-}
+const getBarColor = statusBarClass
 
 export function SystemMonitoringPanel() {
   const [systemStats, setSystemStats] = useState<SystemStats>({
@@ -223,85 +223,91 @@ export function SystemMonitoringPanel() {
   }, [])
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-black/85 dark:text-white/90">
+    <div className="grid grid-cols-1 gap-6 text-[var(--td-text-primary)] md:grid-cols-2 lg:grid-cols-3">
       {/* CPU */}
-      <div className="bg-white dark:bg-gray-800 rounded-[24px] p-6 shadow-[0_12px_28px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.9)] dark:shadow-[0_12px_28px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(60,60,60,0.9)] border border-black/5 dark:border-white/10">
+      <div className={MONITORING_CARD}>
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-full bg-[#f7f7f7] dark:bg-gray-700 flex items-center justify-center shadow-[inset_2px_2px_4px_rgba(0,0,0,0.05),inset_-2px_-2px_4px_rgba(255,255,255,1)] dark:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.5),inset_-2px_-2px_4px_rgba(60,60,60,1)]">
-            <Cpu size={20} className="text-black/60 dark:text-white/60" />
+          <div className={MONITORING_ICON_BUBBLE}>
+            <Cpu size={20} className="text-[var(--td-text-muted)]" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-black/70 dark:text-white/70">CPU</h3>
-            <p className="text-xs text-black/50 dark:text-white/50">Processeur</p>
+            <h3 className="text-sm font-semibold text-[var(--td-text-secondary)]">CPU</h3>
+            <p className="text-xs text-[var(--td-text-muted)]">Processeur</p>
           </div>
         </div>
         <div className="flex flex-col gap-2">
           <div className={`text-2xl font-bold ${getColorClass(systemStats.cpu, { good: 60, warning: 80 })}`}>
             {systemStats.cpu.toFixed(1)}%
           </div>
-          <div className="w-full h-3 bg-[#f5f5f5] dark:bg-gray-700 rounded-md overflow-hidden shadow-[inset_2px_2px_4px_rgba(0,0,0,0.1),inset_-2px_-2px_4px_rgba(255,255,255,0.9)] dark:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.5),inset_-2px_-2px_4px_rgba(60,60,60,0.5)]">
+          <div className={`h-3 ${MONITORING_TRACK}`}>
             <div
-              className={`h-full rounded-md transition-[width] duration-300 ease-linear ${getBarColor(systemStats.cpu, { good: 60, warning: 80 })}`}
+              className={`h-full rounded-[var(--td-radius-sm)] transition-[width] duration-300 ease-linear ${getBarColor(systemStats.cpu, { good: 60, warning: 80 })}`}
               style={{ width: `${Math.min(systemStats.cpu, 100)}%` }}
             />
           </div>
-          <p className="text-xs text-black/50 dark:text-white/50">
+          <p className="text-xs text-[var(--td-text-muted)]">
             {systemStats.cpu > 0 ? 'Utilisation estimée en temps réel' : 'Mesure en cours...'}
           </p>
         </div>
       </div>
 
       {/* Mémoire */}
-      <div className="bg-white dark:bg-gray-800 rounded-[24px] p-6 shadow-[0_12px_28px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.9)] dark:shadow-[0_12px_28px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(60,60,60,0.9)] border border-black/5 dark:border-white/10">
+      <div className={MONITORING_CARD}>
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-full bg-[#f7f7f7] dark:bg-gray-700 flex items-center justify-center shadow-[inset_2px_2px_4px_rgba(0,0,0,0.05),inset_-2px_-2px_4px_rgba(255,255,255,1)] dark:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.5),inset_-2px_-2px_4px_rgba(60,60,60,1)]">
-            <MemoryStick size={20} className="text-black/60 dark:text-white/60" />
+          <div className={MONITORING_ICON_BUBBLE}>
+            <MemoryStick size={20} className="text-[var(--td-text-muted)]" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-black/70 dark:text-white/70">Mémoire</h3>
-            <p className="text-xs text-black/50 dark:text-white/50">RAM</p>
+            <h3 className="text-sm font-semibold text-[var(--td-text-secondary)]">Mémoire</h3>
+            <p className="text-xs text-[var(--td-text-muted)]">RAM</p>
           </div>
         </div>
         <div className="flex flex-col gap-2">
           <div className={`text-2xl font-bold ${getColorClass(systemStats.memory.percent, { good: 70, warning: 85 })}`}>
             {systemStats.memory.percent.toFixed(1)}%
           </div>
-          <div className="w-full h-3 bg-[#f5f5f5] dark:bg-gray-700 rounded-md overflow-hidden shadow-[inset_2px_2px_4px_rgba(0,0,0,0.1),inset_-2px_-2px_4px_rgba(255,255,255,0.9)] dark:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.5),inset_-2px_-2px_4px_rgba(60,60,60,0.5)]">
+          <div className={`h-3 ${MONITORING_TRACK}`}>
             <div
-              className={`h-full rounded-md transition-[width] duration-300 ease-linear ${getBarColor(systemStats.memory.percent, { good: 70, warning: 85 })}`}
+              className={`h-full rounded-[var(--td-radius-sm)] transition-[width] duration-300 ease-linear ${getBarColor(systemStats.memory.percent, { good: 70, warning: 85 })}`}
               style={{ width: `${Math.min(systemStats.memory.percent, 100)}%` }}
             />
           </div>
-          <p className="text-xs text-black/50 dark:text-white/50">
+          <p className="text-xs text-[var(--td-text-muted)]">
             {formatBytes(systemStats.memory.used)} / {formatBytes(systemStats.memory.total)}
           </p>
         </div>
       </div>
 
       {/* Disque */}
-      <div className="bg-white dark:bg-gray-800 rounded-[24px] p-6 shadow-[0_12px_28px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.9)] dark:shadow-[0_12px_28px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(60,60,60,0.9)] border border-black/5 dark:border-white/10">
+      <div className={MONITORING_CARD}>
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-full bg-[#f7f7f7] dark:bg-gray-700 flex items-center justify-center shadow-[inset_2px_2px_4px_rgba(0,0,0,0.05),inset_-2px_-2px_4px_rgba(255,255,255,1)] dark:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.5),inset_-2px_-2px_4px_rgba(60,60,60,1)]">
-            <HardDrive size={20} className="text-black/60 dark:text-white/60" />
+          <div className={MONITORING_ICON_BUBBLE}>
+            <HardDrive size={20} className="text-[var(--td-text-muted)]" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-black/70 dark:text-white/70">Disque</h3>
-            <p className="text-xs text-black/50 dark:text-white/50">Stockage</p>
+            <h3 className="text-sm font-semibold text-[var(--td-text-secondary)]">Disque</h3>
+            <p className="text-xs text-[var(--td-text-muted)]">Stockage</p>
           </div>
         </div>
         <div className="flex flex-col gap-2">
-          <div className={`text-2xl font-bold ${getColorClass(systemStats.disk.percent, { good: 80, warning: 90 })}`}>
+          <div
+            className={`text-2xl font-bold ${
+              systemStats.disk.percent > 0
+                ? getColorClass(systemStats.disk.percent, { good: 80, warning: 90 })
+                : MONITORING_UNAVAILABLE
+            }`}
+          >
             {systemStats.disk.percent > 0 ? `${systemStats.disk.percent.toFixed(1)}%` : 'N/A'}
           </div>
           {systemStats.disk.percent > 0 && (
-            <div className="w-full h-3 bg-[#f5f5f5] dark:bg-gray-700 rounded-md overflow-hidden shadow-[inset_2px_2px_4px_rgba(0,0,0,0.1),inset_-2px_-2px_4px_rgba(255,255,255,0.9)] dark:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.5),inset_-2px_-2px_4px_rgba(60,60,60,0.5)]">
+            <div className={`h-3 ${MONITORING_TRACK}`}>
               <div
-                className={`h-full rounded-md transition-[width] duration-300 ease-linear ${getBarColor(systemStats.disk.percent, { good: 80, warning: 90 })}`}
+                className={`h-full rounded-[var(--td-radius-sm)] transition-[width] duration-300 ease-linear ${getBarColor(systemStats.disk.percent, { good: 80, warning: 90 })}`}
                 style={{ width: `${Math.min(systemStats.disk.percent, 100)}%` }}
               />
             </div>
           )}
-          <p className="text-xs text-black/50 dark:text-white/50">
+          <p className="text-xs text-[var(--td-text-muted)]">
             {systemStats.disk.total > 0
               ? `${formatBytes(systemStats.disk.used)} / ${formatBytes(systemStats.disk.total)}`
               : 'Nécessite une connexion backend'}
@@ -310,40 +316,40 @@ export function SystemMonitoringPanel() {
       </div>
 
       {/* Informations système */}
-      <div className="bg-white dark:bg-gray-800 rounded-[24px] p-6 shadow-[0_12px_28px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.9)] dark:shadow-[0_12px_28px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(60,60,60,0.9)] border border-black/5 dark:border-white/10">
+      <div className={MONITORING_CARD}>
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-full bg-[#f7f7f7] dark:bg-gray-700 flex items-center justify-center shadow-[inset_2px_2px_4px_rgba(0,0,0,0.05),inset_-2px_-2px_4px_rgba(255,255,255,1)] dark:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.5),inset_-2px_-2px_4px_rgba(60,60,60,1)]">
-            <Monitor size={20} className="text-black/60 dark:text-white/60" />
+          <div className={MONITORING_ICON_BUBBLE}>
+            <Monitor size={20} className="text-[var(--td-text-muted)]" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-black/70 dark:text-white/70">Système</h3>
-            <p className="text-xs text-black/50 dark:text-white/50">Informations</p>
+            <h3 className="text-sm font-semibold text-[var(--td-text-secondary)]">Système</h3>
+            <p className="text-xs text-[var(--td-text-muted)]">Informations</p>
           </div>
         </div>
         <div className="flex flex-col gap-2 text-sm">
           <div className="flex justify-between">
-            <span className="text-black/60 dark:text-white/60">Plateforme:</span>
+            <span className="text-[var(--td-text-muted)]">Plateforme:</span>
             <span className="font-medium">{navigator.platform}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-black/60 dark:text-white/60">User Agent:</span>
+            <span className="text-[var(--td-text-muted)]">User Agent:</span>
             <span className="font-medium text-xs truncate max-w-[200px]" title={navigator.userAgent}>
               {navigator.userAgent.split(' ')[0]}
             </span>
           </div>
           <div className="flex justify-between">
-            <span className="text-black/60 dark:text-white/60">Cœurs CPU:</span>
+            <span className="text-[var(--td-text-muted)]">Cœurs CPU:</span>
             <span className="font-medium">{navigator.hardwareConcurrency || 'N/A'}</span>
           </div>
           {('deviceMemory' in navigator) && (
             <div className="flex justify-between">
-              <span className="text-black/60 dark:text-white/60">Mémoire totale:</span>
+              <span className="text-[var(--td-text-muted)]">Mémoire totale:</span>
               <span className="font-medium">{(navigator as any).deviceMemory} GB</span>
             </div>
           )}
           {('connection' in navigator) && (
             <div className="flex justify-between">
-              <span className="text-black/60 dark:text-white/60">Connexion:</span>
+              <span className="text-[var(--td-text-muted)]">Connexion:</span>
               <span className="font-medium text-xs">
                 {(navigator as any).connection?.effectiveType || 'N/A'}
               </span>

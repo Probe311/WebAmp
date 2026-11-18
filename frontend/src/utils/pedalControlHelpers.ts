@@ -5,6 +5,7 @@ export interface ControlTypeAnalysis {
   switchSelectors: Array<[string, number]>
   others: Array<[string, number]>
   potentiometers: Array<[string, number]>
+  hasTwoKnobs: boolean
   hasThreeKnobs: boolean
   hasFourKnobs: boolean
   hasSwitchSelectorWithKnobs: boolean
@@ -52,6 +53,7 @@ export function analyzeControlTypes(
            paramDef?.controlType !== 'switch-horizontal'
   })
   
+  const hasTwoKnobs = potentiometers.length === 2 && sliders.length === 0 && switchSelectors.length === 0 && !isEQ
   const hasThreeKnobs = potentiometers.length === 3 && sliders.length === 0 && switchSelectors.length === 0 && !isEQ
   const hasFourKnobs = potentiometers.length === 4 && sliders.length === 0 && switchSelectors.length === 0 && !isEQ
   const hasSwitchSelectorWithKnobs = switchSelectors.length > 0 && potentiometers.length > 0 && sliders.length === 0 && !isEQ
@@ -61,6 +63,7 @@ export function analyzeControlTypes(
     switchSelectors,
     others,
     potentiometers,
+    hasTwoKnobs,
     hasThreeKnobs,
     hasFourKnobs,
     hasSwitchSelectorWithKnobs,
@@ -99,11 +102,13 @@ export function analyzeControlTypesFromModel(
            paramDef?.controlType !== 'switch-horizontal'
   })
   
+  const hasTwoKnobs = potentiometers.length === 2 && sliders.length === 0 && switchSelectors.length === 0
   const hasThreeKnobs = potentiometers.length === 3 && sliders.length === 0 && switchSelectors.length === 0
   const hasFourKnobs = potentiometers.length === 4 && sliders.length === 0 && switchSelectors.length === 0
   const hasSwitchSelectorWithKnobs = switchSelectors.length > 0 && potentiometers.length > 0 && sliders.length === 0 && !isEQ
   
   return {
+    hasTwoKnobs,
     hasThreeKnobs,
     hasFourKnobs,
     hasSwitchSelectorWithKnobs,

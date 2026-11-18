@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useMemo, useRef, useState, ReactNode } from 'react'
 import { CheckCircle2, Info, AlertTriangle, AlertCircle, X } from 'lucide-react'
+import { SwipeToast } from '../motion'
 
 export type ToastVariant = 'success' | 'info' | 'warning' | 'error'
 
@@ -25,26 +26,26 @@ const ToastContext = createContext<ToastContextValue | undefined>(undefined)
 
 const DEFAULT_DURATION = 4200
 const CONTAINER_CLASSES = 'fixed top-4 right-4 z-[200] flex flex-col gap-3 max-w-sm'
-const CARD_BASE_CLASSES = 'flex w-full items-start gap-3 rounded-2xl border shadow-[4px_6px_12px_rgba(0,0,0,0.15)]'
+const CARD_BASE_CLASSES = 'flex w-full items-start gap-3 rounded-[var(--td-radius-card)] border shadow-[4px_6px_12px_rgba(0,0,0,0.15)]'
 
 const variantStyles: Record<ToastVariant, { bg: string; border: string; icon: JSX.Element }> = {
   success: {
-    bg: 'bg-emerald-50',
+    bg: 'bg-emerald-50 dark:bg-emerald-950/80',
     border: 'border-emerald-600',
     icon: <CheckCircle2 className="w-5 h-5 text-emerald-600" />
   },
   info: {
-    bg: 'bg-sky-50',
+    bg: 'bg-sky-50 dark:bg-sky-950/80',
     border: 'border-sky-600',
     icon: <Info className="w-5 h-5 text-sky-600" />
   },
   warning: {
-    bg: 'bg-amber-50',
+    bg: 'bg-amber-50 dark:bg-amber-950/80',
     border: 'border-amber-600',
     icon: <AlertTriangle className="w-5 h-5 text-amber-600" />
   },
   error: {
-    bg: 'bg-rose-50',
+    bg: 'bg-rose-50 dark:bg-rose-950/80',
     border: 'border-rose-600',
     icon: <AlertCircle className="w-5 h-5 text-rose-600" />
   }
@@ -89,9 +90,42 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     <ToastContext.Provider value={value}>
       {children}
       <div className={CONTAINER_CLASSES}>
-        {toasts.map((toast) => (
-          <ToastItem key={toast.id} toast={toast} onClose={() => hideToast(toast.id)} />
-        ))}
+        {toasts.map((toast) => {
+          const style = variantStyles[toast.variant]
+          return (
+            <SwipeToast
+              key={toast.id}
+              duration={toast.duration}
+              onDismiss={() => hideToast(toast.id)}
+              className="w-full"
+            >
+              <div
+                className={`${CARD_BASE_CLASSES} ${style.bg} ${style.border}`}
+                role="status"
+                aria-live="polite"
+              >
+                <div className="pl-4 pr-2 py-3">{style.icon}</div>
+                <div className="flex-1 py-3 pr-4">
+                  {toast.title && (
+                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                      {toast.title}
+                    </p>
+                  )}
+                  <p className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed">
+                    {toast.message}
+                  </p>
+                </div>
+                <button
+                  onClick={() => hideToast(toast.id)}
+                  aria-label="Fermer la notification"
+                  className="p-2 text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </SwipeToast>
+          )
+        })}
       </div>
     </ToastContext.Provider>
   )
@@ -104,31 +138,3 @@ export function useToast() {
   }
   return context
 }
-
-function ToastItem({ toast, onClose }: { toast: Toast; onClose: () => void }) {
-  const style = variantStyles[toast.variant]
-
-  return (
-    <div
-      className={`${CARD_BASE_CLASSES} ${style.bg} ${style.border}`}
-      role="status"
-      aria-live="polite"
-    >
-      <div className="pl-4 pr-2 py-3">
-        {style.icon}
-      </div>
-      <div className="flex-1 py-3 pr-4">
-        {toast.title && <p className="text-sm font-semibold text-gray-900">{toast.title}</p>}
-        <p className="text-sm text-gray-800 leading-relaxed">{toast.message}</p>
-      </div>
-      <button
-        onClick={onClose}
-        aria-label="Fermer la notification"
-        className="p-2 text-gray-500 hover:text-gray-800 transition-colors"
-      >
-        <X className="w-4 h-4" />
-      </button>
-    </div>
-  )
-}
-

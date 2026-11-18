@@ -2,18 +2,73 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Hello-screen handwriting — https://github.com/npwitk/Macintosh-Skeletal-Filled */
+@font-face {
+  font-family: 'Macintosh Skeletal Filled';
+  src: url('/fonts/MacintoshSkeletalFilled.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 @layer base {
+  /* Familles typographiques du design system — chargées dans index.html. */
+  :root {
+    --font-sans: 'DM Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-display: 'Plus Jakarta Sans', 'DM Sans', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+
   * {
     @apply box-border;
   }
 
+  html {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
   body {
     @apply m-0 min-w-[320px] min-h-screen;
-    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: var(--font-sans);
+    color: var(--neu-text);
+    background-color: var(--neu-bg);
+  }
+
+  /* Titres en Plus Jakarta Sans, valeurs techniques en JetBrains Mono. */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+  }
+
+  code,
+  kbd,
+  samp,
+  pre {
+    font-family: var(--font-mono);
+  }
+
+  /* Anneau de focus unique du design system (accent #F26A1B). */
+  :focus-visible {
+    outline: 2px solid var(--neu-accent);
+    outline-offset: 2px;
   }
 
   #root {
-    @apply w-full h-screen;
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+  }
+
+  ::selection {
+    background: var(--neu-accent-soft);
+    color: var(--neu-text);
   }
 }
 
@@ -30,11 +85,6 @@
     -webkit-tap-highlight-color: transparent;
   }
 
-  .shadow-neumorph-inset {
-    box-shadow: inset 4px 4px 8px #b8b9be, inset -4px -4px 8px #ffffff;
-    background: #ebecf0;
-  }
-
   /* Réduire l'espacement entre les lignes pour whitespace-pre-line */
   .whitespace-pre-line {
     line-height: 1.5 !important;
@@ -44,7 +94,7 @@
   /* Scrollbars customs (verticales & horizontales) */
   .custom-scrollbar {
     scrollbar-width: thin;
-    scrollbar-color: rgba(15, 23, 42, 0.3) transparent;
+    scrollbar-color: rgba(100, 116, 139, 0.45) transparent;
   }
 
   .custom-scrollbar::-webkit-scrollbar {
@@ -53,115 +103,86 @@
   }
 
   .custom-scrollbar::-webkit-scrollbar-track {
-    background: var(--neumorphic-bg-track, #ebecf0);
+    background: var(--neu-bg-track);
     border-radius: 9999px;
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(15, 23, 42, 0.45);
+    background: rgba(100, 116, 139, 0.55);
     border-radius: 9999px;
-    border: 2px solid var(--neumorphic-bg-track, #ebecf0);
+    border: 2px solid var(--neu-bg-track);
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: rgba(15, 23, 42, 0.7);
+    background: rgba(100, 116, 139, 0.85);
   }
 
   .dark .custom-scrollbar {
-    scrollbar-color: rgba(148, 163, 184, 0.8) transparent;
+    scrollbar-color: rgba(148, 163, 184, 0.4) transparent;
   }
 
   .dark .custom-scrollbar::-webkit-scrollbar-track {
-    background: var(--neumorphic-bg-track, #4b5563);
+    background: var(--neu-bg-track);
   }
 
   .dark .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(148, 163, 184, 0.9);
-    border-color: var(--neumorphic-bg-track, #4b5563);
+    background: rgba(148, 163, 184, 0.4);
+    border-color: var(--neu-bg-track);
   }
 
   .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: rgba(209, 213, 219, 1);
+    background: rgba(148, 163, 184, 0.7);
   }
 
-  /* Styles pour les tablatures */
+  /* Tablatures — surfaces et accents du design system (aucun hex legacy). */
   .tablature-content {
-    color: rgba(0, 0, 0, 0.85);
+    color: var(--neu-text);
   }
 
-  .dark .tablature-content {
-    color: rgba(255, 255, 255, 0.9);
-  }
-
-  /* Améliorer la lisibilité des SVG dans les tablatures */
   .tablature-content svg {
     max-width: 100%;
     height: auto;
   }
 
-  /* Améliorer le contraste des textes dans les tablatures */
   .tablature-content text {
-    fill: rgba(0, 0, 0, 0.85);
+    fill: var(--neu-text);
   }
 
-  .dark .tablature-content text {
-    fill: rgba(255, 255, 255, 0.9);
-  }
-
-  /* Améliorer la visibilité des lignes dans les tablatures */
   .tablature-content line {
-    stroke: rgba(0, 0, 0, 0.4);
+    stroke: var(--neu-text-faint);
   }
 
-  .dark .tablature-content line {
-    stroke: rgba(255, 255, 255, 0.5);
-  }
-
-  /* Améliorer la visibilité des cercles/notes dans les tablatures */
   .tablature-content circle {
     stroke-width: 1.5;
   }
 
-  /* Styles pour les conteneurs de tablature HTML */
   .tablature-container {
-    font-family: 'Courier New', monospace;
-    background: white;
-    color: rgba(0, 0, 0, 0.85);
-    border-radius: 12px;
+    font-family: var(--font-mono);
+    background: var(--neu-bg-track);
+    color: var(--neu-text);
+    border-radius: 1rem;
     padding: 1.5rem;
-  }
-
-  .dark .tablature-container {
-    background: #374151;
-    color: rgba(255, 255, 255, 0.9);
   }
 
   .tablature-header {
     margin-bottom: 1.5rem;
     padding-bottom: 1rem;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  }
-
-  .dark .tablature-header {
-    border-bottom-color: rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid var(--neu-bg-hollow);
   }
 
   .tablature-title {
+    font-family: var(--font-display);
     font-size: 1.25rem;
-    font-weight: bold;
+    font-weight: 700;
     margin-bottom: 0.5rem;
-    color: #f97316;
+    color: var(--neu-accent);
   }
 
   .tablature-meta {
     display: flex;
     gap: 1.5rem;
     font-size: 0.875rem;
-    color: rgba(0, 0, 0, 0.7);
-  }
-
-  .dark .tablature-meta {
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--neu-text-muted);
   }
 
   .tablature-section {
@@ -171,18 +192,18 @@
   .section-header {
     margin-bottom: 1rem;
     padding: 0.5rem 1rem;
-    background: rgba(6, 182, 212, 0.2);
-    border: 1px solid rgba(6, 182, 212, 0.3);
-    border-radius: 6px;
+    background: var(--neu-accent-soft);
+    border: 1px solid var(--neu-bg-hollow);
+    border-radius: 9999px;
     display: inline-block;
   }
 
   .section-header-text {
     font-size: 0.75rem;
-    font-weight: bold;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: #22d3ee;
+    color: var(--neu-accent);
   }
 
   .measure-block {
@@ -203,110 +224,75 @@
   .measure-number {
     width: 2rem;
     height: 2rem;
-    border-radius: 8px;
-    background: white;
-    border: 2px solid rgba(0, 0, 0, 0.15);
+    border-radius: 0.75rem;
+    background: var(--neu-bg);
+    border: 1px solid var(--neu-bg-hollow);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: bold;
+    font-family: var(--font-mono);
     font-size: 0.875rem;
-    font-family: monospace;
-    color: rgba(0, 0, 0, 0.85);
-    transition: all 0.2s ease;
-  }
-
-  .dark .measure-number {
-    background: #374151;
-    border-color: rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.9);
+    font-weight: 700;
+    color: var(--neu-text);
+    transition: box-shadow var(--neu-duration-base) var(--neu-ease);
   }
 
   .measure-number:hover {
-    transform: scale(1.1);
+    box-shadow: 3px 3px 8px rgba(var(--neu-shadow-dark), 0.5), -3px -3px 8px rgba(var(--neu-shadow-light), 0.9);
   }
 
   .chord-label {
     font-size: 0.75rem;
-    font-weight: bold;
-    color: rgba(0, 0, 0, 0.6);
-  }
-
-  .dark .chord-label {
-    color: rgba(255, 255, 255, 0.6);
+    font-weight: 700;
+    color: var(--neu-text-muted);
   }
 
   .tablature-lines {
     flex: 1;
-    background: white;
+    background: var(--neu-bg);
     padding: 1.25rem;
-    border-radius: 8px;
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 0.75rem;
+    border: 1px solid var(--neu-bg-hollow);
     font-size: 0.875rem;
     line-height: 1.8;
   }
 
-  .dark .tablature-lines {
-    background: #374151;
-    border-color: rgba(255, 255, 255, 0.1);
-  }
-
   .tab-line {
-    color: rgba(0, 0, 0, 0.9);
-    font-family: 'Courier New', monospace;
+    color: var(--neu-text);
+    font-family: var(--font-mono);
     letter-spacing: 0.05em;
   }
 
-  .dark .tab-line {
-    color: rgba(255, 255, 255, 0.9);
-  }
-
   .tab-fret {
-    color: #f97316;
-    font-weight: bold;
+    color: var(--neu-accent);
+    font-weight: 700;
   }
 
   .tab-technique {
-    color: #22d3ee;
+    color: var(--neu-accent);
     font-style: italic;
   }
 
   .tab-structure {
-    color: rgba(0, 0, 0, 0.8);
-    font-weight: bold;
-  }
-
-  .dark .tab-structure {
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--neu-text);
+    font-weight: 700;
   }
 
   .tab-dash {
-    color: rgba(0, 0, 0, 0.3);
+    color: var(--neu-text-faint);
   }
 
-  /* Les tirets utilisent text-neutral-700 opacity-50 en dark mode */
-  .dark .tab-dash {
-    color: #374151;
-    opacity: 0.5;
-  }
-
-  /* Légende des techniques */
   .tablature-legend {
     margin-top: 2rem;
     padding-top: 1rem;
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    border-top: 1px solid var(--neu-bg-hollow);
     font-size: 0.625rem;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: rgba(0, 0, 0, 0.6);
+    color: var(--neu-text-muted);
     display: flex;
     gap: 1.5rem;
     flex-wrap: wrap;
-  }
-
-  .dark .tablature-legend {
-    border-top-color: rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.6);
   }
 }
 
@@ -340,21 +326,115 @@
   }
 }
 
-@keyframes logoAnimation {
-  0%, 100% {
-    transform: rotate(0deg) scale(1);
+/* Écriture progressive « webamp » (clip reveal = trait de plume). */
+.hello-write {
+  font-family: 'Macintosh Skeletal Filled', cursive;
+  font-feature-settings: 'calt' 1, 'liga' 1;
+  font-variant-ligatures: common-ligatures contextual;
+}
+
+.hello-write__ink {
+  display: inline-block;
+  clip-path: inset(0 100% 0 0);
+  animation: hello-write 1.15s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.hello-write--loop .hello-write__ink {
+  animation: hello-write-loop 2.2s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+@keyframes hello-write {
+  0% {
+    clip-path: inset(0 100% 0 0);
+  }
+  100% {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes hello-write-loop {
+  0% {
+    clip-path: inset(0 100% 0 0);
     opacity: 1;
   }
-  25% {
-    transform: rotate(-10deg) scale(1.1);
-    opacity: 0.9;
-  }
-  50% {
-    transform: rotate(0deg) scale(1.15);
+  48% {
+    clip-path: inset(0 0 0 0);
     opacity: 1;
   }
-  75% {
-    transform: rotate(10deg) scale(1.1);
-    opacity: 0.9;
+  72% {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+  }
+  86% {
+    opacity: 0;
+  }
+  100% {
+    clip-path: inset(0 100% 0 0);
+    opacity: 0;
+  }
+}
+
+@keyframes logo-loop {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-logo-loop {
+  animation-name: logo-loop;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes click-spark {
+  0% {
+    transform: translate(-50%, -50%) rotate(var(--spark-angle)) translateY(0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(var(--spark-angle)) translateY(-28px) scale(0);
+    opacity: 0;
+  }
+}
+
+.click-spark-particle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  pointer-events: none;
+  z-index: 20;
+  animation: click-spark 0.45s ease-out forwards;
+}
+
+@keyframes toast-fuse {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-logo-loop,
+  .click-spark-particle {
+    animation: none !important;
+  }
+}
+
+/* Mouvement réduit : une seule règle pour tout le shell, plutôt qu'un cas par
+   composant. Le dock désactive aussi sa magnification côté JS. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

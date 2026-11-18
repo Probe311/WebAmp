@@ -57,10 +57,10 @@ export function DrumMachineCompact({ onExpand }: { onExpand?: () => void }) {
   }
 
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-gray-800 rounded-2xl p-4 border border-black/10 dark:border-white/10 shadow-[8px_8px_16px_rgba(0,0,0,0.1),-8px_-8px_16px_rgba(255,255,255,0.9),inset_0_0_0_1px_rgba(255,255,255,0.8)] dark:shadow-[8px_8px_16px_rgba(0,0,0,0.5),-8px_-8px_16px_rgba(60,60,60,0.5),inset_0_0_0_1px_rgba(60,60,60,0.8)] overflow-hidden">
+    <div className="flex flex-col h-full bg-white dark:bg-gray-800 rounded-[var(--td-radius-card)] p-4 border border-black/10 dark:border-white/10 shadow-[8px_8px_16px_rgba(0,0,0,0.1),-8px_-8px_16px_rgba(255,255,255,0.9),inset_0_0_0_1px_rgba(255,255,255,0.8)] dark:shadow-[8px_8px_16px_rgba(0,0,0,0.5),-8px_-8px_16px_rgba(60,60,60,0.5),inset_0_0_0_1px_rgba(60,60,60,0.8)] overflow-hidden">
       {/* En-tête avec titre et bouton expand */}
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-semibold text-black/90 dark:text-white/90">Boîte à rythmes</h3>
+        <h3 className="text-sm font-semibold text-[color:var(--neu-text)]/90 dark:text-white/90">Boîte à rythmes</h3>
         {onExpand && (
           <CTA
             variant="icon-only"
@@ -94,7 +94,7 @@ export function DrumMachineCompact({ onExpand }: { onExpand?: () => void }) {
       {/* BPM et Master Volume */}
       <div className="space-y-2 mb-3">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-medium text-black/70 dark:text-white/70 w-10">BPM</span>
+          <span className="text-xs font-medium text-[color:var(--neu-text-muted)] w-10">BPM</span>
           <input
             type="number"
             min="60"
@@ -105,7 +105,7 @@ export function DrumMachineCompact({ onExpand }: { onExpand?: () => void }) {
           />
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs font-medium text-black/70 dark:text-white/70 w-10">Vol</span>
+          <span className="text-xs font-medium text-[color:var(--neu-text-muted)] w-10">Vol</span>
           <Slider
             value={masterVolume}
             min={0}
@@ -120,7 +120,7 @@ export function DrumMachineCompact({ onExpand }: { onExpand?: () => void }) {
 
       {/* Grille de pads 3x3 */}
       <div className="flex-1 min-h-0 flex flex-col">
-        <div className="text-xs font-medium text-black/60 dark:text-white/60 mb-2 text-center">
+        <div className="text-xs font-medium text-[color:var(--neu-text-muted)] mb-2 text-center">
           Pads
         </div>
         <div className="flex-1 min-h-0 grid grid-cols-3 grid-rows-3 gap-x-2 gap-y-2">

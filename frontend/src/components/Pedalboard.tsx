@@ -19,26 +19,23 @@ import { Modal } from './Modal'
 import { CTA } from './CTA'
 import { useCatalog } from '../hooks/useCatalog'
 import { usePedalboardEngine } from '../hooks/usePedalboardEngine'
+import { useAudioSession } from '../audio/AudioSessionContext'
+import type { Effect } from '../audio/types'
 import { useToast } from './notifications/ToastProvider'
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts'
 import { ShortcutAction } from '../types/keyboardShortcuts'
 import { analyzeControlTypes, analyzeControlTypesFromModel, determineKnobSize } from '../utils/pedalControlHelpers'
 import { syncEffectToAudio, syncEffectToWebSocket, removeEffectFromAudio, updateEffectParametersInAudio, setEffectEnabledInAudio } from '../utils/pedalboardSync'
 import { PEDAL_BUTTON_COLORS, getContrastTextColor } from '../utils/pedalColors'
+import { resolveBrandPedalChrome } from '../utils/brandPedalChrome'
+import { resolveKnobSize } from './pedals/skins/layoutUtils'
 import { formatDateFrench } from '../utils/dateFormatter'
 import { AIToneAssistant } from './ai/AIToneAssistant'
 import { EffectModule } from '../services/ai'
 import { Sparkles } from 'lucide-react'
 import { useAIPreferences } from '../hooks/useAIPreferences'
 
-export interface Effect {
-  id: string
-  type: string
-  pedalId: string
-  name: string
-  bypassed: boolean
-  parameters: Record<string, number>
-}
+export type { Effect } from '../audio/types'
 
 interface SortableEffectProps {
   effect: Effect
@@ -67,6 +64,14 @@ const SortableEffect = memo(function SortableEffect({ effect, onRemove, onToggle
   )
 
   const pedalSize = useMemo(() => determinePedalSize(pedalModel), [pedalModel])
+  const chrome = useMemo(() => {
+    const c = resolveBrandPedalChrome(pedalModel.brand)
+    return {
+      engageStyle: pedalModel.ui?.engageStyle ?? c.engageStyle,
+      ledSide: pedalModel.ui?.ledSide ?? c.ledSide,
+      footShape: pedalModel.ui?.footShape ?? c.footShape,
+    }
+  }, [pedalModel])
   
   // Couleur principale de la pédale - utilisée de manière cohérente partout
   const accentColor = pedalModel.accentColor
@@ -84,7 +89,7 @@ const SortableEffect = memo(function SortableEffect({ effect, onRemove, onToggle
         variant="icon-only"
         icon={<GripVertical size={pedalSize === 'S' ? 14 : 16} />}
         title="Glisser pour réorganiser"
-        className={`cursor-grab active:cursor-grabbing px-1.5 py-1.5 rounded-md flex-[0.25] touch-manipulation ${pedalSize === 'S' ? 'min-w-[44px] min-h-[44px] px-1 py-1' : 'min-w-[44px] min-h-[44px]'}`}
+        className={`cursor-grab active:cursor-grabbing px-1.5 py-1.5 rounded-[var(--td-radius-control)] flex-[0.25] touch-manipulation ${pedalSize === 'S' ? 'min-w-[44px] min-h-[44px] px-1 py-1' : 'min-w-[44px] min-h-[44px]'}`}
         {...attributes}
         {...listeners}
         onClick={(e) => {
@@ -96,7 +101,7 @@ const SortableEffect = memo(function SortableEffect({ effect, onRemove, onToggle
         variant="icon-only"
         icon={<Power size={pedalSize === 'S' ? 14 : 16} />}
         title={effect.bypassed ? 'Activer la pédale' : 'Bypasser la pédale'}
-        className={`rounded-md flex-[0.5] touch-manipulation ${pedalSize === 'S' ? 'min-w-[44px] min-h-[44px] px-1 py-1' : 'min-w-[44px] min-h-[44px]'}`}
+        className={`rounded-[var(--td-radius-control)] flex-[0.5] touch-manipulation ${pedalSize === 'S' ? 'min-w-[44px] min-h-[44px] px-1 py-1' : 'min-w-[44px] min-h-[44px]'}`}
         style={{
           backgroundColor: effect.bypassed ? PEDAL_BUTTON_COLORS.bypassed.backgroundColor : accentColor,
           color: effect.bypassed ? PEDAL_BUTTON_COLORS.bypassed.textColor : getContrastTextColor(accentColor),
@@ -112,7 +117,7 @@ const SortableEffect = memo(function SortableEffect({ effect, onRemove, onToggle
         variant="icon-only"
         icon={<X size={pedalSize === 'S' ? 14 : 16} />}
         title="Supprimer la pédale"
-        className={`border-red-500/30 text-red-500/90 hover:bg-red-500/10 hover:border-red-500/60 hover:text-red-500 px-1.5 py-1.5 rounded-md flex-[0.25] touch-manipulation ${pedalSize === 'S' ? 'min-w-[44px] min-h-[44px] px-1 py-1' : 'min-w-[44px] min-h-[44px]'}`}
+        className={`border-red-500/30 text-red-500/90 hover:bg-red-500/10 hover:border-red-500/60 hover:text-red-500 px-1.5 py-1.5 rounded-[var(--td-radius-control)] flex-[0.25] touch-manipulation ${pedalSize === 'S' ? 'min-w-[44px] min-h-[44px] px-1 py-1' : 'min-w-[44px] min-h-[44px]'}`}
         onClick={(e) => {
           e.preventDefault()
           e.stopPropagation()
@@ -143,7 +148,7 @@ const SortableEffect = memo(function SortableEffect({ effect, onRemove, onToggle
         </div>
         {!isLast && (
           <div className="flex items-center gap-2 mx-2 shrink-0">
-            <div className="text-2xl text-black/40 dark:text-white/40">→</div>
+            <div className="text-2xl text-[color:var(--neu-text-faint)]">→</div>
           </div>
         )}
       </div>
@@ -236,7 +241,8 @@ const SortableEffect = memo(function SortableEffect({ effect, onRemove, onToggle
       }
       const isThirdKnob = hasThreeKnobs && isPotentiometer && knobIndex === 3
       
-      const knobSize = determineKnobSize(potentiometers.length, hasSwitchSelectorWithKnobs)
+      const fallbackSize = determineKnobSize(potentiometers.length, hasSwitchSelectorWithKnobs)
+      const knobSize = resolveKnobSize(pedalModel, paramName, fallbackSize)
       
       return (
         <Potentiometer
@@ -254,6 +260,11 @@ const SortableEffect = memo(function SortableEffect({ effect, onRemove, onToggle
     })
   }, [effect.parameters, effect.id, pedalModel, accentColor, onUpdateParameter])
   
+  const hasTwoKnobsOnly = useMemo(() => {
+    const analysis = analyzeControlTypesFromModel(pedalModel)
+    return analysis.hasTwoKnobs
+  }, [pedalModel])
+
   const hasThreeKnobsOnly = useMemo(() => {
     const analysis = analyzeControlTypesFromModel(pedalModel)
     return analysis.hasThreeKnobs
@@ -310,8 +321,12 @@ const SortableEffect = memo(function SortableEffect({ effect, onRemove, onToggle
           size={pedalSize}
           bypassed={effect.bypassed}
           onBypassToggle={() => onToggleBypass(effect.id)}
-          showFootswitch={false}
-          className={`${isDragging ? 'opacity-50 cursor-grabbing' : ''} ${hasThreeKnobsOnly ? 'has-three-knobs' : ''} ${pedalModel.type === 'eq' ? 'is-eq-pedal' : ''} ${hasSwitchSelectorWithKnobs ? 'has-switch-selector-with-knobs' : ''} ${hasHorizontalSliders ? 'has-horizontal-sliders' : ''} ${hasLSizeGrid3x2 ? 'has-l-grid-3x2' : ''} ${isGmajor2 ? 'is-gmajor2' : ''} ${useFlexLayout ? 'use-flex-layout' : ''}`}
+          showFootswitch={true}
+          engageStyle={chrome.engageStyle}
+          ledSide={chrome.ledSide}
+          footShape={chrome.footShape}
+          auroraBg={pedalModel.brand === 'WebAmp'}
+          className={`${isDragging ? 'opacity-50 cursor-grabbing' : ''} ${hasTwoKnobsOnly ? 'has-two-knobs' : ''} ${hasThreeKnobsOnly ? 'has-three-knobs' : ''} ${pedalModel.type === 'eq' ? 'is-eq-pedal' : ''} ${hasSwitchSelectorWithKnobs ? 'has-switch-selector-with-knobs' : ''} ${hasHorizontalSliders ? 'has-horizontal-sliders' : ''} ${pedalModel.id === 'zvex-fuzz-factory' ? 'shell-1-5x' : ''} ${hasLSizeGrid3x2 ? 'has-l-grid-3x2' : ''} ${isGmajor2 ? 'is-gmajor2' : ''} ${useFlexLayout ? 'use-flex-layout' : ''}`}
           bottomActions={bottomActions}
         >
           {controls}
@@ -319,7 +334,7 @@ const SortableEffect = memo(function SortableEffect({ effect, onRemove, onToggle
       </div>
       {!isLast && (
         <div className="flex items-center gap-2 mx-2 shrink-0">
-          <div className="text-2xl text-black/40 dark:text-white/40">→</div>
+          <div className="text-2xl text-[color:var(--neu-text-faint)]">→</div>
         </div>
       )}
     </div>
@@ -355,7 +370,8 @@ export const Pedalboard = memo(function Pedalboard({
 }: PedalboardProps) {
   const { pedals: pedalLibrary, amplifiers: amplifierLibrary } = useCatalog()
   const { showToast } = useToast()
-  const [effects, setEffects] = useState<Effect[]>([])
+  // Les effets appartiennent à la session audio : fermer la fenêtre ne les détruit plus.
+  const { effects, setEffects } = useAudioSession()
   
   // Tracking des préférences utilisateur
   const { trackPedalUsage } = useAIPreferences()
@@ -813,15 +829,17 @@ export const Pedalboard = memo(function Pedalboard({
 
   return (
     <>
-      <div className="flex flex-col h-full p-6 overflow-y-auto custom-scrollbar">
-        <div className="flex items-center justify-between mb-4 px-2">
+      {/* overflow visible : les ombres CTA peignent dans le padding AppPageShell */}
+      <div className="flex h-full min-h-0 flex-col overflow-visible pt-1">
+        {/* Softube-style : CTA inset du bord carte, pas collés au coin */}
+        <div className="mb-5 flex shrink-0 items-center justify-between gap-3">
           <CTA
             onClick={() => setShowPedalLibrary(true)}
             icon={<Plus size={20} />}
           >
             Ajouter une pédale
           </CTA>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <AIToneAssistant
               onApplyEffects={handleApplyAIEffects}
               currentEffects={effects.map(e => ({
@@ -858,11 +876,18 @@ export const Pedalboard = memo(function Pedalboard({
           </div>
         </div>
 
-        <div className="flex-1 overflow-x-auto overflow-y-hidden custom-scrollbar bg-[#f5f5f5] dark:bg-gray-700 rounded-xl min-h-[400px] shadow-[inset_2px_2px_4px_rgba(0,0,0,0.05),inset_-2px_-2px_4px_rgba(255,255,255,0.8)] dark:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.5),inset_-2px_-2px_4px_rgba(60,60,60,0.5)] pb-6">
+        {/* Scroll X seulement si la chaîne dépasse — pas de barre à vide */}
+        <div
+          className={
+            effects.length > 0
+              ? 'custom-scrollbar min-h-0 flex-1 overflow-x-auto overflow-y-hidden pb-2'
+              : 'min-h-0 flex-1 overflow-hidden pb-2'
+          }
+        >
           {effects.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-black/70 dark:text-white/70 gap-2 p-6">
+            <div className="flex h-full flex-col items-center justify-center gap-2 p-6 text-[color:var(--neu-text-muted)]">
               <p>Ajoutez des pédales pour commencer</p>
-              <p className="text-sm text-black/50 dark:text-white/50 font-medium">Glissez-déposez pour réorganiser</p>
+              <p className="text-sm font-medium text-[color:var(--neu-text-faint)]">Glissez-déposez pour réorganiser</p>
             </div>
           ) : (
             <DndContext
@@ -949,23 +974,23 @@ export const Pedalboard = memo(function Pedalboard({
       >
         <div className="flex flex-col gap-4 p-4">
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-semibold text-black/90 dark:text-white/90">Nom du profil</label>
+            <label className="text-sm font-semibold text-[color:var(--neu-text)]">Nom du profil</label>
             <input
               type="text"
               placeholder="Nom du profil"
               value={newProfileName}
               onChange={(e) => setNewProfileName(e.target.value)}
-              className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-black/10 dark:border-white/10 rounded-md text-black/85 dark:text-white/85 text-sm shadow-[inset_2px_2px_4px_rgba(0,0,0,0.05),inset_-2px_-2px_4px_rgba(255,255,255,0.8)] dark:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.5),inset_-2px_-2px_4px_rgba(60,60,60,0.5)] focus:outline-none focus:border-black/20 dark:focus:border-white/20 focus:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.08),inset_-2px_-2px_4px_rgba(255,255,255,1),0_0_0_2px_rgba(0,0,0,0.05)] dark:focus:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.6),inset_-2px_-2px_4px_rgba(70,70,70,0.6),0_0_0_2px_rgba(255,255,255,0.1)] placeholder:text-black/50 dark:placeholder:text-white/50"
+              className="neu-inset w-full rounded-full border-0 px-4 py-2.5 text-sm text-[color:var(--neu-text)] outline-none placeholder:text-[color:var(--neu-text-faint)] focus:ring-2 focus:ring-[color:var(--neu-accent)]/40"
             />
           </div>
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-semibold text-black/90 dark:text-white/90">Style (optionnel)</label>
+            <label className="text-sm font-semibold text-[color:var(--neu-text)]">Style (optionnel)</label>
             <input
               type="text"
               placeholder="Style (optionnel)"
               value={newProfileStyle}
               onChange={(e) => setNewProfileStyle(e.target.value)}
-              className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-black/10 dark:border-white/10 rounded-md text-black/85 dark:text-white/85 text-sm shadow-[inset_2px_2px_4px_rgba(0,0,0,0.05),inset_-2px_-2px_4px_rgba(255,255,255,0.8)] dark:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.5),inset_-2px_-2px_4px_rgba(60,60,60,0.5)] focus:outline-none focus:border-black/20 dark:focus:border-white/20 focus:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.08),inset_-2px_-2px_4px_rgba(255,255,255,1),0_0_0_2px_rgba(0,0,0,0.05)] dark:focus:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.6),inset_-2px_-2px_4px_rgba(70,70,70,0.6),0_0_0_2px_rgba(255,255,255,0.1)] placeholder:text-black/50 dark:placeholder:text-white/50"
+              className="neu-inset w-full rounded-full border-0 px-4 py-2.5 text-sm text-[color:var(--neu-text)] outline-none placeholder:text-[color:var(--neu-text-faint)] focus:ring-2 focus:ring-[color:var(--neu-accent)]/40"
             />
           </div>
           <div className="flex gap-2 justify-end">
@@ -988,7 +1013,7 @@ export const Pedalboard = memo(function Pedalboard({
             </CTA>
           </div>
           {(effects.length > 0 || currentPedalIds.length > 0) && (
-            <p className="text-xs text-black/60 dark:text-white/60 mt-2">
+            <p className="text-xs text-[color:var(--neu-text-muted)] mt-2">
               {effects.length > 0 ? effects.length : currentPedalIds.length} pédale(s) et {currentAmplifierId ? '1 ampli' : 'aucun ampli'} seront sauvegardés
             </p>
           )}
@@ -1003,7 +1028,7 @@ export const Pedalboard = memo(function Pedalboard({
         widthClassName="max-w-md"
       >
         <div className="flex flex-col gap-4 p-6">
-          <p className="text-sm text-black/85 dark:text-white/90">
+          <p className="text-sm text-[color:var(--neu-text)]">
             Êtes-vous sûr de vouloir supprimer toutes les pédales du pedalboard ? Cette action est irréversible.
           </p>
           <div className="flex gap-3 justify-end">

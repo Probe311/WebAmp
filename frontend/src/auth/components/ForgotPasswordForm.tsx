@@ -5,13 +5,15 @@ import { CTA } from '../../components/CTA'
 
 interface Props {
   onBackToLogin?: () => void
+  layout?: 'default' | 'gate'
 }
 
-export function ForgotPasswordForm({ onBackToLogin }: Props) {
+export function ForgotPasswordForm({ onBackToLogin, layout = 'default' }: Props) {
   const { resetPassword, loading } = useAuth()
   const [email, setEmail] = useState('')
   const [message, setMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const gate = layout === 'gate'
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -37,10 +39,11 @@ export function ForgotPasswordForm({ onBackToLogin }: Props) {
         onChange={(e) => setEmail(e.target.value)}
         required
         error={error || undefined}
+        className={gate ? 'rounded-[var(--neu-radius-control)]' : undefined}
       />
 
       {message && (
-        <p className="text-sm font-medium text-green-600 dark:text-green-400">
+        <p className="text-sm font-medium text-[color:var(--td-success)]">
           {message}
         </p>
       )}
@@ -49,7 +52,7 @@ export function ForgotPasswordForm({ onBackToLogin }: Props) {
         <button
           type="button"
           onClick={onBackToLogin}
-          className="text-sm font-medium transition-colors hover:opacity-80 text-black/70 dark:text-white/70"
+          className="text-sm font-medium text-[color:var(--neu-text-muted)] transition-colors hover:text-[color:var(--neu-accent)]"
         >
           Retour à la connexion
         </button>

@@ -9,9 +9,10 @@ interface Props {
   onSwitchLogin?: () => void
   onSuccess?: () => void
   onEmailSent?: () => void
+  layout?: 'default' | 'gate'
 }
 
-export function SignupForm({ onSwitchLogin, onSuccess, onEmailSent }: Props) {
+export function SignupForm({ onSwitchLogin, onSuccess, onEmailSent, layout = 'default' }: Props) {
   const { signUp, loading } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -19,6 +20,8 @@ export function SignupForm({ onSwitchLogin, onSuccess, onEmailSent }: Props) {
   const [error, setError] = useState<string | null>(null)
 
   const strength = useMemo(() => evaluatePasswordStrength(password), [password])
+  const gate = layout === 'gate'
+  const fieldRadius = gate ? 'rounded-[var(--neu-radius-control)]' : undefined
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -62,6 +65,7 @@ export function SignupForm({ onSwitchLogin, onSuccess, onEmailSent }: Props) {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         required
+        className={fieldRadius}
       />
 
       <AuthField
@@ -72,6 +76,7 @@ export function SignupForm({ onSwitchLogin, onSuccess, onEmailSent }: Props) {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         required
+        className={fieldRadius}
       />
 
       <PasswordStrengthMeter password={password} />
@@ -85,17 +90,20 @@ export function SignupForm({ onSwitchLogin, onSuccess, onEmailSent }: Props) {
         onChange={(e) => setConfirm(e.target.value)}
         required
         error={error || undefined}
+        className={fieldRadius}
       />
 
-      <div className="flex items-center justify-start pt-1">
-        <button
-          type="button"
-          onClick={onSwitchLogin}
-          className="text-sm font-medium transition-colors hover:opacity-80 text-black/70 dark:text-white/70"
-        >
-          Déjà un compte ?
-        </button>
-      </div>
+      {!gate && (
+        <div className="flex items-center justify-start pt-1">
+          <button
+            type="button"
+            onClick={onSwitchLogin}
+            className="text-sm font-medium text-[color:var(--neu-text-muted)] transition-colors hover:text-[color:var(--neu-accent)]"
+          >
+            Déjà un compte ?
+          </button>
+        </div>
+      )}
 
       <CTA
         variant="important"

@@ -23,15 +23,15 @@ export function PartnerThankYouModal({ isOpen, onClose }: PartnerThankYouModalPr
             className="w-full h-full object-contain opacity-80 dark:opacity-100 dark:brightness-0 dark:invert"
           />
         </div>
-        <h3 className="text-xl font-bold text-black/85 dark:text-white/90">
+        <h3 className="text-xl font-bold text-[var(--td-text-primary)]">
           Merci à Walrus Audio
         </h3>
-        <p className="text-sm text-black/70 dark:text-white/70">
+        <p className="text-sm text-[var(--td-text-secondary)]">
           Nous remercions les marques pour leur soutien à WebAmp.
         </p>
         <button
           onClick={onClose}
-          className="mt-4 px-6 py-3 bg-orange-500 dark:bg-orange-600 text-white rounded-xl text-sm font-medium shadow-[2px_2px_4px_rgba(0,0,0,0.2)] hover:shadow-[3px_3px_6px_rgba(0,0,0,0.3)] transition-all duration-200"
+          className="mt-4 px-6 py-3 bg-[var(--td-energy)] text-white rounded-[var(--td-radius-lg)] text-sm font-medium shadow-[var(--td-control-shadow)] hover:shadow-[var(--td-elevation-2)] transition-all duration-200"
         >
           Continuer
         </button>

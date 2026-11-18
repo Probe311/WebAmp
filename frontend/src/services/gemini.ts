@@ -3,14 +3,32 @@
  * Utilise Gemini 3 Pro Preview (gratuit) pour l'optimisation de contenu
  */
 
-import { GEMINI_API_KEY } from '../config'
 import { Course, Lesson, QuizQuestion } from './supabase'
 import { CourseScore, calculateCourseQualityScore } from '../utils/courseQualityScore'
 import { musicBrainzService } from './musicbrainz'
 import { freesoundService } from './freesound'
+import { invokeEdge } from './invokeEdge'
 
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-preview:generateContent'
-const GEMINI_IMAGE_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent'
+/** Admin-only Edge proxy — no client API key. */
+async function geminiJson(prompt: string, opts?: { temperature?: number; maxOutputTokens?: number }) {
+  const data = await invokeEdge<{ ok: boolean; result?: unknown }>('ai-gemini', {
+    mode: 'json',
+    prompt,
+    temperature: opts?.temperature ?? 1,
+    maxOutputTokens: opts?.maxOutputTokens ?? 8192,
+  })
+  if (!data.ok || data.result === undefined) throw new Error('Réponse Gemini invalide')
+  return typeof data.result === 'string' ? data.result : JSON.stringify(data.result)
+}
+
+async function geminiImage(prompt: string): Promise<string> {
+  const data = await invokeEdge<{ ok: boolean; imageBase64?: string }>('ai-gemini', {
+    mode: 'image',
+    prompt,
+  })
+  if (!data.ok || !data.imageBase64) throw new Error('Réponse Gemini Image invalide')
+  return data.imageBase64
+}
 
 // Rate limiting pour respecter les limites de l'API Gemini gratuite
 // Limites : 60 requêtes/minute, 1000 requêtes/jour
@@ -110,184 +128,12 @@ export async function optimizeCourseWithAI(
   lessons: Lesson[],
   quizQuestions?: QuizQuestion[]
 ): Promise<OptimizationResult> {
-  if (!GEMINI_API_KEY || GEMINI_API_KEY.length === 0) {
-    throw new Error('Clé API Gemini non configurée. Vérifiez que VITE_GEMINI_API_KEY est définie dans les variables d\'environnement Vercel et redéployez l\'application.')
-  }
-
-  // Calculer le score actuel
   const currentScore = calculateCourseQualityScore(course, lessons)
-
-  // Préparer le prompt pour Gemini
   const prompt = buildOptimizationPrompt(course, lessons, currentScore, quizQuestions)
 
   try {
-    // Respecter le rate limiting avant de faire la requête
     await rateLimiter.waitIfNeeded()
-
-    const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: prompt
-          }]
-        }],
-        generationConfig: {
-          temperature: 1,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 65536,
-        }
-      })
-    })
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
-      
-      // Gérer spécifiquement l'erreur 429 (Too Many Requests)
-      if (response.status === 429) {
-        const retryAfter = response.headers.get('Retry-After')
-        const retryDelay = retryAfter ? parseInt(retryAfter) * 1000 : 60000 // 60s par défaut
-        
-        console.warn(`[Gemini API] Rate limit atteint (429). Attente de ${retryDelay / 1000}s avant retry...`)
-        
-        // Attendre avant de réessayer
-        await new Promise(resolve => setTimeout(resolve, retryDelay))
-        
-        // Réessayer une seule fois après l'attente
-        await rateLimiter.waitIfNeeded()
-        const retryResponse = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            contents: [{
-              parts: [{
-                text: prompt
-              }]
-            }],
-            generationConfig: {
-              temperature: 1,
-              topK: 40,
-              topP: 0.95,
-              maxOutputTokens: 65536,
-            }
-          })
-        })
-        
-        if (!retryResponse.ok) {
-          const retryErrorData = await retryResponse.json().catch(() => ({}))
-          throw new Error(
-            `Erreur API Gemini après retry: ${retryResponse.status} ${retryResponse.statusText}. ${JSON.stringify(retryErrorData)}. Limite de taux dépassée, veuillez attendre quelques minutes avant de réessayer.`
-          )
-        }
-        
-        // Utiliser la réponse du retry
-        const retryData = await retryResponse.json()
-        if (!retryData.candidates || !retryData.candidates[0] || !retryData.candidates[0].content) {
-          throw new Error('Réponse invalide de l\'API Gemini après retry')
-        }
-        
-        const generatedText = retryData.candidates[0].content.parts[0].text
-        const finishReason = retryData.candidates[0].finishReason
-        if (finishReason === 'MAX_TOKENS') {
-          console.warn('La réponse de Gemini a été tronquée (MAX_TOKENS). Le JSON peut être incomplet.')
-        }
-        
-        const optimized = parseOptimizedContent(generatedText, course, lessons, quizQuestions)
-        const validation = await validateOptimizedContent(optimized, course, lessons, quizQuestions)
-        const biasAnalysis = undefined
-        
-        const isQuiz = course.type === 'quiz'
-        if (isQuiz) {
-          const estimatedScore = currentScore
-          const changes = generateChangesList(course, lessons, optimized, quizQuestions)
-          return {
-            optimized,
-            originalScore: currentScore.totalScore,
-            estimatedNewScore: estimatedScore.totalScore,
-            changes
-          }
-        }
-        
-        const estimatedLessons: Lesson[] = lessons.map(lesson => ({ ...lesson }))
-        const deletedLessonIds = new Set(optimized.deletedLessonIds || [])
-        const remainingLessons = estimatedLessons.filter(lesson => !deletedLessonIds.has(lesson.id))
-        
-        if (optimized.lessons) {
-          for (const optimizedLesson of optimized.lessons) {
-            if (optimizedLesson.action === 'update' && optimizedLesson.id) {
-              const lessonIndex = remainingLessons.findIndex(l => l.id === optimizedLesson.id)
-              if (lessonIndex !== -1) {
-                remainingLessons[lessonIndex] = {
-                  ...remainingLessons[lessonIndex],
-                  ...optimizedLesson,
-                  course_id: course.id
-                } as Lesson
-              }
-            } else if (optimizedLesson.action === 'create') {
-              remainingLessons.push({
-                id: `temp-${Date.now()}-${Math.random()}`,
-                course_id: course.id,
-                title: optimizedLesson.title || 'Nouvelle leçon',
-                description: optimizedLesson.description || '',
-                content_type: (optimizedLesson.content_type || 'text') as Lesson['content_type'],
-                order_index: optimizedLesson.order_index || 0,
-                action_type: optimizedLesson.action_type || null,
-                action_target: optimizedLesson.action_target || null,
-                action_value: optimizedLesson.action_value || null,
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString()
-              })
-            }
-          }
-          
-          remainingLessons.sort((a, b) => {
-            const orderA = optimized.lessons!.find(l => l.id === a.id)?.order_index ?? a.order_index
-            const orderB = optimized.lessons!.find(l => l.id === b.id)?.order_index ?? b.order_index
-            return orderA - orderB
-          })
-        }
-        
-        const estimatedScore = calculateCourseQualityScore(
-          { ...course, ...optimized.course } as Course,
-          remainingLessons
-        )
-        const changes = generateChangesList(course, lessons, optimized, quizQuestions)
-        
-        return {
-          optimized,
-          originalScore: currentScore.totalScore,
-          estimatedNewScore: estimatedScore.totalScore,
-          changes
-        }
-      }
-      
-      throw new Error(
-        `Erreur API Gemini: ${response.status} ${response.statusText}. ${JSON.stringify(errorData)}`
-      )
-    }
-
-    const data = await response.json()
-
-    if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
-      throw new Error('Réponse invalide de l\'API Gemini')
-    }
-
-    const generatedText = data.candidates[0].content.parts[0].text
-    
-    // Vérifier si la réponse est complète (finishReason doit être STOP, pas MAX_TOKENS)
-    const finishReason = data.candidates[0].finishReason
-    if (finishReason === 'MAX_TOKENS') {
-      console.warn('La réponse de Gemini a été tronquée (MAX_TOKENS). Le JSON peut être incomplet.')
-      // On continue quand même, le parsing essaiera de réparer le JSON
-    }
-
-    // Parser la réponse JSON
+    const generatedText = await geminiJson(prompt, { temperature: 1, maxOutputTokens: 8192 })
     const optimized = parseOptimizedContent(generatedText, course, lessons, quizQuestions)
 
     // Validation multi-critères
@@ -1569,138 +1415,21 @@ async function validateOptimizedContent(
  * Retourne l'image en base64 (data URI)
  */
 export async function generateCourseVisual(course: Course): Promise<string> {
-  if (!GEMINI_API_KEY || GEMINI_API_KEY.length === 0) {
-    throw new Error('Clé API Gemini non configurée. Vérifiez que VITE_GEMINI_API_KEY est définie dans les variables d\'environnement Vercel et redéployez l\'application.')
-  }
-
   const prompt = `Crée une infographie pédagogique professionnelle et moderne pour un cours de musique intitulé : "${course.title}".
 Catégorie : ${course.category}. 
 Contenu : ${(course.description || '').substring(0, 300)}.
 Style visuel : Épuré, journalistique, expert, type magazine de musique haut de gamme. 
 Inclus des éléments graphiques liés à l'instrument ou au matériel (boutons, ondes sonores, diagrammes techniques stylisés).
 Pas de texte illisible, focus sur l'esthétique et la clarté conceptuelle.`
-
-  try {
-    const response = await fetch(`${GEMINI_IMAGE_API_URL}?key=${GEMINI_API_KEY}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: prompt
-          }]
-        }],
-        generationConfig: {
-          temperature: 1,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 65536,
-        },
-        imageConfig: {
-          aspectRatio: "16:9"
-        }
-      })
-    })
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
-      throw new Error(
-        `Erreur API Gemini Image: ${response.status} ${response.statusText}. ${JSON.stringify(errorData)}`
-      )
-    }
-
-    const data = await response.json()
-
-    if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
-      throw new Error('Réponse invalide de l\'API Gemini Image')
-    }
-
-    // Chercher l'image dans les parts de la réponse
-    const parts = data.candidates[0].content.parts || []
-    for (const part of parts) {
-      if (part.inlineData && part.inlineData.data) {
-        return `data:image/png;base64,${part.inlineData.data}`
-      }
-    }
-
-    throw new Error("Aucune image générée dans la réponse")
-  } catch (error) {
-    if (error instanceof Error) {
-      throw error
-    }
-    throw new Error('Erreur inconnue lors de la génération du visuel')
-  }
+  return geminiImage(prompt)
 }
 
-/**
- * Génère un visuel pour une leçon en utilisant Gemini 2.5 Flash Image
- * Retourne l'image en base64 (data URI)
- */
 export async function generateLessonVisual(lesson: Lesson, courseTitle?: string): Promise<string> {
-  if (!GEMINI_API_KEY || GEMINI_API_KEY.length === 0) {
-    throw new Error('Clé API Gemini non configurée. Vérifiez que VITE_GEMINI_API_KEY est définie dans les variables d\'environnement Vercel et redéployez l\'application.')
-  }
-
   const prompt = `Crée une illustration pédagogique professionnelle et moderne pour une leçon de musique intitulée : "${lesson.title}".
 ${courseTitle ? `Cours : ${courseTitle}.` : ''}
 Contenu : ${(lesson.description || '').substring(0, 300)}.
 Style visuel : Épuré, journalistique, expert, type magazine de musique haut de gamme. 
 Inclus des éléments graphiques liés au contenu de la leçon (diagrammes, schémas techniques stylisés, ondes sonores).
 Pas de texte illisible, focus sur l'esthétique et la clarté conceptuelle.`
-
-  try {
-    const response = await fetch(`${GEMINI_IMAGE_API_URL}?key=${GEMINI_API_KEY}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: prompt
-          }]
-        }],
-        generationConfig: {
-          temperature: 0.7,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 8192,
-        },
-        imageConfig: {
-          aspectRatio: "16:9"
-        }
-      })
-    })
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
-      throw new Error(
-        `Erreur API Gemini Image: ${response.status} ${response.statusText}. ${JSON.stringify(errorData)}`
-      )
-    }
-
-    const data = await response.json()
-
-    if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
-      throw new Error('Réponse invalide de l\'API Gemini Image')
-    }
-
-    // Chercher l'image dans les parts de la réponse
-    const parts = data.candidates[0].content.parts || []
-    for (const part of parts) {
-      if (part.inlineData && part.inlineData.data) {
-        return `data:image/png;base64,${part.inlineData.data}`
-      }
-    }
-
-    throw new Error("Aucune image générée dans la réponse")
-  } catch (error) {
-    if (error instanceof Error) {
-      throw error
-    }
-    throw new Error('Erreur inconnue lors de la génération du visuel')
-  }
+  return geminiImage(prompt)
 }
-

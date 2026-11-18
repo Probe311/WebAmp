@@ -26,59 +26,59 @@ export function SmartTabLine({ line, isActive = false }: SmartTabLineProps) {
   let match
 
   while ((match = regex.exec(line)) !== null) {
-    if (match[1]) {
-      // Fret (nombre)
-      parts.push({ text: match[0], type: 'fret' })
-    } else if (match[2]) {
-      // Technique
-      parts.push({ text: match[0], type: 'technique' })
-    } else if (match[3]) {
-      // Structure (barres et noms de cordes)
-      parts.push({ text: match[0], type: 'structure' })
-    } else if (match[4]) {
-      // Tirets
-      parts.push({ text: match[0], type: 'dash' })
-    }
+ if (match[1]) {
+ // Fret (nombre)
+ parts.push({ text: match[0], type: 'fret' })
+ } else if (match[2]) {
+ // Technique
+ parts.push({ text: match[0], type: 'technique' })
+ } else if (match[3]) {
+ // Structure (barres et noms de cordes)
+ parts.push({ text: match[0], type: 'structure' })
+ } else if (match[4]) {
+ // Tirets
+ parts.push({ text: match[0], type: 'dash' })
+ }
   }
 
   // Si aucun match trouvé, retourner la ligne telle quelle
   if (parts.length === 0) {
-    return <div className="whitespace-pre font-mono text-sm">{line}</div>
+ return <div className="whitespace-pre font-mono text-sm">{line}</div>
   }
 
   return (
-    <div className="whitespace-pre font-mono text-sm leading-relaxed tracking-wide">
-      {parts.map((part, idx) => {
-        let className = ''
+ <div className="whitespace-pre font-mono text-sm leading-relaxed tracking-wide">
+ {parts.map((part, idx) => {
+ let className = ''
 
-        switch (part.type) {
-          case 'fret':
-            // Notes en orange quand actives, sinon blanc
-            className = isActive
-              ? 'text-orange-500 font-bold drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]'
-              : 'text-white dark:text-white font-medium'
-            break
-          case 'technique':
-            // Techniques en cyan
-            className = 'text-cyan-400 dark:text-cyan-400 italic font-serif'
-            break
-          case 'structure':
-            // Barres et noms de cordes
-            className = 'text-white/80 dark:text-white/80 font-bold'
-            break
-          case 'dash':
-            // Lignes de fond
-            className = 'text-gray-700 dark:text-gray-600 opacity-50'
-            break
-        }
+ switch (part.type) {
+ case 'fret':
+ // Notes en orange quand actives, sinon blanc
+ className = isActive
+ ? 'text-[color:var(--neu-accent)] font-bold drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]'
+ : 'text-white dark:text-white font-medium'
+ break
+ case 'technique':
+ // Techniques : accent unique du design system (#F26A1B)
+            className = 'text-[color:var(--neu-accent)] italic font-serif'
+ break
+ case 'structure':
+ // Barres et noms de cordes
+ className = 'text-white/80 dark:text-white/80 font-bold'
+ break
+ case 'dash':
+ // Lignes de fond
+ className = 'text-gray-700 dark:text-gray-600 opacity-50'
+ break
+ }
 
-        return (
-          <span key={idx} className={className}>
-            {part.text}
-          </span>
-        )
-      })}
-    </div>
+ return (
+ <span key={idx} className={className}>
+ {part.text}
+ </span>
+ )
+ })}
+ </div>
   )
 }
 

@@ -87,7 +87,7 @@ export function RatingModal({
       <div className="space-y-6">
         {/* Sélection de la note */}
         <div>
-          <label className="block text-sm font-medium text-black/70 dark:text-white/70 mb-3">
+          <label className="block text-sm font-medium text-[color:var(--neu-text-muted)] mb-3">
             Votre note
           </label>
           <div className="flex items-center gap-2">
@@ -114,7 +114,7 @@ export function RatingModal({
               </button>
             ))}
             {rating > 0 && (
-              <span className="ml-2 text-sm text-black/60 dark:text-white/60">
+              <span className="ml-2 text-sm text-[color:var(--neu-text-muted)]">
                 {rating}/5
               </span>
             )}
@@ -123,7 +123,7 @@ export function RatingModal({
 
         {/* Commentaire */}
         <div>
-          <label className="block text-sm font-medium text-black/70 dark:text-white/70 mb-2">
+          <label className="block text-sm font-medium text-[color:var(--neu-text-muted)] mb-2">
             Votre avis (optionnel)
           </label>
           <textarea
@@ -131,15 +131,7 @@ export function RatingModal({
             onChange={(e) => setComment(e.target.value)}
             placeholder="Partagez votre expérience avec ce pack..."
             rows={4}
-            className="
-              w-full px-4 py-2 rounded-lg
-              bg-white dark:bg-gray-700
-              border border-black/10 dark:border-white/10
-              text-black/90 dark:text-white/90
-              placeholder:text-black/40 dark:placeholder:text-white/40
-              focus:outline-none focus:ring-2 focus:ring-orange-500/50
-              resize-none
-            "
+            className="w-full px-4 py-2 rounded-[var(--td-radius-control)] bg-white dark:bg-gray-700 border border-black/10 dark:border-white/10 text-[color:var(--neu-text)]/90 dark:text-white/90 placeholder:text-[color:var(--neu-text-faint)] dark:placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-orange-500/50 resize-none"
           />
         </div>
 
