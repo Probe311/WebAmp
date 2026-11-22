@@ -25,7 +25,7 @@
     "@dnd-kit/sortable": "^8.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@gsap/react": "^2.1.2",
-    "@supabase/supabase-js": "^2.87.1",
+    "@supabase/supabase-js": "^2.119.2",
     "abcjs": "^6.4.4",
     "gsap": "^3.15.0",
     "lucide-react": "^0.556.0",
